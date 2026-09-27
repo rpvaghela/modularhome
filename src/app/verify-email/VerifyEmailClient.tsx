@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Send,
   HelpCircle,
+  Sparkles,
 } from "lucide-react";
 import { notifyCustomerAuthChanged } from "@/context/CustomerAuthContext";
 
@@ -36,6 +37,7 @@ function VerifyEmailInner() {
     type: "success" | "error";
     message: string;
   } | null>(null);
+  const [devDirectUrl, setDevDirectUrl] = useState<string | null>(null);
   const [isResending, setIsResending] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
@@ -139,6 +141,10 @@ function VerifyEmailInner() {
 
       if (!res.ok || !data.success) {
         throw new Error(data.error?.message || "Could not resend email.");
+      }
+
+      if (data.devDirectUrl) {
+        setDevDirectUrl(data.devDirectUrl);
       }
 
       setResendStatus({
@@ -252,6 +258,26 @@ function VerifyEmailInner() {
                 <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
               )}
               <span className="leading-relaxed">{resendStatus.message}</span>
+            </div>
+          )}
+
+          {/* Development / Local Testing Quick Verification Helper */}
+          {devDirectUrl && (
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-left space-y-2.5 animate-in fade-in">
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
+                <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>Local Testing Quick-Link</span>
+              </div>
+              <p className="text-[11px] text-amber-800 leading-relaxed">
+                Resend Free Sandbox only sends to verified account emails. For instant local testing, click below to verify immediately:
+              </p>
+              <Link
+                href={devDirectUrl}
+                className="w-full inline-flex items-center justify-center gap-2 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black text-xs py-2.5 px-4 rounded-xl shadow-sm transition-all"
+              >
+                <span>Verify Account Now (Local Dev)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
           )}
 

@@ -239,6 +239,7 @@ export async function POST(request: NextRequest) {
     await createCustomerSession(newCustomer);
 
     // 14. Return Safe Customer Response (No sensitive hashes or tokens)
+    const isDev = process.env.NODE_ENV !== "production";
     return NextResponse.json({
       success: true,
       customer: {
@@ -250,6 +251,7 @@ export async function POST(request: NextRequest) {
         status: newCustomer.status,
       },
       message: "Account registered successfully! A verification email has been sent.",
+      ...(isDev && { devDirectUrl: `/verify-email?token=${verificationToken}` }),
     });
   } catch (error: any) {
     console.error("Customer signup error:", error);

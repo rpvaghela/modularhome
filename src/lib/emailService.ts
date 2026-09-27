@@ -64,16 +64,38 @@ export async function getEmailLogs(params?: { recipient?: string; templateType?:
 }
 
 // ---------------------------------------------------------------------------
-// Base Template Elements
+// Base Template Elements & Config
 // ---------------------------------------------------------------------------
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://modularhome.com";
-const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || "ModularHome.com";
-const CONTACT_PHONE = process.env.NEXT_PUBLIC_CONTACT_PHONE || "+1 (812) 595-4033";
-const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "support@modularhome.com";
-const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || "leads@modularhome.com";
+export function getAppBaseUrl(): string {
+  const url =
+    process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    (process.env.NODE_ENV === "production" ? "https://modularhome.com" : "http://localhost:3000");
+  return url.replace(/\/$/, "");
+}
+
+function getCompanyName(): string {
+  return process.env.NEXT_PUBLIC_COMPANY_NAME || "ModularHome.com";
+}
+
+function getContactPhone(): string {
+  return process.env.NEXT_PUBLIC_CONTACT_PHONE || "+1 (812) 595-4033";
+}
+
+function getContactEmail(): string {
+  return process.env.NEXT_PUBLIC_CONTACT_EMAIL || "support@modularhome.com";
+}
+
+function getAdminNotificationEmail(): string {
+  return process.env.ADMIN_NOTIFICATION_EMAIL || "leads@modularhome.com";
+}
 
 function wrapEmailTemplate(title: string, bodyContent: string): string {
+  const companyName = getCompanyName();
+  const contactPhone = getContactPhone();
+  const contactEmail = getContactEmail();
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -108,10 +130,10 @@ function wrapEmailTemplate(title: string, bodyContent: string): string {
               <div style="color: #9ca3af; font-size: 12px; margin-top: 36px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
                 <p style="margin: 0 0 4px 0; color: #6b7280; font-weight: 600;">Need assistance? Our modular housing specialists are here to help:</p>
                 <p style="margin: 0; line-height: 1.6;">
-                  📞 ${CONTACT_PHONE} &nbsp;|&nbsp; ✉️ <a href="mailto:${CONTACT_EMAIL}" style="color: #d97706; text-decoration: underline;">${CONTACT_EMAIL}</a>
+                  📞 ${contactPhone} &nbsp;|&nbsp; ✉️ <a href="mailto:${contactEmail}" style="color: #d97706; text-decoration: underline;">${contactEmail}</a>
                 </p>
                 <p style="margin: 12px 0 0 0; font-size: 11px; color: #9ca3af;">
-                  © ${new Date().getFullYear()} ${COMPANY_NAME}. All rights reserved.
+                  © ${new Date().getFullYear()} ${companyName}. All rights reserved.
                 </p>
               </div>
             </td>
@@ -138,8 +160,9 @@ export async function sendVerificationEmail(params: {
   token: string;
   customerId?: string;
 }): Promise<boolean> {
-  const callbackUrl = `${SITE_URL}/auth/callback?token=${params.token}`;
-  const directVerifyUrl = `${SITE_URL}/verify-email?token=${params.token}`;
+  const baseUrl = getAppBaseUrl();
+  const callbackUrl = `${baseUrl}/auth/callback?token=${params.token}`;
+  const directVerifyUrl = `${baseUrl}/verify-email?token=${params.token}`;
   const subject = "Verify your ModularHome.com customer account";
 
   const bodyContent = `
@@ -181,6 +204,11 @@ export async function sendVerificationEmail(params: {
     tags: [{ name: "category", value: "verification" }],
   });
 
+  if (!result.success && process.env.NODE_ENV !== "production") {
+    console.warn(`\n⚠️ [Email Delivery Notice] Resend delivery failed for ${params.email}: ${result.error}`);
+    console.info(`👉 [Local Dev Verification Link]: ${directVerifyUrl}\n`);
+  }
+
   await logEmail({
     recipient: params.email,
     template_type: "EMAIL_VERIFICATION",
@@ -208,7 +236,8 @@ export async function sendPasswordResetEmail(params: {
   token: string;
   customerId?: string;
 }): Promise<boolean> {
-  const resetUrl = `${SITE_URL}/account/reset-password?token=${params.token}`;
+  const baseUrl = getAppBaseUrl();
+  const resetUrl = `${baseUrl}/account/reset-password?token=${params.token}`;
   const subject = "Reset your ModularHome.com account password";
 
   const bodyContent = `
@@ -249,6 +278,11 @@ export async function sendPasswordResetEmail(params: {
     tags: [{ name: "category", value: "password_reset" }],
   });
 
+  if (!result.success && process.env.NODE_ENV !== "production") {
+    console.warn(`\n⚠️ [Email Delivery Notice] Resend delivery failed for ${params.email}: ${result.error}`);
+    console.info(`👉 [Local Dev Password Reset Link]: ${resetUrl}\n`);
+  }
+
   await logEmail({
     recipient: params.email,
     template_type: "PASSWORD_RESET",
@@ -279,8 +313,9 @@ export async function sendOrderConfirmationEmail(params: {
   items: Array<{ title: string; price: number; quantity: number }>;
   downloadToken?: string;
 }): Promise<boolean> {
-  const downloadUrl = params.downloadToken ? `${SITE_URL}/api/downloads/${params.downloadToken}` : `${SITE_URL}/account`;
-  const invoiceUrl = params.orderId ? `${SITE_URL}/account/invoices/${params.orderId}` : `${SITE_URL}/account`;
+  const baseUrl = getAppBaseUrl();
+  const downloadUrl = params.downloadToken ? `${baseUrl}/api/downloads/${params.downloadToken}` : `${baseUrl}/account`;
+  const invoiceUrl = params.orderId ? `${baseUrl}/account/invoices/${params.orderId}` : `${baseUrl}/account`;
   const subject = `Order Confirmed: ${params.orderNumber} - ModularHome Blueprints`;
 
   const itemsHtml = params.items
@@ -445,6 +480,9 @@ export async function sendLeadNotificationEmail(params: {
   enquiryDetails?: string | null;
   source?: string;
 }): Promise<boolean> {
+  const baseUrl = getAppBaseUrl();
+  const adminNotificationEmail = getAdminNotificationEmail();
+
   // A. Admin notification email
   const adminSubject = `🚨 New Inquiry: ${params.name} (${params.source || "Website"})`;
   const adminBody = `
@@ -468,7 +506,7 @@ export async function sendLeadNotificationEmail(params: {
         : ""
     }
     <p style="margin-top: 20px;">
-      <a href="${SITE_URL}/admin/leads" style="background: #101114; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-size: 13px; font-weight: bold;">
+      <a href="${baseUrl}/admin/leads" style="background: #101114; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-size: 13px; font-weight: bold;">
         View in Admin CRM →
       </a>
     </p>
@@ -476,7 +514,7 @@ export async function sendLeadNotificationEmail(params: {
 
   // Dispatch Admin alert
   await sendResendEmail({
-    to: ADMIN_NOTIFICATION_EMAIL,
+    to: adminNotificationEmail,
     subject: adminSubject,
     html: wrapEmailTemplate(adminSubject, adminBody),
     replyTo: params.email,
@@ -515,7 +553,7 @@ export async function sendLeadNotificationEmail(params: {
     status: custResult.success ? (custResult.simulated ? "SIMULATED" : "SENT") : "FAILED",
     metadata: {
       lead_id: params.leadId,
-      admin_notified: ADMIN_NOTIFICATION_EMAIL,
+      admin_notified: adminNotificationEmail,
       resend_id: custResult.id,
     },
   });
@@ -538,6 +576,7 @@ export async function sendQuoteNotificationEmail(params: {
   timeline?: string | null;
   requirements?: string | null;
 }): Promise<boolean> {
+  const adminNotificationEmail = getAdminNotificationEmail();
   const adminSubject = `📋 New Quote Request: ${params.customerName} - ${params.modelName} ($${params.estimatedAmount?.toLocaleString() || "Custom"})`;
 
   const adminBody = `
@@ -568,7 +607,7 @@ export async function sendQuoteNotificationEmail(params: {
 
   // Dispatch Admin alert
   await sendResendEmail({
-    to: ADMIN_NOTIFICATION_EMAIL,
+    to: adminNotificationEmail,
     subject: adminSubject,
     html: wrapEmailTemplate(adminSubject, adminBody),
     replyTo: params.customerEmail,
@@ -629,6 +668,7 @@ export async function sendTestEmail(recipientEmail: string): Promise<{
   messageId?: string;
   error?: string;
 }> {
+  const baseUrl = getAppBaseUrl();
   const subject = `Resend API Integration Test - ${new Date().toLocaleTimeString()}`;
   const bodyContent = `
     <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;">
@@ -655,7 +695,7 @@ export async function sendTestEmail(recipientEmail: string): Promise<{
       </tr>
       <tr>
         <td style="padding: 8px 0; font-weight: bold;">Site Domain:</td>
-        <td style="padding: 8px 0;">${SITE_URL}</td>
+        <td style="padding: 8px 0;">${baseUrl}</td>
       </tr>
     </table>
   `;

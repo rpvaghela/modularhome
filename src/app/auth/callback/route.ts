@@ -20,7 +20,10 @@ export async function GET(request: NextRequest) {
   const errorDescription = searchParams.get("error_description");
   const redirectTarget = searchParams.get("redirect") || searchParams.get("next") || "/account";
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || origin;
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    origin;
 
   // Handle explicit Supabase callback errors
   if (errorParam) {

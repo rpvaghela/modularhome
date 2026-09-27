@@ -89,10 +89,12 @@ export async function POST(request: NextRequest) {
       details: { email: customer.email },
     });
 
+    const isDev = process.env.NODE_ENV !== "production";
     return NextResponse.json({
       success: true,
       message: "A fresh verification link has been emailed to you.",
       cooldownSeconds: 60,
+      ...(isDev && { devDirectUrl: `/verify-email?token=${verificationToken}` }),
     });
   } catch (error: any) {
     console.error("Resend verification error:", error);

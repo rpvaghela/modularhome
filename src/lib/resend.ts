@@ -18,6 +18,11 @@ export function isResendConfigured(): boolean {
   return Boolean(key && key.startsWith("re_") && key.length > 10);
 }
 
+export function isResendSandbox(): boolean {
+  const from = getDefaultFromEmail();
+  return from.includes("onboarding@resend.dev");
+}
+
 export function getDefaultFromEmail(): string {
   if (process.env.RESEND_FROM_EMAIL?.trim()) {
     return process.env.RESEND_FROM_EMAIL.trim();
@@ -50,7 +55,7 @@ export interface SendEmailResult {
 }
 
 /**
- * Dispatches an email via Resend API with automatic fallbacks and structured error reporting
+ * Dispatches an email via Resend API with automatic fallbacks, sandbox warnings, and structured error reporting
  */
 export async function sendResendEmail(options: SendEmailOptions): Promise<SendEmailResult> {
   const resend = getResendClient();
@@ -73,6 +78,12 @@ export async function sendResendEmail(options: SendEmailOptions): Promise<SendEm
     process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
     "support@modularhome.com";
 
+  if (fromAddress.includes("onboarding@resend.dev") && process.env.NODE_ENV !== "production") {
+    console.info(
+      "ℹ️ [Resend Sandbox Mode] Outgoing email sender is set to onboarding@resend.dev. Note that in sandbox mode, Resend only delivers to the primary email registered to the Resend account."
+    );
+  }
+
   try {
     const { data, error } = await resend.emails.send({
       from: fromAddress,
@@ -87,7 +98,7 @@ export async function sendResendEmail(options: SendEmailOptions): Promise<SendEm
     });
 
     if (error) {
-      console.error("❌ [Resend Error]:", error);
+      console.error("❌ [Resend API Error]:", error.message || error);
       return {
         success: false,
         error: error.message || "Failed to send email via Resend.",
@@ -99,7 +110,7 @@ export async function sendResendEmail(options: SendEmailOptions): Promise<SendEm
       id: data?.id,
     };
   } catch (err: any) {
-    console.error("❌ [Resend Exception]:", err);
+    console.error("❌ [Resend Exception]:", err?.message || "Unexpected exception during Resend API call.");
     return {
       success: false,
       error: err?.message || "Unexpected exception during Resend API call.",
@@ -113,6 +124,7 @@ export async function sendResendEmail(options: SendEmailOptions): Promise<SendEm
 export async function verifyResendConnection(): Promise<{
   configured: boolean;
   fromEmail: string;
+  isSandbox: boolean;
   apiKeyMasked: string;
   error?: string;
 }> {
@@ -121,10 +133,13 @@ export async function verifyResendConnection(): Promise<{
   const apiKeyMasked = key
     ? `${key.substring(0, 7)}...${key.substring(key.length - 4)}`
     : "Not Set";
+  const fromEmail = getDefaultFromEmail();
+  const isSandbox = fromEmail.includes("onboarding@resend.dev");
 
   return {
     configured,
-    fromEmail: getDefaultFromEmail(),
+    fromEmail,
+    isSandbox,
     apiKeyMasked,
   };
 }
