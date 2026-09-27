@@ -3,6 +3,7 @@ import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { saveLead } from "@/lib/leadsStore";
 import { getCustomerSession } from "@/lib/customerAuth";
 import { getCustomerByEmail } from "@/lib/customerStore";
+import { sendLeadNotificationEmail } from "@/lib/emailService";
 
 export async function POST(request: NextRequest) {
   try {
@@ -83,6 +84,22 @@ export async function POST(request: NextRequest) {
       } catch (sbErr) {
         console.warn("Supabase lead insert warning, captured locally:", sbErr);
       }
+    }
+
+    // 3. Dispatch transactional email alert & customer acknowledgement via Resend
+    try {
+      await sendLeadNotificationEmail({
+        leadId: localLead?.id,
+        name: leadName,
+        email: leadEmail,
+        phone: leadPhone,
+        location: leadLocation,
+        zip: leadZip,
+        enquiryDetails: leadEnquiry,
+        source: leadSource,
+      });
+    } catch (emailErr) {
+      console.warn("Lead email notification dispatch note:", emailErr);
     }
 
     return NextResponse.json({

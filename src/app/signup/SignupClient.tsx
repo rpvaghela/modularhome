@@ -19,6 +19,7 @@ import {
   FileCheck,
 } from "lucide-react";
 import GoogleAuthButton from "@/components/GoogleAuthButton";
+import { notifyCustomerAuthChanged } from "@/context/CustomerAuthContext";
 
 function SignupFormInner() {
   const router = useRouter();
@@ -96,6 +97,8 @@ function SignupFormInner() {
       if (!res.ok || !data.success) {
         throw new Error(data.error?.message || "Registration failed. Please try again.");
       }
+
+      notifyCustomerAuthChanged();
 
       // Seamless redirect to verify-email view
       router.push(
@@ -342,7 +345,7 @@ function SignupFormInner() {
         <p className="text-xs text-gray-600">
           Already have an account?{" "}
           <Link
-            href={`/account/login?redirect=${encodeURIComponent(redirectParam)}`}
+            href={`/login?redirect=${encodeURIComponent(redirectParam)}`}
             className="text-[#d97706] font-black hover:underline"
           >
             Sign in here →

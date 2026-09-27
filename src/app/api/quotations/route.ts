@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { getCustomerSession } from "@/lib/customerAuth";
 import { getCustomerByEmail } from "@/lib/customerStore";
+import { sendQuoteNotificationEmail } from "@/lib/emailService";
 
 export async function POST(request: NextRequest) {
   try {
@@ -102,6 +103,24 @@ export async function POST(request: NextRequest) {
         console.warn("Could not mirror quotation into leads table:", leadErr);
       }
 
+      // 3. Dispatch transactional email alert to admin and quote summary to customer
+      try {
+        await sendQuoteNotificationEmail({
+          quoteId: quoteRecord?.id,
+          customerName: name,
+          customerEmail: email,
+          customerPhone: phone,
+          customerZip: zip,
+          modelName: quoteData.model_name,
+          sqft: quoteData.sqft,
+          estimatedAmount: quoteData.estimated_amount,
+          timeline: quoteData.timeline,
+          requirements: quoteData.requirements,
+        });
+      } catch (quoteEmailErr) {
+        console.warn("Quote notification email dispatch note:", quoteEmailErr);
+      }
+
       return NextResponse.json({
         success: true,
         data: quoteRecord,
@@ -110,6 +129,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Offline fallback for development without Supabase
+    try {
+      await sendQuoteNotificationEmail({
+        quoteId: `offline-${Date.now()}`,
+        customerName: name,
+        customerEmail: email,
+        customerPhone: phone,
+        customerZip: zip,
+        modelName: quoteData.model_name,
+        sqft: quoteData.sqft,
+        estimatedAmount: quoteData.estimated_amount,
+        timeline: quoteData.timeline,
+        requirements: quoteData.requirements,
+      });
+    } catch {}
+
     return NextResponse.json({
       success: true,
       data: { id: `offline-${Date.now()}`, ...quoteData },

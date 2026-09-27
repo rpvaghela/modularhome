@@ -1,7 +1,7 @@
 {
-  "totalVideos": 0,
-  "blogPostsCreated": 0,
-  "lastSyncTime": null,
-  "syncStatus": "IDLE",
-  "logs": []
+  "lastSyncAt": "2026-09-27T10:56:20.576Z",
+  "totalFound": 128,
+  "newVideosAdded": 128,
+  "updatedVideos": 0,
+  "status": "success"
 }

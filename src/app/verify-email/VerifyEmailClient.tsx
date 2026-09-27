@@ -16,6 +16,7 @@ import {
   Send,
   HelpCircle,
 } from "lucide-react";
+import { notifyCustomerAuthChanged } from "@/context/CustomerAuthContext";
 
 function VerifyEmailInner() {
   const router = useRouter();
@@ -89,6 +90,8 @@ function VerifyEmailInner() {
 
       setStatus("SUCCESS");
       setMessage(data.message || "Your email address has been verified successfully!");
+
+      notifyCustomerAuthChanged();
 
       // Auto redirect to account after 2 seconds
       setTimeout(() => {

@@ -18,6 +18,10 @@ import {
   Mail,
   MapPin,
   RefreshCw,
+  Send,
+  ShieldCheck,
+  MailCheck,
+  Inbox,
 } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
 
@@ -76,8 +80,72 @@ export default function AdminSettingsPage() {
     }
   };
 
+  const [emailInfo, setEmailInfo] = useState<{
+    configured: boolean;
+    fromEmail: string;
+    apiKeyMasked: string;
+    stats?: { total: number; sent: number; failed: number; simulated: number };
+  } | null>(null);
+  const [testEmailRecipient, setTestEmailRecipient] = useState("");
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testEmailResult, setTestEmailResult] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  const fetchEmailStatus = async () => {
+    try {
+      const res = await fetch("/api/admin/emails");
+      const json = await res.json();
+      if (json.success && json.data) {
+        setEmailInfo({
+          ...json.data.connection,
+          stats: json.data.stats,
+        });
+      }
+    } catch {}
+  };
+
+  const handleSendTestEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testEmailRecipient || !testEmailRecipient.includes("@")) {
+      setTestEmailResult({ type: "error", message: "Please provide a valid recipient email address." });
+      return;
+    }
+
+    setIsSendingTest(true);
+    setTestEmailResult(null);
+
+    try {
+      const res = await fetch("/api/admin/emails/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: testEmailRecipient }),
+      });
+      const json = await res.json();
+
+      if (json.success) {
+        setTestEmailResult({
+          type: "success",
+          message: json.message || `Test email dispatched to ${testEmailRecipient}! Check your inbox or spam folder.`,
+        });
+        fetchEmailStatus();
+      } else {
+        setTestEmailResult({
+          type: "error",
+          message: json.error?.message || "Failed to dispatch test email via Resend.",
+        });
+      }
+    } catch (err: any) {
+      setTestEmailResult({
+        type: "error",
+        message: err.message || "Network error while sending test email.",
+      });
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
+
   useEffect(() => {
     fetchSettings();
+    fetchEmailStatus();
   }, []);
 
   // Keyboard shortcut: Ctrl+S or Cmd+S to save
@@ -513,6 +581,120 @@ export default function AdminSettingsPage() {
                 placeholder="Explore modular homes, prefab homes, cabins, ADUs, barndominiums, floor plans and custom home options."
                 className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907] font-medium"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* 8. Resend Email Delivery & Gateway Status */}
+        <div className="bg-white p-6 sm:p-7 rounded-[22px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-5 lg:col-span-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#e7e9ee] pb-4">
+            <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[#101114] font-mono">
+              <MailCheck className="w-4 h-4 text-[#d97706]" />
+              <span>Resend API Email Delivery & Diagnostics</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {emailInfo?.configured ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Resend API Active</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold">
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Simulated Mode (No API Key)</span>
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-[#f8f9fa] border border-[#e7e9ee]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280] block mb-1">
+                Active Sender Address
+              </span>
+              <span className="text-xs font-mono font-bold text-[#101114] break-all">
+                {emailInfo?.fromEmail || "ModularHome <onboarding@resend.dev>"}
+              </span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#f8f9fa] border border-[#e7e9ee]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280] block mb-1">
+                Resend API Key Status
+              </span>
+              <span className="text-xs font-mono font-bold text-[#101114]">
+                {emailInfo?.apiKeyMasked || "Not Set"}
+              </span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#f8f9fa] border border-[#e7e9ee]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280] block mb-1">
+                Delivery Stats
+              </span>
+              <div className="flex items-center gap-3 text-xs font-semibold text-[#101114]">
+                <span className="text-emerald-700">✓ {emailInfo?.stats?.sent || 0} Sent</span>
+                <span className="text-gray-500">⚡ {emailInfo?.stats?.simulated || 0} Dev</span>
+                {Boolean(emailInfo?.stats?.failed) && (
+                  <span className="text-red-600">✕ {emailInfo?.stats?.failed} Failed</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Test Email Tool */}
+          <div className="pt-2">
+            <div className="p-5 rounded-2xl bg-[#fafafa] border border-[#e2e8f0]">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#101114] mb-2 font-mono">
+                <Send className="w-3.5 h-3.5 text-[#d97706]" />
+                <span>Test Live Email Dispatch via Resend</span>
+              </div>
+              <p className="text-xs text-[#6b7280] mb-4">
+                Send a real branded test email to verify DNS, SPF, DKIM, and mailbox deliverability.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="email"
+                  value={testEmailRecipient}
+                  onChange={(e) => setTestEmailRecipient(e.target.value)}
+                  placeholder="Enter recipient email (e.g. your email address)..."
+                  className="flex-1 px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-white text-xs text-[#101114] focus:outline-none focus:ring-2 focus:ring-[#fcb907] font-medium"
+                />
+                <button
+                  type="button"
+                  onClick={handleSendTestEmail}
+                  disabled={isSendingTest || !testEmailRecipient}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#101114] hover:bg-black text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shrink-0"
+                >
+                  {isSendingTest ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#fcb907]" />
+                      <span>Sending Test...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3.5 h-3.5 text-[#fcb907]" />
+                      <span>Send Test Email</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {testEmailResult && (
+                <div
+                  className={`mt-3.5 p-3 rounded-xl flex items-start gap-2.5 text-xs font-medium ${
+                    testEmailResult.type === "success"
+                      ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                      : "bg-red-50 text-red-800 border border-red-200"
+                  }`}
+                >
+                  {testEmailResult.type === "success" ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  )}
+                  <span>{testEmailResult.message}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
