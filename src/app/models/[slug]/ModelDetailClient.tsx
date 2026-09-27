@@ -45,9 +45,9 @@ export default function ModelDetailClient({
   const specsList = Array.isArray(model?.specs) ? model.specs : [];
   const optionsList = Array.isArray(model?.customizableOptions) ? model.customizableOptions : [];
   const floorPlanImg = model?.floorPlanImage || model?.floorPlan || primaryImg;
-  const startingPrice = Number(model?.startingPrice) || 89000;
+  const startingPrice = Number(model?.startingPrice) || 0;
 
-  const formattedBasePrice = formatPrice(startingPrice);
+  const formattedBasePrice = startingPrice > 0 ? formatPrice(startingPrice) : "Custom Quote";
 
   const optionsTotal = selectedOptions.reduce((acc, optId) => {
     const opt = optionsList.find((o) => o.id === optId);
@@ -162,17 +162,23 @@ export default function ModelDetailClient({
                 <div className="flex flex-col items-center">
                   <Maximize2 className="w-4 h-4 text-[#d97706] mb-1" />
                   <span className="text-[10px] uppercase text-[#6b7280] font-bold">Area</span>
-                  <span className="font-bold text-xs sm:text-sm text-[#101114]">{model.sqft} SQ FT</span>
+                  <span className="font-bold text-xs sm:text-sm text-[#101114]">
+                    {model.sqft > 0 ? `${model.sqft} SQ FT` : (model.dimensions || "Custom Size")}
+                  </span>
                 </div>
                 <div className="flex flex-col items-center border-x border-[#e7e9ee]">
                   <Bed className="w-4 h-4 text-[#d97706] mb-1" />
                   <span className="text-[10px] uppercase text-[#6b7280] font-bold">Bedrooms</span>
-                  <span className="font-bold text-xs sm:text-sm text-[#101114]">{model.bedrooms > 0 ? `${model.bedrooms} Bed` : "Open"}</span>
+                  <span className="font-bold text-xs sm:text-sm text-[#101114]">
+                    {model.bedrooms > 0 ? `${model.bedrooms} Bed` : (model.sqft > 0 ? "Studio / Open" : "Open Layout")}
+                  </span>
                 </div>
                 <div className="flex flex-col items-center">
                   <Bath className="w-4 h-4 text-[#d97706] mb-1" />
                   <span className="text-[10px] uppercase text-[#6b7280] font-bold">Bathrooms</span>
-                  <span className="font-bold text-xs sm:text-sm text-[#101114]">{model.bathrooms > 0 ? `${model.bathrooms} Bath` : "1 Bath"}</span>
+                  <span className="font-bold text-xs sm:text-sm text-[#101114]">
+                    {model.bathrooms > 0 ? `${model.bathrooms} Bath` : (model.bedrooms > 0 ? "1 Bath" : "Shell / Open")}
+                  </span>
                 </div>
               </div>
 
@@ -181,10 +187,10 @@ export default function ModelDetailClient({
                 <div>
                   <div className="text-[10px] uppercase tracking-wider text-[#6b7280] font-bold">Starting Price</div>
                   <div className="text-3xl font-black text-[#d97706]">
-                    {formatPrice(totalCalculatedPrice)}
+                    {totalCalculatedPrice > 0 ? formatPrice(totalCalculatedPrice) : "Custom Quote"}
                   </div>
                 </div>
-                {selectedOptions.length > 0 && (
+                {selectedOptions.length > 0 && optionsTotal > 0 && (
                   <div className="text-right">
                     <span className="text-[11px] text-[#d97706] font-bold">
                       +{formatPrice(optionsTotal)} in Options

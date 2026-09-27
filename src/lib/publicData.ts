@@ -48,29 +48,36 @@ export function formatFloorPlan(p: any): FloorPlan {
 export function formatProduct(p: any): BuildingModel {
   const specsArray = Array.isArray(p.specs)
     ? p.specs
-    : Object.entries(p.specs || {}).map(([label, value]) => ({ label, value: String(value) }));
+    : typeof p.specs === "object" && p.specs !== null
+    ? Object.entries(p.specs).map(([label, value]) => ({ label, value: String(value) }))
+    : [];
 
   const primaryImg =
     p.primary_image_url ||
     p.hero_image ||
     p.featured_image ||
     p.primary_image ||
+    (p.product_media && p.product_media.length > 0
+      ? [...p.product_media].sort((a: any, b: any) => (a.position || 0) - (b.position || 0))[0]?.source_url
+      : "") ||
     (Array.isArray(p.images) && p.images[0]) ||
-    (p.product_media && p.product_media.length > 0 ? p.product_media[0].source_url : "") ||
     "/finallogo.avif";
 
   const galleryImgs =
-    Array.isArray(p.images) && p.images.length > 0
+    p.product_media && Array.isArray(p.product_media) && p.product_media.length > 0
+      ? [...p.product_media]
+          .sort((a: any, b: any) => (a.position || 0) - (b.position || 0))
+          .map((m: any) => m.source_url)
+          .filter(Boolean)
+      : Array.isArray(p.images) && p.images.length > 0
       ? p.images
-      : p.product_media && Array.isArray(p.product_media) && p.product_media.length > 0
-      ? p.product_media.map((m: any) => m.source_url)
       : Array.isArray(p.gallery) && p.gallery.length > 0
       ? p.gallery
       : [primaryImg];
 
-  // Extract starting price from variants if present
-  let startingPrice = Number(p.price || p.starting_price);
-  if ((!startingPrice || isNaN(startingPrice)) && p.product_variants && Array.isArray(p.product_variants) && p.product_variants.length > 0) {
+  // Extract starting price from starting_price column or variants
+  let startingPrice = Number(p.starting_price || p.price);
+  if ((!startingPrice || isNaN(startingPrice) || startingPrice <= 0) && p.product_variants && Array.isArray(p.product_variants) && p.product_variants.length > 0) {
     const validPrices = p.product_variants
       .map((v: any) => Number(v.price))
       .filter((pr: number) => !isNaN(pr) && pr > 0);
@@ -78,23 +85,45 @@ export function formatProduct(p: any): BuildingModel {
       startingPrice = Math.min(...validPrices);
     }
   }
-  if (!startingPrice || isNaN(startingPrice)) startingPrice = 89000;
+  const finalPrice = startingPrice && !isNaN(startingPrice) && startingPrice > 0 ? startingPrice : 0;
+
+  const sqft = p.sqft !== null && p.sqft !== undefined && !isNaN(Number(p.sqft)) ? Number(p.sqft) : (p.square_feet ? Number(p.square_feet) : 0);
+  const bedrooms = p.bedrooms !== null && p.bedrooms !== undefined && !isNaN(Number(p.bedrooms)) ? Number(p.bedrooms) : (p.beds !== undefined ? Number(p.beds) : 0);
+  const bathrooms = p.bathrooms !== null && p.bathrooms !== undefined && !isNaN(Number(p.bathrooms)) ? Number(p.bathrooms) : (p.baths !== undefined ? Number(p.baths) : 0);
+  const stories = p.stories !== null && p.stories !== undefined && !isNaN(Number(p.stories)) ? Number(p.stories) : 1;
+  const dimensions = p.dimensions || "";
+
+  const collectionNames: string[] = [];
+  if (Array.isArray(p.collections)) {
+    p.collections.forEach((c: any) => {
+      if (typeof c === "string") collectionNames.push(c);
+      else if (c?.title) collectionNames.push(c.title);
+      else if (c?.handle) collectionNames.push(c.handle);
+    });
+  } else if (Array.isArray(p.product_collections)) {
+    p.product_collections.forEach((pc: any) => {
+      if (pc.collections?.title) collectionNames.push(pc.collections.title);
+      if (pc.collections?.handle) collectionNames.push(pc.collections.handle);
+      if (pc.collection?.title) collectionNames.push(pc.collection.title);
+      if (pc.collection?.handle) collectionNames.push(pc.collection.handle);
+    });
+  }
 
   return {
     id: p.id,
     slug: p.handle || p.slug || p.id,
     name: p.title || p.name || "Precision Modular Model",
-    series: p.product_type || p.series || "Essential Series",
-    category: p.category || p.product_type || "Modular Homes",
+    series: p.series || p.product_type || "Essential Series",
+    category: p.product_type || p.category || "Modular Homes",
     architecturalStyle: p.architectural_style || p.architecturalStyle || "Modern Homes",
-    tagline: p.tagline || "",
+    tagline: p.tagline || (sqft > 0 ? `${sqft} Sq Ft Precision Engineered Home` : ""),
     description: p.description || p.description_html || "",
-    sqft: Number(p.sqft) || 800,
-    bedrooms: Number(p.bedrooms || p.beds) || 2,
-    bathrooms: Number(p.bathrooms || p.baths) || 1,
-    stories: Number(p.stories) || 1,
-    startingPrice,
-    dimensions: p.dimensions || "24' x 36'",
+    sqft,
+    bedrooms,
+    bathrooms,
+    stories,
+    startingPrice: finalPrice,
+    dimensions,
     frameType: p.frame_type || p.frameType || "100% Commercial-Grade Galvanized Light Gauge Steel",
     roofPitch: p.roof_pitch || p.roofPitch || "4:12 Pitch (Standing Seam Ready)",
     windRating: p.wind_rating || p.windRating || "Up to 150 MPH (Engineered for Extreme Weather)",
@@ -102,7 +131,7 @@ export function formatProduct(p: any): BuildingModel {
     warranty: p.warranty || "50-Year Structural Steel Frame Warranty",
     primaryImage: primaryImg,
     image: primaryImg,
-    gallery: galleryImgs,
+    gallery: galleryImgs.length > 0 ? galleryImgs : [primaryImg],
     floorPlanImage: p.floor_plan_image || p.floorPlanImage || "",
     floorPlan: p.floor_plan_image || p.floorPlanImage || "",
     videoUrl: p.video_url || p.videoUrl || p.video || "",
@@ -111,19 +140,22 @@ export function formatProduct(p: any): BuildingModel {
     features: Array.isArray(p.features) && p.features.length > 0
       ? p.features
       : [
-          "Heavy-Gauge Galvanized Steel Chassis",
-          "Architectural Grade Insulated Wall Panels",
-          "Double-Pane Argon Low-E Windows",
-          "Turnkey Assembly Ready",
+          "Precision Commercial-Grade Galvanized Steel Framing",
+          "Energy-Efficient High-R Value Structural Insulated Panels (SIPs)",
+          "Engineered for Up to 150 MPH Wind & 50 PSF Snow Loads",
+          "Pre-drilled MEP & Fast Modular On-Site Assembly",
         ],
     specs:
       specsArray.length > 0
         ? specsArray
         : [
-            { label: "Dimensions", value: p.dimensions || "24' x 36'" },
-            { label: "Living Area", value: `${p.sqft || 800} SQ FT` },
-            { label: "Bedrooms", value: `${p.bedrooms || 2} Beds` },
-            { label: "Bathrooms", value: `${p.bathrooms || 1} Baths` },
+            ...(dimensions ? [{ label: "Dimensions", value: dimensions }] : []),
+            ...(sqft > 0 ? [{ label: "Living Area", value: `${sqft} SQ FT` }] : []),
+            ...(bedrooms >= 0 ? [{ label: "Bedrooms", value: bedrooms === 0 ? "Studio / Open" : `${bedrooms} Bed` }] : []),
+            ...(bathrooms > 0 ? [{ label: "Bathrooms", value: `${bathrooms} Bath` }] : []),
+            ...(stories > 0 ? [{ label: "Stories", value: `${stories} Level` }] : []),
+            { label: "Frame Type", value: "100% Commercial-Grade Galvanized Light Gauge Steel" },
+            { label: "Warranty", value: "50-Year Structural Steel Frame Warranty" },
           ],
     customizableOptions: Array.isArray(p.customizable_options || p.customizableOptions)
       ? p.customizable_options || p.customizableOptions
@@ -150,13 +182,9 @@ export function formatProduct(p: any): BuildingModel {
     tags: Array.isArray(p.tags)
       ? p.tags
       : typeof p.tags === "string"
-      ? p.tags.split(",").map((t: string) => t.trim())
+      ? p.tags.split(",").map((t: string) => t.trim()).filter(Boolean)
       : [],
-    collections: Array.isArray(p.collections)
-      ? p.collections
-      : Array.isArray(p.product_collections)
-      ? p.product_collections.map((pc: any) => pc.collections?.title || pc.collections?.handle || "").filter(Boolean)
-      : [],
+    collections: Array.from(new Set(collectionNames.filter(Boolean))),
   };
 }
 
@@ -244,9 +272,10 @@ export async function getPublicProducts(params?: {
 
     let query = supabaseAdmin
       .from("products")
-      .select("*, product_variants(*), product_media(*)")
+      .select("*, product_variants(*), product_media(*), product_collections(collection_id, collections(id, handle, title))")
       .or("status.eq.active,status.is.null")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(5000);
 
     if (params?.isFeatured) {
       query = query.eq("is_featured", true);
@@ -297,7 +326,7 @@ export async function getPublicProductBySlug(slug: string): Promise<BuildingMode
 
       const { data: product, error } = await supabaseAdmin
         .from("products")
-        .select("*, product_variants(*), product_media(*)")
+        .select("*, product_variants(*), product_media(*), product_collections(collection_id, collections(id, handle, title))")
         .or(orFilter)
         .maybeSingle();
 
@@ -693,7 +722,7 @@ export async function getPublicCollectionBySlug(slug: string): Promise<PublicCol
   const allProducts = await getPublicProducts();
   const mappedProducts = matched.productIds && matched.productIds.length > 0
     ? allProducts.filter((p) => matched.productIds?.includes(p.id))
-    : allProducts.filter((p) => p.category.toLowerCase().includes(matched.name.toLowerCase()));
+    : allProducts.filter((p) => matchProductCategory(p, matched.slug) || matchProductCategory(p, matched.name));
 
   return {
     ...matched,

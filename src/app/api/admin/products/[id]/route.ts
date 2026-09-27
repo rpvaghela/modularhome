@@ -62,21 +62,24 @@ export async function GET(
       title: p.title || p.name || "",
       slug: p.handle || p.slug || "",
       handle: p.handle || p.slug || "",
-      tagline: `Engineered ${p.title || "Modular Home"}`,
+      tagline: p.tagline || (p.title ? `Engineered ${p.title}` : ""),
       description: p.description_html || p.description || "",
       description_html: p.description_html || p.description || "",
       shortDescription: p.description_html ? p.description_html.replace(/<[^>]*>?/gm, "").slice(0, 180) : "",
       category: p.product_type || p.category || "Modular Homes",
       product_type: p.product_type || p.category || "Modular Homes",
       vendor: p.vendor || "ModularHome",
-      series: "Essential Series",
-      architecturalStyle: "Modern Minimalist",
-      sqft: 800,
-      bedrooms: 2,
-      bathrooms: 1,
-      stories: 1,
+      series: p.series || "Essential Series",
+      architecturalStyle: p.architectural_style || "Modern Homes",
+      sqft: p.sqft || 0,
+      bedrooms: p.bedrooms ?? 0,
+      bathrooms: p.bathrooms ?? 0,
+      stories: p.stories || 1,
+      dimensions: p.dimensions || "",
+      tags: p.tags || [],
+      features: p.features || [],
+      specs: p.specs || [],
       startingPrice,
-      dimensions: "24' x 36'",
       frameType: "100% Commercial-Grade Galvanized Light Gauge Steel",
       roofPitch: "4:12 Pitch",
       windRating: "Up to 150 MPH",
@@ -149,6 +152,21 @@ export async function PUT(
     if (body.metaDescription !== undefined || body.seo_description !== undefined) {
       updatePayload.seo_description = body.metaDescription || body.seo_description;
     }
+
+    if (body.sqft !== undefined) updatePayload.sqft = Number(body.sqft);
+    if (body.bedrooms !== undefined) updatePayload.bedrooms = Number(body.bedrooms);
+    if (body.bathrooms !== undefined) updatePayload.bathrooms = Number(body.bathrooms);
+    if (body.stories !== undefined) updatePayload.stories = Number(body.stories);
+    if (body.dimensions !== undefined) updatePayload.dimensions = body.dimensions;
+    if (body.startingPrice !== undefined) updatePayload.starting_price = Number(body.startingPrice);
+    if (body.tags !== undefined) updatePayload.tags = Array.isArray(body.tags) ? body.tags : [];
+    if (body.features !== undefined) updatePayload.features = Array.isArray(body.features) ? body.features : [];
+    if (body.specs !== undefined) updatePayload.specs = Array.isArray(body.specs) ? body.specs : [];
+    if (body.architecturalStyle !== undefined) updatePayload.architectural_style = body.architecturalStyle;
+    if (body.series !== undefined) updatePayload.series = body.series;
+    if (body.tagline !== undefined) updatePayload.tagline = body.tagline;
+    if (body.primaryImage !== undefined) updatePayload.primary_image_url = body.primaryImage;
+
 
     if (isSupabaseConfigured()) {
       const { data: updatedProduct, error } = await supabaseAdmin

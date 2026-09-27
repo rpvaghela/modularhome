@@ -16,7 +16,7 @@ export async function generateMetadata({
   if (!model) return { title: "Model Not Found | ModularHome.com" };
 
   return {
-    title: `${model.name} (${model.sqft} SQ FT) | ModularHome.com`,
+    title: model.sqft > 0 ? `${model.name} (${model.sqft} SQ FT) | ModularHome.com` : `${model.name} | ModularHome.com`,
     description: truncateText(model.description, 160) || `Explore the ${model.name} modular home model on ModularHome.com.`,
   };
 }

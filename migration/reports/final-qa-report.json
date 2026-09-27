@@ -1,0 +1,135 @@
+{
+  "timestamp": "2026-09-27T09:58:09.923Z",
+  "totalProducts": 759,
+  "totalCollections": 12,
+  "totalCollectionLinks": 3577,
+  "totalVariants": 1789,
+  "totalMediaRows": 11791,
+  "totalPages": 13,
+  "productsWithoutCollections": [],
+  "productsWithoutImages": [
+    {
+      "id": "c33d0186-a5dc-48f1-8788-1178b4601e0a",
+      "handle": "palm-springs-retreat-house-kit-home-kit",
+      "title": "Palm Springs Retreat House Kit - Home Kit"
+    }
+  ],
+  "duplicateHandles": [],
+  "missingSlugs": [],
+  "collectionCounts": [
+    {
+      "handle": "commercial-modular-buildings",
+      "title": "Commercial Modular Buildings",
+      "productCount": 739
+    },
+    {
+      "handle": "house-plans-home-plans-cabin-plans",
+      "title": "House Plans - Home Plans - Cabin Plans",
+      "productCount": 738
+    },
+    {
+      "handle": "cabins-for-sale",
+      "title": "Cabins For Sale",
+      "productCount": 738
+    },
+    {
+      "handle": "tiny-homes",
+      "title": "Tiny Homes",
+      "productCount": 707
+    },
+    {
+      "handle": "prefab-homes",
+      "title": "Prefab Homes - Prefab Housing",
+      "productCount": 348
+    },
+    {
+      "handle": "house-kits",
+      "title": "Panelized SIP Panel House Kit | Energy-Efficient SIP Home Kit",
+      "productCount": 95
+    },
+    {
+      "handle": "steel-barndominium-kits",
+      "title": "Steel Barndominium Kits - Steel Barndo Kits For Sale",
+      "productCount": 67
+    },
+    {
+      "handle": "barndo-kits",
+      "title": "Barndo Kits - Barndo House Kits",
+      "productCount": 67
+    },
+    {
+      "handle": "barndominium-kits",
+      "title": "Barndominium Kits  - Barndo Kits - Barndominium House Kits",
+      "productCount": 67
+    },
+    {
+      "handle": "granny-pods",
+      "title": "Granny Pods",
+      "productCount": 7
+    },
+    {
+      "handle": "barndominium-house-plans",
+      "title": "BARNDOMINIUM HOUSE PLANS - BARNDOMINIUM HOME PLANS - BARNDO FLOOR PLANS",
+      "productCount": 2
+    },
+    {
+      "handle": "a-frame-cabins-aframe-cabins",
+      "title": "A-Frame Cabins (Aframe Cabins)",
+      "productCount": 2
+    }
+  ],
+  "specificationsAudit": {
+    "productsWithSqft": 565,
+    "productsWithBedrooms": 373,
+    "productsWithBathrooms": 421,
+    "productsWithDimensions": 63,
+    "productsWithStories": 168,
+    "productsWithStartingPrice": 752,
+    "sampleDefaultCheck": [
+      {
+        "handle": "14-by-40-azteca-modern-cabin",
+        "title": "Azteca Modern Cabin (14 by 40)",
+        "sqft": 560,
+        "bedrooms": 2,
+        "bathrooms": 1,
+        "price": 33900
+      },
+      {
+        "handle": "14-by-36-driftwood-modern-cabin-house-shell",
+        "title": "Driftwood Modern Cabin (14 by 36)",
+        "sqft": 504,
+        "bedrooms": 0,
+        "bathrooms": 0,
+        "price": 24900
+      },
+      {
+        "handle": "hummingbird-hollow-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
+        "title": "Hummingbird Hollow – Panelized SIP Panel House Kit | Energy-Efficient SIP Home Kit",
+        "sqft": 680,
+        "bedrooms": 1,
+        "bathrooms": 1,
+        "price": 74800
+      },
+      {
+        "handle": "14-by-52-sunnyside-modern-cabin-house-shell",
+        "title": "Sunnyside Modern Cabin",
+        "sqft": 728,
+        "bedrooms": 2,
+        "bathrooms": 1,
+        "price": 36900
+      },
+      {
+        "handle": "wildwood-retreat-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
+        "title": "Wildwood Retreat – Panelized SIP Panel House Kit | Energy-Efficient SIP Home Kit",
+        "sqft": 620,
+        "bedrooms": 0,
+        "bathrooms": 0,
+        "price": 68200
+      }
+    ]
+  },
+  "orphanProductMedia": 0,
+  "orphanProductVariants": 0,
+  "orphanProductCollections": 0,
+  "unmappedSourceRecords": 0
+}

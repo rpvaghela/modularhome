@@ -9,7 +9,7 @@ export function normalizeCategory(cat?: string | null): string {
   if (!cat) return "";
   return cat
     .toLowerCase()
-    .replace(/[-_&+/]/g, " ")
+    .replace(/[-_&+/|]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -50,108 +50,122 @@ export function matchProductCategory(
   const mSeries = (model.series || "").toLowerCase();
   const mStyle = (model.architecturalStyle || "").toLowerCase();
   const mDesc = (model.description || "").toLowerCase();
-  const mTags = (model.tags || []).map((t) => t.toLowerCase()).join(" ");
-  const mCols = (model.collections || []).map((c) => c.toLowerCase()).join(" ");
+  const mTags = (model.tags || []).map((t) => t.toLowerCase());
+  const mCols = (model.collections || []).map((c) => c.toLowerCase());
 
-  const combined = `${mName} ${mCat} ${mSeries} ${mStyle} ${mTags} ${mCols} ${mDesc}`;
+  // 1. Check exact or normalized collection matches
+  const targetSlug = selectedCat.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+  for (const col of mCols) {
+    const colClean = normalizeCategory(col);
+    const colSlug = col.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+    if (
+      colClean === clean ||
+      colSlug === targetSlug ||
+      colClean.includes(clean) ||
+      clean.includes(colClean) ||
+      col.includes(selectedCat.toLowerCase())
+    ) {
+      return true;
+    }
+  }
 
-  // 1. Direct contains check
-  if (combined.includes(clean)) return true;
-  if (combined.includes(selectedCat.toLowerCase())) return true;
-
-  // 2. Specialized keyword mappings for primary home categories
-  if (clean.includes("barndo")) {
+  // 2. Specific collection / category logic
+  if (clean.includes("a frame") || clean.includes("aframe")) {
     return (
-      combined.includes("barndo") ||
-      combined.includes("barndominium") ||
-      combined.includes("steel home") ||
-      combined.includes("barn")
+      mName.includes("a-frame") ||
+      mName.includes("aframe") ||
+      mName.includes("a frame") ||
+      mDesc.includes("a-frame") ||
+      mDesc.includes("aframe") ||
+      mCols.some((c) => c.includes("a-frame") || c.includes("aframe"))
     );
   }
 
-  if (clean.includes("cabin") || clean.includes("prefab cabin")) {
+  if (clean.includes("granny pod")) {
     return (
-      combined.includes("cabin") ||
-      combined.includes("chalet") ||
-      combined.includes("a frame") ||
-      combined.includes("a-frame") ||
-      combined.includes("rustic")
+      mName.includes("granny pod") ||
+      mDesc.includes("granny pod") ||
+      mCols.some((c) => c.includes("granny-pod") || c.includes("granny pods"))
     );
   }
 
-  if (clean.includes("kit") || clean.includes("kit home")) {
+  if (clean.includes("barndo") || clean.includes("barndominium")) {
     return (
-      combined.includes("kit") ||
-      combined.includes("diy") ||
-      combined.includes("panelized") ||
-      combined.includes("bungalow") ||
-      combined.includes("package")
+      mName.includes("barndo") ||
+      mName.includes("barndominium") ||
+      mStyle.includes("barndominium") ||
+      mSeries.includes("barndominium") ||
+      mCols.some((c) => c.includes("barndo") || c.includes("barndominium"))
     );
   }
 
-  if (clean.includes("turnkey")) {
+  if (clean === "house kits" || clean === "kit homes" || clean.includes("house kit")) {
     return (
-      combined.includes("turnkey") ||
-      combined.includes("turn-key") ||
-      combined.includes("finished") ||
-      combined.includes("complete")
+      mCols.some((c) => c.includes("house-kits") || c.includes("sip panel house kit")) ||
+      mName.includes("house kit") ||
+      mName.includes("home kit") ||
+      mName.includes("sip panel") ||
+      mName.includes("panelized")
     );
   }
 
-  if (clean.includes("tiny") || clean.includes("adu")) {
+  if (clean.includes("prefab home") || clean === "prefab homes") {
     return (
-      combined.includes("tiny") ||
-      combined.includes("adu") ||
-      combined.includes("small") ||
-      combined.includes("cottage") ||
-      combined.includes("accessory")
+      mCols.some((c) => c.includes("prefab-homes") || c.includes("prefab")) ||
+      mName.includes("prefab") ||
+      mCat.includes("prefab") ||
+      mDesc.includes("prefab")
     );
   }
 
-  if (clean.includes("log home") || clean.includes("log")) {
+  if (clean.includes("tiny home") || clean === "tiny homes" || clean.includes("tiny")) {
     return (
-      combined.includes("log") ||
-      combined.includes("timber") ||
-      combined.includes("wood")
+      mCols.some((c) => c.includes("tiny-homes") || c.includes("tiny")) ||
+      mName.includes("tiny") ||
+      mDesc.includes("tiny home") ||
+      mStyle.includes("adu")
     );
   }
 
   if (clean.includes("commercial")) {
     return (
-      combined.includes("commercial") ||
-      combined.includes("warehouse") ||
-      combined.includes("workshop") ||
-      combined.includes("office") ||
-      combined.includes("garage") ||
-      combined.includes("storage")
+      mCols.some((c) => c.includes("commercial")) ||
+      mName.includes("commercial") ||
+      mStyle.includes("commercial") ||
+      mDesc.includes("commercial")
     );
   }
 
-  if (clean.includes("affordable")) {
+  if (clean.includes("cabin")) {
     return (
-      combined.includes("affordable") ||
-      combined.includes("starter") ||
-      combined.includes("bungalow") ||
-      combined.includes("budget") ||
-      combined.includes("compact")
+      mCols.some((c) => c.includes("cabin")) ||
+      mName.includes("cabin") ||
+      mStyle.includes("cabin") ||
+      mDesc.includes("cabin") ||
+      mName.includes("chalet")
+    );
+  }
+
+  if (clean.includes("turnkey")) {
+    return (
+      mName.includes("turnkey") ||
+      mName.includes("turn-key") ||
+      mDesc.includes("turnkey") ||
+      mDesc.includes("turn-key")
     );
   }
 
   if (clean.includes("modular")) {
-    return (
-      combined.includes("modular") ||
-      combined.includes("prefab") ||
-      combined.includes("residential") ||
-      combined.includes("home")
-    );
+    return true; // All precision homes in catalog are modular
   }
 
-  // 3. Fallback: match any significant keyword
+  // 3. Fallback: match tokens in name or style
   const words = clean
     .split(" ")
     .filter((w) => w.length > 2 && w !== "homes" && w !== "home" && w !== "house" && w !== "and");
 
   if (words.length > 0) {
+    const combined = `${mName} ${mCat} ${mSeries} ${mStyle} ${mTags.join(" ")}`;
     return words.some((w) => combined.includes(w));
   }
 

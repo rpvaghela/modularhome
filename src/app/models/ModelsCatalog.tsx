@@ -19,14 +19,15 @@ import { isCategorySelected, matchProductCategory } from "@/utils/categoryMatchi
 const DEFAULT_CATEGORY_TABS = [
   "All",
   "Modular Homes",
-  "Prefab Cabins",
-  "Barndominiums",
-  "Kit Homes",
-  "Turnkey Homes",
-  "Affordable Housing",
-  "Panelized Log Homes",
-  "Tiny Homes & ADUs",
-  "Commercial Buildings",
+  "Prefab Homes",
+  "House Kits",
+  "Tiny Homes",
+  "Cabins For Sale",
+  "Barndominium Kits",
+  "Steel Barndominium Kits",
+  "Granny Pods",
+  "Commercial Modular Buildings",
+  "A-Frame Cabins",
 ];
 
 const ARCHITECTURAL_STYLES = [

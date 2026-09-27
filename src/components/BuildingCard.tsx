@@ -9,15 +9,33 @@ interface BuildingCardProps {
 }
 
 export default function BuildingCard({ model, priority = false }: BuildingCardProps) {
-  const formattedPrice = formatPrice(model.startingPrice);
-  const formattedSqFt = new Intl.NumberFormat("en-US").format(model.sqft);
+  const formattedPrice = model.startingPrice && model.startingPrice > 0 
+    ? formatPrice(model.startingPrice) 
+    : "Custom Quote";
+
+  const specsList: string[] = [];
+  if (model.sqft && model.sqft > 0) {
+    specsList.push(`${new Intl.NumberFormat("en-US").format(model.sqft)} sq ft`);
+  } else if (model.dimensions) {
+    specsList.push(model.dimensions);
+  }
+
+  if (model.bedrooms !== undefined && model.bedrooms !== null) {
+    specsList.push(model.bedrooms === 0 ? "Studio" : `${model.bedrooms} Bed`);
+  }
+
+  if (model.bathrooms !== undefined && model.bathrooms !== null && model.bathrooms > 0) {
+    specsList.push(`${model.bathrooms} Bath`);
+  }
+
+  const specsText = specsList.length > 0 ? specsList.join(" | ") : "Precision Modular Construction";
 
   return (
     <div className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between bg-white">
       {/* Image Viewport */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
         <Image
-          src={model.primaryImage || model.image || ""}
+          src={model.primaryImage || model.image || "/finallogo.avif"}
           alt={model.name}
           fill
           priority={priority}
@@ -33,7 +51,7 @@ export default function BuildingCard({ model, priority = false }: BuildingCardPr
             {model.name}
           </h3>
           <p className="text-xs text-[#6b7280] font-medium mt-1">
-            {formattedSqFt} sq ft | {model.bedrooms} Bed | {model.bathrooms} Bath
+            {specsText}
           </p>
           <div className="text-lg sm:text-[21px] font-black text-[#d97706] mt-2">
             {formattedPrice}
