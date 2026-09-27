@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "tc-1790515953585-110j4",
+    "customer_id": "cust-1790515953265-0b85b7b6",
+    "email": "chetansonawane2006@gmail.com",
+    "policy_version": "v1.0",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "accepted_at": "2026-09-27T13:32:33.266Z"
+  }
+]

@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
+import { SignJWT, jwtVerify } from "jose";
 import {
   Customer,
   getCustomerById,
@@ -12,6 +13,10 @@ import { supabaseAdmin, isSupabaseConfigured } from "./supabase";
 
 const COOKIE_NAME = "customer_session";
 const SESSION_EXPIRY_DAYS = 30; // Customer session lasts 30 days
+
+const JWT_CUSTOMER_SECRET = new TextEncoder().encode(
+  process.env.ADMIN_SESSION_SECRET || "modularhome_customer_jwt_session_secret_key_2026"
+);
 
 export async function hashCustomerPassword(plainText: string): Promise<string> {
   return bcrypt.hash(plainText, 10);
@@ -38,8 +43,21 @@ export interface CustomerSessionUser {
  * Creates customer session and writes HttpOnly cookie
  */
 export async function createCustomerSession(customer: Customer): Promise<string> {
-  const sessionToken = generateSecureToken();
   const expiresAt = Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+
+  // 1. Sign cryptographic JWT token (Stateless, works on all serverless environments)
+  const sessionToken = await new SignJWT({
+    id: customer.id,
+    email: customer.email,
+    name: customer.name,
+    phone: customer.phone,
+    email_verified: customer.email_verified,
+    status: customer.status,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(`${SESSION_EXPIRY_DAYS}d`)
+    .sign(JWT_CUSTOMER_SECRET);
 
   await saveCustomerSession({
     id: `csess-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -79,6 +97,23 @@ export async function getCustomerSession(): Promise<CustomerSessionUser | null> 
       return null;
     }
     if (!token) return null;
+
+    // 1. Fast stateless JWT verification
+    try {
+      const { payload } = await jwtVerify(token, JWT_CUSTOMER_SECRET);
+      if (payload && payload.id && payload.email) {
+        return {
+          id: payload.id as string,
+          email: payload.email as string,
+          name: (payload.name as string) || "Customer",
+          phone: (payload.phone as string) || null,
+          email_verified: !!payload.email_verified,
+          status: (payload.status as string) || "ACTIVE",
+        };
+      }
+    } catch (jwtErr) {
+      // Fall through to legacy checks if token is not a JWT
+    }
 
     if (isSupabaseConfigured()) {
       try {

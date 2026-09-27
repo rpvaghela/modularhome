@@ -4,10 +4,15 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import fs from "fs";
 import path from "path";
+import { SignJWT, jwtVerify } from "jose";
 import { supabaseAdmin, isSupabaseConfigured } from "./supabase";
 
 const COOKIE_NAME = "admin_session";
 const SESSION_EXPIRY_DAYS = 7; // Admin session lasts 7 days
+
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.ADMIN_SESSION_SECRET || "modularhome_secure_jwt_session_secret_key_2026_change_in_production"
+);
 
 export async function hashPassword(plainText: string): Promise<string> {
   return bcrypt.hash(plainText, 10);
@@ -71,13 +76,12 @@ const memorySessions = new Map<
 >();
 
 /**
- * Creates a secure session token and persists to Memory, Local File, and Supabase (and sets HttpOnly cookie)
+ * Creates a secure JWT session token and persists to Memory, Local File, and Supabase (and sets HttpOnly cookie)
  */
 export async function createAdminSession(
   userId: string,
   userFallback?: AdminSessionUser
 ): Promise<string> {
-  const sessionToken = crypto.randomBytes(32).toString("hex");
   const expiresAt = Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
   const createdAt = new Date().toISOString();
 
@@ -88,10 +92,22 @@ export async function createAdminSession(
     role: "SUPER_ADMIN",
   };
 
-  // 1. In-memory cache
+  // 1. Sign cryptographic JWT token (Stateless, 100% resilient across serverless lambdas)
+  const sessionToken = await new SignJWT({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(`${SESSION_EXPIRY_DAYS}d`)
+    .sign(JWT_SECRET);
+
+  // 2. In-memory cache
   memorySessions.set(sessionToken, { user, expiresAt });
 
-  // 2. Persistent file store
+  // 3. Persistent file store
   try {
     const list = readLocalAdminSessions().filter((s) => s.expires_at > Date.now());
     list.unshift({
@@ -106,7 +122,7 @@ export async function createAdminSession(
     console.warn("Local admin session write note:", err);
   }
 
-  // 3. Supabase database table
+  // 4. Supabase database table
   if (isSupabaseConfigured()) {
     try {
       await supabaseAdmin.from("sessions").insert({
@@ -119,7 +135,7 @@ export async function createAdminSession(
     }
   }
 
-  // 4. Set HttpOnly cookie
+  // 5. Set HttpOnly cookie
   try {
     const cookieStore = await cookies();
     cookieStore.set(COOKIE_NAME, sessionToken, {
@@ -152,7 +168,24 @@ export async function getAdminSession(): Promise<AdminSessionUser | null> {
 
     if (!token) return null;
 
-    // 1. Check in-memory store
+    // 1. Check JWT verification (Stateless, works on all serverless environments & lambdas)
+    try {
+      const { payload } = await jwtVerify(token, JWT_SECRET);
+      if (payload && payload.email && payload.role) {
+        const verifiedUser: AdminSessionUser = {
+          id: (payload.id as string) || (payload.sub as string) || "admin-root",
+          email: payload.email as string,
+          name: (payload.name as string) || "Admin User",
+          role: (payload.role as string) || "SUPER_ADMIN",
+        };
+        memorySessions.set(token, { user: verifiedUser, expiresAt: Date.now() + 86400000 });
+        return verifiedUser;
+      }
+    } catch (jwtErr) {
+      // Fall through to legacy checks if token is not a JWT
+    }
+
+    // 2. Check in-memory store
     const mem = memorySessions.get(token);
     if (mem) {
       if (Date.now() > mem.expiresAt) {
@@ -162,7 +195,7 @@ export async function getAdminSession(): Promise<AdminSessionUser | null> {
       return mem.user;
     }
 
-    // 2. Check local persistent session file
+    // 3. Check local persistent session file
     const localList = readLocalAdminSessions();
     const localMatch = localList.find((s) => s.session_token === token);
     if (localMatch && localMatch.expires_at > Date.now()) {
@@ -171,7 +204,7 @@ export async function getAdminSession(): Promise<AdminSessionUser | null> {
       return localMatch.user;
     }
 
-    // 3. Query Supabase database
+    // 4. Query Supabase database
     if (isSupabaseConfigured()) {
       try {
         const { data: sessionData, error: sessError } = await supabaseAdmin

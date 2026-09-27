@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "session_token": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImZhYzU1ODlmLTgxZDQtNGU4Yi1iN2JmLWExYmU5NzI3NTdjZCIsImVtYWlsIjoiYWRtaW5AbW9kdWxhcmhvbWUuY29tIiwibmFtZSI6IkFkbWluIFN1cGVydXNlciIsInJvbGUiOiJTVVBFUl9BRE1JTiIsImlhdCI6MTc5MDUzMjg5MiwiZXhwIjoxNzkxMTM3NjkyfQ.l_EnV2MmoQgzzdxmmt80wqKMIHuW0sqeE51_SA-rDZ4",
+    "user_id": "fac5589f-81d4-4e8b-b7bf-a1be972757cd",
+    "user": {
+      "id": "fac5589f-81d4-4e8b-b7bf-a1be972757cd",
+      "email": "admin@modularhome.com",
+      "name": "Admin Superuser",
+      "role": "SUPER_ADMIN"
+    },
+    "expires_at": 1791137692448,
+    "created_at": "2026-09-27T18:14:52.448Z"
+  },
+  {
+    "session_token": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImZhYzU1ODlmLTgxZDQtNGU4Yi1iN2JmLWExYmU5NzI3NTdjZCIsImVtYWlsIjoiYWRtaW5AbW9kdWxhcmhvbWUuY29tIiwibmFtZSI6IkFkbWluIFN1cGVydXNlciIsInJvbGUiOiJTVVBFUl9BRE1JTiIsImlhdCI6MTc5MDUzMjQ5NSwiZXhwIjoxNzkxMTM3Mjk1fQ.NoC4Bjyaryy-6VrLiBwMxLu-V8CuoRm-i4DtMzFvbf8",
+    "user_id": "fac5589f-81d4-4e8b-b7bf-a1be972757cd",
+    "user": {
+      "id": "fac5589f-81d4-4e8b-b7bf-a1be972757cd",
+      "email": "admin@modularhome.com",
+      "name": "Admin Superuser",
+      "role": "SUPER_ADMIN"
+    },
+    "expires_at": 1791137295869,
+    "created_at": "2026-09-27T18:08:15.869Z"
+  },
+  {
+    "session_token": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImZhYzU1ODlmLTgxZDQtNGU4Yi1iN2JmLWExYmU5NzI3NTdjZCIsImVtYWlsIjoiYWRtaW5AbW9kdWxhcmhvbWUuY29tIiwibmFtZSI6IkFkbWluIFN1cGVydXNlciIsInJvbGUiOiJTVVBFUl9BRE1JTiIsImlhdCI6MTc5MDUzMjM5MCwiZXhwIjoxNzkxMTM3MTkwfQ.-2aVFFIdm2dOE0ghobCX0Ww7g9MM0JvMKJ9OWgsf6nM",
+    "user_id": "fac5589f-81d4-4e8b-b7bf-a1be972757cd",
+    "user": {
+      "id": "fac5589f-81d4-4e8b-b7bf-a1be972757cd",
+      "email": "admin@modularhome.com",
+      "name": "Admin Superuser",
+      "role": "SUPER_ADMIN"
+    },
+    "expires_at": 1791137190369,
+    "created_at": "2026-09-27T18:06:30.369Z"
+  },
+  {
+    "session_token": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImZhYzU1ODlmLTgxZDQtNGU4Yi1iN2JmLWExYmU5NzI3NTdjZCIsImVtYWlsIjoiYWRtaW5AbW9kdWxhcmhvbWUuY29tIiwibmFtZSI6IkFkbWluIFN1cGVydXNlciIsInJvbGUiOiJTVVBFUl9BRE1JTiIsImlhdCI6MTc5MDUzMjMwNiwiZXhwIjoxNzkxMTM3MTA2fQ.TH6gOeJufSpYlPLESt10w_aZcuY8SdeTN8TRHBBLpds",
+    "user_id": "fac5589f-81d4-4e8b-b7bf-a1be972757cd",
+    "user": {
+      "id": "fac5589f-81d4-4e8b-b7bf-a1be972757cd",
+      "email": "admin@modularhome.com",
+      "name": "Admin Superuser",
+      "role": "SUPER_ADMIN"
+    },
+    "expires_at": 1791137106577,
+    "created_at": "2026-09-27T18:05:06.577Z"
+  }
+]
