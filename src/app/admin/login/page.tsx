@@ -61,19 +61,36 @@ function LoginForm() {
 
   return (
     <div className="bg-white py-8 px-6 sm:px-10 shadow-[0_20px_50px_rgba(16,24,40,0.08)] rounded-[24px] border border-[#e7e9ee] space-y-6 backdrop-blur-md">
-      {reason === "session_expired" && !error && (
+      {(reason === "session_expired" || reason === "expired" || reason === "timeout") && !error && (
         <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-amber-800 text-xs animate-in fade-in font-medium">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
-          <span>Your 1-hour admin session has expired. You have been automatically logged out. Please log in again.</span>
+          <div>
+            <span className="font-bold block text-amber-900">Session Expired</span>
+            <span>Your 1-hour secure admin session has expired. You have been automatically logged out. Please sign in again to continue.</span>
+          </div>
+        </div>
+      )}
+
+      {reason === "session_reset" && !error && (
+        <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 flex items-start gap-3 text-blue-800 text-xs animate-in fade-in font-medium">
+          <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-blue-600" />
+          <div>
+            <span className="font-bold block text-blue-900">All Sessions Terminated</span>
+            <span>All active sessions across all devices have been terminated. Please log in with your credentials.</span>
+          </div>
         </div>
       )}
 
       {reason === "unauthorized" && !error && (
         <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-800 text-xs animate-in fade-in font-medium">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
-          <span>Unauthorized access detected. Session cleared. Please log in with authorized credentials.</span>
+          <div>
+            <span className="font-bold block text-red-900">Authentication Required</span>
+            <span>You must sign in to access the protected admin management console.</span>
+          </div>
         </div>
       )}
+
 
       {error && (
         <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-800 text-xs animate-in fade-in font-medium">

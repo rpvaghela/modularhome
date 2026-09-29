@@ -8,7 +8,8 @@ import { SignJWT, jwtVerify } from "jose";
 import { supabaseAdmin, isSupabaseConfigured } from "./supabase";
 
 const COOKIE_NAME = "admin_session";
-const SESSION_EXPIRY_DAYS = 7; // Admin session lasts 7 days
+export const SESSION_EXPIRY_HOURS = 1; // Admin session strictly expires after 1 hour of inactivity
+export const SESSION_EXPIRY_MS = SESSION_EXPIRY_HOURS * 60 * 60 * 1000;
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.ADMIN_SESSION_SECRET || "modularhome_secure_jwt_session_secret_key_2026_change_in_production"
@@ -82,7 +83,7 @@ export async function createAdminSession(
   userId: string,
   userFallback?: AdminSessionUser
 ): Promise<string> {
-  const expiresAt = Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+  const expiresAt = Date.now() + SESSION_EXPIRY_MS;
   const createdAt = new Date().toISOString();
 
   const user: AdminSessionUser = userFallback || {
@@ -101,7 +102,7 @@ export async function createAdminSession(
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime(`${SESSION_EXPIRY_DAYS}d`)
+    .setExpirationTime(`${SESSION_EXPIRY_HOURS}h`)
     .sign(JWT_SECRET);
 
   // 2. In-memory cache
@@ -144,7 +145,7 @@ export async function createAdminSession(
       sameSite: "lax",
       path: "/",
       expires: new Date(expiresAt),
-      maxAge: SESSION_EXPIRY_DAYS * 24 * 60 * 60,
+      maxAge: SESSION_EXPIRY_HOURS * 60 * 60,
     });
   } catch (cookieErr) {
     console.warn("Admin session cookie store note:", cookieErr);
@@ -152,6 +153,7 @@ export async function createAdminSession(
 
   return sessionToken;
 }
+
 
 /**
  * Retrieves the current authenticated admin session with multi-tier fallback
