@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin, supabase } from "@/lib/supabase";
+import { supabaseAdmin, supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { requireAdminAuth } from "@/lib/auth";
+import { logActivity } from "@/lib/activityLogger";
+import fs from "fs";
+import path from "path";
 
 export const runtime = "nodejs";
 
@@ -18,8 +22,39 @@ const ALLOWED_MIME_TYPES = new Set([
   "application/x-zip-compressed",
 ]);
 
+let mediaBucketCreated = false;
+
+async function ensureMediaBucketExists(client: any): Promise<boolean> {
+  if (mediaBucketCreated) return true;
+  try {
+    const { data: buckets, error } = await client.storage.listBuckets();
+    if (!error && buckets && buckets.some((b: any) => b.name === "media")) {
+      mediaBucketCreated = true;
+      return true;
+    }
+    // Attempt bucket creation
+    const { error: createError } = await client.storage.createBucket("media", {
+      public: true,
+      fileSizeLimit: 31457280, // 30MB
+    });
+    if (!createError || createError.message?.includes("already exists")) {
+      mediaBucketCreated = true;
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.warn("Could not check/create Supabase media bucket:", err);
+    return false;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
+    const authResult = await requireAdminAuth();
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const folder = (formData.get("folder") as string) || "general";
@@ -35,11 +70,16 @@ export async function POST(req: NextRequest) {
     const fileType = file.type || "application/octet-stream";
     const extension = file.name.split(".").pop()?.toLowerCase() || "bin";
 
-    if (!ALLOWED_MIME_TYPES.has(fileType) && !["jpg", "jpeg", "png", "webp", "avif", "svg", "pdf", "zip", "ico"].includes(extension)) {
+    if (
+      !ALLOWED_MIME_TYPES.has(fileType) &&
+      !["jpg", "jpeg", "png", "webp", "avif", "svg", "pdf", "zip", "ico"].includes(extension)
+    ) {
       return NextResponse.json(
         {
           success: false,
-          error: { message: `File type '${fileType}' is not supported. Please upload an image, PDF, or ZIP package.` },
+          error: {
+            message: `File type '${fileType}' is not supported. Please upload an image, PDF, or ZIP package.`,
+          },
         },
         { status: 400 }
       );
@@ -61,37 +101,91 @@ export async function POST(req: NextRequest) {
       .toLowerCase()
       .replace(/[^a-z0-9_-]/g, "-")
       .slice(0, 50);
-    const uniqueFileName = `${cleanFolder ? `${cleanFolder}/` : ""}${baseName}-${Date.now()}.${extension}`;
+    const fileNameWithExt = `${baseName}-${Date.now()}.${extension}`;
+    const uniqueStoragePath = `${cleanFolder ? `${cleanFolder}/` : ""}${fileNameWithExt}`;
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Upload to Supabase Storage 'media' bucket
-    const client = supabaseAdmin || supabase;
-    const { data, error } = await client.storage
-      .from("media")
-      .upload(uniqueFileName, buffer, {
-        contentType: fileType,
-        upsert: true,
-      });
+    let finalPublicUrl = "";
+    let uploadStorageType: "SUPABASE_CDN" | "LOCAL_STORAGE" = "LOCAL_STORAGE";
 
-    if (error) {
-      console.error("Supabase Storage upload error:", error);
-      return NextResponse.json(
-        { success: false, error: { message: error.message || "Failed to upload file to storage." } },
-        { status: 500 }
-      );
+    // 1. Attempt upload to Supabase Storage 'media' bucket
+    const client = supabaseAdmin || supabase;
+    if (isSupabaseConfigured() && client?.storage) {
+      try {
+        await ensureMediaBucketExists(client);
+
+        let uploadRes = await client.storage
+          .from("media")
+          .upload(uniqueStoragePath, buffer, {
+            contentType: fileType,
+            upsert: true,
+          });
+
+        // If bucket not found, try creating it and retry once
+        if (uploadRes.error && uploadRes.error.message?.toLowerCase().includes("bucket not found")) {
+          try {
+            await client.storage.createBucket("media", { public: true });
+            uploadRes = await client.storage
+              .from("media")
+              .upload(uniqueStoragePath, buffer, {
+                contentType: fileType,
+                upsert: true,
+              });
+          } catch {}
+        }
+
+        if (!uploadRes.error && uploadRes.data) {
+          const { data: publicUrlData } = client.storage
+            .from("media")
+            .getPublicUrl(uploadRes.data.path);
+
+          if (publicUrlData?.publicUrl) {
+            finalPublicUrl = publicUrlData.publicUrl;
+            uploadStorageType = "SUPABASE_CDN";
+          }
+        } else {
+          console.warn("Supabase storage upload note, falling back to local storage:", uploadRes.error);
+        }
+      } catch (storageErr) {
+        console.warn("Supabase storage exception, falling back to local storage:", storageErr);
+      }
     }
 
-    // Generate public URL
-    const { data: publicUrlData } = client.storage
-      .from("media")
-      .getPublicUrl(data.path);
+    // 2. Reliable Local Storage Fallback if Supabase upload was not used or failed
+    if (!finalPublicUrl) {
+      const publicUploadsDir = path.join(process.cwd(), "public", "uploads", cleanFolder);
+      if (!fs.existsSync(publicUploadsDir)) {
+        fs.mkdirSync(publicUploadsDir, { recursive: true });
+      }
+
+      const localFilePath = path.join(publicUploadsDir, fileNameWithExt);
+      fs.writeFileSync(localFilePath, buffer);
+
+      finalPublicUrl = `/uploads/${cleanFolder ? `${cleanFolder}/` : ""}${fileNameWithExt}`;
+      uploadStorageType = "LOCAL_STORAGE";
+    }
+
+    // Audit log upload action
+    await logActivity({
+      action: "UPLOAD",
+      entityType: "MEDIA",
+      entityId: uniqueStoragePath,
+      details: {
+        url: finalPublicUrl,
+        storageType: uploadStorageType,
+        fileName: file.name,
+        fileSize: file.size,
+      },
+    });
+
 
     return NextResponse.json({
       success: true,
-      url: publicUrlData.publicUrl,
-      path: data.path,
+      url: finalPublicUrl,
+      path: uniqueStoragePath,
+      storageType: uploadStorageType,
       fileName: file.name,
       size: file.size,
       mimeType: fileType,
