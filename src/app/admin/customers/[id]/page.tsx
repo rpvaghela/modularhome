@@ -407,26 +407,125 @@ export default function AdminCustomerDetailPage() {
             </div>
           ) : (
             <div className="space-y-4 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100">
-              {events.map((evt: any) => (
-                <div key={evt.id} className="relative pl-7 text-xs space-y-1">
-                  <div className="absolute left-1.5 top-1 w-3 h-3 rounded-full bg-[#fcb907] border-2 border-white shadow-xs" />
-                  <div className="font-bold text-[#101114] uppercase tracking-wider text-[10px]">
-                    {evt.event_type.replace(/_/g, " ")}
-                  </div>
-                  <div className="text-gray-500 text-[11px]">
-                    By {evt.actor_name || evt.actor_type || "Customer"} •{" "}
-                    {new Date(evt.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })},{" "}
-                    {new Date(evt.created_at).toLocaleDateString()}
-                  </div>
-                  {evt.details && Object.keys(evt.details).length > 0 && (
-                    <div className="bg-gray-50 p-2 rounded-xl text-[10px] text-gray-600 font-mono">
-                      {JSON.stringify(evt.details)}
+              {events.map((evt: any) => {
+                let detailsObj: any = null;
+                if (evt.details) {
+                  if (typeof evt.details === "string") {
+                    try {
+                      detailsObj = JSON.parse(evt.details);
+                    } catch {
+                      detailsObj = { notes: evt.details };
+                    }
+                  } else if (typeof evt.details === "object") {
+                    detailsObj = evt.details;
+                  }
+                }
+
+                const eventType = (evt.event_type || "ACTIVITY").toUpperCase();
+                const isCreation = eventType.includes("CREATE") || eventType.includes("SIGNUP");
+                const isOrder = eventType.includes("ORDER") || eventType.includes("PURCHASE");
+                const isDownload = eventType.includes("DOWNLOAD");
+                const isAuth = eventType.includes("LOGIN") || eventType.includes("PASSWORD") || eventType.includes("SESSION");
+
+                return (
+                  <div key={evt.id} className="relative pl-7 text-xs space-y-2 group">
+                    <div
+                      className={`absolute left-1.5 top-1 w-3.5 h-3.5 rounded-full border-2 border-white shadow-xs ${
+                        isCreation
+                          ? "bg-emerald-500"
+                          : isOrder
+                          ? "bg-[#fcb907]"
+                          : isDownload
+                          ? "bg-blue-500"
+                          : isAuth
+                          ? "bg-purple-500"
+                          : "bg-gray-400"
+                      }`}
+                    />
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`font-black uppercase tracking-wider text-[10px] px-2 py-0.5 rounded-md ${
+                            isCreation
+                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                              : isOrder
+                              ? "bg-amber-50 text-amber-900 border border-amber-200"
+                              : isDownload
+                              ? "bg-blue-50 text-blue-800 border border-blue-200"
+                              : "bg-gray-100 text-gray-800 border border-gray-200"
+                          }`}
+                        >
+                          {evt.event_type.replace(/_/g, " ")}
+                        </span>
+                      </div>
+
+                      <div className="text-gray-500 text-[11px] mt-1">
+                        By <span className="font-semibold text-[#101114]">{evt.actor_name || evt.actor_type || "Customer"}</span> •{" "}
+                        {new Date(evt.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })},{" "}
+                        {new Date(evt.created_at).toLocaleDateString()}
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {/* Formatted Human-Readable Event Details */}
+                    {detailsObj && Object.keys(detailsObj).length > 0 && (
+                      <div className="bg-[#f8f9fa] p-3 rounded-2xl border border-[#e7e9ee] space-y-2 text-[11px]">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {detailsObj.email && (
+                            <div className="flex items-center gap-1.5 text-gray-700 bg-white p-2 rounded-xl border border-gray-100 shadow-2xs">
+                              <Mail className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                              <span className="truncate font-medium">{detailsObj.email}</span>
+                            </div>
+                          )}
+
+                          {detailsObj.phone && (
+                            <div className="flex items-center gap-1.5 text-gray-700 bg-white p-2 rounded-xl border border-gray-100 shadow-2xs">
+                              <Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                              <span className="truncate font-medium">{detailsObj.phone}</span>
+                            </div>
+                          )}
+
+                          {detailsObj.terms_version && (
+                            <div className="flex items-center gap-1.5 text-gray-700 bg-white p-2 rounded-xl border border-gray-100 shadow-2xs">
+                              <Shield className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                              <span className="truncate font-medium">Terms Accepted: {detailsObj.terms_version}</span>
+                            </div>
+                          )}
+
+                          {detailsObj.order_number && (
+                            <div className="flex items-center gap-1.5 text-gray-700 bg-white p-2 rounded-xl border border-gray-100 shadow-2xs">
+                              <ShoppingBag className="w-3.5 h-3.5 text-[#d97706] shrink-0" />
+                              <span className="truncate font-medium">Order: {detailsObj.order_number}</span>
+                            </div>
+                          )}
+
+                          {/* Render any additional non-standard key-values */}
+                          {Object.entries(detailsObj)
+                            .filter(([k]) => !["email", "phone", "terms_version", "order_number", "auth_user_id"].includes(k))
+                            .map(([key, val]) => (
+                              <div key={key} className="flex items-center gap-1.5 text-gray-700 bg-white p-2 rounded-xl border border-gray-100 shadow-2xs">
+                                <span className="font-bold uppercase text-[9px] text-gray-400 font-mono">
+                                  {key.replace(/_/g, " ")}:
+                                </span>
+                                <span className="truncate font-medium">{typeof val === "object" ? JSON.stringify(val) : String(val)}</span>
+                              </div>
+                            ))}
+                        </div>
+
+                        {detailsObj.auth_user_id && (
+                          <div className="pt-1 text-[10px] text-gray-400 font-mono truncate flex items-center gap-1">
+                            <span className="text-gray-300">ID:</span>
+                            <span className="truncate">{detailsObj.auth_user_id}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
+
         </div>
       </div>
 
