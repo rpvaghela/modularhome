@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { logActivity } from "@/lib/activityLog";
 import { updateSection, deleteSection, isUuidString } from "@/lib/pageStore";
 
 export async function PUT(
@@ -51,6 +52,15 @@ export async function PUT(
           .single();
 
         if (!error && data) {
+          await logActivity(
+            authResult,
+            "SECTION_UPDATE",
+            "SECTION",
+            id,
+            `Updated section "${body.title || id}"`,
+            { id, type: body.type, title: body.title }
+          );
+
           return NextResponse.json({
             success: true,
             data,
@@ -61,6 +71,15 @@ export async function PUT(
         console.warn("Supabase update section warning:", sbErr);
       }
     }
+
+    await logActivity(
+      authResult,
+      "SECTION_UPDATE",
+      "SECTION",
+      id,
+      `Updated section "${body.title || id}"`,
+      { id, type: body.type, title: body.title }
+    );
 
     return NextResponse.json({
       success: true,
@@ -100,6 +119,15 @@ export async function DELETE(
         console.warn("Supabase delete section warning:", sbErr);
       }
     }
+
+    await logActivity(
+      authResult,
+      "SECTION_DELETE",
+      "SECTION",
+      id,
+      `Deleted section (${id})`,
+      { id }
+    );
 
     return NextResponse.json({
       success: true,

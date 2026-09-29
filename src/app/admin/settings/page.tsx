@@ -250,6 +250,14 @@ export default function AdminSettingsPage() {
         </div>
       </div>
 
+      {/* Settings Sub-routes navigation */}
+      <div className="flex items-center gap-2 border-b border-[#e7e9ee] pb-3 text-xs font-bold font-mono">
+        <a href="/admin/settings" className="px-3 py-1.5 rounded-lg bg-[#101114] text-white">All Settings</a>
+        <a href="/admin/settings/header" className="px-3 py-1.5 rounded-lg text-[#6b7280] hover:text-[#101114]">Header</a>
+        <a href="/admin/settings/navigation" className="px-3 py-1.5 rounded-lg text-[#6b7280] hover:text-[#101114]">Navigation</a>
+        <a href="/admin/settings/footer" className="px-3 py-1.5 rounded-lg text-[#6b7280] hover:text-[#101114]">Footer</a>
+      </div>
+
       {message && (
         <div
           className={`p-4 rounded-2xl flex items-center gap-3 text-xs font-semibold animate-in fade-in ${

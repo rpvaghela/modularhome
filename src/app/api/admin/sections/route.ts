@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { logActivity } from "@/lib/activityLog";
 import {
   saveSection,
   getPageSections,
@@ -114,6 +115,8 @@ export async function POST(request: NextRequest) {
       isVisible: isVis,
     });
 
+    let createdId = localSaved.id;
+
     // 2. Also save to Supabase if configured and pageId is a valid UUID
     if (isSupabaseConfigured() && isUuidString(pageId)) {
       try {
@@ -134,6 +137,16 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (!error && data) {
+          createdId = data.id;
+          await logActivity(
+            authResult,
+            "SECTION_CREATE",
+            "SECTION",
+            createdId,
+            `Created ${type.toUpperCase()} section for page (${pageId})`,
+            { pageId, type, title }
+          );
+
           return NextResponse.json({
             success: true,
             data: {
@@ -149,6 +162,15 @@ export async function POST(request: NextRequest) {
         console.warn("Supabase insert section warning, saved locally:", sbErr);
       }
     }
+
+    await logActivity(
+      authResult,
+      "SECTION_CREATE",
+      "SECTION",
+      createdId,
+      `Created ${type.toUpperCase()} section for page (${pageId})`,
+      { pageId, type, title }
+    );
 
     return NextResponse.json({
       success: true,

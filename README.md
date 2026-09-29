@@ -1,703 +1,1403 @@
-MODULARHOME.COM — IMPLEMENT MODULE 02: EMAIL VERIFICATION
+You are the lead full-stack engineer responsible for completing the ModularHome project.
 
-PROJECT:
-ModularHome.com
+PROJECT
+-------
+Project: ModularHome
+Repository: https://github.com/chetan9130/modularhome.git
+Production domain: https://modularhome.com
+Preview: https://modularhome.vercel.app/
 
-TASK:
-Implement and fully verify ONLY:
+Current stack:
+- Next.js App Router
+- React
+- TypeScript
+- Tailwind CSS
+- Supabase PostgreSQL
+- Supabase Auth
+- Supabase Storage
+- Vercel
+- Stripe
+- Resend
+- Google OAuth
+- YouTube Data API
+- OpenAI API
 
-MODULE 02 — EMAIL VERIFICATION
+IMPORTANT
+---------
+Do NOT blindly rewrite existing functionality.
 
-MASTER SPECIFICATION REQUIREMENT:
-Confirm ownership of the customer's email address.
+First inspect the entire repository and understand:
+- current database schema
+- existing admin routes
+- Page Manager
+- Section Blocks
+- Global Settings
+- Product Manager
+- Collection Manager
+- Floor Plan Manager
+- Blog Manager
+- YouTube Manager
+- Leads
+- Quotations
+- Customer authentication
+- admin authentication
+- existing AI implementation
+- existing API routes
+- Supabase policies/RLS
+- existing middleware
+- existing audit logging
+- existing environment variables
+- existing tests
 
-Required:
-- Branded verification email
-- Verification callback
-- Verified/unverified account state
-- Customer clicks verification link and account becomes verified
+Preserve working functionality and existing migrated data.
 
-MODULE PRIORITY:
-CRITICAL
-
-IMPORTANT:
-Module 01 — Customer Signup is already implemented or is being implemented separately.
-
-DO NOT implement Modules 03+ in this task.
-
-DO NOT rebuild the authentication system.
-DO NOT create a second authentication provider.
-DO NOT replace Supabase Auth.
-DO NOT modify the existing Admin authentication.
-DO NOT modify the existing ETL/migration.
-DO NOT modify migrated products, collections, blogs, pages or production data.
-DO NOT change DNS.
-DO NOT change Stripe configuration.
+Do not perform destructive database migrations.
+Do not delete production data.
+Do not change migrated product/collection/page/blog data unless required to fix a confirmed issue.
+Do not hardcode client content.
+Do not expose secrets to the browser.
+Do not use AI to invent final quotation prices.
 
 ==================================================
-1. INSPECT THE EXISTING IMPLEMENTATION FIRST
+CLIENT ACCEPTANCE REQUIREMENTS
 ==================================================
 
-Before changing anything, inspect the existing project.
+The following requirements come directly from the client review and MUST be implemented and demonstrated.
+
+==================================================
+1. FULL WEBSITE CONTROL FROM ADMIN
+==================================================
+
+The client must be able to manage normal website updates without modifying Next.js source code.
+
+Admin must be able to manage:
+
+PAGES
+- page title
+- slug
+- content
+- sections
+- images
+- videos
+- buttons
+- links
+- visibility
+- ordering
+- publish status
+- SEO title
+- SEO description
+- SEO keywords where supported
+- canonical URL
+- Open Graph data
+- image alt text
+- created date
+- updated date
+
+SECTION BLOCKS
+- each section type must have clear editable fields
+- normal client users must NOT need to edit JSON
+- support:
+  - heading
+  - subheading
+  - paragraph
+  - rich text
+  - image
+  - image alt text
+  - video
+  - CTA/button
+  - link
+  - cards
+  - lists
+  - visibility
+  - order
+  - section-specific fields
+
+GLOBAL WEBSITE SETTINGS
+Create/verify admin controls for:
+
+HEADER
+- logo
+- logo link
+- header visibility
+- header CTA
+- contact information
+
+NAVIGATION
+- menu items
+- label
+- URL
+- internal/external link
+- parent/child items
+- order
+- visibility
+
+FOOTER
+- footer text
+- columns
+- links
+- social links
+- contact details
+- copyright
+- visibility/order
+
+CONTACT INFORMATION
+- phone
+- email
+- address
+- business hours
+- social media
+- CTA information
+
+CONTENT MODULES
+Admin must be able to manage:
+- products
+- collections
+- floor plans
+- blogs
+- FAQs
+- pages
+- SEO fields
+- media
+- leads
+- quotations
+
+ACCEPTANCE TEST:
+1. Admin changes a page/section.
+2. Click Save.
+3. Refresh admin.
+4. Confirm the value persists.
+5. Open public website.
+6. Refresh public page.
+7. Confirm the new value appears.
+8. Confirm no source-code change is required.
+
+==================================================
+2. FIX PAGE MANAGER / SECTION BLOCK ROUTES
+==================================================
+
+Current issue:
+
+Pages such as:
+- Contact Us
+- About
+
+show:
+
+/undefined
+
+in their route and preview links.
+
+Investigate the complete data flow.
 
 Check:
+- database slug
+- page ID
+- page handle
+- route generation
+- Page Manager
+- Page Editor
+- Section Blocks
+- preview URL generation
+- dynamic route
+- internal links
+- public page resolver
 
-- package.json
-- Supabase client utilities
-- Supabase server utilities
-- existing customer signup implementation
-- existing auth routes
-- existing middleware
-- existing customer profile table/schema
-- existing RLS policies
-- existing environment variables
-- existing email configuration
-- existing notification/email utilities
-- existing /auth routes
-- existing /signup or /register route
-- existing login/account routes if present
-- existing layout and design system
+Implement one consistent canonical slug/route system.
 
-Search for:
+Requirements:
+- no page may produce /undefined
+- existing valid pages must continue working
+- preview links must work
+- public routes must work
+- internal links must use correct slugs
+- missing slug must produce a controlled fallback/error, never /undefined
 
-- supabase.auth.signUp
-- supabase.auth.getUser
-- supabase.auth.getSession
-- emailRedirectTo
-- email_confirmed_at
-- confirmed_at
-- /auth/callback
-- verification
-- verify
-- resend
-- signUp
-- customer profile
+Add validation:
+- slug required
+- slug unique
+- slug sanitized
+- no accidental undefined/null URL
+- safe route generation
+
+Test:
+- About
+- Contact Us
+- at least 5 other CMS pages
+- refresh
+- preview
+- direct URL access
+
+==================================================
+3. FIX DASHBOARD COUNTS
+==================================================
+
+Current mismatch:
+
+Dashboard:
+- 6 floor plans
+- 3 articles
+
+Admin lists:
+- 8 floor plans
+- 6 articles
+
+Investigate why.
+
+Possible causes:
+- incorrect query
+- pagination
+- status filtering
+- published-only filtering
+- deleted/archived records
+- wrong table
+- cached data
+- stale count
+- incorrect Supabase query
+
+Do NOT simply hardcode the counts.
+
+Create a reusable count/query strategy.
+
+Dashboard counts must reflect the actual records according to the defined module scope.
+
+Show:
+- total
+- published
+- draft
+- archived if applicable
+
+Ensure dashboard and list use the same source-of-truth logic.
+
+Test after:
+- create
+- edit
+- publish
+- unpublish
+- delete/archive
+- refresh
+
+==================================================
+4. HEADER / NAVIGATION / FOOTER ADMIN
+==================================================
+
+Add admin controls under Global Settings or a clearly named configuration area.
+
+Create:
+
+/admin/settings/header
+/admin/settings/navigation
+/admin/settings/footer
+
+or integrate cleanly into the existing Global Settings architecture.
+
+Admin must be able to:
+
+HEADER
+- edit logo
+- edit CTA
+- edit contact information
+- enable/disable elements
+
+NAVIGATION
+- add menu item
+- edit menu item
+- delete menu item
+- reorder
+- nested menu items
+- visibility
+- internal/external URLs
+
+FOOTER
+- edit columns
+- add/remove links
+- social links
+- contact details
+- copyright
+- visibility/order
+
+Use database-backed configuration.
+
+Do not hardcode navigation arrays in frontend components.
+
+==================================================
+5. ADMIN-EDITABLE QUOTATION PRICING ENGINE
+==================================================
+
+Implement a real pricing rules system.
 
 IMPORTANT:
-If Module 01 already created any of these components, reuse them.
+AI MUST NOT independently determine the final price.
 
-Do not create duplicate Supabase clients, duplicate auth callbacks, duplicate customer tables or duplicate verification logic.
+AI may interpret customer requirements.
+
+The actual price MUST come from deterministic admin-configured rules.
+
+Create/administer rules for:
+
+MODEL RATES
+- model ID
+- base price
+- active/inactive
+- effective date if required
+
+SQUARE FOOTAGE
+- minimum
+- maximum
+- rate per square foot
+- pricing method
+
+UPGRADES
+Examples:
+- garage
+- porch
+- windows
+- doors
+- kitchen upgrades
+- bathroom upgrades
+- exterior upgrades
+- interior upgrades
+- custom options
+
+FEES
+- delivery
+- engineering
+- permit
+- installation
+- service
+- other configurable fees
+
+EXCLUSIONS
+- item
+- description
+- excluded amount/logic where applicable
+
+RULE MANAGEMENT
+Admin can:
+- create
+- edit
+- deactivate
+- reorder
+- save
+- view effective configuration
+
+Create a deterministic pricing service.
+
+Example architecture:
+
+Customer Requirements
+        ↓
+AI interprets requirements
+        ↓
+Structured Quote Inputs
+        ↓
+Pricing Rules Engine
+        ↓
+Base Model Price
++ Square Footage
++ Upgrades
++ Fees
+- Exclusions/adjustments
+        ↓
+Estimate
+        ↓
+Save quotation
+
+Every quotation must store:
+- customer details
+- requirements
+- model
+- square footage
+- selected upgrades
+- pricing rule versions/IDs
+- line-item calculation
+- subtotal
+- fees
+- exclusions
+- final estimate
+- timestamp
+- source
+- AI interpretation if applicable
+
+Display:
+
+"Estimated price only. Final pricing is subject to company review."
 
 ==================================================
-2. SUPABASE EMAIL CONFIRMATION
+6. SECTION BLOCKS MUST NOT REQUIRE JSON
 ==================================================
 
-Use Supabase Auth as the source of truth for email verification.
+Inspect all existing Section Block types.
 
-Do not manually store passwords.
+Create schema-driven editors.
 
-Do not implement a custom verification token system if Supabase Auth already provides the required mechanism.
+For every section type provide human-readable form fields.
 
-Ensure customer signup uses email confirmation.
+Example:
 
-The signup flow should request email verification using the existing Supabase Auth configuration.
+Hero Section:
+- heading
+- description
+- background image
+- image alt text
+- CTA label
+- CTA URL
+- secondary CTA
+- visibility
 
-Use the existing project environment variables.
+Feature Cards:
+- section heading
+- cards[]
+  - title
+  - description
+  - image
+  - image alt
+  - link
+  - order
+  - visibility
 
-Never expose:
+Video:
+- title
+- video URL
+- thumbnail
+- description
+- CTA
 
-SUPABASE_SERVICE_ROLE_KEY
+Do not make ordinary admin users edit raw JSON.
 
-to client-side code.
-
-==================================================
-3. VERIFICATION EMAIL
-==================================================
-
-Implement the actual verification email flow.
-
-The customer should receive an email after signup.
-
-Email must be branded for ModularHome.
-
-Email should contain:
-
-- ModularHome branding
-- clear verification purpose
-- customer-friendly explanation
-- clear "Verify Email" CTA
-- verification link
-- appropriate security/expiration messaging where supported
-- ModularHome support/contact information if already available from settings
-
-Do not hardcode sensitive credentials.
-
-Do not use fake/demo email sending.
-
-The verification email must actually be generated by the configured authentication/email system.
+If advanced JSON editing is retained, keep it as an optional advanced/debug mode, not the primary editor.
 
 ==================================================
-4. EMAIL REDIRECT / CALLBACK
+7. PAGE STATUS AND DATES
 ==================================================
 
-Implement or extend the existing authentication callback.
+Current issue:
+- Page Manager shows "Recent"
+- Page editor shows created/updated dates as "N/A"
 
-Preferred conceptual route:
+Fix the data model/UI.
 
-/auth/callback
+Show:
+- Draft
+- Published
+- Unpublished
+- Scheduled if supported
 
-BUT:
+Show:
+- Created At
+- Updated At
+- Published At
 
-First inspect whether the project already has an authentication callback.
+Use actual database timestamps.
 
-If it exists:
-- reuse it
-- extend it safely
-- do not create a duplicate callback
+Format dates consistently.
 
-The callback must:
+Example:
+Created: 29 Sep 2026, 10:42 AM
+Updated: 29 Sep 2026, 01:15 PM
 
-1. Receive the Supabase authentication callback.
-2. Exchange/process the authentication code using the correct Supabase flow.
-3. Establish the customer session where appropriate.
-4. Confirm that the verification process completed successfully.
-5. Redirect the customer to the correct destination.
-6. Handle invalid/expired callbacks safely.
-
-Do not expose authentication tokens in the UI.
-
-Do not log access tokens, refresh tokens or sensitive authentication data.
+Do not display fake "Recent" values.
 
 ==================================================
-5. VERIFIED / UNVERIFIED STATE
+8. PRODUCT COUNT RECONCILIATION
 ==================================================
 
-The application must determine the customer's verification state from Supabase Auth.
+Current issue:
 
-Use the authoritative Supabase Auth state.
+UI says:
+749 Home Models
 
-Do not create a second conflicting verification state.
+Table reports:
+750 items
+
+Investigate the exact discrepancy.
+
+Check:
+- query
+- filters
+- pagination
+- category
+- collection
+- archived products
+- unpublished products
+- duplicate rows
+- deleted rows
+- count query
+
+Determine the actual source-of-truth count.
+
+Make dashboard/table/filter counts consistent.
+
+Do not simply change 750 to 749 without identifying why.
+
+Add automated tests for count consistency.
+
+==================================================
+9. SEO AND IMAGE ALT TEXT
+==================================================
+
+Complete SEO controls for:
+
+PAGES
+PRODUCTS
+COLLECTIONS
+BLOGS
 
 Support:
+- SEO title
+- meta description
+- canonical URL
+- slug
+- Open Graph title
+- Open Graph description
+- Open Graph image
+- robots/indexing settings where appropriate
+- image alt text
 
-VERIFIED
+Media fields:
+- alt text
+- title/caption where appropriate
 
-and
+Ensure frontend uses these values.
 
-UNVERIFIED
+Check:
+- page metadata
+- product metadata
+- collection metadata
+- blog metadata
+- sitemap
+- canonical URLs
+- robots behavior
 
-states.
-
-For example:
-
-email_confirmed_at != null
-    → VERIFIED
-
-email_confirmed_at == null
-    → UNVERIFIED
-
-Use the exact Supabase field/state appropriate to the project's installed Supabase version.
-
-Do not guess if the existing implementation uses another authoritative field.
-
-==================================================
-6. VERIFY EMAIL PAGE
-==================================================
-
-Create or improve the appropriate customer-facing verification page.
-
-Possible route:
-
-/verify-email
-
-If an existing route already serves this purpose, reuse it.
-
-The page should clearly tell the customer:
-
-"Check your email"
-
-and explain:
-
-"We sent a verification link to your email address."
-
-Provide:
-
-- email address where appropriate
-- verification instructions
-- resend verification action
-- success state
-- error state
-- loading state
-
-Do not reveal unnecessary account information.
+Do not break existing SEO URLs.
 
 ==================================================
-7. RESEND VERIFICATION EMAIL
+10. YOUTUBE → AI BLOG WORKFLOW
+==================================================
+
+Build the complete workflow.
+
+SOURCE:
+Approved ModularHome YouTube channel.
+
+Use the YouTube Data API to identify eligible videos.
+
+Use the YouTube video ID as the primary duplicate-prevention identifier. YouTube's video resource exposes a unique video ID and metadata through the API. :contentReference[oaicite:0]{index=0}
+
+Workflow:
+
+1. Detect new eligible video.
+2. Extract:
+   - video ID
+   - title
+   - description
+   - published date
+   - channel ID
+   - thumbnail
+   - video URL/embed URL
+3. Check database for existing video ID.
+4. If already processed:
+   - do NOT create another blog.
+5. If new:
+   - create generation job.
+6. Generate SEO blog draft using OpenAI.
+7. Generate:
+   - blog title
+   - slug
+   - meta title
+   - meta description
+   - headings
+   - article body
+   - introduction
+   - conclusion
+   - YouTube embed
+   - thumbnail
+8. Save as DRAFT.
+9. Show generation status.
+10. Show errors if generation fails.
+11. Admin can:
+    - review
+    - edit
+    - save
+    - publish
+    - unpublish
+12. Store source YouTube video ID.
+13. Enforce unique constraint on YouTube video ID.
+
+Suggested statuses:
+
+PENDING
+PROCESSING
+GENERATED
+DRAFT
+PUBLISHED
+UNPUBLISHED
+FAILED
+
+Admin UI must show:
+- Video
+- Video ID
+- Generation status
+- Blog status
+- Created date
+- Error
+- Retry
+- View draft
+- Edit
+- Publish
+
+Never automatically publish AI-generated content unless explicitly configured by the client.
+
+==================================================
+11. AI CHATBOT + LEAD GENERATION
+==================================================
+
+Create a reliable ModularHome AI assistant.
+
+Knowledge sources:
+- products
+- models
+- collections
+- FAQs
+- company information
+- approved website content
+
+The chatbot should NOT invent product facts.
+
+If sufficient information exists:
+- answer question
+- recommend relevant models
+
+If information is insufficient:
+- clearly state that it needs human assistance
+- offer human follow-up
+
+Collect:
+
+Customer:
+- name
+- email
+- phone
+- location
+
+Project:
+- project type
+- preferred model
+- approximate size
+- budget
+- timeline
+- requirements
+
+Conversation:
+- source
+- timestamp
+- useful conversation context
+- qualification information
+
+When qualified:
+CREATE A CENTRAL LEAD.
+
+Lead fields:
+
+id
+name
+email
+phone
+location
+project_type
+preferred_model
+approximate_size
+budget
+timeline
+requirements
+source
+conversation_summary
+conversation_context
+status
+assigned_to
+internal_notes
+created_at
+updated_at
+
+Lead statuses:
+- New
+- Contacted
+- Qualified
+- Proposal
+- Won
+- Lost
+- Follow-up
+
+Admin features:
+- search
+- filter
+- sort
+- view details
+- update status
+- assign
+- add internal notes
+- view conversation context
+
+AI must not expose internal/admin information.
+
+==================================================
+12. AI-ASSISTED QUOTATIONS
 ==================================================
 
 Implement:
 
-"Resend verification email"
+Customer
+ ↓
+Quote form/chat
+ ↓
+AI interprets requirements
+ ↓
+Structured JSON requirements
+ ↓
+Validation
+ ↓
+Deterministic pricing engine
+ ↓
+Estimate
+ ↓
+Save quotation
 
-using the supported Supabase authentication flow.
+AI can interpret:
 
-Requirements:
+"3 bedroom house around 1800 square feet with a garage and upgraded kitchen"
 
-- Only appropriate users can trigger it.
-- Do not expose sensitive authentication information.
-- Prevent unlimited requests.
-- Add a cooldown/rate limit.
-- Show a clear success message.
-- Show a safe error message.
-- Log server-side errors where appropriate.
+into structured requirements such as:
 
-Example UX:
+{
+  "bedrooms": 3,
+  "squareFootage": 1800,
+  "garage": true,
+  "upgrades": ["kitchen-upgrade"]
+}
 
-"Verification email sent. Please check your inbox."
+Then pricing engine calculates.
 
-Then:
+AI MUST NOT output a final price that bypasses the pricing engine.
 
-"Resend available in 60 seconds."
+Validate all AI-generated fields before pricing.
 
-Use an appropriate cooldown based on the existing application rate-limiting architecture.
+If the model or upgrade cannot be matched:
+- mark as unknown
+- ask clarification
+- or send for human review
 
-Do not create an unnecessarily aggressive user experience.
+Quotation must save:
+- customer
+- inputs
+- interpreted requirements
+- pricing rules used
+- line-item breakdown
+- fees
+- exclusions
+- estimate
+- created date
+- source
+
+Admin quotation list:
+- search
+- filter
+- view
+- edit where permitted
+- status
+- notes
+- customer information
+- calculation breakdown
 
 ==================================================
-8. INVALID / EXPIRED VERIFICATION LINKS
+13. ADMIN SECURITY
 ==================================================
 
-Handle:
+Protect every admin route.
 
-- invalid verification code
-- expired verification link
-- already-used verification link
-- malformed callback
-- missing callback parameters
-- failed Supabase exchange
+Protect:
+- /admin/*
+- /api/admin/*
 
-The customer should see a friendly message.
+Implement/verify:
+- authentication
+- authorization
+- role permissions
+- session validation
+- session expiry
+- protected server routes
+- protected API routes
+- RLS where applicable
+- no privilege escalation
+
+Use role-based access control where appropriate. Supabase supports authentication/authorization through Auth, JWTs and RLS, and provides RBAC/custom-claims patterns for role-based access. :contentReference[oaicite:1]{index=1}
+
+Suggested roles:
+
+SUPER_ADMIN
+ADMIN
+EDITOR
+CONTENT_MANAGER
+SALES
+
+Define permissions explicitly.
 
 Example:
 
-"This verification link is invalid or has expired. Please request a new verification email."
+SUPER_ADMIN:
+all permissions
 
-Provide:
+ADMIN:
+all content + leads + quotations
 
-"Resend verification email"
+EDITOR:
+pages + sections + blogs + media
 
-where appropriate.
+SALES:
+leads + quotations
 
-Do not expose:
+CONTENT_MANAGER:
+pages + blogs + media
 
-- Supabase errors
-- database errors
-- tokens
-- internal stack traces
-- authentication implementation details
-
-==================================================
-9. SUCCESSFUL VERIFICATION
-==================================================
-
-After successful verification:
-
-Customer
-    ↓
-Verification callback
-    ↓
-Supabase confirms email
-    ↓
-Session established/refreshed if appropriate
-    ↓
-Customer marked VERIFIED
-    ↓
-Redirect to correct customer destination
-
-The destination should follow the existing project architecture.
-
-If Module 01 already defines the post-verification destination, reuse it.
-
-Do not invent a conflicting customer flow.
+Never rely only on hiding UI buttons.
+Every protected API/database operation must enforce authorization server-side.
 
 ==================================================
-10. CUSTOMER PROFILE SYNCHRONIZATION
+14. SESSION EXPIRY
 ==================================================
 
-If the project has a customer profile table:
+Verify:
+- session timeout
+- invalid session
+- expired session
+- logout
+- refresh
+- unauthorized API access
 
-Ensure the customer's profile remains correctly linked to:
-
-Supabase Auth user ID
-
-Do not create duplicate profiles.
-
-Do not manually override Supabase Auth's verification state.
-
-If the application stores a verification timestamp for reporting/admin purposes, keep it synchronized with the authoritative Auth state.
-
-Do not create a conflicting verification source of truth.
-
-==================================================
-11. ADMIN COMPATIBILITY
-==================================================
-
-Do not implement the full Admin Customer module in this task.
-
-However, the implementation must be compatible with later requirements:
-
-- Module 73 — Email Verification Status
-- Module 74 — Resend Verification Email
-
-Those later admin modules require authorized staff to see verified/unverified state and use a controlled resend workflow.
-
-Do not expose customer passwords or authentication secrets.
-
-Do not modify existing Admin authentication.
+Expired sessions must:
+- reject protected API calls
+- redirect to login where appropriate
+- not expose protected data
 
 ==================================================
-12. RLS / SECURITY
+15. AUDIT LOGGING
 ==================================================
 
-Verify that customer profile data remains protected by Supabase RLS.
+Create/verify application-level admin audit logs.
 
-Customer A must not be able to access Customer B's profile.
+Track:
+- login
+- logout
+- failed login
+- page create
+- page update
+- page publish
+- page unpublish
+- product changes
+- collection changes
+- floor plan changes
+- blog changes
+- pricing rule changes
+- quotation changes
+- lead changes
+- settings changes
+- role/permission changes
 
-Anonymous users must not access private customer profile information.
+Store:
 
-Verification should not weaken any existing RLS policies.
+id
+actor_user_id
+actor_email
+action
+resource_type
+resource_id
+before_data
+after_data
+timestamp
+IP if safely available
+user_agent if appropriate
 
-Do not rely only on frontend route protection.
+Do not store secrets or sensitive credentials in audit logs.
 
-Server/database authorization must remain authoritative.
-
-==================================================
-13. SESSION SECURITY
-==================================================
-
-Use the existing Supabase session architecture.
-
-Do not:
-
-- store passwords
-- expose service-role keys
-- expose refresh tokens
-- manually create insecure authentication tokens
-- store sensitive auth data in localStorage unnecessarily
-
-Inspect the existing middleware/session implementation before modifying it.
-
-Do not break existing Admin sessions.
-
-==================================================
-14. EMAIL CONFIGURATION
-==================================================
-
-Inspect the current Supabase email/auth configuration.
-
-Determine whether the project currently uses:
-
-- Supabase Auth email provider
-- Supabase SMTP
-- custom SMTP
-- Resend
-- SendGrid
-- Mailgun
-- another configured provider
-
-Reuse the existing provider if already configured.
-
-Do not introduce a second email provider unless the existing architecture cannot support the requirement.
-
-If production email configuration is not available, document exactly what configuration remains required.
-
-Do not claim email verification is complete if the email cannot actually be delivered.
+Supabase Auth also provides authentication audit logs for events such as sign-ins, sign-outs, verification, password changes and token events. Use these where appropriate, while keeping application-level audit logs for business/admin actions. :contentReference[oaicite:2]{index=2}
 
 ==================================================
-15. BRANDING
+16. DATABASE REQUIREMENTS
 ==================================================
 
-Use the existing ModularHome design system.
+Before changing schema:
 
-Verification UI should match:
+1. Inspect existing tables.
+2. Reuse existing structures where possible.
+3. Add migrations only when necessary.
+4. Add foreign keys.
+5. Add indexes.
+6. Add unique constraints.
+7. Add created_at / updated_at where missing.
+8. Add appropriate RLS policies.
+9. Test migrations locally/staging first.
 
-- existing typography
-- colors
-- buttons
-- spacing
-- responsive layout
-- header/footer where appropriate
+Potential tables/entities:
 
-Do not create an unrelated authentication design.
+page_sections
+site_settings
+navigation_menus
+navigation_items
+footer_settings
+pricing_rules
+pricing_rule_versions
+quote_calculations
+youtube_videos
+ai_blog_jobs
+leads
+lead_conversations
+admin_audit_logs
 
-==================================================
-16. SEO
-==================================================
-
-Verification/authentication pages must not be indexed.
-
-Apply appropriate:
-
-noindex, nofollow
-
-to pages such as:
-
-/verify-email
-/auth/callback
-
-Do not add these pages to the sitemap.
-
-Do not generate production canonical URLs that encourage indexing of authentication pages.
-
-Preserve the existing production SEO configuration.
+Do not create duplicate tables if equivalent existing tables already exist.
 
 ==================================================
-17. MOBILE UX
+17. ADMIN UX REQUIREMENTS
 ==================================================
 
-Verify the entire verification experience on mobile:
+Admin interfaces must be understandable to a non-developer.
 
-- signup completion
-- "check your email" page
-- email link opening
-- callback
-- verification success
-- invalid/expired link
-- resend verification
+Avoid:
+- raw JSON as primary editing
+- unclear labels
+- technical database field names
+- unexplained IDs
 
-Buttons must be usable on small screens.
+Use:
+- forms
+- dropdowns
+- toggles
+- date pickers
+- drag/reorder controls
+- media selectors
+- rich-text editors
+- validation messages
+- save confirmation
+- unsaved changes warning
+- loading states
+- error states
 
-==================================================
-18. TESTING
-==================================================
-
-Perform REAL testing.
-
-Do not mark the module complete based only on TypeScript compilation.
-
-Test:
-
-TEST 1:
-Create a new customer.
-
-Expected:
-Account is created successfully.
-
-TEST 2:
-Check email.
-
-Expected:
-Verification email is actually received.
-
-TEST 3:
-Inspect email.
-
-Expected:
-ModularHome branding and working verification link.
-
-TEST 4:
-Click verification link.
-
-Expected:
-Callback succeeds.
-
-TEST 5:
-Check authentication state.
-
-Expected:
-Customer is VERIFIED.
-
-TEST 6:
-Refresh/reopen account.
-
-Expected:
-Verification state remains VERIFIED.
-
-TEST 7:
-Attempt invalid verification link.
-
-Expected:
-Safe error page/message.
-
-TEST 8:
-Attempt expired/invalid verification code.
-
-Expected:
-Safe error and resend option.
-
-TEST 9:
-Resend verification.
-
-Expected:
-New verification email is generated.
-
-TEST 10:
-Spam/cooldown.
-
-Expected:
-Repeated resend requests are rate-limited.
-
-TEST 11:
-Customer profile isolation.
-
-Expected:
-Customer cannot access another customer's private data.
-
-TEST 12:
-Admin isolation.
-
-Expected:
-Normal customer cannot access /admin.
-
-TEST 13:
-Mobile.
-
-Expected:
-Complete verification flow works on mobile.
+Every save operation should clearly report:
+- Saving...
+- Saved successfully
+- Save failed
 
 ==================================================
-19. AUTOMATED TESTS
+18. REFRESH/PERSISTENCE TEST
 ==================================================
 
-If the project already has an automated testing framework, add appropriate tests.
+For EVERY major admin module:
 
-Test:
+CREATE
+→ Save
+→ Refresh
+→ Verify
 
-- verification state detection
-- callback handling
-- invalid callback
-- resend behavior
-- authorization
-- protected customer data
+EDIT
+→ Save
+→ Refresh
+→ Verify
 
-Do not introduce a new testing framework unnecessarily.
+PUBLISH
+→ Refresh
+→ Verify
+
+UNPUBLISH
+→ Refresh
+→ Verify
+
+SEARCH
+→ Search
+→ Verify correct results
+
+FILTER
+→ Filter
+→ Verify correct results
+
+The following modules must be tested:
+
+- Pages
+- Section Blocks
+- Products
+- Collections
+- Floor Plans
+- Blogs
+- FAQs
+- Header
+- Navigation
+- Footer
+- Pricing Rules
+- Leads
+- Quotations
+- YouTube Manager
+- Global Settings
+- SEO
 
 ==================================================
-20. TYPE / BUILD VALIDATION
+19. END-TO-END DEMONSTRATION
+==================================================
+
+Prepare the application so the following can be demonstrated on screen.
+
+DEMO 1 — WEBSITE CONTROL
+
+1. Open admin.
+2. Open a page.
+3. Change section text.
+4. Save.
+5. Refresh admin.
+6. Open public website.
+7. Refresh.
+8. Show changed content.
+
+DEMO 2 — YOUTUBE TO BLOG
+
+1. Show a new eligible YouTube video.
+2. Run detection/sync.
+3. Show video ID.
+4. Show generation status.
+5. Generate blog.
+6. Show generated draft.
+7. Confirm title.
+8. Confirm headings.
+9. Confirm article body.
+10. Confirm meta title.
+11. Confirm meta description.
+12. Confirm slug.
+13. Confirm video embed.
+14. Confirm thumbnail.
+15. Edit draft.
+16. Save.
+17. Publish.
+18. Unpublish.
+19. Run detection again.
+20. Confirm duplicate blog is NOT created.
+
+DEMO 3 — CHATBOT TO LEAD
+
+1. Open chatbot.
+2. Ask a real ModularHome product question.
+3. Show product/model recommendation.
+4. Provide customer requirements.
+5. Provide:
+   - name
+   - email
+   - phone
+   - location
+   - project type
+   - model
+   - size
+   - budget
+   - timeline
+6. Complete conversation.
+7. Open Admin → Leads.
+8. Show newly created lead.
+9. Show source.
+10. Show timestamp.
+11. Show requirements.
+12. Show conversation context.
+13. Change lead status.
+14. Add internal note.
+15. Refresh and verify persistence.
+
+DEMO 4 — AI QUOTATION
+
+1. Open quote flow.
+2. Enter customer requirements.
+3. Show AI interpretation.
+4. Show structured inputs.
+5. Show pricing rules being used.
+6. Show calculation breakdown.
+7. Show estimate.
+8. Show disclaimer:
+   "Estimated price only. Final pricing is subject to company review."
+9. Save quotation.
+10. Open admin quotations.
+11. Show saved quotation.
+12. Change an admin pricing rule.
+13. Create a NEW test estimate.
+14. Show that the new estimate changes according to the changed rule.
+15. Confirm AI did not independently determine the final price.
+
+DEMO 5 — ADMIN MODULE QA
+
+Demonstrate:
+- create
+- edit
+- publish
+- unpublish
+- search
+- filter
+- save
+- refresh
+
+for the main admin modules.
+
+DEMO 6 — SECURITY
+
+Demonstrate:
+- protected admin route
+- unauthenticated access denied
+- role restriction
+- session expiry
+- logout
+- audit log entry
+- unauthorized API request denied
+
+==================================================
+20. TESTING REQUIREMENTS
 ==================================================
 
 Run:
 
 npx tsc --noEmit
 
-Then:
+Then run the production build.
 
-npm run build
+Also add/run tests for:
 
-Also run the project's existing lint/test commands.
+- page slug generation
+- /undefined prevention
+- dashboard counts
+- product count consistency
+- pricing calculations
+- pricing rule changes
+- YouTube duplicate detection
+- AI blog generation
+- lead creation
+- lead updates
+- quotation persistence
+- role permissions
+- session expiry
+- audit logs
 
-Fix errors introduced by this module.
-
-Do not make unrelated refactors.
-
-==================================================
-21. PRODUCTION SAFETY
-==================================================
-
-Do not:
-
-- run ETL
-- run migration:production
-- modify production database catalog data
-- change DNS
-- change Shopify
-- change Stripe production settings
-- delete existing customer data
-- reset Supabase production
-
-Use the existing development/staging environment for implementation/testing.
+Do not report "all tests passed" unless they actually pass.
 
 ==================================================
-22. ENVIRONMENT VARIABLES
+21. EXTERNAL API / CREDENTIAL HANDLING
 ==================================================
 
-Maintain separate:
+The following may require credentials/configuration:
 
-Development
-Staging/Preview
-Production
+OPENAI_API_KEY
+YOUTUBE_API_KEY
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+RESEND_API_KEY
 
-Supabase credentials must correspond to the correct environment.
+If a required credential is missing:
 
-Never commit:
+DO NOT fake successful integration.
 
-.env
-.env.local
-.env.production
-.env.staging
+Instead:
+- implement the integration
+- add environment variable documentation
+- provide clear configuration error
+- create mock/test adapter only for automated development tests
+- mark real end-to-end testing as BLOCKED/PENDING
 
-if they contain secrets.
-
-Never output secret values in the final report.
-
-==================================================
-23. FINAL MODULE 02 CHECKLIST
-==================================================
-
-Do not mark Module 02 complete until all applicable items are verified:
-
-[ ] Supabase email confirmation enabled
-[ ] Customer receives verification email
-[ ] Email is branded for ModularHome
-[ ] Verification CTA works
-[ ] Verification callback exists
-[ ] Callback securely processes verification
-[ ] Verified state detected from Supabase Auth
-[ ] Unverified state detected
-[ ] Verify-email page implemented
-[ ] Resend verification implemented
-[ ] Resend cooldown/rate limiting implemented
-[ ] Invalid link handled
-[ ] Expired link handled
-[ ] Already-used link handled
-[ ] Verification success handled
-[ ] Correct post-verification redirect
-[ ] Customer session remains secure
-[ ] Customer profile remains linked correctly
-[ ] RLS remains secure
-[ ] Admin authentication unaffected
-[ ] Customer cannot access admin
-[ ] Authentication pages are noindex
-[ ] Authentication pages excluded from sitemap
-[ ] Mobile flow tested
-[ ] TypeScript passes
-[ ] Build passes
-[ ] Existing tests pass
-[ ] Real email delivery tested
+Never put real secrets in source code.
 
 ==================================================
-24. FINAL REPORT
+22. ENVIRONMENT FILE
 ==================================================
 
-At the end, report:
+Inspect existing .env.example.
 
-1. Module 02 implementation status:
-   Completed / Ready for QA / Blocked
+Update it with all required variables, without real secrets.
 
-2. Files created.
+Clearly group:
 
-3. Files modified.
+# Supabase
+...
 
-4. Supabase Auth changes.
+# OpenAI
+OPENAI_API_KEY=
 
-5. Database/RLS changes.
+# YouTube
+YOUTUBE_API_KEY=
+YOUTUBE_CHANNEL_ID=
 
-6. Email configuration changes.
+# Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 
-7. Routes added/modified.
+# Stripe
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
 
-8. Environment variables required:
-   names ONLY — never values.
+# Resend
+RESEND_API_KEY=
 
-9. Tests executed.
+==================================================
+23. NO FALSE COMPLETION
+==================================================
 
-10. Email delivery test result.
+This is extremely important.
 
-11. TypeScript result.
+Do NOT claim a requirement is completed merely because:
+- UI exists
+- API route exists
+- database table exists
+- code compiles
 
-12. Build result.
+A requirement is COMPLETE only when:
+1. implementation exists
+2. functionality works
+3. persistence works
+4. relevant tests pass
+5. end-to-end behavior is verified
 
-13. Security result.
+If external credentials are missing:
+STATUS = BLOCKED / PENDING EXTERNAL CONFIGURATION
 
-14. Mobile result.
+If implementation exists but needs real-world QA:
+STATUS = READY FOR QA
 
-15. Any remaining blockers.
+If development is incomplete:
+STATUS = IN PROGRESS
 
-IMPORTANT:
-Do not claim "Completed" unless the verification email was actually delivered and the verification link successfully changed the customer's account to VERIFIED.
+Only use:
+COMPLETED
+when the acceptance test has actually passed.
 
-If email provider configuration is missing, clearly report:
+==================================================
+24. FINAL STATUS REPORT
+==================================================
 
-"Implementation complete, but email delivery configuration remains pending."
+At the end provide a report:
 
-Do not modify unrelated modules.
+A. REQUIREMENTS COMPLETED
+- requirement
+- implementation
+- test evidence
+
+B. READY FOR QA
+- requirement
+- what remains to test
+
+C. BLOCKED
+- requirement
+- exact missing dependency
+- required credential/configuration
+
+D. BUGS FIXED
+- issue
+- root cause
+- fix
+
+E. DATABASE CHANGES
+- migration
+- tables
+- indexes
+- constraints
+- RLS
+
+F. API/ENVIRONMENT CHANGES
+- new variables
+- integrations
+- configuration required
+
+G. TEST RESULTS
+- TypeScript
+- build
+- unit tests
+- integration tests
+- E2E tests
+
+H. CLIENT DEMONSTRATION CHECKLIST
+Mark each:
+
+[ ] Website content edit reflected publicly
+[ ] YouTube → blog
+[ ] Duplicate prevention
+[ ] Chatbot → lead
+[ ] Lead admin management
+[ ] AI quotation
+[ ] Pricing rule change affects new quote
+[ ] Admin CRUD
+[ ] Publish/unpublish
+[ ] Search/filter
+[ ] Refresh persistence
+[ ] Role permissions
+[ ] Session expiry
+[ ] Audit logging
+
+I. REMAINING WORK
+Give exact remaining tasks.
+
+J. ESTIMATED COMPLETION
+Give a realistic estimate based on actual remaining work.
+
+==================================================
+25. GIT REQUIREMENTS
+==================================================
+
+Before changes:
+- inspect git status
+- inspect current branch
+- inspect recent commits
+
+After implementation:
+- run tests
+- run build
+- review changed files
+- ensure no secrets were committed
+- ensure no accidental database dumps were committed
+- commit with a clear message
+
+Example:
+
+feat: complete admin CMS and AI workflow acceptance requirements
+
+Do not push blindly if tests fail.
+
+==================================================
+FINAL INSTRUCTION
+==================================================
+
+Start by auditing the existing ModularHome repository.
+
+DO NOT immediately start coding.
+
+First produce an internal implementation map based on the actual codebase:
+- existing functionality
+- missing functionality
+- bugs
+- database gaps
+- API gaps
+- security gaps
+- testing gaps
+
+Then implement the requirements systematically.
+
+Prioritize:
+
+1. Admin CMS control
+2. Existing admin bugs
+3. Pricing rule engine
+4. YouTube → blog workflow
+5. AI chatbot → leads
+6. AI-assisted quotations
+7. Security/RBAC/session/audit
+8. SEO/alt text
+9. Testing
+10. Demonstration readiness
+
+Do not replace working functionality unnecessarily.
+
+Do not fake integrations.
+
+Do not fabricate test results.
+
+Do not mark blocked external integrations as completed.
+
+The final goal is not merely "code implemented".
+
+The final goal is:
+
+BUILD → TEST → DEMONSTRATE → READY FOR CLIENT RETEST.

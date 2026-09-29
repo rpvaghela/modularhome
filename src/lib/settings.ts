@@ -126,8 +126,8 @@ export async function getPublicGlobalSettings(): Promise<PublicGlobalSettings> {
     const { data: raw, error } = await supabaseAdmin
       .from("global_settings")
       .select("*")
-      .eq("key", "default")
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     if (error || !raw) return localSettings;
 
@@ -142,7 +142,7 @@ export async function getPublicGlobalSettings(): Promise<PublicGlobalSettings> {
 
     let navLinks = localSettings.navLinks;
     try {
-      const rawNav = raw.nav_links || raw.navLinks;
+      const rawNav = raw.header_navigation || raw.nav_links || raw.navLinks;
       if (rawNav) {
         navLinks = typeof rawNav === "string" ? JSON.parse(rawNav) : rawNav;
       }
@@ -150,7 +150,7 @@ export async function getPublicGlobalSettings(): Promise<PublicGlobalSettings> {
 
     let footerLinks = localSettings.footerLinks;
     try {
-      const rawFoot = raw.footer_links || raw.footerLinks;
+      const rawFoot = raw.footer_navigation || raw.footer_links || raw.footerLinks;
       if (rawFoot) {
         footerLinks = typeof rawFoot === "string" ? JSON.parse(rawFoot) : rawFoot;
       }
@@ -171,7 +171,7 @@ export async function getPublicGlobalSettings(): Promise<PublicGlobalSettings> {
       footerText: raw.footer_text || raw.footerText || localSettings.footerText,
       footerLinks: footerLinks || localSettings.footerLinks,
       defaultSeoTitle: raw.default_seo_title || raw.defaultSeoTitle || localSettings.defaultSeoTitle,
-      defaultMetaDescription: raw.default_meta_description || raw.defaultMetaDescription || localSettings.defaultMetaDescription,
+      defaultMetaDescription: raw.default_meta_description || raw.default_seo_desc || raw.defaultMetaDescription || localSettings.defaultMetaDescription,
       ctaLabel: raw.cta_label || raw.ctaLabel || localSettings.ctaLabel,
       ctaLink: raw.cta_link || raw.ctaLink || localSettings.ctaLink,
     };

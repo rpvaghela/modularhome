@@ -224,7 +224,17 @@ export default function AdminPagesPage() {
               <tbody className="divide-y divide-[#e7e9ee]">
                 {pages.map((page) => {
                   const pageId = page._id || page.id;
-                  const livePath = `/${page.slug === "home" ? "" : page.slug}`;
+                  const rawSlug = page.slug || page.handle || pageId;
+                  const livePath = `/${rawSlug === "home" ? "" : rawSlug}`;
+                  const formattedDate = (page.updatedAt || page.updated_at || page.createdAt || page.created_at)
+                    ? new Date(page.updatedAt || page.updated_at || page.createdAt || page.created_at).toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : "N/A";
                   return (
                     <tr key={pageId} className="hover:bg-[#f8f9fa]/70 transition-colors">
                       <td className="py-4 px-5 font-bold text-[#101114]">
@@ -273,7 +283,7 @@ export default function AdminPagesPage() {
                         </span>
                       </td>
                       <td className="py-4 px-5 text-[#6b7280] text-[11px] font-medium whitespace-nowrap">
-                        {page.updatedAt ? new Date(page.updatedAt).toLocaleDateString() : "Recent"}
+                        {formattedDate}
                       </td>
                       <td className="py-4 px-5 text-right space-x-2">
                         <a

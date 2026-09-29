@@ -433,6 +433,30 @@ export default function AdminLeadsPage() {
                 <span className="text-[#6b7280] block font-mono text-[10px] uppercase">Intake Source</span>
                 <span className="font-mono font-bold text-[#101114]">{selectedLead.source || "WEBSITE"}</span>
               </div>
+              {selectedLead.project_type && (
+                <div>
+                  <span className="text-[#6b7280] block font-mono text-[10px] uppercase">Project Type</span>
+                  <span className="font-bold text-[#101114]">{selectedLead.project_type}</span>
+                </div>
+              )}
+              {selectedLead.approximate_size && (
+                <div>
+                  <span className="text-[#6b7280] block font-mono text-[10px] uppercase">Estimated Size</span>
+                  <span className="font-bold text-[#101114]">{selectedLead.approximate_size}</span>
+                </div>
+              )}
+              {selectedLead.budget && (
+                <div>
+                  <span className="text-[#6b7280] block font-mono text-[10px] uppercase">Target Budget</span>
+                  <span className="font-bold text-emerald-800">{selectedLead.budget}</span>
+                </div>
+              )}
+              {selectedLead.timeline && (
+                <div>
+                  <span className="text-[#6b7280] block font-mono text-[10px] uppercase">Construction Timeline</span>
+                  <span className="font-bold text-[#101114]">{selectedLead.timeline}</span>
+                </div>
+              )}
             </div>
 
             {/* Customer Message / Inquiry */}

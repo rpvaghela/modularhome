@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { logActivity } from "@/lib/activityLog";
 import {
   saveCustomPage,
   readPagesFromStore,
   getPageSectionCounts,
   getPageSections,
-  isUuidString,
 } from "@/lib/pageStore";
+import { formatCmsPage } from "@/lib/publicData";
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdminAuth();
@@ -29,7 +30,13 @@ export async function GET(request: NextRequest) {
           .order("created_at", { ascending: false });
 
         if (status && status !== "ALL") {
-          query = query.eq("status", status);
+          if (status === "PUBLISHED") {
+            query = query.or("status.eq.PUBLISHED,published.eq.true");
+          } else if (status === "DRAFT") {
+            query = query.or("status.eq.DRAFT,published.eq.false");
+          } else {
+            query = query.eq("status", status);
+          }
         }
 
         const { data, error } = await query;
@@ -54,17 +61,21 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Standardize all database pages through formatCmsPage
+    const normalizedDbPages = dbPages.map((p) => formatCmsPage(p));
+
     // Merge with local persistent store
     const localPages = readPagesFromStore();
     const localSectionCounts = getPageSectionCounts();
-    const existingSlugs = new Set(dbPages.map((p) => p.slug?.toLowerCase()));
-    const merged: any[] = [...dbPages];
+    const existingSlugs = new Set(normalizedDbPages.map((p) => p.slug.toLowerCase()));
+    const merged: any[] = [...normalizedDbPages];
 
     for (const lp of localPages) {
-      if (!existingSlugs.has(lp.slug?.toLowerCase())) {
-        if (!status || status === "ALL" || lp.status === status) {
-          merged.push(lp);
-          existingSlugs.add(lp.slug?.toLowerCase());
+      const normalizedLp = formatCmsPage(lp);
+      if (!existingSlugs.has(normalizedLp.slug.toLowerCase())) {
+        if (!status || status === "ALL" || normalizedLp.status === status) {
+          merged.push(normalizedLp);
+          existingSlugs.add(normalizedLp.slug.toLowerCase());
         }
       }
     }
@@ -82,7 +93,7 @@ export async function GET(request: NextRequest) {
 
     // Attach accurate section count to every page
     const formattedPages = filtered.map((page) => {
-      const pageId = page.id || page._id;
+      const pageId = page.id;
       const slug = page.slug;
 
       const dbCount = (pageId && dbSectionCounts[pageId]) || 0;
@@ -91,12 +102,12 @@ export async function GET(request: NextRequest) {
         (slug && localSectionCounts[slug]) ||
         0;
       const inlineCount = Array.isArray(page.sections) ? page.sections.length : 0;
-
       const finalCount = Math.max(dbCount, localCount, inlineCount);
 
       return {
         ...page,
         id: pageId,
+        _id: pageId,
         sectionCount: finalCount,
         _count: {
           sections: finalCount,
@@ -146,34 +157,45 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const cleanSlug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-");
+    const cleanSlug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "");
+    if (!cleanSlug) {
+      return NextResponse.json(
+        { success: false, error: { message: "Invalid page slug format.", code: "VALIDATION_ERROR" } },
+        { status: 400 }
+      );
+    }
+
+    const pageStatus = status || "PUBLISHED";
 
     const newPage = {
       title,
+      handle: cleanSlug,
       slug: cleanSlug,
       subtitle: subtitle || null,
-      content: content || null,
-      status: status || "PUBLISHED",
+      body_html: content || null,
+      published: pageStatus !== "DRAFT",
+      status: pageStatus,
       featured_image: featuredImage || featured_image || null,
-      seo_title: seoTitle || seo_title || title,
-      meta_description: metaDescription || meta_description || subtitle || null,
+      seo_title: seoTitle || seo_title || `${title} | ModularHome.com`,
+      seo_description: metaDescription || meta_description || subtitle || null,
       canonical_url: canonicalUrl || canonical_url || null,
     };
 
-    // 1. Immediately save into persistent local store (ensures 100% instant availability)
+    // 1. Save into local persistent store
     const localSaved = saveCustomPage({
       title,
       slug: cleanSlug,
       subtitle: subtitle || "",
       content: content || "",
-      status: status || "PUBLISHED",
+      status: pageStatus,
       featuredImage: featuredImage || featured_image || "",
-      seoTitle: seoTitle || seo_title || title,
+      seoTitle: seoTitle || seo_title || `${title} | ModularHome.com`,
       metaDescription: metaDescription || meta_description || subtitle || "",
       canonicalUrl: canonicalUrl || canonical_url || "",
     });
 
     // 2. Also save into Supabase if configured
+    let savedPageId = localSaved.id;
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabaseAdmin
@@ -183,9 +205,21 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (!error && data) {
+          savedPageId = data.id;
+          const formatted = formatCmsPage(data);
+          
+          await logActivity(
+            authResult,
+            "PAGE_CREATE",
+            "PAGE",
+            savedPageId,
+            `Created landing page "${title}" (/${cleanSlug})`,
+            { title, slug: cleanSlug, status: pageStatus }
+          );
+
           return NextResponse.json({
             success: true,
-            data: { ...data, sectionCount: 0, _count: { sections: 0 } },
+            data: { ...formatted, sectionCount: 0, _count: { sections: 0 } },
             message: "Page created successfully.",
           });
         }
@@ -193,6 +227,15 @@ export async function POST(request: NextRequest) {
         console.warn("Supabase insert warning, saved locally:", sbErr);
       }
     }
+
+    await logActivity(
+      authResult,
+      "PAGE_CREATE",
+      "PAGE",
+      savedPageId,
+      `Created landing page "${title}" (/${cleanSlug})`,
+      { title, slug: cleanSlug, status: pageStatus }
+    );
 
     return NextResponse.json({
       success: true,

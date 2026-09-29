@@ -92,7 +92,7 @@ export default function AdminDashboardPage() {
     },
     {
       label: "Floor Plan Kits",
-      value: metrics.totalFloorPlans || 6,
+      value: metrics.totalFloorPlans || 0,
       subtext: "Downloadable architectural sets",
       href: "/admin/floor-plans",
       icon: Download,

@@ -112,7 +112,7 @@ export default function AIBuildAssistant() {
     };
   };
 
-  const handleSend = (textToSend?: string) => {
+  const handleSend = async (textToSend?: string) => {
     const text = textToSend || inputValue;
     if (!text.trim()) return;
 
@@ -123,22 +123,63 @@ export default function AIBuildAssistant() {
       timestamp: "Just now",
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     if (!textToSend) setInputValue("");
     setIsTyping(true);
 
-    setTimeout(() => {
-      const response = generateBotReply(text);
+    try {
+      const apiMessages = newMessages.map((m) => ({
+        role: m.sender === "user" ? "user" : "assistant",
+        content: m.text,
+      }));
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: apiMessages,
+          userContext: { source: "AI_BUILD_ASSISTANT" },
+        }),
+      });
+
+      const json = await res.json();
+      if (json.success && json.reply) {
+        const botMessage: Message = {
+          id: `bot-${Date.now()}`,
+          sender: "bot",
+          text: json.reply,
+          timestamp: "Just now",
+          actionButtons: json.actionButtons || [
+            { label: "Instant Quote Wizard", href: "/quote" },
+            { label: "Browse Catalog", href: "/buildings" },
+          ],
+        };
+        setMessages((prev) => [...prev, botMessage]);
+      } else {
+        const fallback = generateBotReply(text);
+        const botMessage: Message = {
+          id: `bot-${Date.now()}`,
+          sender: "bot",
+          text: fallback.reply,
+          timestamp: "Just now",
+          actionButtons: fallback.actionButtons,
+        };
+        setMessages((prev) => [...prev, botMessage]);
+      }
+    } catch {
+      const fallback = generateBotReply(text);
       const botMessage: Message = {
         id: `bot-${Date.now()}`,
         sender: "bot",
-        text: response.reply,
+        text: fallback.reply,
         timestamp: "Just now",
-        actionButtons: response.actionButtons,
+        actionButtons: fallback.actionButtons,
       };
       setMessages((prev) => [...prev, botMessage]);
+    } finally {
       setIsTyping(false);
-    }, 600);
+    }
   };
 
   return (

@@ -109,14 +109,14 @@ export default function AdminEditPage() {
               Edit Page: {page.title}
             </h1>
             <p className="text-xs text-[#6b7280] font-mono mt-0.5">
-              Route: /{page.slug === "home" ? "" : page.slug}
+              Route: /{(page.slug || page.handle || pageId) === "home" ? "" : (page.slug || page.handle || pageId)}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
           <a
-            href={`/${page.slug === "home" ? "" : page.slug}`}
+            href={`/${(page.slug || page.handle || pageId) === "home" ? "" : (page.slug || page.handle || pageId)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-amber-200 bg-amber-50 text-[#b45309] hover:bg-amber-100 text-xs font-bold transition-all shadow-2xs"
@@ -126,7 +126,7 @@ export default function AdminEditPage() {
             <span>View Live Page</span>
           </a>
           <Link
-            href={`/admin/sections?pageId=${page.id || page._id}`}
+            href={`/admin/sections?pageId=${page.id || page._id || pageId}`}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[#d5d9e0] bg-white text-[#101114] hover:bg-[#f6f7f9] text-xs font-bold transition-all shadow-2xs"
           >
             <Layers className="w-4 h-4 text-[#d97706]" />
@@ -292,8 +292,12 @@ export default function AdminEditPage() {
             />
 
             <div className="pt-3 border-t border-[#e7e9ee] text-[11px] text-[#6b7280] space-y-1">
-              <div>Created: {page.createdAt ? new Date(page.createdAt).toLocaleString() : "N/A"}</div>
-              <div>Last Modified: {page.updatedAt ? new Date(page.updatedAt).toLocaleString() : "N/A"}</div>
+              <div>
+                Created: {(page.createdAt || page.created_at) ? new Date(page.createdAt || page.created_at).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "N/A"}
+              </div>
+              <div>
+                Last Modified: {(page.updatedAt || page.updated_at) ? new Date(page.updatedAt || page.updated_at).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "N/A"}
+              </div>
             </div>
           </div>
         </div>
