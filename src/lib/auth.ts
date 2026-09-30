@@ -180,7 +180,7 @@ export async function getAdminSession(): Promise<AdminSessionUser | null> {
           name: (payload.name as string) || "Admin User",
           role: (payload.role as string) || "SUPER_ADMIN",
         };
-        memorySessions.set(token, { user: verifiedUser, expiresAt: Date.now() + 86400000 });
+        memorySessions.set(token, { user: verifiedUser, expiresAt: Date.now() + SESSION_EXPIRY_MS });
         return verifiedUser;
       }
     } catch (jwtErr) {

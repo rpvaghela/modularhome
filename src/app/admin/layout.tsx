@@ -48,7 +48,23 @@ interface AdminUser {
   role: string;
 }
 
-const INACTIVITY_LIMIT_MS = 60 * 60 * 1000; // 1-Hour Strict Session Limit
+const INACTIVITY_LIMIT_MS = 30 * 60 * 1000; // 30-Minute Inactivity Session Limit
+
+function getStoredLastActivity(): number {
+  if (typeof window === "undefined") return Date.now();
+  try {
+    const stored = localStorage.getItem("admin_last_activity");
+    const num = stored ? Number(stored) : NaN;
+    if (!num || isNaN(num) || num > Date.now()) {
+      const now = Date.now();
+      localStorage.setItem("admin_last_activity", String(now));
+      return now;
+    }
+    return num;
+  } catch {
+    return Date.now();
+  }
+}
 
 export default function AdminLayout({
   children,
@@ -60,37 +76,48 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<AdminUser | null>(null);
   const [lastActivity, setLastActivity] = useState<number>(Date.now());
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(3600);
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(1800);
   const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
 
   const isLoginPage = pathname === "/admin/login";
 
-  // Unified Logout Handler
+  // Unified Logout Handler with full client purge
   const performLogout = useCallback(
     async (reason: "session_expired" | "unauthorized" | "manual" = "manual") => {
       if (isLoggingOut) return;
       setIsLoggingOut(true);
       try {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("admin_last_activity");
+          localStorage.setItem("admin_logout_signal", String(Date.now()));
+        }
         await fetch("/api/admin/auth/logout", { method: "POST" });
       } catch {}
       setUser(null);
-      if (reason === "manual") {
-        router.push("/admin/login");
+      const targetUrl =
+        reason === "manual"
+          ? "/admin/login?reason=manual"
+          : `/admin/login?redirect=${encodeURIComponent(pathname || "/admin")}&reason=${reason}`;
+      
+      // Hard redirect to clear all in-memory client state and caches
+      if (typeof window !== "undefined") {
+        window.location.href = targetUrl;
       } else {
-        router.push(
-          `/admin/login?redirect=${encodeURIComponent(pathname || "/admin")}&reason=${reason}`
-        );
+        router.push(targetUrl);
       }
-      router.refresh();
     },
     [isLoggingOut, pathname, router]
   );
 
   // Extend / Refresh Session
   const extendSession = useCallback(async () => {
-    setLastActivity(Date.now());
-    setSecondsRemaining(3600);
+    const now = Date.now();
+    setLastActivity(now);
+    setSecondsRemaining(Math.floor(INACTIVITY_LIMIT_MS / 1000));
     try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("admin_last_activity", String(now));
+      }
       const res = await fetch("/api/admin/auth/me", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
@@ -107,6 +134,15 @@ export default function AdminLayout({
   useEffect(() => {
     if (isLoginPage) return;
     let isMounted = true;
+
+    // Check on initial mount
+    const stored = getStoredLastActivity();
+    setLastActivity(stored);
+    const elapsed = Date.now() - stored;
+    if (elapsed >= INACTIVITY_LIMIT_MS) {
+      performLogout("session_expired");
+      return;
+    }
 
     const verifySession = async () => {
       try {
@@ -135,17 +171,19 @@ export default function AdminLayout({
     };
   }, [isLoginPage, performLogout]);
 
-  // 2. User Inactivity Detection (throttled listener)
+  // 2. User Inactivity Detection (throttled listener across all user interactions)
   useEffect(() => {
     if (isLoginPage) return;
 
     let lastRecord = Date.now();
     const handleActivity = () => {
       const now = Date.now();
-      if (now - lastRecord > 5000) {
-        // Throttle state updates to once every 5 seconds
+      if (now - lastRecord > 2500) {
         lastRecord = now;
         setLastActivity(now);
+        try {
+          localStorage.setItem("admin_last_activity", String(now));
+        } catch {}
       }
     };
 
@@ -154,6 +192,7 @@ export default function AdminLayout({
     window.addEventListener("keydown", handleActivity, { passive: true });
     window.addEventListener("scroll", handleActivity, { passive: true });
     window.addEventListener("touchstart", handleActivity, { passive: true });
+    window.addEventListener("pointerdown", handleActivity, { passive: true });
 
     return () => {
       window.removeEventListener("mousemove", handleActivity);
@@ -161,15 +200,66 @@ export default function AdminLayout({
       window.removeEventListener("keydown", handleActivity);
       window.removeEventListener("scroll", handleActivity);
       window.removeEventListener("touchstart", handleActivity);
+      window.removeEventListener("pointerdown", handleActivity);
     };
   }, [isLoginPage]);
 
-  // 3. Countdown Timer & Auto-Logout Trigger
+  // 3. Immediate Inactivity Validation on Tab Focus & Cross-Tab Broadcast Sync
+  useEffect(() => {
+    if (isLoginPage) return;
+
+    const checkInactivityState = () => {
+      const last = getStoredLastActivity();
+      const elapsed = Date.now() - last;
+      if (elapsed >= INACTIVITY_LIMIT_MS) {
+        performLogout("session_expired");
+      } else {
+        setLastActivity(last);
+        setSecondsRemaining(Math.max(0, Math.floor((INACTIVITY_LIMIT_MS - elapsed) / 1000)));
+      }
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        checkInactivityState();
+      }
+    };
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "admin_logout_signal") {
+        performLogout("session_expired");
+      } else if (e.key === "admin_last_activity" && e.newValue) {
+        const last = Number(e.newValue);
+        if (!isNaN(last)) {
+          setLastActivity(last);
+          const elapsed = Date.now() - last;
+          if (elapsed >= INACTIVITY_LIMIT_MS) {
+            performLogout("session_expired");
+          } else {
+            setSecondsRemaining(Math.max(0, Math.floor((INACTIVITY_LIMIT_MS - elapsed) / 1000)));
+          }
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("focus", checkInactivityState);
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", checkInactivityState);
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [isLoginPage, performLogout]);
+
+  // 4. Countdown Interval & Inactivity Auto-Logout
   useEffect(() => {
     if (isLoginPage) return;
 
     const countdown = setInterval(() => {
-      const elapsed = Date.now() - lastActivity;
+      const last = getStoredLastActivity();
+      const elapsed = Date.now() - last;
       const remaining = Math.max(0, Math.floor((INACTIVITY_LIMIT_MS - elapsed) / 1000));
       setSecondsRemaining(remaining);
 
@@ -180,9 +270,9 @@ export default function AdminLayout({
     }, 1000);
 
     return () => clearInterval(countdown);
-  }, [isLoginPage, lastActivity, performLogout]);
+  }, [isLoginPage, performLogout]);
 
-  // 4. Global 401 Fetch Interceptor
+  // 5. Global 401 Fetch Interceptor
   useEffect(() => {
     if (isLoginPage || typeof window === "undefined") return;
 

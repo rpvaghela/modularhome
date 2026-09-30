@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,6 +18,16 @@ function LoginForm() {
   const [require2FA, setRequire2FA] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Purge any residual tokens / timestamps on landing on the login portal
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("admin_last_activity");
+    }
+    if (reason === "session_expired" || reason === "unauthorized" || reason === "session_reset") {
+      fetch("/api/admin/auth/logout", { method: "POST" }).catch(() => {});
+    }
+  }, [reason]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,8 +54,14 @@ function LoginForm() {
         return;
       }
 
-      router.push(redirectPath);
-      router.refresh();
+      // Initialize fresh activity timestamp on successful sign-in
+      if (typeof window !== "undefined") {
+        localStorage.setItem("admin_last_activity", String(Date.now()));
+        window.location.href = redirectPath;
+      } else {
+        router.push(redirectPath);
+        router.refresh();
+      }
     } catch (err: any) {
       setError(err.message || "Network error. Please verify your connection.");
       setIsLoading(false);
