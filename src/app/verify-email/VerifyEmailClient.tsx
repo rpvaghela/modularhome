@@ -357,11 +357,11 @@ function VerifyEmailInner() {
 
           {/* Nav Links */}
           <div className="pt-2 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <Link href="/account" className="text-gray-500 hover:text-[#101114] font-medium">
-              ← Continue to Dashboard (Unverified)
+            <Link href="/account/login" className="text-gray-500 hover:text-[#101114] font-medium">
+              ← Back to Sign In
             </Link>
-            <Link href="/account/login" className="text-[#d97706] font-bold hover:underline">
-              Sign into another account →
+            <Link href="/signup" className="text-[#d97706] font-bold hover:underline">
+              Create another account →
             </Link>
           </div>
         </div>

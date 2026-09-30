@@ -235,13 +235,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // 13. Create Customer Session (unverified state)
-    await createCustomerSession(newCustomer);
-
-    // 14. Return Safe Customer Response (No sensitive hashes or tokens)
+    // 13. Safe Customer Response (No session is created until email verification is completed)
     const isDev = process.env.NODE_ENV !== "production";
     return NextResponse.json({
       success: true,
+      requiresVerification: true,
       customer: {
         id: newCustomer.id,
         email: newCustomer.email,
@@ -250,7 +248,7 @@ export async function POST(request: NextRequest) {
         email_verified: false,
         status: newCustomer.status,
       },
-      message: "Account registered successfully! A verification email has been sent.",
+      message: "Account registered successfully! Please check your email to verify your address before signing in.",
       ...(isDev && { devDirectUrl: `/verify-email?token=${verificationToken}` }),
     });
   } catch (error: any) {

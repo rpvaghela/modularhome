@@ -40,8 +40,11 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
       })
       .then((data) => {
         if (!isMounted) return;
-        if (data.success && data.user) {
+        if (data.success && data.user && data.user.email_verified) {
           setCustomer(data.user);
+        } else if (data.success && data.user && !data.user.email_verified) {
+          setCustomer(null);
+          router.push(`/verify-email?email=${encodeURIComponent(data.user.email)}`);
         } else {
           setCustomer(null);
           if (!isAuthPage && !pathname.includes("/invoices/")) {

@@ -50,6 +50,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 4. Strict Email Verification Check
+    if (!customer.email_verified) {
+      return NextResponse.json(
+        {
+          success: false,
+          requiresVerification: true,
+          email: customer.email,
+          error: {
+            message: "Your email address has not been verified yet. Please check your inbox for the verification link before signing in.",
+            code: "EMAIL_NOT_VERIFIED",
+          },
+        },
+        { status: 403 }
+      );
+    }
+
     // Update last login
     await saveCustomer({
       ...customer,
@@ -57,7 +73,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     });
 
-    // Create session
+    // Create session (only verified customers reach here)
     await createCustomerSession(customer);
 
     // Log login event

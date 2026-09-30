@@ -32,6 +32,7 @@ function CustomerLoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(urlError || "");
   const [infoMessage, setInfoMessage] = useState("");
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
 
   useEffect(() => {
     if (urlError) {
@@ -53,18 +54,26 @@ function CustomerLoginForm() {
     e.preventDefault();
     setErrorMessage("");
     setInfoMessage("");
+    setUnverifiedEmail(null);
     setIsLoading(true);
 
     try {
+      const cleanEmail = email.toLowerCase().trim();
       const res = await fetch("/api/customer/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.toLowerCase().trim(), password }),
+        body: JSON.stringify({ email: cleanEmail, password }),
       });
 
       const data = await res.json();
 
       if (!res.ok || !data.success) {
+        if (data.requiresVerification || data.error?.code === "EMAIL_NOT_VERIFIED") {
+          setUnverifiedEmail(cleanEmail);
+          setErrorMessage(data.error?.message || "Please verify your email address before signing in.");
+          setIsLoading(false);
+          return;
+        }
         throw new Error(data.error?.message || "Invalid email or password.");
       }
 
@@ -108,7 +117,26 @@ function CustomerLoginForm() {
         </div>
       )}
 
-      {errorMessage && (
+      {unverifiedEmail && (
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-2 animate-in fade-in text-left">
+          <div className="flex items-center gap-2 font-bold text-amber-800">
+            <Mail className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>Email Verification Required</span>
+          </div>
+          <p className="text-[11px] text-amber-700 leading-relaxed">
+            Your account requires email confirmation before accessing the portal.
+          </p>
+          <Link
+            href={`/verify-email?email=${encodeURIComponent(unverifiedEmail)}`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black text-xs transition-all shadow-xs"
+          >
+            <span>Verify or Resend Email</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      )}
+
+      {errorMessage && !unverifiedEmail && (
         <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-xs font-semibold text-red-700 flex items-start gap-2.5 animate-in fade-in">
           <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
           <span className="leading-relaxed">{errorMessage}</span>

@@ -40,9 +40,13 @@ export interface CustomerSessionUser {
 }
 
 /**
- * Creates customer session and writes HttpOnly cookie
+ * Creates customer session and writes HttpOnly cookie (only for verified accounts)
  */
 export async function createCustomerSession(customer: Customer): Promise<string> {
+  if (!customer.email_verified) {
+    throw new Error("Cannot create session for unverified email address. Please verify your email first.");
+  }
+
   const expiresAt = Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
 
   // 1. Sign cryptographic JWT token (Stateless, works on all serverless environments)
@@ -51,7 +55,7 @@ export async function createCustomerSession(customer: Customer): Promise<string>
     email: customer.email,
     name: customer.name,
     phone: customer.phone,
-    email_verified: customer.email_verified,
+    email_verified: true,
     status: customer.status,
   })
     .setProtectedHeader({ alg: "HS256" })
@@ -101,13 +105,13 @@ export async function getCustomerSession(): Promise<CustomerSessionUser | null> 
     // 1. Fast stateless JWT verification
     try {
       const { payload } = await jwtVerify(token, JWT_CUSTOMER_SECRET);
-      if (payload && payload.id && payload.email) {
+      if (payload && payload.id && payload.email && payload.email_verified) {
         return {
           id: payload.id as string,
           email: payload.email as string,
           name: (payload.name as string) || "Customer",
           phone: (payload.phone as string) || null,
-          email_verified: !!payload.email_verified,
+          email_verified: true,
           status: (payload.status as string) || "ACTIVE",
         };
       }
@@ -145,13 +149,13 @@ export async function getCustomerSession(): Promise<CustomerSessionUser | null> 
             ? sessionData.customers[0]
             : sessionData.customers;
 
-          if (cust && cust.status === "ACTIVE") {
+          if (cust && cust.status === "ACTIVE" && cust.email_verified) {
             return {
               id: cust.id,
               email: cust.email,
               name: cust.name,
               phone: cust.phone,
-              email_verified: cust.email_verified,
+              email_verified: true,
               status: cust.status,
             };
           }
@@ -171,13 +175,13 @@ export async function getCustomerSession(): Promise<CustomerSessionUser | null> 
       const match = list.find((s) => s.session_token === token);
       if (match && match.customer_id && Number(match.expires_at) > Date.now()) {
         const cust = await getCustomerById(match.customer_id);
-        if (cust && cust.status === "ACTIVE") {
+        if (cust && cust.status === "ACTIVE" && cust.email_verified) {
           return {
             id: cust.id,
             email: cust.email,
             name: cust.name,
             phone: cust.phone,
-            email_verified: cust.email_verified,
+            email_verified: true,
             status: cust.status,
           };
         }
@@ -205,6 +209,18 @@ export async function requireCustomerAuth(): Promise<NextResponse | CustomerSess
       { status: 401 }
     );
   }
+
+  if (!session.email_verified) {
+    return NextResponse.json(
+      {
+        success: false,
+        requiresVerification: true,
+        error: { message: "Please verify your email address to access your account.", code: "EMAIL_NOT_VERIFIED" },
+      },
+      { status: 403 }
+    );
+  }
+
   return session;
 }
 
