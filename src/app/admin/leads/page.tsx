@@ -40,7 +40,16 @@ export default function AdminLeadsPage() {
   const [drawerStatusMessage, setDrawerStatusMessage] = useState<string | null>(null);
 
   const STATUSES = ["NEW", "CONTACTED", "QUALIFIED", "QUOTE_SENT", "FOLLOW_UP", "WON", "LOST"];
-  const SOURCES = ["CONTACT_FORM", "WEBSITE_CHAT", "AI_CHAT", "QUOTE_WIZARD", "FLOOR_PLAN_UPLOAD", "NEWSLETTER", "WEBSITE", "ADMIN_MANUAL"];
+  const SOURCE_OPTIONS = [
+    { value: "ALL", label: "All Sources" },
+    { value: "WEBSITE_CHAT", label: "Website Chat / AI Assistant (WEBSITE_CHAT)" },
+    { value: "CONTACT_FORM", label: "Contact Form (CONTACT_FORM)" },
+    { value: "QUOTE_WIZARD", label: "Instant Quote Wizard (QUOTE_WIZARD)" },
+    { value: "FLOOR_PLAN_UPLOAD", label: "Floor Plan Upload (FLOOR_PLAN_UPLOAD)" },
+    { value: "NEWSLETTER", label: "Newsletter Signup (NEWSLETTER)" },
+    { value: "WEBSITE", label: "General Website (WEBSITE)" },
+    { value: "ADMIN_MANUAL", label: "Manual Intake (ADMIN_MANUAL)" },
+  ];
 
   const fetchLeads = async () => {
     setIsLoading(true);
@@ -235,15 +244,33 @@ export default function AdminLeadsPage() {
               onChange={(e) => setSourceFilter(e.target.value)}
               className="px-3.5 py-2 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none cursor-pointer"
             >
-              <option value="ALL">All Sources</option>
-              {SOURCES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
+              {SOURCE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
                 </option>
               ))}
             </select>
           </div>
         </div>
+      </div>
+
+      {/* Count and Filter Reset Banner */}
+      <div className="flex items-center justify-between text-xs text-[#6b7280] px-1 font-medium">
+        <span>
+          Showing <strong className="text-[#101114]">{leads.length}</strong> lead {leads.length === 1 ? "inquiry" : "inquiries"}
+        </span>
+        {(search || statusFilter !== "ALL" || sourceFilter !== "ALL") && (
+          <button
+            onClick={() => {
+              setSearch("");
+              setStatusFilter("ALL");
+              setSourceFilter("ALL");
+            }}
+            className="text-amber-700 font-bold hover:underline cursor-pointer"
+          >
+            Reset Filters
+          </button>
+        )}
       </div>
 
       {/* Leads Table */}

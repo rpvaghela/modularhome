@@ -26,7 +26,11 @@ export async function GET(request: NextRequest) {
           query = query.eq("status", status);
         }
         if (source && source !== "ALL") {
-          query = query.eq("source", source);
+          if (source === "WEBSITE_CHAT" || source === "AI_CHAT") {
+            query = query.or("source.eq.WEBSITE_CHAT,source.eq.AI_CHAT,source.eq.AI_CHATBOT");
+          } else {
+            query = query.eq("source", source);
+          }
         }
 
         const { data, error } = await query;
@@ -49,7 +53,14 @@ export async function GET(request: NextRequest) {
       const key = `${ll.email || ""}_${ll.created_at || ""}`;
       if (!existingEmailsOrIds.has(key) && !dbLeads.some((d) => d.id === ll.id)) {
         if (!status || status === "ALL" || ll.status === status) {
-          if (!source || source === "ALL" || ll.source === source) {
+          const matchesSource =
+            !source ||
+            source === "ALL" ||
+            ll.source === source ||
+            ((source === "WEBSITE_CHAT" || source === "AI_CHAT") &&
+              (ll.source === "WEBSITE_CHAT" || ll.source === "AI_CHAT" || ll.source === "AI_CHATBOT"));
+
+          if (matchesSource) {
             merged.push(ll);
             existingEmailsOrIds.add(key);
           }

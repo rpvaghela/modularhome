@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
           budgetMatch ? budgetMatch[0] : null,
           lastUserMessage,
           `Qualified via AI Chatbot: ${lastUserMessage}`,
-          "AI_CHATBOT",
+          "WEBSITE_CHAT",
           "QUALIFIED",
           `Conversation Transcript Summary:\n${conversationHistory.slice(-500)}`,
         ]);
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
             phone: extractedPhone,
             project_type: projectType,
             enquiry_details: `Qualified via AI Chatbot: ${lastUserMessage}`,
-            source: "AI_CHATBOT",
+            source: "WEBSITE_CHAT",
             status: "QUALIFIED",
             notes: `Conversation Transcript Summary:\n${conversationHistory.slice(-500)}`,
           }).select("id").single();
