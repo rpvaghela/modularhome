@@ -140,23 +140,26 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
   const announcementText = initialSettings?.announcementText || "Direct Factory Modular & Prefab Home Builder • 2026 Models Released";
   const announcementLink = initialSettings?.announcementLink || "/buildings";
   const announcementEnabled = initialSettings?.announcementEnabled !== false;
-  const ctaLabel = initialSettings?.ctaLabel || "Get a Free Quote";
-  const ctaLink = initialSettings?.ctaLink || "#quote";
+  const ctaLabel = initialSettings?.ctaLabel || "Get Your Free Quote";
+  const ctaLink = initialSettings?.ctaLink || "/quote";
   const socialLinks = initialSettings?.socialLinks || {};
 
   const menuItems: CategoryNavOption[] = (initialSettings?.navLinks && initialSettings.navLinks.length > 0)
-    ? initialSettings.navLinks.map((item) => {
-        let categoryQuery: string | undefined = undefined;
-        if (item.href && item.href.includes("category=")) {
-          const rawCat = item.href.split("category=")[1].split("&")[0];
-          categoryQuery = decodeURIComponent(rawCat.replace(/\+/g, " "));
-        }
-        return {
-          label: item.label,
-          href: item.href,
-          categoryQuery,
-        };
-      })
+    ? initialSettings.navLinks
+        .filter((item: any) => item.isVisible !== false)
+        .map((item) => {
+          let categoryQuery: string | undefined = undefined;
+          if (item.href && item.href.includes("category=")) {
+            const rawCat = item.href.split("category=")[1].split("&")[0];
+            categoryQuery = decodeURIComponent(rawCat.replace(/\+/g, " "));
+          }
+          return {
+            label: item.label,
+            href: item.href,
+            categoryQuery,
+            badge: (item as any).badge,
+          };
+        })
     : PRIMARY_MENU_OPTIONS;
 
   useEffect(() => {
@@ -610,8 +613,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                 href={ctaLink}
                 className="inline-flex items-center gap-1 sm:gap-1.5 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black py-1.5 sm:py-2.5 px-2.5 sm:px-4 text-[11.5px] sm:text-xs md:text-[13px] tracking-tight rounded-lg sm:rounded-xl shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 whitespace-nowrap shrink-0"
               >
-                <span className="hidden xs:inline">{ctaLabel}</span>
-                <span className="xs:hidden">Quote</span>
+                <span>{ctaLabel}</span>
                 <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
               </Link>
             </div>

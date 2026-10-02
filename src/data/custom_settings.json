@@ -34,32 +34,47 @@
   "announcementLink": "/buildings",
   "navLinks": [
     {
-      "href": "/",
-      "label": "Home"
+      "label": "Modular Homes",
+      "href": "/buildings?category=Modular+Homes",
+      "order": 1,
+      "isVisible": true
     },
     {
-      "href": "/buildings",
-      "label": "Models"
-    },
-    {
+      "label": "Floor Plans",
       "href": "/floor-plans",
-      "label": "Floor Plans"
+      "order": 2,
+      "isVisible": true,
+      "badge": "NEW"
     },
     {
+      "label": "Barndominiums",
+      "href": "/buildings?category=Barndominiums",
+      "order": 3,
+      "isVisible": true
+    },
+    {
+      "label": "Cabins",
+      "href": "/buildings?category=Cabins",
+      "order": 4,
+      "isVisible": true
+    },
+    {
+      "label": "Videos",
       "href": "/videos",
-      "label": "Video Tours"
+      "order": 5,
+      "isVisible": true
     },
     {
-      "href": "#quote",
-      "label": "Instant Quote"
+      "label": "About",
+      "href": "/about",
+      "order": 6,
+      "isVisible": true
     },
     {
-      "href": "/resources",
-      "label": "Blog"
-    },
-    {
+      "label": "Contact",
       "href": "/contact",
-      "label": "Contact"
+      "order": 7,
+      "isVisible": true
     }
   ],
   "footerText": "ModularHome is the leading precision steel-frame and modular home manufacturer delivering sustainable, energy-efficient luxury homes in record time.",
@@ -83,6 +98,6 @@
   ],
   "defaultSeoTitle": "ModularHome | Premium Precision Engineered Modular & Steel Homes",
   "defaultMetaDescription": "Discover next-generation precision-engineered modular homes. Rapid build, engineered durability, luxury architectural finishes.",
-  "ctaLabel": "Get a Free Quote",
-  "ctaLink": "#quote"
+  "ctaLabel": "Get Your Free Quote",
+  "ctaLink": "/quote"
 }
