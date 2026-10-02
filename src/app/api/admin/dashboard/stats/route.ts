@@ -26,139 +26,116 @@ export async function GET() {
     let recentLeads: any[] = localLeadStats.recent || [];
     let recentQuotations: any[] = [];
 
+    let pgSuccess = false;
+
     // Try direct PostgreSQL pool first for maximum fidelity and exactness
     try {
-      const [
-        prodRes,
-        collRes,
-        pageRes,
-        floorRes,
-        blogRes,
-        leadRes,
-        leadListRes,
-        quoteRes,
-        quoteListRes,
-      ] = await Promise.all([
-        query("SELECT COUNT(*)::int AS count FROM products"),
-        query("SELECT COUNT(*)::int AS count FROM collections"),
-        query("SELECT COUNT(*)::int AS count FROM pages"),
-        query("SELECT COUNT(*)::int AS count FROM floor_plans"),
-        query(`SELECT 
-                COUNT(*)::int AS total, 
-                COUNT(*) FILTER (WHERE status = 'PUBLISHED')::int AS published,
-                COUNT(*) FILTER (WHERE status != 'PUBLISHED')::int AS draft 
-               FROM blog_posts`),
-        query(`SELECT 
-                COUNT(*)::int AS total,
-                COUNT(*) FILTER (WHERE status = 'NEW')::int AS new_count
-               FROM leads`),
-        query("SELECT * FROM leads ORDER BY created_at DESC LIMIT 5"),
-        query(`SELECT 
-                COUNT(*)::int AS total,
-                COUNT(*) FILTER (WHERE status = 'PENDING')::int AS pending_count
-               FROM quotations`),
-        query("SELECT * FROM quotations ORDER BY created_at DESC LIMIT 5"),
-      ]);
+      const prodRes = await query("SELECT COUNT(*)::int AS count FROM products");
+      if (prodRes && prodRes.rows && prodRes.rows.length > 0) {
+        const [
+          collRes,
+          pageRes,
+          floorRes,
+          blogRes,
+          leadRes,
+          leadListRes,
+          quoteRes,
+          quoteListRes,
+        ] = await Promise.all([
+          query("SELECT COUNT(*)::int AS count FROM collections"),
+          query("SELECT COUNT(*)::int AS count FROM pages"),
+          query("SELECT COUNT(*)::int AS count FROM floor_plans"),
+          query(`SELECT 
+                  COUNT(*)::int AS total, 
+                  COUNT(*) FILTER (WHERE status = 'PUBLISHED')::int AS published,
+                  COUNT(*) FILTER (WHERE status != 'PUBLISHED')::int AS draft 
+                 FROM blog_posts`),
+          query(`SELECT 
+                  COUNT(*)::int AS total,
+                  COUNT(*) FILTER (WHERE status = 'NEW')::int AS new_count
+                 FROM leads`),
+          query("SELECT * FROM leads ORDER BY created_at DESC LIMIT 5"),
+          query(`SELECT 
+                  COUNT(*)::int AS total,
+                  COUNT(*) FILTER (WHERE status = 'PENDING')::int AS pending_count
+                 FROM quotations`),
+          query("SELECT * FROM quotations ORDER BY created_at DESC LIMIT 5"),
+        ]);
 
-      if (prodRes && prodRes.rows[0]) {
-        totalProducts = Number(prodRes.rows[0].count) || 0;
-      }
-      if (collRes && collRes.rows[0]) {
-        totalCollections = Number(collRes.rows[0].count) || 0;
-      }
-      if (pageRes && pageRes.rows[0]) {
-        totalPages = Math.max(Number(pageRes.rows[0].count) || 0, localPages.length);
-      }
-      if (floorRes && floorRes.rows[0]) {
-        totalFloorPlans = Number(floorRes.rows[0].count) || 0;
-      }
-      if (blogRes && blogRes.rows[0]) {
-        publishedBlogs = Number(blogRes.rows[0].published) || 0;
-        draftBlogs = Number(blogRes.rows[0].draft) || 0;
-      }
-      if (leadRes && leadRes.rows[0]) {
-        totalLeads = Math.max(Number(leadRes.rows[0].total) || 0, localLeadStats.total);
-        newLeads = Math.max(Number(leadRes.rows[0].new_count) || 0, localLeadStats.newLeads);
-      }
-      if (leadListRes && leadListRes.rows.length > 0) {
-        recentLeads = leadListRes.rows;
-      }
-      if (quoteRes && quoteRes.rows[0]) {
-        totalQuotations = Number(quoteRes.rows[0].total) || 0;
-        pendingQuotations = Number(quoteRes.rows[0].pending_count) || 0;
-      }
-      if (quoteListRes && quoteListRes.rows.length > 0) {
-        recentQuotations = quoteListRes.rows;
-      }
+        totalProducts = Number(prodRes.rows[0]?.count) || 0;
+        if (collRes && collRes.rows[0]) totalCollections = Number(collRes.rows[0].count) || 0;
+        if (pageRes && pageRes.rows[0]) totalPages = Math.max(Number(pageRes.rows[0].count) || 0, localPages.length);
+        if (floorRes && floorRes.rows[0]) totalFloorPlans = Number(floorRes.rows[0].count) || 0;
+        if (blogRes && blogRes.rows[0]) {
+          publishedBlogs = Number(blogRes.rows[0].published) || 0;
+          draftBlogs = Number(blogRes.rows[0].draft) || 0;
+        }
+        if (leadRes && leadRes.rows[0]) {
+          totalLeads = Math.max(Number(leadRes.rows[0].total) || 0, localLeadStats.total);
+          newLeads = Math.max(Number(leadRes.rows[0].new_count) || 0, localLeadStats.newLeads);
+        }
+        if (leadListRes && leadListRes.rows.length > 0) recentLeads = leadListRes.rows;
+        if (quoteRes && quoteRes.rows[0]) {
+          totalQuotations = Number(quoteRes.rows[0].total) || 0;
+          pendingQuotations = Number(quoteRes.rows[0].pending_count) || 0;
+        }
+        if (quoteListRes && quoteListRes.rows.length > 0) recentQuotations = quoteListRes.rows;
 
-      return NextResponse.json({
-        success: true,
-        data: {
-          metrics: {
-            totalProducts,
-            totalCollections,
-            totalPages,
-            totalFloorPlans,
-            publishedBlogs,
-            draftBlogs,
-            totalLeads,
-            newLeads,
-            totalQuotations,
-            pendingQuotations,
-          },
-          recentLeads,
-          recentQuotations,
-        },
-      });
+        pgSuccess = true;
+      }
     } catch (dbError) {
       console.warn("Direct Postgres query failed, falling back to Supabase client:", dbError);
     }
 
     // Fallback to Supabase JS client if direct Postgres is unavailable
-    if (isSupabaseConfigured()) {
-      const [
-        { count: spTotalProducts },
-        { count: spTotalCollections },
-        { count: spTotalPages },
-        { count: spTotalFloorPlans },
-        { data: spBlogs },
-        { data: spLeads, count: spTotalLeads },
-        { data: spQuotations, count: spTotalQuotations },
-      ] = await Promise.all([
-        supabaseAdmin.from("products").select("*", { count: "exact", head: true }),
-        supabaseAdmin.from("collections").select("*", { count: "exact", head: true }),
-        supabaseAdmin.from("pages").select("*", { count: "exact", head: true }),
-        supabaseAdmin.from("floor_plans").select("*", { count: "exact", head: true }),
-        supabaseAdmin.from("blog_posts").select("status"),
-        supabaseAdmin.from("leads").select("*", { count: "exact" }).order("created_at", { ascending: false }).limit(5),
-        supabaseAdmin.from("quotations").select("*", { count: "exact" }).order("created_at", { ascending: false }).limit(5),
-      ]);
+    if (!pgSuccess && isSupabaseConfigured()) {
+      try {
+        const [
+          { count: spTotalProducts },
+          { count: spTotalCollections },
+          { count: spTotalPages },
+          { count: spTotalFloorPlans },
+          { data: spBlogs },
+          { data: spLeads, count: spTotalLeads },
+          { data: spQuotations, count: spTotalQuotations },
+        ] = await Promise.all([
+          supabaseAdmin.from("products").select("*", { count: "exact", head: true }),
+          supabaseAdmin.from("collections").select("*", { count: "exact", head: true }),
+          supabaseAdmin.from("pages").select("*", { count: "exact", head: true }),
+          supabaseAdmin.from("floor_plans").select("*", { count: "exact", head: true }),
+          supabaseAdmin.from("blog_posts").select("status"),
+          supabaseAdmin.from("leads").select("*", { count: "exact" }).order("created_at", { ascending: false }).limit(5),
+          supabaseAdmin.from("quotations").select("*", { count: "exact" }).order("created_at", { ascending: false }).limit(5),
+        ]);
 
-      const spPublished = (spBlogs || []).filter((b) => b.status === "PUBLISHED").length;
-      const spDraft = (spBlogs || []).filter((b) => b.status !== "PUBLISHED").length;
+        const spPublished = (spBlogs || []).filter((b) => b.status === "PUBLISHED").length;
+        const spDraft = (spBlogs || []).filter((b) => b.status !== "PUBLISHED").length;
 
-      const { count: spNewLeads } = await supabaseAdmin
-        .from("leads")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "NEW");
+        const { count: spNewLeads } = await supabaseAdmin
+          .from("leads")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "NEW");
 
-      const { count: spPendingQuotes } = await supabaseAdmin
-        .from("quotations")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "PENDING");
+        const { count: spPendingQuotes } = await supabaseAdmin
+          .from("quotations")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "PENDING");
 
-      totalProducts = spTotalProducts || 0;
-      totalCollections = spTotalCollections || 0;
-      totalPages = Math.max(spTotalPages || 0, localPages.length);
-      totalFloorPlans = spTotalFloorPlans || 0;
-      publishedBlogs = spPublished;
-      draftBlogs = spDraft;
-      totalLeads = Math.max(spTotalLeads || 0, localLeadStats.total);
-      newLeads = Math.max(spNewLeads || 0, localLeadStats.newLeads);
-      totalQuotations = spTotalQuotations || 0;
-      pendingQuotations = spPendingQuotes || 0;
-      recentLeads = (spLeads && spLeads.length > 0) ? spLeads : (localLeadStats.recent || []);
-      recentQuotations = spQuotations || [];
+        totalProducts = spTotalProducts || 0;
+        totalCollections = spTotalCollections || 0;
+        totalPages = Math.max(spTotalPages || 0, localPages.length);
+        totalFloorPlans = spTotalFloorPlans || 0;
+        publishedBlogs = spPublished;
+        draftBlogs = spDraft;
+        totalLeads = Math.max(spTotalLeads || 0, localLeadStats.total);
+        newLeads = Math.max(spNewLeads || 0, localLeadStats.newLeads);
+        totalQuotations = spTotalQuotations || 0;
+        pendingQuotations = spPendingQuotes || 0;
+        recentLeads = (spLeads && spLeads.length > 0) ? spLeads : (localLeadStats.recent || []);
+        recentQuotations = spQuotations || [];
+      } catch (spErr) {
+        console.warn("Supabase dashboard stats error:", spErr);
+      }
     }
 
     return NextResponse.json({
@@ -188,3 +165,4 @@ export async function GET() {
     );
   }
 }
+
