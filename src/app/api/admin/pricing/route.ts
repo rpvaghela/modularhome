@@ -75,6 +75,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (isSupabaseConfigured()) {
+      const numBaseRate = Number(base_rate) || 0;
+      const numMultiplier = Number(multiplier) || 0;
+
       const { data, error } = await supabaseAdmin
         .from("pricing_rules")
         .insert({
@@ -82,8 +85,11 @@ export async function POST(request: NextRequest) {
           code: cleanCode,
           category,
           label,
-          base_rate: Number(base_rate) || 0,
-          multiplier: Number(multiplier) || 0,
+          name: label,
+          base_rate: numBaseRate,
+          base_price: numBaseRate,
+          multiplier: numMultiplier,
+          rate_per_sqft: numMultiplier,
           min_sqft: min_sqft ? Number(min_sqft) : null,
           max_sqft: max_sqft ? Number(max_sqft) : null,
           description: description || null,

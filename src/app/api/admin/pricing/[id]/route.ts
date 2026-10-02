@@ -57,12 +57,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     if (isSupabaseConfigured()) {
+      const numBaseRate = base_rate !== undefined ? Number(base_rate) : undefined;
+      const numMultiplier = multiplier !== undefined ? Number(multiplier) : undefined;
+
       const { data, error } = await supabaseAdmin
         .from("pricing_rules")
         .update({
           label,
-          base_rate: base_rate !== undefined ? Number(base_rate) : undefined,
-          multiplier: multiplier !== undefined ? Number(multiplier) : undefined,
+          name: label,
+          base_rate: numBaseRate,
+          base_price: numBaseRate,
+          multiplier: numMultiplier,
+          rate_per_sqft: numMultiplier,
           description,
           is_active,
           updated_at: new Date().toISOString(),
