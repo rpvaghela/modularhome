@@ -47,13 +47,28 @@ export async function GET(request: NextRequest) {
     // 2. Supabase fallback
     if (dbSections.length === 0 && isSupabaseConfigured()) {
       try {
+        let targetUuid = pageId;
+        if (pageId && !isUuidString(pageId)) {
+          const { data: pageMatch } = await supabaseAdmin
+            .from("pages")
+            .select("id")
+            .or(`slug.eq.${pageId.toLowerCase()},handle.eq.${pageId.toLowerCase()}`)
+            .limit(1);
+          if (pageMatch && pageMatch.length > 0) {
+            targetUuid = pageMatch[0].id;
+          }
+        }
+
         let q = supabaseAdmin
           .from("page_sections")
           .select("*")
           .order("display_order", { ascending: true })
           .order("created_at", { ascending: true });
 
-        if (pageId && isUuidString(pageId)) {
+        if (targetUuid && isUuidString(targetUuid)) {
+          q = q.eq("page_id", targetUuid);
+        } else if (pageId) {
+          // If pageId was provided but not resolved to UUID, try filtering by page_id directly
           q = q.eq("page_id", pageId);
         }
 

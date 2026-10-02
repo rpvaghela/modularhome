@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     // 3. Fetch section counts
     try {
       const secRes = await query(`SELECT page_id, count(*)::int as count FROM page_sections GROUP BY page_id;`);
-      if (secRes && secRes.rows) {
+      if (secRes && secRes.rows && secRes.rows.length > 0) {
         for (const row of secRes.rows) {
           if (row.page_id) {
             dbSectionCounts[row.page_id] = Number(row.count) || 0;
@@ -57,6 +57,23 @@ export async function GET(request: NextRequest) {
         }
       }
     } catch {}
+
+    if (Object.keys(dbSectionCounts).length === 0 && isSupabaseConfigured()) {
+      try {
+        const { data: secData, error: secErr } = await supabaseAdmin
+          .from("page_sections")
+          .select("page_id");
+        if (!secErr && secData) {
+          for (const row of secData) {
+            if (row.page_id) {
+              dbSectionCounts[row.page_id] = (dbSectionCounts[row.page_id] || 0) + 1;
+            }
+          }
+        }
+      } catch (sbSecErr) {
+        console.warn("Supabase fetch section counts warning:", sbSecErr);
+      }
+    }
 
     // Standardize all database pages through formatCmsPage
     const normalizedDbPages = dbPages.map((p) => formatCmsPage(p));

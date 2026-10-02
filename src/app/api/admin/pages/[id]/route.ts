@@ -77,7 +77,37 @@ export async function GET(
     }
 
     const formatted = formatCmsPage(foundPage);
-    const sections = getPageSections(formatted.id || formatted.slug || cleanId);
+    let sections = getPageSections(formatted.id || formatted.slug || cleanId);
+
+    if (sections.length === 0 && isSupabaseConfigured() && formatted.id) {
+      try {
+        const isUuid = isUuidString(formatted.id);
+        if (isUuid) {
+          const { data: sbSections } = await supabaseAdmin
+            .from("page_sections")
+            .select("*")
+            .eq("page_id", formatted.id)
+            .order("display_order", { ascending: true })
+            .order("created_at", { ascending: true });
+          if (sbSections && sbSections.length > 0) {
+            sections = sbSections.map((s, idx) => ({
+              id: s.id,
+              pageId: s.page_id,
+              type: (s.type || "HERO").toUpperCase(),
+              title: s.title || "",
+              subtitle: s.subtitle || "",
+              content: s.content || "",
+              displayOrder: Number(s.display_order ?? idx + 1),
+              order: Number(s.display_order ?? idx + 1),
+              isVisible: s.is_visible !== false,
+            }));
+          }
+        }
+      } catch (sbSecErr) {
+        console.warn("Supabase fetch page sections error:", sbSecErr);
+      }
+    }
+
     const publicUrl = getPageUrl(formatted);
 
     const result = {

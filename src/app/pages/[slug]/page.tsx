@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { getPublicPageBySlug } from "@/lib/publicData";
+import { getPublicPageBySlug } from "@/lib/pageDataServer";
 import DynamicPageRenderer from "@/components/DynamicPageRenderer";
 
 export const dynamic = "force-dynamic";
@@ -13,9 +13,13 @@ export async function generateMetadata({
   params,
 }: PagesSlugProps): Promise<Metadata> {
   const { slug } = await params;
+  if (!slug || slug === "undefined" || slug === "null") {
+    return { title: "Page Not Found | ModularHome.com" };
+  }
+
   const page = await getPublicPageBySlug(slug);
 
-  if (!page) {
+  if (!page || page.status === "DRAFT" || page.status === "ARCHIVED") {
     return {
       title: "Page Not Found | ModularHome.com",
     };
@@ -38,9 +42,13 @@ export async function generateMetadata({
 
 export default async function PagesSlugPage({ params }: PagesSlugProps) {
   const { slug } = await params;
+  if (!slug || slug === "undefined" || slug === "null") {
+    notFound();
+  }
+
   const page = await getPublicPageBySlug(slug);
 
-  if (!page) {
+  if (!page || page.status === "DRAFT" || page.status === "ARCHIVED") {
     notFound();
   }
 
