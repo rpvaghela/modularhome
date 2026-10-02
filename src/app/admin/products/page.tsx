@@ -19,6 +19,7 @@ import {
 function normalizeToCanonicalCategory(cat?: string | null): string {
   if (!cat) return "Modular Homes";
   const c = cat.toLowerCase().trim();
+  if (c.includes("furniture") || c.includes("cabinet") || c.includes("table") || c.includes("decor")) return "Furniture & Accessories";
   if (c.includes("barndo")) return "Barndominiums";
   if (c.includes("cabin")) return "Cabins";
   if (c.includes("tiny")) return "Tiny Homes";
@@ -53,6 +54,7 @@ export default function AdminProductsPage() {
     "A-Frames",
     "Commercial Modular",
     "Residential",
+    "Furniture & Accessories",
   ];
 
   const fetchProducts = async () => {

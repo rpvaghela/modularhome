@@ -19,6 +19,7 @@ import ImageUpload, { GalleryUpload } from "@/components/admin/ImageUpload";
 function normalizeToCanonicalCategory(cat?: string | null): string {
   if (!cat) return "Modular Homes";
   const c = cat.toLowerCase().trim();
+  if (c.includes("furniture") || c.includes("cabinet") || c.includes("table") || c.includes("decor")) return "Furniture & Accessories";
   if (c.includes("barndo")) return "Barndominiums";
   if (c.includes("cabin")) return "Cabins";
   if (c.includes("tiny")) return "Tiny Homes";
@@ -224,6 +225,7 @@ export default function AdminEditProductPage() {
                   <option value="A-Frames">A-Frames</option>
                   <option value="Commercial Modular">Commercial Modular</option>
                   <option value="Residential">Residential</option>
+                  <option value="Furniture & Accessories">Furniture & Accessories</option>
                 </select>
               </div>
 

@@ -303,6 +303,7 @@ export async function getPublicProducts(params?: {
       .from("products")
       .select("*, product_variants(*), product_media(*), product_collections(collection_id, collections(id, handle, title))")
       .or("status.eq.active,status.is.null")
+      .neq("product_type", "Furniture & Accessories")
       .order("created_at", { ascending: false })
       .limit(5000);
 
@@ -315,7 +316,9 @@ export async function getPublicProducts(params?: {
       return [];
     }
 
-    let formatted = dbProducts.map(formatProduct);
+    let formatted = dbProducts
+      .map(formatProduct)
+      .filter((m) => m.category !== "Furniture & Accessories" && m.category !== "Furniture & Decor");
 
     // Filter by Category
     if (params?.category && params.category !== "All" && params.category !== "ALL") {

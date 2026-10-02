@@ -89,8 +89,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // 2. Migrated Collections
       const { data: collections } = await supabase
         .from("collections")
-        .select("handle, updated_at")
-        .eq("is_published", true);
+        .select("handle, updated_at, published")
+        .eq("published", true);
 
       if (collections && collections.length > 0) {
         collections.forEach((c: { handle?: string; updated_at?: string }) => {
