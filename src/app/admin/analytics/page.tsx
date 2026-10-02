@@ -353,19 +353,25 @@ export default function AdminAnalyticsPage() {
             <h3 className="text-base font-black text-[#101114] tracking-tight">
               Traffic &amp; Acquisition Attribution
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {d.attribution.map((attr: any) => (
-                <div key={attr.source} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-1">
-                  <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    {attr.source.replace(/_/g, " ")}
+            {d.attribution.length === 0 ? (
+              <div className="p-8 text-center text-xs text-gray-400 bg-gray-50 rounded-2xl">
+                No orders or attribution data recorded in this timeframe (Total attributed orders: 0).
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {d.attribution.map((attr: any) => (
+                  <div key={attr.source} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-1">
+                    <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      {attr.source.replace(/_/g, " ")}
+                    </div>
+                    <div className="text-lg font-black text-[#101114]">{attr.count} orders</div>
+                    <div className="text-[11px] text-[#d97706] font-bold">
+                      ${attr.revenue.toLocaleString()} USD
+                    </div>
                   </div>
-                  <div className="text-lg font-black text-[#101114]">{attr.count} orders</div>
-                  <div className="text-[11px] text-[#d97706] font-bold">
-                    ${attr.revenue.toLocaleString()} USD
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

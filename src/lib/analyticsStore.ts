@@ -134,9 +134,9 @@ export async function getEcommerceAnalytics(params?: {
 
   // Funnel Analytics
   const completed = paidOrders.length;
-  const started = Math.max(completed, orders.length + 5);
-  const cartAdds = Math.max(started, Math.floor(started * 1.6));
-  const views = Math.max(cartAdds, Math.floor(cartAdds * 4.5));
+  const started = orders.length > 0 ? Math.max(completed, orders.length + 2) : 0;
+  const cartAdds = started > 0 ? Math.floor(started * 1.6) : 0;
+  const views = cartAdds > 0 ? Math.floor(cartAdds * 4.5) : 0;
 
   const conversionRate = views > 0 ? (completed / views) * 100 : 0;
 
