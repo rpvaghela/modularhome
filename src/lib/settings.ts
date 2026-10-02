@@ -1,5 +1,3 @@
-import fs from "fs";
-import path from "path";
 import { supabaseAdmin, isSupabaseConfigured } from "./supabase";
 
 export interface PublicGlobalSettings {
@@ -21,9 +19,6 @@ export interface PublicGlobalSettings {
   ctaLabel: string;
   ctaLink: string;
 }
-
-const DATA_DIR = path.join(process.cwd(), "src", "data");
-const SETTINGS_FILE = path.join(DATA_DIR, "custom_settings.json");
 
 export const DEFAULT_SETTINGS: PublicGlobalSettings = {
   companyName: "ModularHome.com",
@@ -66,38 +61,31 @@ export const DEFAULT_SETTINGS: PublicGlobalSettings = {
   ctaLink: "/quote",
 };
 
-function ensureDataDirectory() {
-  try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-  } catch (err) {
-    console.error("Error creating data directory:", err);
-  }
-}
+let inMemorySettings: PublicGlobalSettings = { ...DEFAULT_SETTINGS };
 
 export function readSettingsFromStore(): PublicGlobalSettings {
   try {
-    ensureDataDirectory();
-    if (!fs.existsSync(SETTINGS_FILE)) {
-      fs.writeFileSync(SETTINGS_FILE, JSON.stringify(DEFAULT_SETTINGS, null, 2), "utf-8");
-      return DEFAULT_SETTINGS;
+    if (typeof window === "undefined") {
+      const fs = require("fs");
+      const path = require("path");
+      const dataDir = path.join(process.cwd(), "src", "data");
+      const settingsFile = path.join(dataDir, "custom_settings.json");
+      if (fs.existsSync(settingsFile)) {
+        const data = fs.readFileSync(settingsFile, "utf-8");
+        const parsed = JSON.parse(data);
+        return {
+          ...DEFAULT_SETTINGS,
+          ...parsed,
+          socialLinks: { ...DEFAULT_SETTINGS.socialLinks, ...(parsed?.socialLinks || {}) },
+        };
+      }
     }
-    const data = fs.readFileSync(SETTINGS_FILE, "utf-8");
-    const parsed = JSON.parse(data);
-    return {
-      ...DEFAULT_SETTINGS,
-      ...parsed,
-      socialLinks: { ...DEFAULT_SETTINGS.socialLinks, ...(parsed?.socialLinks || {}) },
-    };
-  } catch (error) {
-    return DEFAULT_SETTINGS;
-  }
+  } catch {}
+  return inMemorySettings;
 }
 
 export function writeSettingsToStore(settings: Partial<PublicGlobalSettings>): PublicGlobalSettings {
   try {
-    ensureDataDirectory();
     const current = readSettingsFromStore();
     const updated: PublicGlobalSettings = {
       ...current,
@@ -107,11 +95,21 @@ export function writeSettingsToStore(settings: Partial<PublicGlobalSettings>): P
         ...(settings.socialLinks || {}),
       },
     };
-    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(updated, null, 2), "utf-8");
+    inMemorySettings = updated;
+    if (typeof window === "undefined") {
+      const fs = require("fs");
+      const path = require("path");
+      const dataDir = path.join(process.cwd(), "src", "data");
+      const settingsFile = path.join(dataDir, "custom_settings.json");
+      if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
+      }
+      fs.writeFileSync(settingsFile, JSON.stringify(updated, null, 2), "utf-8");
+    }
     return updated;
   } catch (error) {
-    console.error("Error writing to custom_settings.json:", error);
-    return DEFAULT_SETTINGS;
+    console.error("Error writing settings:", error);
+    return inMemorySettings;
   }
 }
 

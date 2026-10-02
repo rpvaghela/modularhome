@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Metadata } from "next";
 import { 
   ArrowRight, 
   ShieldCheck, 
@@ -9,13 +10,74 @@ import {
   Truck
 } from "lucide-react";
 import StatsSection from "@/components/StatsSection";
+import { getPublicPageBySlug } from "@/lib/pageDataServer";
+import DynamicPageRenderer from "@/components/DynamicPageRenderer";
 
-export const metadata = {
-  title: "About ModularHome.com | Modern Modular Housing Marketplace",
-  description: "Learn about ModularHome.com's manufacturing network, customizable floor plans, quality standards, and factory-built housing solutions.",
-};
+export const dynamic = "force-dynamic";
 
-export default function AboutPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getPublicPageBySlug("about");
+  if (page) {
+    const title = page.seoTitle || `${page.title} | ModularHome.com`;
+    const description = page.metaDescription || page.subtitle || "Learn about ModularHome.com's manufacturing network, customizable floor plans, quality standards, and factory-built housing solutions.";
+    return {
+      title,
+      description,
+      openGraph: {
+        title: page.ogTitle || title,
+        description: page.ogDescription || description,
+        images: page.ogImage ? [{ url: page.ogImage }] : (page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/finallogo.avif" }]),
+      },
+      alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
+    };
+  }
+
+  return {
+    title: "About ModularHome.com | Modern Modular Housing Marketplace",
+    description: "Learn about ModularHome.com's manufacturing network, customizable floor plans, quality standards, and factory-built housing solutions.",
+  };
+}
+
+export default async function AboutPage() {
+  const page = await getPublicPageBySlug("about");
+
+  // If CMS has custom sections or body content, render via DynamicPageRenderer
+  if (page && ((page.sections && page.sections.length > 0) || (page.content && page.content.trim().length > 50))) {
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: page.title || "About ModularHome.com",
+      description: page.metaDescription || page.subtitle,
+      url: "https://modularhome.com/about",
+      ...(page.featuredImage && { image: page.featuredImage }),
+      publisher: {
+        "@type": "Organization",
+        name: "ModularHome.com",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://modularhome.com/finallogo.avif",
+        },
+      },
+    };
+
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <DynamicPageRenderer page={page} />
+      </>
+    );
+  }
+
+  // High-performance fallback standard About layout
+  const heroBadge = "ModularHome.com • About Our Company";
+  const heroTitle = page?.title || "Building A Better Way To Live.";
+  const heroSubtitle = page?.subtitle || "Discover, Compare & Customize Your Modular Home.";
+  const heroDesc = page?.content || "ModularHome.com is a leading marketplace for modular and prefabricated housing solutions, combining factory precision engineering with modern architectural design and transparent pricing.";
+  const heroImage = page?.featuredImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80";
+
   return (
     <div className="min-h-screen bg-white pt-24 pb-20 text-[#101114]">
       {/* 1. HERO */}
@@ -24,17 +86,16 @@ export default function AboutPage() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] mb-3">
               <span className="w-2 h-2 rounded-full bg-[#fcb907]"></span>
-              <span>ModularHome.com • About Our Company</span>
+              <span>{heroBadge}</span>
             </div>
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-[-2px] text-[#101114] leading-[0.95]">
-              Building A Better <br />
-              <span className="text-[#d97706]">Way To Live.</span>
+              {heroTitle}
             </h1>
             <p className="mt-4 text-base sm:text-lg text-[#101114] font-semibold italic">
-              &ldquo;Discover, Compare & Customize Your Modular Home.&rdquo;
+              &ldquo;{heroSubtitle}&rdquo;
             </p>
             <p className="mt-4 text-sm sm:text-base text-[#6b7280] leading-relaxed max-w-2xl">
-              ModularHome.com is a leading marketplace for modular and prefabricated housing solutions, combining factory precision engineering with modern architectural design and transparent pricing.
+              {heroDesc}
             </p>
           </div>
         </div>
@@ -87,8 +148,8 @@ export default function AboutPage() {
             <div className="lg:col-span-6 relative">
               <div className="relative aspect-[4/3] rounded-[18px] overflow-hidden border border-[#e7e9ee] shadow-lg">
                 <Image
-                  src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
-                  alt="Modern Modular Factory Build"
+                  src={heroImage}
+                  alt={page?.imageAlt || "Modern Modular Factory Build"}
                   fill
                   className="object-cover"
                 />

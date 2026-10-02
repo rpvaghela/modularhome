@@ -6,8 +6,13 @@ import { VIDEOS_DATA } from "@/data/videos";
 import { VideoItem } from "@/types/video";
 import VideoCard from "@/components/VideoCard";
 import VideoModal from "@/components/VideoModal";
+import { CmsPage } from "@/lib/publicData";
 
-export default function VideosClient() {
+interface VideosClientProps {
+  pageData?: CmsPage | null;
+}
+
+export default function VideosClient({ pageData }: VideosClientProps) {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
@@ -53,19 +58,23 @@ export default function VideosClient() {
     );
   });
 
+  const heroTitle = pageData?.title || "Modular Home Videos & Tours";
+  const heroSubtitle = pageData?.subtitle || "Explore modular homes, prefab homes, cabins, barndominiums, and modern home designs through our latest videos and walkthroughs.";
+  const heroDesc = pageData?.content || "See real home designs, floor plans, interiors, construction details, and building ideas to help inspire your next home.";
+
   return (
     <div className="min-h-screen bg-white pt-28 pb-28 text-[var(--ink)]">
       <div className="wrap">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-10">
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-[var(--ink)] font-display leading-[1.05]">
-            Modular Home Videos &amp; Tours
+            {heroTitle}
           </h1>
           <p className="mt-4 text-sm sm:text-base text-[var(--muted)] leading-relaxed font-body">
-            Explore modular homes, prefab homes, cabins, barndominiums, and modern home designs through our latest videos and walkthroughs.
+            {heroSubtitle}
           </p>
           <p className="mt-2 text-sm sm:text-base text-[var(--muted)] leading-relaxed font-body">
-            See real home designs, floor plans, interiors, construction details, and building ideas to help inspire your next home.
+            {heroDesc}
           </p>
 
           {/* Search Bar */}
@@ -99,20 +108,22 @@ export default function VideosClient() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
             {filteredVideos.map((video) => (
               <VideoCard
                 key={video.id}
-                video={video as any}
-                onPlay={(v) => setActiveVideo(v as any)}
+                video={video}
+                onPlay={(v: VideoItem) => setActiveVideo(v)}
               />
             ))}
           </div>
         )}
       </div>
 
-      {/* Video Modal Player */}
-      <VideoModal video={activeVideo as any} onClose={() => setActiveVideo(null)} />
+      {/* Video Lightbox Modal */}
+      {activeVideo && (
+        <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />
+      )}
     </div>
   );
 }

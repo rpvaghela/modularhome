@@ -503,12 +503,33 @@ export interface CmsPage {
   content: string;
   status: string;
   featuredImage?: string;
+  imageAlt?: string;
   seoTitle?: string;
   metaDescription?: string;
   canonicalUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  robots?: string;
+  publishedAt?: string;
   createdAt?: string;
   updatedAt?: string;
   sections?: PageSection[];
+}
+
+/**
+ * Safely resolves a public URL path from a page object.
+ * Returns null if slug is missing or invalid. Never returns "/undefined" or "/null".
+ */
+export function getPageUrl(page: { slug?: string | null; handle?: string | null } | null | undefined): string | null {
+  if (!page) return null;
+  const raw = page.slug || page.handle;
+  if (!raw || typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  if (trimmed === "" || trimmed === "undefined" || trimmed === "null") return null;
+  const clean = trimmed.replace(/^\/+|\/+$/g, "").replace(/[^a-z0-9_-]+/g, "-");
+  if (!clean || clean === "undefined" || clean === "null") return null;
+  return clean === "home" ? "/" : `/${clean}`;
 }
 
 /**
@@ -528,7 +549,7 @@ export function formatCmsPage(p: any, sections: any[] = []): CmsPage {
 
   let rawSlug = p.slug || p.handle || "";
   if (!rawSlug || rawSlug === "undefined" || rawSlug === "null") {
-    rawSlug = p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : p.id || "page";
+    rawSlug = p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : (p.id || "page");
   }
   let cleanSlug = String(rawSlug).toLowerCase().trim().replace(/^\/+|\/+$/g, "");
   if (cleanSlug === "undefined" || cleanSlug === "null" || !cleanSlug) {
@@ -546,9 +567,15 @@ export function formatCmsPage(p: any, sections: any[] = []): CmsPage {
     content: p.body_html || p.content || "",
     status: status === "DRAFT" || status === "ARCHIVED" ? status : "PUBLISHED",
     featuredImage: p.featured_image || p.featuredImage || "",
+    imageAlt: p.image_alt || p.imageAlt || `${p.title || "Page"} banner`,
     seoTitle: p.seo_title || p.seoTitle || `${p.title || "Modular Home"} | ModularHome.com`,
     metaDescription: p.seo_description || p.meta_description || p.metaDescription || p.subtitle || "",
     canonicalUrl: p.canonical_url || p.canonicalUrl || "",
+    ogTitle: p.og_title || p.ogTitle || p.seo_title || p.seoTitle || `${p.title || "Modular Home"} | ModularHome.com`,
+    ogDescription: p.og_description || p.ogDescription || p.seo_description || p.meta_description || p.metaDescription || p.subtitle || "",
+    ogImage: p.og_image || p.ogImage || p.featured_image || p.featuredImage || "/finallogo.avif",
+    robots: p.robots || "index, follow",
+    publishedAt: p.published_at || p.publishedAt || p.created_at || p.createdAt || new Date().toISOString(),
     createdAt: p.created_at || p.createdAt || new Date().toISOString(),
     updatedAt: p.updated_at || p.updatedAt || new Date().toISOString(),
     sections: formattedSections,
@@ -556,38 +583,12 @@ export function formatCmsPage(p: any, sections: any[] = []): CmsPage {
 }
 
 /**
- * Fetches a single published page by slug (or ID) directly from PostgreSQL or Supabase with local fallback
+ * Fetches a single published page by slug (or ID) from Supabase
  */
 export async function getPublicPageBySlug(slugParam: string): Promise<CmsPage | null> {
   if (!slugParam) return null;
   const cleanSlug = decodeURIComponent(slugParam).toLowerCase().trim().replace(/^\/+|\/+$/g, "");
 
-  // 1. Query Direct PostgreSQL database
-  try {
-    const { query } = await import("./db");
-    const pgRes = await query(
-      `SELECT * FROM pages WHERE LOWER(slug) = $1 OR LOWER(handle) = $1 OR id::text = $1 LIMIT 1`,
-      [cleanSlug]
-    );
-
-    if (pgRes && pgRes.rows.length > 0) {
-      const page = pgRes.rows[0];
-      let dbSections: any[] = [];
-      try {
-        const secRes = await query(
-          `SELECT * FROM page_sections WHERE page_id::text = $1 AND is_visible = true ORDER BY display_order ASC, created_at ASC`,
-          [page.id]
-        );
-        if (secRes) dbSections = secRes.rows;
-      } catch {}
-
-      return formatCmsPage(page, dbSections);
-    }
-  } catch (pgErr) {
-    console.warn("Postgres fetch page warning:", pgErr);
-  }
-
-  // 2. Query Supabase
   try {
     if (isSupabaseConfigured()) {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanSlug);
@@ -625,20 +626,11 @@ export async function getPublicPageBySlug(slugParam: string): Promise<CmsPage | 
     console.warn("Supabase fetch page warning:", error);
   }
 
-  // 3. Fallback to local page store
-  try {
-    const { getCustomPageBySlug: getLocalPage } = await import("./pageStore");
-    const localPage = getLocalPage(cleanSlug);
-    if (localPage) {
-      return formatCmsPage(localPage, localPage.sections || []);
-    }
-  } catch {}
-
   return null;
 }
 
 /**
- * Fetches all published CMS pages directly from Supabase with local fallback
+ * Fetches all published CMS pages directly from Supabase
  */
 export async function getPublicPages(): Promise<CmsPage[]> {
   const result: CmsPage[] = [];
@@ -664,19 +656,6 @@ export async function getPublicPages(): Promise<CmsPage[]> {
   } catch (error) {
     console.error("Error fetching public pages from Supabase:", error);
   }
-
-  // Merge with local persistent store
-  try {
-    const { readPagesFromStore } = await import("./pageStore");
-    const localPages = readPagesFromStore();
-    for (const lp of localPages) {
-      const formatted = formatCmsPage(lp);
-      if (formatted.status === "PUBLISHED" && !seenSlugs.has(formatted.slug)) {
-        result.push(formatted);
-        seenSlugs.add(formatted.slug);
-      }
-    }
-  } catch {}
 
   return result;
 }

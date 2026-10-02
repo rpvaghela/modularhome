@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Metadata } from "next";
 import TrustBar from "@/components/TrustBar";
 import HomeSearchBox from "@/components/HomeSearchBox";
 import CategoryGrid from "@/components/CategoryGrid";
@@ -13,17 +14,42 @@ import HomeTestimonialsSection from "@/components/HomeTestimonialsSection";
 import HomeArticlesSection from "@/components/HomeArticlesSection";
 import CTASection from "@/components/CTASection";
 import { getPublicProducts, getPublicReviews, getPublicSettings, getPublicCollections, getPublicBlogs } from "@/lib/publicData";
+import { getPublicPageBySlug } from "@/lib/pageDataServer";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getPublicPageBySlug("home");
+  if (page) {
+    const title = page.seoTitle || "Modern Modular Homes & Turnkey Prefab Housing | ModularHome.com";
+    const description = page.metaDescription || page.subtitle || "ModularHome.com offers precision engineered steel modular homes, customizable floor plans, and instant turnkey quotes nationwide.";
+    return {
+      title,
+      description,
+      openGraph: {
+        title: page.ogTitle || title,
+        description: page.ogDescription || description,
+        images: page.ogImage ? [{ url: page.ogImage }] : (page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/finallogo.avif" }]),
+      },
+      alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
+    };
+  }
+
+  return {
+    title: "Modern Modular Homes & Turnkey Prefab Housing | ModularHome.com",
+    description: "ModularHome.com offers precision engineered steel modular homes, customizable floor plans, and instant turnkey quotes nationwide.",
+  };
+}
+
 export default async function HomePage() {
-  const [products, reviews, settings, collections, blogs] = await Promise.all([
+  const [products, reviews, settings, collections, blogs, homePage] = await Promise.all([
     getPublicProducts(),
     getPublicReviews(),
     getPublicSettings(),
     getPublicCollections(),
     getPublicBlogs(),
+    getPublicPageBySlug("home"),
   ]);
 
   // Map dynamic products from database to ProductItem format
@@ -51,8 +77,10 @@ export default async function HomePage() {
     price: p.startingPrice || 195000,
   }));
 
-  const heroHeading = settings?.defaultSeoTitle || "Modular Homes For A Better Tomorrow";
-  const heroTagline = settings?.announcementText || "MODERN. AFFORDABLE. BUILT FOR LIFE.";
+  const heroHeading = homePage?.title || settings?.defaultSeoTitle || "Modular Homes For A Better Tomorrow";
+  const heroTagline = homePage?.subtitle || settings?.announcementText || "MODERN. AFFORDABLE. BUILT FOR LIFE.";
+  const heroDesc = homePage?.content || "Explore precision steel modular homes, downloadable construction floor plans, and turnkey prefab models designed around your lifestyle, location and budget.";
+  const heroBgImage = homePage?.featuredImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1900&q=85";
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -60,7 +88,7 @@ export default async function HomePage() {
       <section 
         className="min-h-[560px] sm:min-h-[590px] lg:min-h-[620px] text-white flex items-center relative overflow-hidden bg-cover bg-center"
         style={{
-          backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.76) 0%, rgba(0,0,0,0.35) 48%, rgba(0,0,0,0.12) 100%), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1900&q=85')`
+          backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.76) 0%, rgba(0,0,0,0.35) 48%, rgba(0,0,0,0.12) 100%), url('${heroBgImage}')`
         }}
       >
         <div className="wrap w-full py-16 sm:py-20 relative z-10">
@@ -70,13 +98,11 @@ export default async function HomePage() {
             </div>
 
             <h1 className="text-4xl sm:text-6xl lg:text-[68px] font-black tracking-[-2.5px] sm:tracking-[-3px] text-white leading-[0.98] sm:leading-[0.96] mb-4 sm:mb-5">
-              Modular Homes
-              <br />
-              For A Better <span className="text-[#fcb907]">Tomorrow</span>
+              {heroHeading}
             </h1>
 
             <p className="text-base sm:text-[19px] text-white/90 leading-[1.55] max-w-xl mb-7 sm:mb-8 font-normal">
-              Explore precision steel modular homes, downloadable construction floor plans, and turnkey prefab models designed around your lifestyle, location and budget.
+              {heroDesc}
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">

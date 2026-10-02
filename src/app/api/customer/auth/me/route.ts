@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const session = await getCustomerSession();
     if (!session) {
-      return NextResponse.json({ success: false, user: null }, { status: 401 });
+      return NextResponse.json({ success: true, user: null }, { status: 200 });
     }
 
     const fullCustomer = await getCustomerById(session.id);

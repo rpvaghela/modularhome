@@ -4,12 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Clock, Search, BookOpen, Sparkles } from "lucide-react";
+import { CmsPage } from "@/lib/publicData";
 
 interface ResourcesClientProps {
   initialArticles: any[];
+  pageData?: CmsPage | null;
 }
 
-export default function ResourcesClient({ initialArticles }: ResourcesClientProps) {
+export default function ResourcesClient({ initialArticles, pageData }: ResourcesClientProps) {
   const [articles] = useState<any[]>(initialArticles);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -23,6 +25,10 @@ export default function ResourcesClient({ initialArticles }: ResourcesClientProp
     );
   });
 
+  const headerBadge = pageData?.subtitle ? "Modular Housing Knowledge Hub" : "Modular Housing Knowledge Hub";
+  const headerTitle = pageData?.title || "Modular Home Resources & Guides";
+  const headerDesc = pageData?.content || "Everything you need to know about factory modular housing, costs, timelines, financing, land preparation, and floor plan customization.";
+
   return (
     <div className="min-h-screen bg-white pt-24 pb-28 text-[#101114]">
       <div className="wrap">
@@ -30,16 +36,15 @@ export default function ResourcesClient({ initialArticles }: ResourcesClientProp
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-50 text-[#d97706] text-xs font-bold uppercase tracking-wider mb-4 border border-amber-200">
             <Sparkles className="w-3.5 h-3.5 text-[#fcb907]" />
-            <span>Modular Housing Knowledge Hub</span>
+            <span>{headerBadge}</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-[#101114] font-display leading-[0.98]">
-            Modular Home <br />
-            <span className="text-[#d97706]">Resources & Guides</span>
+            {headerTitle}
           </h1>
 
           <p className="mt-4 text-sm sm:text-base text-[#555d69] leading-relaxed font-body">
-            Everything you need to know about factory modular housing, costs, timelines, financing, land preparation, and floor plan customization.
+            {headerDesc}
           </p>
 
           {/* Search Bar */}
@@ -102,50 +107,24 @@ export default function ResourcesClient({ initialArticles }: ResourcesClientProp
                       <span>{article.date}</span>
                     </div>
 
-                    <h3 className="text-base sm:text-lg font-black text-[#101114] group-hover:text-[#d97706] transition-colors leading-snug font-display line-clamp-2">
+                    <h2 className="text-lg font-black text-[#101114] line-clamp-2 group-hover:text-[#d97706] transition-colors">
                       {article.title}
-                    </h3>
+                    </h2>
 
-                    <p className="text-xs sm:text-sm text-[#555d69] leading-relaxed line-clamp-2 font-body">
+                    <p className="text-xs text-[#555d69] line-clamp-3 leading-relaxed">
                       {article.excerpt}
                     </p>
                   </div>
                 </div>
 
-                <div className="p-5 sm:p-6 pt-0">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#d97706] group-hover:text-[#b45309] transition-colors">
-                    <span>Read Full Article</span>
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                  </span>
+                <div className="px-5 sm:px-6 pb-5 pt-2 border-t border-[#e7e9ee]/60 flex items-center justify-between text-xs font-bold text-[#d97706]">
+                  <span>Read Full Guide</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
               </Link>
             ))}
           </div>
         )}
-
-        {/* Bottom Consultation CTA */}
-        <div className="mt-16 p-8 sm:p-12 bg-[#f8f9fa] border border-[#e7e9ee] rounded-[24px] text-center max-w-3xl mx-auto space-y-4">
-          <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#101114] font-display">
-            Need Expert Help Planning Your Modular Home?
-          </h3>
-          <p className="text-xs sm:text-sm text-[#555d69] max-w-xl mx-auto leading-relaxed">
-            Our architectural specialists and engineering team are ready to assist with lot feasibility, zoning guidelines, and custom blueprint selection.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Link
-              href="/contact"
-              className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] px-6 py-3 text-xs font-black uppercase tracking-wider rounded-[11px] transition-all shadow-sm"
-            >
-              Request Free Consultation
-            </Link>
-            <Link
-              href="/floor-plans"
-              className="bg-white hover:bg-[#f4f5f7] border border-[#d5d9e0] text-[#101114] px-6 py-3 text-xs font-bold uppercase tracking-wider rounded-[11px] transition-all"
-            >
-              Browse 50+ Floor Plans
-            </Link>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { query } from "@/lib/db";
 import { logActivity } from "@/lib/activityLog";
 import { getPublicGlobalSettings, writeSettingsToStore } from "@/lib/settings";
 
@@ -14,7 +16,18 @@ export async function GET() {
   try {
     let dbSettings: any = null;
 
-    if (isSupabaseConfigured()) {
+    // 1. Direct PostgreSQL query
+    try {
+      const pgRes = await query(`SELECT * FROM global_settings WHERE id = 'primary' LIMIT 1;`);
+      if (pgRes && pgRes.rows && pgRes.rows.length > 0) {
+        dbSettings = pgRes.rows[0];
+      }
+    } catch (pgErr) {
+      console.warn("Postgres fetch global_settings warning:", pgErr);
+    }
+
+    // 2. Fallback to Supabase
+    if (!dbSettings && isSupabaseConfigured()) {
       try {
         const { data, error } = await supabaseAdmin
           .from("global_settings")
@@ -35,6 +48,7 @@ export async function GET() {
     const fullResponse = {
       ...currentSettings,
       id: dbSettings?.id || "primary",
+      logoAlt: dbSettings?.logo_alt || "ModularHome.com Logo",
       headerNavigation: dbSettings?.header_navigation || currentSettings.navLinks,
       footerNavigation: dbSettings?.footer_navigation || currentSettings.footerLinks,
       footerColumns: dbSettings?.footer_columns || [],
@@ -89,6 +103,9 @@ export async function PUT(request: NextRequest) {
     if (body.logoUrl !== undefined || body.logo_url !== undefined) {
       updatePayload.logo_url = body.logoUrl || body.logo_url;
     }
+    if (body.logoAlt !== undefined || body.logo_alt !== undefined) {
+      updatePayload.logo_alt = body.logoAlt || body.logo_alt;
+    }
     if (body.faviconUrl !== undefined || body.favicon_url !== undefined) {
       updatePayload.favicon_url = body.faviconUrl || body.favicon_url;
     }
@@ -137,7 +154,79 @@ export async function PUT(request: NextRequest) {
       updatePayload.cta_link = body.ctaLink || body.cta_link;
     }
 
-    // 1. Save locally
+    // 1. Save in PostgreSQL
+    try {
+      const upsertSql = `
+        INSERT INTO global_settings (
+          id, company_name, logo_url, logo_alt, favicon_url, phone, email, address,
+          social_links, announcement_enabled, announcement_text, announcement_link,
+          header_navigation, footer_navigation, footer_columns, header_visibility,
+          copyright_text, default_seo_title, default_seo_desc, cta_label, cta_link, updated_at
+        ) VALUES (
+          'primary', $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, now()
+        )
+        ON CONFLICT (id) DO UPDATE SET
+          company_name = COALESCE(EXCLUDED.company_name, global_settings.company_name),
+          logo_url = COALESCE(EXCLUDED.logo_url, global_settings.logo_url),
+          logo_alt = COALESCE(EXCLUDED.logo_alt, global_settings.logo_alt),
+          favicon_url = COALESCE(EXCLUDED.favicon_url, global_settings.favicon_url),
+          phone = COALESCE(EXCLUDED.phone, global_settings.phone),
+          email = COALESCE(EXCLUDED.email, global_settings.email),
+          address = COALESCE(EXCLUDED.address, global_settings.address),
+          social_links = COALESCE(EXCLUDED.social_links, global_settings.social_links),
+          announcement_enabled = COALESCE(EXCLUDED.announcement_enabled, global_settings.announcement_enabled),
+          announcement_text = COALESCE(EXCLUDED.announcement_text, global_settings.announcement_text),
+          announcement_link = COALESCE(EXCLUDED.announcement_link, global_settings.announcement_link),
+          header_navigation = COALESCE(EXCLUDED.header_navigation, global_settings.header_navigation),
+          footer_navigation = COALESCE(EXCLUDED.footer_navigation, global_settings.footer_navigation),
+          footer_columns = COALESCE(EXCLUDED.footer_columns, global_settings.footer_columns),
+          header_visibility = COALESCE(EXCLUDED.header_visibility, global_settings.header_visibility),
+          copyright_text = COALESCE(EXCLUDED.copyright_text, global_settings.copyright_text),
+          default_seo_title = COALESCE(EXCLUDED.default_seo_title, global_settings.default_seo_title),
+          default_seo_desc = COALESCE(EXCLUDED.default_seo_desc, global_settings.default_seo_desc),
+          cta_label = COALESCE(EXCLUDED.cta_label, global_settings.cta_label),
+          cta_link = COALESCE(EXCLUDED.cta_link, global_settings.cta_link),
+          updated_at = now();
+      `;
+
+      await query(upsertSql, [
+        updatePayload.company_name || "ModularHome.com",
+        updatePayload.logo_url || "/finallogo.avif",
+        updatePayload.logo_alt || "ModularHome.com Logo",
+        updatePayload.favicon_url || "/favicon.ico",
+        updatePayload.phone || "+1 (812) 595-4033",
+        updatePayload.email || "support@modularhome.com",
+        updatePayload.address || "Factory Headquarters, IN & Nationwide Delivery",
+        JSON.stringify(updatePayload.social_links || {}),
+        updatePayload.announcement_enabled !== false,
+        updatePayload.announcement_text || "",
+        updatePayload.announcement_link || "/buildings",
+        JSON.stringify(updatePayload.header_navigation || []),
+        JSON.stringify(updatePayload.footer_navigation || []),
+        JSON.stringify(updatePayload.footer_columns || []),
+        JSON.stringify(updatePayload.header_visibility || {}),
+        updatePayload.copyright_text || "© 2026 ModularHome.com. All rights reserved.",
+        updatePayload.default_seo_title || "Modular Homes For A Better Tomorrow | ModularHome.com",
+        updatePayload.default_seo_desc || "Leading precision steel modular homes, luxury barndominiums, cabins, and downloadable architectural plans.",
+        updatePayload.cta_label || "Get Your Free Quote",
+        updatePayload.cta_link || "/quote",
+      ]);
+    } catch (pgErr) {
+      console.warn("Postgres settings upsert error:", pgErr);
+    }
+
+    // 2. Save into Supabase table global_settings
+    if (isSupabaseConfigured()) {
+      try {
+        await supabaseAdmin
+          .from("global_settings")
+          .upsert(updatePayload, { onConflict: "id" });
+      } catch (sbErr) {
+        console.warn("Supabase settings upsert warning:", sbErr);
+      }
+    }
+
+    // 3. Save locally in fallback store
     const savedLocal = writeSettingsToStore({
       companyName: updatePayload.company_name,
       logoUrl: updatePayload.logo_url,
@@ -158,23 +247,23 @@ export async function PUT(request: NextRequest) {
       ctaLink: updatePayload.cta_link,
     });
 
-    // 2. Save into PostgreSQL table global_settings
-    if (isSupabaseConfigured()) {
-      try {
-        await supabaseAdmin
-          .from("global_settings")
-          .upsert(updatePayload, { onConflict: "id" });
-      } catch (sbErr) {
-        console.warn("Supabase settings upsert warning:", sbErr);
-      }
-    }
+    // 4. Revalidate all public pages and admin layout
+    try {
+      revalidatePath("/");
+      revalidatePath("/admin/settings");
+      revalidatePath("/admin/settings/header");
+      revalidatePath("/admin/settings/navigation");
+      revalidatePath("/admin/settings/footer");
+    } catch {}
+
+    const actionName = body.headerNavigation ? "NAVIGATION_UPDATE" : (body.footerColumns || body.footerNavigation ? "FOOTER_UPDATE" : (body.logoUrl || body.phone ? "HEADER_UPDATE" : "SETTINGS_UPDATE"));
 
     await logActivity(
       authResult,
-      "SETTINGS_UPDATE",
+      actionName,
       "SETTINGS",
       "primary",
-      "Updated global website branding, navigation, or SEO configuration",
+      "Updated global website branding, navigation, header, or footer configuration in database",
       { fields: Object.keys(updatePayload) }
     );
 
@@ -184,7 +273,7 @@ export async function PUT(request: NextRequest) {
         ...savedLocal,
         ...updatePayload,
       },
-      message: "Global settings updated successfully.",
+      message: "Global settings saved successfully to database.",
     });
   } catch (error: any) {
     console.error("Error updating global settings:", error);

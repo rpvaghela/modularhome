@@ -1,11 +1,34 @@
 import { MapPin, Phone, Mail, Clock, HelpCircle } from "lucide-react";
+import { Metadata } from "next";
 import ContactForm from "@/components/ContactForm";
 import { getPublicGlobalSettings } from "@/lib/settings";
+import { getPublicPageBySlug } from "@/lib/pageDataServer";
+import DynamicPageRenderer from "@/components/DynamicPageRenderer";
 
-export const metadata = {
-  title: "Contact Our Team | ModularHome.com",
-  description: "Connect with ModularHome.com housing specialists, project estimators, and designers. Request a quote or schedule a design consultation.",
-};
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getPublicPageBySlug("contact");
+  if (page) {
+    const title = page.seoTitle || `${page.title} | ModularHome.com`;
+    const description = page.metaDescription || page.subtitle || "Connect with ModularHome.com housing specialists, project estimators, and designers. Request a quote or schedule a design consultation.";
+    return {
+      title,
+      description,
+      openGraph: {
+        title: page.ogTitle || title,
+        description: page.ogDescription || description,
+        images: page.ogImage ? [{ url: page.ogImage }] : (page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/finallogo.avif" }]),
+      },
+      alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
+    };
+  }
+
+  return {
+    title: "Contact Our Team | ModularHome.com",
+    description: "Connect with ModularHome.com housing specialists, project estimators, and designers. Request a quote or schedule a design consultation.",
+  };
+}
 
 const FAQS = [
   {
@@ -27,11 +50,48 @@ const FAQS = [
 ];
 
 export default async function ContactPage() {
-  const settings = await getPublicGlobalSettings();
+  const [settings, page] = await Promise.all([
+    getPublicGlobalSettings(),
+    getPublicPageBySlug("contact"),
+  ]);
+
+  // If CMS has custom sections or body content, render via DynamicPageRenderer
+  if (page && ((page.sections && page.sections.length > 0) || (page.content && page.content.trim().length > 50))) {
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: page.title || "Contact ModularHome.com",
+      description: page.metaDescription || page.subtitle,
+      url: "https://modularhome.com/contact",
+      ...(page.featuredImage && { image: page.featuredImage }),
+      publisher: {
+        "@type": "Organization",
+        name: "ModularHome.com",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://modularhome.com/finallogo.avif",
+        },
+      },
+    };
+
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <DynamicPageRenderer page={page} />
+      </>
+    );
+  }
 
   const phone = settings.phone || "+1 (812) 595-4033";
   const email = settings.email || "support@modularhome.com";
   const address = settings.address || "Factory Headquarters, IN & Nationwide Delivery";
+
+  const heroBadge = page?.subtitle ? "Get In Touch" : "Get In Touch";
+  const heroTitle = page?.title || "Contact Our Team";
+  const heroDesc = page?.content || "Whether you have existing architectural sketches or are starting with a blank slate, our licensed structural engineers and modular advisors are here to help.";
 
   return (
     <div className="min-h-screen bg-white pt-24 pb-20 text-[#101114]">
@@ -42,14 +102,13 @@ export default async function ContactPage() {
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] mb-3">
                 <span className="w-2 h-2 rounded-full bg-[#fcb907]"></span>
-                <span>Get In Touch</span>
+                <span>{heroBadge}</span>
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-[-2px] text-[#101114] leading-[0.95]">
-                Let&apos;s Build <br />
-                <span className="text-[#d97706]">Something Great.</span>
+                {heroTitle}
               </h1>
               <p className="mt-4 text-sm sm:text-base text-[#6b7280] leading-relaxed">
-                Whether you have existing architectural sketches or are starting with a blank slate, our licensed structural engineers and modular advisors are here to help.
+                {heroDesc}
               </p>
             </div>
 

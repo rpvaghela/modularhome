@@ -18,7 +18,8 @@ import {
   Layers,
   PhoneCall,
   Building,
-  ImageIcon
+  ImageIcon,
+  Star
 } from "lucide-react";
 import { CmsPage, PageSection } from "@/lib/publicData";
 import TrustBar from "@/components/TrustBar";
@@ -36,8 +37,21 @@ interface DynamicPageRendererProps {
 interface ParsedContent {
   text: string;
   image?: string;
+  imageAlt?: string;
   gallery?: string[];
+  galleryImages?: Array<{ url: string; alt?: string; caption?: string }>;
   items?: any[];
+  cards?: Array<{ title: string; description: string; image?: string; link?: string; alt?: string }>;
+  steps?: Array<{ stepNumber: number | string; title: string; description: string }>;
+  faqs?: Array<{ question: string; answer: string }>;
+  testimonials?: Array<{ name: string; location: string; rating: number; text: string; image?: string }>;
+  videoUrl?: string;
+  videoTitle?: string;
+  category?: string;
+  ctaLabel?: string;
+  ctaLink?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaLink?: string;
 }
 
 function parseContentData(rawContent?: string): ParsedContent {
@@ -52,19 +66,40 @@ function parseContentData(rawContent?: string): ParsedContent {
         return { text: parsed };
       }
       if (Array.isArray(parsed)) {
-        return { text: "", items: parsed };
+        return { text: "", items: parsed, cards: parsed };
       }
       return {
         text: parsed.rawText || parsed.text || parsed.content || parsed.description || parsed.html || "",
         image: parsed.image || parsed.imageUrl || parsed.featuredImage || parsed.src || undefined,
+        imageAlt: parsed.imageAlt || parsed.alt || undefined,
         gallery: Array.isArray(parsed.gallery) ? parsed.gallery : (Array.isArray(parsed.images) ? parsed.images : undefined),
+        galleryImages: Array.isArray(parsed.galleryImages) ? parsed.galleryImages : undefined,
         items: Array.isArray(parsed.items) ? parsed.items : undefined,
+        cards: Array.isArray(parsed.cards) ? parsed.cards : undefined,
+        steps: Array.isArray(parsed.steps) ? parsed.steps : undefined,
+        faqs: Array.isArray(parsed.faqs) ? parsed.faqs : undefined,
+        testimonials: Array.isArray(parsed.testimonials) ? parsed.testimonials : undefined,
+        videoUrl: parsed.videoUrl || parsed.youtube || parsed.src || undefined,
+        videoTitle: parsed.videoTitle || parsed.title || undefined,
+        category: parsed.category || undefined,
+        ctaLabel: parsed.ctaLabel || parsed.buttonText || undefined,
+        ctaLink: parsed.ctaLink || parsed.buttonLink || parsed.href || undefined,
+        secondaryCtaLabel: parsed.secondaryCtaLabel || parsed.secondaryButtonText || undefined,
+        secondaryCtaLink: parsed.secondaryCtaLink || parsed.secondaryButtonLink || undefined,
       };
     } catch {
       return { text: rawContent };
     }
   }
   return { text: rawContent };
+}
+
+// Convert YouTube URL to embed URL
+function getYouTubeEmbedUrl(url?: string): string | null {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? `https://www.youtube-nocookie.com/embed/${match[2]}` : url;
 }
 
 export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) {
@@ -82,7 +117,10 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
   const sections = (page.sections || []).filter((s) => s.isVisible !== false);
 
   // Parse FAQ content helper
-  const parseFaqItems = (contentStr?: string): { q: string; a: string }[] => {
+  const parseFaqItems = (contentStr?: string, parsedFaqs?: Array<{ question: string; answer: string }>): { q: string; a: string }[] => {
+    if (parsedFaqs && parsedFaqs.length > 0) {
+      return parsedFaqs.map((f) => ({ q: f.question, a: f.answer }));
+    }
     if (!contentStr) return [];
     try {
       const parsed = JSON.parse(contentStr);
@@ -92,14 +130,14 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
           a: String(item.a || item.answer || item.content || ""),
         }));
       }
-      if (parsed.items && Array.isArray(parsed.items)) {
-        return parsed.items.map((item: any) => ({
+      if (parsed.faqs && Array.isArray(parsed.faqs)) {
+        return parsed.faqs.map((item: any) => ({
           q: String(item.q || item.question || item.title || ""),
           a: String(item.a || item.answer || item.content || ""),
         }));
       }
-      if (parsed.faqs && Array.isArray(parsed.faqs)) {
-        return parsed.faqs.map((item: any) => ({
+      if (parsed.items && Array.isArray(parsed.items)) {
+        return parsed.items.map((item: any) => ({
           q: String(item.q || item.question || item.title || ""),
           a: String(item.a || item.answer || item.content || ""),
         }));
@@ -153,6 +191,10 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
     switch (section.type) {
       case "HERO": {
         const bgImg = data.image || page.featuredImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1900&q=85";
+        const primaryLabel = data.ctaLabel || "Get a Quote →";
+        const primaryLink = data.ctaLink || "/quote";
+        const secondaryLabel = data.secondaryCtaLabel || "Explore Models";
+        const secondaryLink = data.secondaryCtaLink || "/buildings";
 
         return (
           <section
@@ -180,17 +222,19 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
                 )}
                 <div className="pt-3 flex flex-wrap gap-3">
                   <Link
-                    href="/quote"
+                    href={primaryLink}
                     className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] py-3 px-6 text-sm font-black rounded-xl shadow-lg transition-all hover:shadow-xl"
                   >
-                    Get a Quote →
+                    {primaryLabel}
                   </Link>
-                  <Link
-                    href="/buildings"
-                    className="bg-white/95 hover:bg-white text-[#101114] py-3 px-6 text-sm font-extrabold rounded-xl transition-all"
-                  >
-                    Explore Models
-                  </Link>
+                  {secondaryLabel && (
+                    <Link
+                      href={secondaryLink}
+                      className="bg-white/95 hover:bg-white text-[#101114] py-3 px-6 text-sm font-extrabold rounded-xl transition-all"
+                    >
+                      {secondaryLabel}
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
@@ -198,7 +242,8 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
         );
       }
 
-      case "TRUST":
+      case "TRUST": {
+        const hasCustomCards = data.cards && data.cards.length > 0;
         return (
           <div key={section.id || index} className="my-10">
             {section.title && (
@@ -207,9 +252,32 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
                 {section.subtitle && <p className="text-xs sm:text-sm text-[#6b7280] mt-1">{section.subtitle}</p>}
               </div>
             )}
-            <TrustBar />
+            {hasCustomCards ? (
+              <div className="wrap">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {data.cards!.map((card, cIdx) => (
+                    <div key={cIdx} className="p-6 rounded-2xl bg-white border border-[#e7e9ee] shadow-sm hover:shadow-md transition-shadow">
+                      <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#d97706] flex items-center justify-center mb-4">
+                        <CheckCircle2 className="w-5 h-5" />
+                      </div>
+                      <h4 className="text-base font-bold text-[#101114]">{card.title}</h4>
+                      <p className="text-xs sm:text-sm text-[#6b7280] mt-2 leading-relaxed">{card.description}</p>
+                      {card.link && (
+                        <Link href={card.link} className="inline-flex items-center gap-1 text-xs font-bold text-[#d97706] hover:underline mt-4">
+                          <span>Learn more</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </Link>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <TrustBar />
+            )}
           </div>
         );
+      }
 
       case "COLLECTION_GRID":
         return (
@@ -228,38 +296,157 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
           </div>
         );
 
-      case "HOW_IT_WORKS":
+      case "HOW_IT_WORKS": {
+        const hasCustomSteps = data.steps && data.steps.length > 0;
         return (
           <div key={section.id || index}>
-            <HowItWorks />
+            {hasCustomSteps ? (
+              <section className="py-16 bg-[#f8f9fa] border-y border-[#e7e9ee]">
+                <div className="wrap">
+                  <div className="text-center max-w-2xl mx-auto mb-12">
+                    {section.subtitle && (
+                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#d97706]">
+                        {section.subtitle}
+                      </span>
+                    )}
+                    <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-[#101114] mt-1">
+                      {section.title || "How It Works"}
+                    </h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {data.steps!.map((step, sIdx) => (
+                      <div key={sIdx} className="bg-white p-6 rounded-2xl border border-[#e7e9ee] shadow-sm relative">
+                        <span className="w-9 h-9 rounded-xl bg-[#fcb907] text-[#101114] font-black text-sm flex items-center justify-center mb-4">
+                          {step.stepNumber || sIdx + 1}
+                        </span>
+                        <h3 className="text-base font-bold text-[#101114] mb-2">{step.title}</h3>
+                        <p className="text-xs sm:text-sm text-[#6b7280] leading-relaxed">{step.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            ) : (
+              <HowItWorks />
+            )}
           </div>
         );
+      }
 
-      case "FINANCING":
+      case "FINANCING": {
+        const hasCustomCta = Boolean(data.ctaLabel || data.ctaLink);
         return (
           <div key={section.id || index}>
             <FinancingSection />
+            {hasCustomCta && (
+              <div className="wrap text-center pb-8">
+                <Link
+                  href={data.ctaLink || "/quote"}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-bold text-xs shadow-md"
+                >
+                  <span>{data.ctaLabel || "Apply for Financing"}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            )}
           </div>
         );
+      }
 
-      case "VIDEO":
+      case "VIDEO": {
+        const embedUrl = getYouTubeEmbedUrl(data.videoUrl);
         return (
           <div key={section.id || index}>
-            <HomeVideosSection />
+            {embedUrl ? (
+              <section className="py-16 bg-[#101114] text-white">
+                <div className="wrap max-w-4xl space-y-6 text-center">
+                  {section.subtitle && (
+                    <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#fcb907]">
+                      {section.subtitle}
+                    </span>
+                  )}
+                  <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
+                    {section.title || "Featured Building Tour"}
+                  </h2>
+                  <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+                    <iframe
+                      src={embedUrl}
+                      title={section.title || "Video Showcase"}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                  {data.ctaLabel && (
+                    <div className="pt-2">
+                      <Link
+                        href={data.ctaLink || "/videos"}
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-bold text-xs"
+                      >
+                        <span>{data.ctaLabel}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </section>
+            ) : (
+              <HomeVideosSection />
+            )}
           </div>
         );
+      }
 
-      case "TESTIMONIALS":
+      case "TESTIMONIALS": {
+        const hasCustomTestimonials = data.testimonials && data.testimonials.length > 0;
         return (
           <div key={section.id || index}>
-            <HomeTestimonialsSection />
+            {hasCustomTestimonials ? (
+              <section className="py-16 bg-white border-y border-[#e7e9ee]">
+                <div className="wrap">
+                  <div className="text-center max-w-2xl mx-auto mb-10">
+                    {section.subtitle && (
+                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#d97706]">
+                        {section.subtitle}
+                      </span>
+                    )}
+                    <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-[#101114] mt-1">
+                      {section.title || "Homeowner Reviews"}
+                    </h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {data.testimonials!.map((t, tIdx) => (
+                      <div key={tIdx} className="p-6 rounded-2xl bg-[#f8f9fa] border border-[#e7e9ee] space-y-3">
+                        <div className="flex items-center gap-1 text-[#fcb907]">
+                          {[...Array(t.rating || 5)].map((_, s) => (
+                            <Star key={s} className="w-4 h-4 fill-current" />
+                          ))}
+                        </div>
+                        <p className="text-xs sm:text-sm text-[#374151] italic leading-relaxed">
+                          &ldquo;{t.text}&rdquo;
+                        </p>
+                        <div className="pt-2 border-t border-[#e7e9ee]">
+                          <div className="font-bold text-xs text-[#101114]">{t.name}</div>
+                          {t.location && <div className="text-[11px] text-[#6b7280]">{t.location}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            ) : (
+              <HomeTestimonialsSection />
+            )}
           </div>
         );
+      }
 
       case "GALLERY": {
-        const galleryImgs = data.gallery && data.gallery.length > 0 
-          ? data.gallery 
-          : (data.image ? [data.image] : []);
+        const galleryItems = data.galleryImages && data.galleryImages.length > 0
+          ? data.galleryImages
+          : (data.gallery && data.gallery.length > 0
+              ? data.gallery.map((url) => ({ url, alt: section.title || "Gallery image", caption: "" }))
+              : (data.image ? [{ url: data.image, alt: section.title || "Gallery image", caption: "" }] : []));
 
         return (
           <section key={section.id || index} className="py-12 sm:py-16 bg-[#f8f9fa] border-y border-[#e7e9ee]">
@@ -277,25 +464,30 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
                 </div>
               )}
 
-              {galleryImgs.length > 0 ? (
+              {galleryItems.length > 0 ? (
                 <div className={`grid gap-4 ${
-                  galleryImgs.length === 1 
+                  galleryItems.length === 1 
                     ? "max-w-3xl mx-auto" 
-                    : galleryImgs.length === 2 
+                    : galleryItems.length === 2 
                     ? "grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto" 
                     : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
                 }`}>
-                  {galleryImgs.map((imgUrl, gIdx) => (
+                  {galleryItems.map((item, gIdx) => (
                     <div
                       key={gIdx}
                       className="relative aspect-[16/10] rounded-2xl overflow-hidden border border-[#e7e9ee] shadow-sm group bg-gray-100"
                     >
                       <Image
-                        src={imgUrl}
-                        alt={`${section.title || "Gallery"} ${gIdx + 1}`}
+                        src={item.url}
+                        alt={item.alt || `${section.title || "Gallery"} ${gIdx + 1}`}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
+                      {item.caption && (
+                        <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent text-white text-xs font-medium">
+                          {item.caption}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -336,7 +528,7 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
                 <div className="relative aspect-[16/9] sm:aspect-[21/9] max-w-4xl mx-auto rounded-2xl overflow-hidden border border-[#e7e9ee] shadow-md bg-gray-50">
                   <Image
                     src={data.image}
-                    alt={section.title || "Featured Visual"}
+                    alt={data.imageAlt || section.title || "Featured Visual"}
                     fill
                     className="object-cover"
                   />
@@ -357,7 +549,7 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
       }
 
       case "FAQ": {
-        const faqList = parseFaqItems(section.content);
+        const faqList = parseFaqItems(section.content, data.faqs);
         return (
           <section key={section.id || index} className="py-16 sm:py-20 bg-white border-t border-[#e7e9ee]">
             <div className="wrap max-w-4xl">
@@ -406,12 +598,50 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
         );
       }
 
-      case "CTA":
+      case "CTA": {
+        const hasCustomCTA = Boolean(section.title || data.ctaLabel);
         return (
           <div key={section.id || index}>
-            <CTASection />
+            {hasCustomCTA ? (
+              <section className="py-16 bg-[#101114] text-white">
+                <div className="wrap max-w-3xl text-center space-y-4">
+                  {section.subtitle && (
+                    <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#fcb907]">
+                      {section.subtitle}
+                    </span>
+                  )}
+                  <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
+                    {section.title || "Ready to Build Your Modular Home?"}
+                  </h2>
+                  {data.text && (
+                    <p className="text-sm sm:text-base text-gray-300 leading-relaxed font-normal">
+                      {data.text}
+                    </p>
+                  )}
+                  <div className="pt-4 flex flex-wrap justify-center gap-3">
+                    <Link
+                      href={data.ctaLink || "/quote"}
+                      className="px-6 py-3 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black text-sm shadow-lg"
+                    >
+                      {data.ctaLabel || "Get Free Quote"}
+                    </Link>
+                    {data.secondaryCtaLabel && (
+                      <Link
+                        href={data.secondaryCtaLink || "/buildings"}
+                        className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm"
+                      >
+                        {data.secondaryCtaLabel}
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </section>
+            ) : (
+              <CTASection />
+            )}
           </div>
         );
+      }
 
       case "RICH_CONTENT":
       default: {
@@ -430,7 +660,7 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
                 <div className="relative aspect-[16/9] sm:aspect-[21/9] rounded-2xl overflow-hidden border border-[#e7e9ee] shadow-md bg-gray-50">
                   <Image
                     src={data.image}
-                    alt={section.title || page.title || "Section Media"}
+                    alt={data.imageAlt || section.title || page.title || "Section Media"}
                     fill
                     className="object-cover hover:scale-102 transition-transform duration-500"
                   />

@@ -1,12 +1,40 @@
 import { FileCheck, Clock } from "lucide-react";
+import { Metadata } from "next";
 import FloorPlanUploader from "@/components/FloorPlanUploader";
+import { getPublicPageBySlug } from "@/lib/pageDataServer";
 
-export const metadata = {
-  title: "Upload Your Floor Plan | ModularHome.com",
-  description: "Already have a blueprint or architectural drawing? Upload your plan for a complimentary modular home engineering breakdown and custom bid package.",
-};
+export const dynamic = "force-dynamic";
 
-export default function UploadFloorPlanPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getPublicPageBySlug("upload-floor-plan");
+  if (page) {
+    const title = page.seoTitle || `${page.title} | ModularHome.com`;
+    const description = page.metaDescription || page.subtitle || "Already have a blueprint or architectural drawing? Upload your plan for a complimentary modular home engineering breakdown and custom bid package.";
+    return {
+      title,
+      description,
+      openGraph: {
+        title: page.ogTitle || title,
+        description: page.ogDescription || description,
+        images: page.ogImage ? [{ url: page.ogImage }] : (page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/finallogo.avif" }]),
+      },
+      alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
+    };
+  }
+
+  return {
+    title: "Upload Your Floor Plan | ModularHome.com",
+    description: "Already have a blueprint or architectural drawing? Upload your plan for a complimentary modular home engineering breakdown and custom bid package.",
+  };
+}
+
+export default async function UploadFloorPlanPage() {
+  const page = await getPublicPageBySlug("upload-floor-plan");
+
+  const heroBadge = page?.subtitle ? "Custom Engineering Intake" : "Custom Engineering Intake";
+  const heroTitle = page?.title || "HAVE A FLOOR PLAN?";
+  const heroDesc = page?.content || "Upload your floor plan and let our team provide a detailed custom quote. We accept hand sketches, architect PDFs, and CAD files.";
+
   return (
     <div className="min-h-screen bg-white pt-24 pb-20 text-[#101114]">
       <div className="wrap">
@@ -14,13 +42,13 @@ export default function UploadFloorPlanPage() {
         <div className="text-center max-w-3xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] mb-2">
             <span className="w-2 h-2 rounded-full bg-[#fcb907]"></span>
-            <span>Custom Engineering Intake</span>
+            <span>{heroBadge}</span>
           </div>
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-[-1.5px] text-[#101114]">
-            HAVE A FLOOR PLAN?
+            {heroTitle}
           </h1>
           <p className="mt-3 text-sm sm:text-base text-[#6b7280] leading-relaxed">
-            Upload your floor plan and let our team provide a detailed custom quote. We accept hand sketches, architect PDFs, and CAD files.
+            {heroDesc}
           </p>
         </div>
 

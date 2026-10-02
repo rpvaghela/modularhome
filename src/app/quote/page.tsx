@@ -1,17 +1,44 @@
 import { ShieldCheck, Clock, Award } from "lucide-react";
+import { Metadata } from "next";
 import QuoteWizard from "@/components/QuoteWizard";
 import { getPublicGlobalSettings } from "@/lib/settings";
+import { getPublicPageBySlug } from "@/lib/pageDataServer";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Instant Building Quote Calculator | ModularHome.com",
-  description: "Calculate custom estimates for your modular home, prefab, tiny home, barndominium, or cabin. Customize square footage and options for transparent pricing.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getPublicPageBySlug("quote");
+  if (page) {
+    const title = page.seoTitle || `${page.title} | ModularHome.com`;
+    const description = page.metaDescription || page.subtitle || "Calculate custom estimates for your modular home, prefab, tiny home, barndominium, or cabin. Customize square footage and options for transparent pricing.";
+    return {
+      title,
+      description,
+      openGraph: {
+        title: page.ogTitle || title,
+        description: page.ogDescription || description,
+        images: page.ogImage ? [{ url: page.ogImage }] : (page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/finallogo.avif" }]),
+      },
+      alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
+    };
+  }
+
+  return {
+    title: "Instant Building Quote Calculator | ModularHome.com",
+    description: "Calculate custom estimates for your modular home, prefab, tiny home, barndominium, or cabin. Customize square footage and options for transparent pricing.",
+  };
+}
 
 export default async function QuotePage() {
-  const settings = await getPublicGlobalSettings();
+  const [settings, page] = await Promise.all([
+    getPublicGlobalSettings(),
+    getPublicPageBySlug("quote"),
+  ]);
+
   const phone = settings.phone || "+1 (812) 595-4033";
+  const heroBadge = page?.subtitle ? "Interactive Estimator" : "Interactive Estimator";
+  const heroTitle = page?.title || "Instant Building Quote";
+  const heroDesc = page?.content || "Configure your home type, fine-tune square footage, and select energy packages. Transparent pricing in under 2 minutes.";
 
   return (
     <div className="min-h-screen bg-white pt-24 pb-20 text-[#101114]">
@@ -20,13 +47,13 @@ export default async function QuotePage() {
         <div className="text-center max-w-3xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] mb-2">
             <span className="w-2 h-2 rounded-full bg-[#fcb907]"></span>
-            <span>Interactive Estimator</span>
+            <span>{heroBadge}</span>
           </div>
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-[-1.5px] text-[#101114]">
-            Instant Building Quote
+            {heroTitle}
           </h1>
           <p className="mt-3 text-sm sm:text-base text-[#6b7280] leading-relaxed">
-            Configure your home type, fine-tune square footage, and select energy packages. Transparent pricing in under 2 minutes.
+            {heroDesc}
           </p>
 
           {/* Quick trust bar */}
@@ -63,4 +90,3 @@ export default async function QuotePage() {
     </div>
   );
 }
-

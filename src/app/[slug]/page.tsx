@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { getPublicPageBySlug } from "@/lib/publicData";
+import { getPublicPageBySlug } from "@/lib/pageDataServer";
 import DynamicPageRenderer from "@/components/DynamicPageRenderer";
 
 export const dynamic = "force-dynamic";
@@ -13,9 +13,13 @@ export async function generateMetadata({
   params,
 }: DynamicSlugPageProps): Promise<Metadata> {
   const { slug } = await params;
+  if (!slug || slug === "undefined" || slug === "null") {
+    return { title: "Page Not Found | ModularHome.com" };
+  }
+
   const page = await getPublicPageBySlug(slug);
 
-  if (!page) {
+  if (!page || page.status === "DRAFT" || page.status === "ARCHIVED") {
     return {
       title: "Page Not Found | ModularHome.com",
     };
@@ -23,15 +27,27 @@ export async function generateMetadata({
 
   const title = page.seoTitle || `${page.title} | ModularHome.com`;
   const description = page.metaDescription || page.subtitle || `Explore ${page.title} on ModularHome.com`;
+  const ogTitle = page.ogTitle || title;
+  const ogDescription = page.ogDescription || description;
+  const ogImage = page.ogImage || page.featuredImage || "/finallogo.avif";
 
   return {
     title,
     description,
     openGraph: {
-      title,
-      description,
-      images: page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/finallogo.avif" }],
+      title: ogTitle,
+      description: ogDescription,
+      url: `https://modularhome.com/${page.slug}`,
+      siteName: "ModularHome.com",
+      images: [{ url: ogImage, alt: page.imageAlt || page.title }],
     },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description: ogDescription,
+      images: [ogImage],
+    },
+    robots: page.robots || "index, follow",
     alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
   };
 }
@@ -39,19 +55,26 @@ export async function generateMetadata({
 export default async function DynamicSlugPage({ params }: DynamicSlugPageProps) {
   const { slug } = await params;
 
-  // Prevent collision with reserved top-level paths
+  if (!slug || slug === "undefined" || slug === "null") {
+    notFound();
+  }
+
+  // Prevent collision with reserved top-level paths that have dedicated directory handlers
   const reservedPaths = [
     "api",
     "admin",
-    "about",
+    "account",
+    "auth",
     "buildings",
     "checkout",
-    "contact",
     "floor-plans",
+    "login",
     "models",
     "quote",
     "resources",
+    "signup",
     "upload-floor-plan",
+    "verify-email",
     "videos",
     "sitemap.xml",
     "robots.txt",
@@ -64,11 +87,11 @@ export default async function DynamicSlugPage({ params }: DynamicSlugPageProps) 
 
   const page = await getPublicPageBySlug(slug);
 
-  if (!page) {
+  if (!page || page.status === "DRAFT" || page.status === "ARCHIVED") {
     notFound();
   }
 
-  // Schema.org WebPage / Article JSON-LD
+  // Schema.org WebPage JSON-LD
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",

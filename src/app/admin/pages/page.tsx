@@ -13,7 +13,12 @@ import {
   Loader2,
   X,
   ExternalLink,
+  CheckCircle2,
+  AlertTriangle,
+  Calendar,
+  Sparkles,
 } from "lucide-react";
+import { getPageUrl } from "@/lib/publicData";
 
 export default function AdminPagesPage() {
   const [pages, setPages] = useState<any[]>([]);
@@ -33,7 +38,7 @@ export default function AdminPagesPage() {
     metaDescription: "",
   });
   const [createError, setCreateError] = useState("");
-  const [lastCreatedPage, setLastCreatedPage] = useState<{ title: string; slug: string } | null>(null);
+  const [lastCreatedPage, setLastCreatedPage] = useState<{ title: string; slug: string; publicUrl: string } | null>(null);
 
   const fetchPages = async () => {
     setIsLoading(true);
@@ -42,7 +47,7 @@ export default function AdminPagesPage() {
       if (search) url.searchParams.set("search", search);
       if (statusFilter !== "ALL") url.searchParams.set("status", statusFilter);
 
-      const res = await fetch(url.toString());
+      const res = await fetch(url.toString(), { cache: "no-store" });
       const json = await res.json();
       if (json.success) {
         setPages(json.data || []);
@@ -63,23 +68,54 @@ export default function AdminPagesPage() {
     fetchPages();
   };
 
+  const handleTitleChange = (val: string) => {
+    const autoSlug = val
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    setCreateForm((prev) => ({
+      ...prev,
+      title: val,
+      slug: prev.slug === "" || prev.slug === autoSlug.slice(0, -1) ? autoSlug : prev.slug,
+      seoTitle: prev.seoTitle === "" || prev.seoTitle === `${prev.title} | ModularHome.com` ? `${val} | ModularHome.com` : prev.seoTitle,
+    }));
+  };
+
   const handleCreatePage = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCreating(true);
     setCreateError("");
 
+    const cleanSlug = createForm.slug
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    if (!cleanSlug || cleanSlug === "undefined" || cleanSlug === "null") {
+      setCreateError("Please provide a valid URL slug (e.g. 'new-home' or 'custom-series').");
+      setIsCreating(false);
+      return;
+    }
+
     try {
       const res = await fetch("/api/admin/pages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(createForm),
+        body: JSON.stringify({
+          ...createForm,
+          slug: cleanSlug,
+        }),
       });
       const json = await res.json();
 
       if (json.success) {
-        const createdSlug = json.data?.slug || createForm.slug;
+        const createdSlug = json.data?.slug || cleanSlug;
         const createdTitle = json.data?.title || createForm.title;
-        setLastCreatedPage({ title: createdTitle, slug: createdSlug });
+        const publicUrl = `/${createdSlug === "home" ? "" : createdSlug}`;
+        setLastCreatedPage({ title: createdTitle, slug: createdSlug, publicUrl });
         setCreateModalOpen(false);
         setCreateForm({
           title: "",
@@ -91,17 +127,17 @@ export default function AdminPagesPage() {
         });
         await fetchPages();
       } else {
-        setCreateError(json.error?.message || "Failed to create page.");
+        setCreateError(json.error?.message || "Failed to create page in database.");
       }
     } catch (e: any) {
-      setCreateError(e.message || "Network error.");
+      setCreateError(e.message || "Network error while creating page.");
     } finally {
       setIsCreating(false);
     }
   };
 
   const handleDeletePage = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete the page "${title}"? This will also remove its configured sections.`)) {
+    if (!confirm(`Are you sure you want to delete the page "${title}"? This will permanently delete the page and its modular sections from the database.`)) {
       return;
     }
 
@@ -111,10 +147,10 @@ export default function AdminPagesPage() {
       if (json.success) {
         await fetchPages();
       } else {
-        alert(json.error?.message || "Failed to delete page.");
+        alert(json.error?.message || "Failed to delete page from database.");
       }
     } catch (e) {
-      alert("Failed to delete page.");
+      alert("Failed to delete page from database.");
     }
   };
 
@@ -127,12 +163,15 @@ export default function AdminPagesPage() {
             Page Manager & Route CMS
           </h1>
           <p className="text-xs sm:text-sm text-[#6b7280] mt-1 font-medium">
-            Create, edit, and configure site-wide landing pages, dynamic routes, and modular layout sections.
+            Authoritative database management for landing pages, dynamic custom routes, and modular layout sections.
           </p>
         </div>
 
         <button
-          onClick={() => setCreateModalOpen(true)}
+          onClick={() => {
+            setCreateError("");
+            setCreateModalOpen(true);
+          }}
           className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
@@ -144,14 +183,17 @@ export default function AdminPagesPage() {
       {lastCreatedPage && (
         <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs animate-in slide-in-from-top-2">
           <div className="flex items-center gap-2.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
             <span>
-              <strong>Page Created Successfully!</strong> &ldquo;{lastCreatedPage.title}&rdquo; is now live on your site.
+              <strong>Page Saved to Database!</strong> &ldquo;{lastCreatedPage.title}&rdquo; is now live at{" "}
+              <code className="bg-emerald-100 px-1.5 py-0.5 rounded font-mono font-bold text-emerald-900">
+                {lastCreatedPage.publicUrl}
+              </code>
             </span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <a
-              href={`/${lastCreatedPage.slug === "home" ? "" : lastCreatedPage.slug}`}
+              href={lastCreatedPage.publicUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all shadow-xs"
@@ -176,7 +218,7 @@ export default function AdminPagesPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by title or slug..."
+            placeholder="Search pages by title or slug..."
             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
           />
           <Search className="w-4 h-4 text-[#6b7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -187,7 +229,7 @@ export default function AdminPagesPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3.5 py-2 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
+            className="px-3.5 py-2 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907] cursor-pointer"
           >
             <option value="ALL">All Statuses</option>
             <option value="PUBLISHED">Published</option>
@@ -202,7 +244,7 @@ export default function AdminPagesPage() {
         {isLoading ? (
           <div className="py-20 text-center text-[#6b7280] text-xs flex flex-col items-center gap-2 font-medium">
             <Loader2 className="w-6 h-6 animate-spin text-[#fcb907]" />
-            <span>Loading pages...</span>
+            <span>Loading pages from database...</span>
           </div>
         ) : pages.length === 0 ? (
           <div className="py-20 text-center text-[#6b7280] text-xs font-medium">
@@ -214,7 +256,7 @@ export default function AdminPagesPage() {
               <thead>
                 <tr className="bg-[#f8f9fa] border-b border-[#e7e9ee] text-[#6b7280] font-bold uppercase tracking-wider text-[10px] font-mono">
                   <th className="py-4 px-5">Page Title</th>
-                  <th className="py-4 px-5">Slug / Route</th>
+                  <th className="py-4 px-5">URL Route</th>
                   <th className="py-4 px-5">Modular Sections</th>
                   <th className="py-4 px-5">Status</th>
                   <th className="py-4 px-5">Last Updated</th>
@@ -224,9 +266,9 @@ export default function AdminPagesPage() {
               <tbody className="divide-y divide-[#e7e9ee]">
                 {pages.map((page) => {
                   const pageId = page._id || page.id;
-                  const rawSlug = page.slug || page.handle || pageId;
-                  const livePath = `/${rawSlug === "home" ? "" : rawSlug}`;
-                  const formattedDate = (page.updatedAt || page.updated_at || page.createdAt || page.created_at)
+                  const livePath = getPageUrl(page);
+                  const isSlugValid = livePath !== null;
+                  const formattedUpdated = (page.updatedAt || page.updated_at || page.createdAt || page.created_at)
                     ? new Date(page.updatedAt || page.updated_at || page.createdAt || page.created_at).toLocaleString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -234,11 +276,20 @@ export default function AdminPagesPage() {
                         hour: "2-digit",
                         minute: "2-digit",
                       })
-                    : "N/A";
+                    : "Not available";
+
                   return (
                     <tr key={pageId} className="hover:bg-[#f8f9fa]/70 transition-colors">
                       <td className="py-4 px-5 font-bold text-[#101114]">
-                        <span className="text-sm font-serif">{page.title}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-serif">{page.title}</span>
+                          {!isSlugValid && (
+                            <span className="px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200 text-[10px] font-mono font-bold flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3 text-red-500" />
+                              Missing Slug
+                            </span>
+                          )}
+                        </div>
                         {page.subtitle && (
                           <span className="block text-[11px] font-normal text-[#6b7280] truncate max-w-xs font-sans mt-0.5">
                             {page.subtitle}
@@ -246,16 +297,22 @@ export default function AdminPagesPage() {
                         )}
                       </td>
                       <td className="py-4 px-5 font-mono text-[11px]">
-                        <a
-                          href={livePath}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[#6b7280] hover:text-[#d97706] hover:underline inline-flex items-center gap-1 font-bold group"
-                          title="Open live page in new tab"
-                        >
-                          <span>{livePath}</span>
-                          <ExternalLink className="w-3 h-3 text-[#9ca3af] group-hover:text-[#d97706]" />
-                        </a>
+                        {isSlugValid ? (
+                          <a
+                            href={livePath!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#6b7280] hover:text-[#d97706] hover:underline inline-flex items-center gap-1 font-bold group"
+                            title="Open live page in new tab"
+                          >
+                            <span>{livePath}</span>
+                            <ExternalLink className="w-3 h-3 text-[#9ca3af] group-hover:text-[#d97706]" />
+                          </a>
+                        ) : (
+                          <span className="text-amber-700 italic font-sans text-[11px]">
+                            Slug required to preview
+                          </span>
+                        )}
                       </td>
                       <td className="py-4 px-5">
                         <Link
@@ -279,22 +336,32 @@ export default function AdminPagesPage() {
                               : "bg-gray-100 text-gray-700 border border-gray-200"
                           }`}
                         >
-                          {page.status}
+                          {page.status || "PUBLISHED"}
                         </span>
                       </td>
                       <td className="py-4 px-5 text-[#6b7280] text-[11px] font-medium whitespace-nowrap">
-                        {formattedDate}
+                        {formattedUpdated}
                       </td>
                       <td className="py-4 px-5 text-right space-x-2">
-                        <a
-                          href={livePath}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-xl text-[#d97706] hover:bg-amber-50 border border-transparent hover:border-amber-200 inline-block transition-all shadow-2xs"
-                          title="View Live Page"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
+                        {isSlugValid ? (
+                          <a
+                            href={livePath!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 rounded-xl text-[#d97706] hover:bg-amber-50 border border-transparent hover:border-amber-200 inline-block transition-all shadow-2xs"
+                            title="View Live Page"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        ) : (
+                          <Link
+                            href={`/admin/pages/${pageId}`}
+                            className="p-2 rounded-xl text-amber-600 hover:bg-amber-50 border border-amber-200 inline-block transition-all shadow-2xs text-[11px] font-bold"
+                            title="Repair Slug"
+                          >
+                            Fix Slug
+                          </Link>
+                        )}
                         <Link
                           href={`/admin/pages/${pageId}`}
                           className="p-2 rounded-xl text-[#101114] hover:bg-white hover:border-[#d5d9e0] border border-transparent inline-block transition-all shadow-2xs"
@@ -304,7 +371,7 @@ export default function AdminPagesPage() {
                         </Link>
                         <button
                           onClick={() => handleDeletePage(pageId, page.title)}
-                          className="p-2 rounded-xl text-[#6b7280] hover:text-[#d97706] hover:bg-red-50 border border-transparent hover:border-red-200 inline-block transition-all cursor-pointer"
+                          className="p-2 rounded-xl text-[#6b7280] hover:text-red-700 hover:bg-red-50 border border-transparent hover:border-red-200 inline-block transition-all cursor-pointer"
                           title="Delete Page"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -349,66 +416,81 @@ export default function AdminPagesPage() {
                   type="text"
                   required
                   value={createForm.title}
-                  onChange={(e) => {
-                    const title = e.target.value;
-                    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-                    setCreateForm({ ...createForm, title, slug, seoTitle: `${title} | ModularHome.com` });
-                  }}
-                  placeholder="e.g. Precision Engineering Guide"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
+                  onChange={(e) => handleTitleChange(e.target.value)}
+                  placeholder="e.g. Modern Steel Cabins"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-[#101114] mb-1.5">Slug / URL Path *</label>
-                <input
-                  type="text"
-                  required
-                  value={createForm.slug}
-                  onChange={(e) => setCreateForm({ ...createForm, slug: e.target.value })}
-                  placeholder="e.g. engineering-guide"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-[#101114] font-mono text-[11px] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
-                />
+                <label className="block font-bold text-[#101114] mb-1.5">URL Slug (Path) *</label>
+                <div className="flex items-center rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] overflow-hidden focus-within:ring-2 focus-within:ring-[#fcb907] focus-within:bg-white">
+                  <span className="px-3 text-[#6b7280] font-mono text-xs border-r border-[#d5d9e0] bg-[#eef0f4] py-2.5">/</span>
+                  <input
+                    type="text"
+                    required
+                    value={createForm.slug}
+                    onChange={(e) => setCreateForm({ ...createForm, slug: e.target.value.toLowerCase().replace(/[^a-z0-9_-]+/g, "-") })}
+                    placeholder="modern-steel-cabins"
+                    className="w-full px-3 py-2.5 text-xs font-mono font-bold bg-transparent text-[#101114] focus:outline-none"
+                  />
+                </div>
+                <p className="text-[10px] text-[#6b7280] mt-1 font-mono">
+                  Live URL: /{createForm.slug ? createForm.slug.toLowerCase().replace(/[^a-z0-9_-]+/g, "-") : "..."}
+                </p>
               </div>
 
               <div>
-                <label className="block font-bold text-[#101114] mb-1.5">Subtitle (Optional)</label>
+                <label className="block font-bold text-[#101114] mb-1.5">Subtitle</label>
                 <input
                   type="text"
                   value={createForm.subtitle}
                   onChange={(e) => setCreateForm({ ...createForm, subtitle: e.target.value })}
-                  placeholder="Brief descriptive subtitle"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
+                  placeholder="e.g. Factory-built precision housing engineered for luxury mountain living"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
                 />
               </div>
 
-              <div>
-                <label className="block font-bold text-[#101114] mb-1.5">Publish Status</label>
-                <select
-                  value={createForm.status}
-                  onChange={(e) => setCreateForm({ ...createForm, status: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-[#101114] font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
-                >
-                  <option value="PUBLISHED">Published</option>
-                  <option value="DRAFT">Draft</option>
-                </select>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-[#101114] mb-1.5">Initial Status</label>
+                  <select
+                    value={createForm.status}
+                    onChange={(e) => setCreateForm({ ...createForm, status: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907] cursor-pointer"
+                  >
+                    <option value="PUBLISHED">Published (Live)</option>
+                    <option value="DRAFT">Draft</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#101114] mb-1.5">SEO Title Preview</label>
+                  <input
+                    type="text"
+                    value={createForm.seoTitle}
+                    onChange={(e) => setCreateForm({ ...createForm, seoTitle: e.target.value })}
+                    placeholder="Auto-generated from title"
+                    className="w-full px-3 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
+                  />
+                </div>
               </div>
 
-              <div className="pt-3 flex justify-end gap-2.5 border-t border-[#e7e9ee]">
+              <div className="flex justify-end gap-3 pt-3 border-t border-[#e7e9ee]">
                 <button
                   type="button"
                   onClick={() => setCreateModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl text-[#101114] font-bold hover:bg-[#f8f9fa] border border-[#d5d9e0] cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl border border-[#d5d9e0] text-[#101114] font-bold text-xs hover:bg-[#f8f9fa] transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isCreating}
-                  className="px-5 py-2.5 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-bold disabled:opacity-50 flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="px-5 py-2.5 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black uppercase tracking-wider text-xs shadow-sm transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                 >
-                  {isCreating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Create Page</span>
+                  {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  <span>Save Page</span>
                 </button>
               </div>
             </form>
