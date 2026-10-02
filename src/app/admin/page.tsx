@@ -29,27 +29,43 @@ import {
 export default function AdminDashboardPage() {
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchStats = async () => {
-    setIsLoading(true);
+  const fetchStats = async (isManual = false) => {
+    if (isManual) setIsRefreshing(true);
+    else setIsLoading(true);
+
     try {
-      const res = await fetch("/api/admin/dashboard/stats");
+      const res = await fetch(`/api/admin/dashboard/stats?t=${Date.now()}`, {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+        },
+      });
       const json = await res.json();
-      if (json.success) {
+      if (json.success && json.data) {
         setData(json.data);
+      } else {
+        console.warn("Stats API response error:", json);
       }
     } catch (e) {
       console.error("Failed to load dashboard stats:", e);
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   };
 
   useEffect(() => {
     fetchStats();
+    const interval = setInterval(() => {
+      fetchStats(true);
+    }, 20000);
+    return () => clearInterval(interval);
   }, []);
 
-  if (isLoading) {
+  if (isLoading && !data) {
     return (
       <div className="flex flex-col items-center justify-center py-28 text-[#6b7280] space-y-3">
         <Loader2 className="w-8 h-8 animate-spin text-[#fcb907]" />
@@ -59,6 +75,7 @@ export default function AdminDashboardPage() {
       </div>
     );
   }
+
 
   const metrics = data?.metrics || {
     totalProducts: 0,
@@ -195,6 +212,15 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 shrink-0 relative z-10">
+          <button
+            onClick={() => fetchStats(true)}
+            disabled={isRefreshing}
+            className="inline-flex items-center gap-2 px-4 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider border border-white/15 transition-all cursor-pointer backdrop-blur-xs disabled:opacity-50"
+            title="Refresh dashboard stats now"
+          >
+            <RefreshCw className={`w-4 h-4 text-[#fcb907] ${isRefreshing ? "animate-spin" : ""}`} />
+            <span>{isRefreshing ? "Syncing..." : "Refresh"}</span>
+          </button>
           <Link
             href="/admin/products/new"
             className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider shadow-md hover:shadow-lg transition-all"
