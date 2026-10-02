@@ -417,14 +417,14 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
               </button>
 
               {/* Brand Logo */}
-              <Link href="/" className="flex items-center group select-none shrink-0">
+              <Link href="/" className="flex items-center group select-none shrink-0 py-1">
                 <Image
                   src={logoUrl}
                   alt={initialSettings?.companyName || "ModularHome.com"}
-                  width={260}
-                  height={60}
+                  width={280}
+                  height={55}
                   priority
-                  className="h-8 sm:h-10 md:h-11 lg:h-12 w-auto max-w-[160px] sm:max-w-[220px] md:max-w-[260px] lg:max-w-none object-contain hover:opacity-90 transition-opacity"
+                  className="h-8 sm:h-9 md:h-10 lg:h-11 w-auto max-w-[180px] sm:max-w-[220px] md:max-w-[260px] lg:max-w-none object-contain hover:opacity-90 transition-opacity"
                 />
               </Link>
             </div>
