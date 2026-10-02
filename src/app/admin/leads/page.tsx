@@ -40,7 +40,7 @@ export default function AdminLeadsPage() {
   const [drawerStatusMessage, setDrawerStatusMessage] = useState<string | null>(null);
 
   const STATUSES = ["NEW", "CONTACTED", "QUALIFIED", "QUOTE_SENT", "FOLLOW_UP", "WON", "LOST"];
-  const SOURCES = ["CONTACT_FORM", "AI_CHAT", "QUOTE_WIZARD", "FLOOR_PLAN_UPLOAD", "NEWSLETTER", "WEBSITE"];
+  const SOURCES = ["CONTACT_FORM", "WEBSITE_CHAT", "AI_CHAT", "QUOTE_WIZARD", "FLOOR_PLAN_UPLOAD", "NEWSLETTER", "WEBSITE", "ADMIN_MANUAL"];
 
   const fetchLeads = async () => {
     setIsLoading(true);

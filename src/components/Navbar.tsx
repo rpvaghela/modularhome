@@ -144,6 +144,21 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
   const ctaLink = initialSettings?.ctaLink || "#quote";
   const socialLinks = initialSettings?.socialLinks || {};
 
+  const menuItems: CategoryNavOption[] = (initialSettings?.navLinks && initialSettings.navLinks.length > 0)
+    ? initialSettings.navLinks.map((item) => {
+        let categoryQuery: string | undefined = undefined;
+        if (item.href && item.href.includes("category=")) {
+          const rawCat = item.href.split("category=")[1].split("&")[0];
+          categoryQuery = decodeURIComponent(rawCat.replace(/\+/g, " "));
+        }
+        return {
+          label: item.label,
+          href: item.href,
+          categoryQuery,
+        };
+      })
+    : PRIMARY_MENU_OPTIONS;
+
   useEffect(() => {
     setMobileMenuOpen(false);
     setMoreDropdownOpen(false);
@@ -608,7 +623,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
           <div className="wrap relative overflow-visible">
             <nav className="flex items-center justify-between gap-1 xl:gap-2 py-1.5 overflow-visible relative">
               <div className="flex items-center gap-0.5 xl:gap-1.5 flex-wrap overflow-visible">
-                {PRIMARY_MENU_OPTIONS.map((item) => {
+                {menuItems.map((item) => {
                   const active = currentCategory === item.categoryQuery;
                   return (
                     <Link
@@ -785,7 +800,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                   Building Categories
                 </div>
                 <div className="space-y-1">
-                  {PRIMARY_MENU_OPTIONS.map((item) => (
+                  {menuItems.map((item) => (
                     <Link
                       key={item.label}
                       href={item.href}

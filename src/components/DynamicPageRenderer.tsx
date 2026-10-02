@@ -815,23 +815,7 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
 
       {/* 4. Default CTA Footer if no custom sections present */}
       {sections.length === 0 && !parsedPageContent.text && (
-        <section className="py-20 text-center wrap max-w-2xl">
-          <div className="p-8 bg-[#f8f9fa] rounded-[22px] border border-[#e7e9ee] space-y-4">
-            <h2 className="text-xl font-black text-[#101114]">Page Content In Development</h2>
-            <p className="text-xs sm:text-sm text-[#6b7280]">
-              This page has been published. Add narrative content or configure modular blocks from your Admin Section Manager.
-            </p>
-            <div className="pt-2">
-              <Link
-                href="/buildings"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase rounded-xl"
-              >
-                <span>Browse Homes & Plans</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </section>
+        <CTASection />
       )}
     </div>
   );

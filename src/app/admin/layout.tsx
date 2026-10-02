@@ -48,7 +48,7 @@ interface AdminUser {
   role: string;
 }
 
-const INACTIVITY_LIMIT_MS = 30 * 60 * 1000; // 30-Minute Inactivity Session Limit
+const INACTIVITY_LIMIT_MS = 60 * 60 * 1000; // 60-Minute (1-Hour) Inactivity Session Limit
 
 function getStoredLastActivity(): number {
   if (typeof window === "undefined") return Date.now();
@@ -76,7 +76,7 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<AdminUser | null>(null);
   const [lastActivity, setLastActivity] = useState<number>(Date.now());
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(1800);
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(3600);
   const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
 
   const isLoginPage = pathname === "/admin/login";

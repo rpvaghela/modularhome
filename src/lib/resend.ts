@@ -85,7 +85,7 @@ export async function sendResendEmail(options: SendEmailOptions): Promise<SendEm
   }
 
   try {
-    const { data, error } = await resend.emails.send({
+    let sendResult = await resend.emails.send({
       from: fromAddress,
       to: options.to,
       subject: options.subject,
@@ -97,17 +97,34 @@ export async function sendResendEmail(options: SendEmailOptions): Promise<SendEm
       tags: options.tags,
     });
 
-    if (error) {
-      console.error("❌ [Resend API Error]:", error.message || error);
+    // Auto-fallback to Resend sandbox if custom domain is unverified
+    if (sendResult.error && (sendResult.error.message.includes("not verified") || sendResult.error.message.includes("domain"))) {
+      console.warn("⚠️ [Resend Domain Unverified] Retrying via sandbox sender (onboarding@resend.dev)...");
+      const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || "ModularHome";
+      sendResult = await resend.emails.send({
+        from: `${companyName} <onboarding@resend.dev>`,
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+        replyTo: replyToAddress,
+        cc: options.cc,
+        bcc: options.bcc,
+        tags: options.tags,
+      });
+    }
+
+    if (sendResult.error) {
+      console.error("❌ [Resend API Error]:", sendResult.error.message || sendResult.error);
       return {
         success: false,
-        error: error.message || "Failed to send email via Resend.",
+        error: sendResult.error.message || "Failed to send email via Resend.",
       };
     }
 
     return {
       success: true,
-      id: data?.id,
+      id: sendResult.data?.id,
     };
   } catch (err: any) {
     console.error("❌ [Resend Exception]:", err?.message || "Unexpected exception during Resend API call.");

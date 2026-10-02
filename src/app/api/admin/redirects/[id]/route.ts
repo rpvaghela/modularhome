@@ -16,17 +16,26 @@ export async function PUT(
 
     const updates: Record<string, any> = {};
 
-    if (body.sourcePath !== undefined) {
-      updates.source_path = body.sourcePath.startsWith("/") ? body.sourcePath : `/${body.sourcePath}`;
+    const rawSource = body.sourcePath || body.from_path || body.source_path;
+    const rawTarget = body.targetPath || body.to_path || body.target_path;
+    const rawStatus = body.statusCode || body.http_status || body.status_code;
+
+    if (rawSource !== undefined) {
+      const cleanSource = rawSource.startsWith("/") ? rawSource : `/${rawSource}`;
+      updates.from_path = cleanSource;
     }
-    if (body.targetPath !== undefined) {
-      updates.target_path = body.targetPath.startsWith("/") || body.targetPath.startsWith("http")
-        ? body.targetPath
-        : `/${body.targetPath}`;
+    if (rawTarget !== undefined) {
+      const cleanTarget = rawTarget.startsWith("/") || rawTarget.startsWith("http")
+        ? rawTarget
+        : `/${rawTarget}`;
+      updates.to_path = cleanTarget;
     }
-    if (body.statusCode !== undefined) updates.status_code = Number(body.statusCode);
-    if (body.isActive !== undefined) updates.is_active = Boolean(body.isActive);
-    if (body.notes !== undefined) updates.notes = body.notes;
+    if (rawStatus !== undefined) {
+      updates.http_status = Number(rawStatus) || 301;
+    }
+    if (body.notes !== undefined) {
+      updates.source = body.notes;
+    }
 
     if (isSupabaseConfigured()) {
       const { data, error } = await supabaseAdmin
@@ -43,12 +52,20 @@ export async function PUT(
         "REDIRECT_UPDATED",
         "redirects",
         id,
-        `Updated redirect: ${data?.source_path} -> ${data?.target_path}`
+        `Updated redirect: ${data?.from_path || data?.source_path} -> ${data?.to_path || data?.target_path}`
       );
 
       return NextResponse.json({
         success: true,
-        data,
+        data: {
+          id: data.id,
+          source_path: data.from_path,
+          target_path: data.to_path,
+          status_code: data.http_status,
+          is_active: true,
+          notes: data.source,
+          created_at: data.created_at || new Date().toISOString(),
+        },
         message: "Redirect rule updated successfully.",
       });
     }

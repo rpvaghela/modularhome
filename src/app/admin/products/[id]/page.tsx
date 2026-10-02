@@ -123,7 +123,7 @@ export default function AdminEditProductPage() {
               Edit Model: {product.name}
             </h1>
             <p className="text-xs text-[#6b7280] font-mono mt-0.5">
-              Slug: /models/{product.slug}
+              Slug: /buildings/{product.slug}
             </p>
           </div>
         </div>

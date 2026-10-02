@@ -169,7 +169,7 @@ export default function AdminPricingPage() {
     }
   };
 
-  const categories = ["BASE_MODEL", "SQFT_RATE", "UPGRADE", "FEE", "DISCOUNT"];
+  const categories = ["MODEL_RATE", "BASE_MODEL", "SQFT_RATE", "UPGRADE", "FEE", "DISCOUNT", "EXCLUSION"];
 
   return (
     <div className="space-y-8 animate-in fade-in pb-16">
@@ -455,11 +455,13 @@ export default function AdminPricingPage() {
                     onChange={(e) => setNewRule({ ...newRule, category: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl border border-[#d5d9e0] text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
                   >
+                    <option value="MODEL_RATE">MODEL_RATE</option>
                     <option value="BASE_MODEL">BASE_MODEL</option>
                     <option value="SQFT_RATE">SQFT_RATE</option>
                     <option value="UPGRADE">UPGRADE</option>
                     <option value="FEE">FEE</option>
                     <option value="DISCOUNT">DISCOUNT</option>
+                    <option value="EXCLUSION">EXCLUSION</option>
                   </select>
                 </div>
               </div>

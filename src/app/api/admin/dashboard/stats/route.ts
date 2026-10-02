@@ -4,6 +4,7 @@ import { query } from "@/lib/db";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { getLeadStats } from "@/lib/leadsStore";
 import { readPagesFromStore } from "@/lib/pageStore";
+import { readBlogsFromStore } from "@/lib/blogStore";
 
 export async function GET() {
   const authResult = await requireAdminAuth();
@@ -12,19 +13,19 @@ export async function GET() {
   try {
     const localLeadStats = getLeadStats();
     const localPages = readPagesFromStore();
+    const localBlogs = readBlogsFromStore();
 
     let totalProducts = 0;
     let totalCollections = 0;
     let totalPages = localPages.length;
     let totalFloorPlans = 0;
-    let publishedBlogs = 0;
-    let draftBlogs = 0;
     let totalLeads = localLeadStats.total;
     let newLeads = localLeadStats.newLeads;
     let totalQuotations = 0;
     let pendingQuotations = 0;
     let recentLeads: any[] = localLeadStats.recent || [];
     let recentQuotations: any[] = [];
+    let rawDbBlogs: any[] = [];
 
     let pgSuccess = false;
 
@@ -45,11 +46,7 @@ export async function GET() {
           query("SELECT COUNT(*)::int AS count FROM collections"),
           query("SELECT COUNT(*)::int AS count FROM pages"),
           query("SELECT COUNT(*)::int AS count FROM floor_plans"),
-          query(`SELECT 
-                  COUNT(*)::int AS total, 
-                  COUNT(*) FILTER (WHERE status = 'PUBLISHED')::int AS published,
-                  COUNT(*) FILTER (WHERE status != 'PUBLISHED')::int AS draft 
-                 FROM blog_posts`),
+          query("SELECT id, slug, handle, status FROM blog_posts"),
           query(`SELECT 
                   COUNT(*)::int AS total,
                   COUNT(*) FILTER (WHERE status = 'NEW')::int AS new_count
@@ -66,9 +63,8 @@ export async function GET() {
         if (collRes && collRes.rows[0]) totalCollections = Number(collRes.rows[0].count) || 0;
         if (pageRes && pageRes.rows[0]) totalPages = Math.max(Number(pageRes.rows[0].count) || 0, localPages.length);
         if (floorRes && floorRes.rows[0]) totalFloorPlans = Number(floorRes.rows[0].count) || 0;
-        if (blogRes && blogRes.rows[0]) {
-          publishedBlogs = Number(blogRes.rows[0].published) || 0;
-          draftBlogs = Number(blogRes.rows[0].draft) || 0;
+        if (blogRes && blogRes.rows) {
+          rawDbBlogs = blogRes.rows;
         }
         if (leadRes && leadRes.rows[0]) {
           totalLeads = Math.max(Number(leadRes.rows[0].total) || 0, localLeadStats.total);
@@ -103,13 +99,17 @@ export async function GET() {
           supabaseAdmin.from("collections").select("*", { count: "exact", head: true }),
           supabaseAdmin.from("pages").select("*", { count: "exact", head: true }),
           supabaseAdmin.from("floor_plans").select("*", { count: "exact", head: true }),
-          supabaseAdmin.from("blog_posts").select("status"),
+          supabaseAdmin.from("blog_posts").select("id, slug, handle, status"),
           supabaseAdmin.from("leads").select("*", { count: "exact" }).order("created_at", { ascending: false }).limit(5),
           supabaseAdmin.from("quotations").select("*", { count: "exact" }).order("created_at", { ascending: false }).limit(5),
         ]);
 
-        const spPublished = (spBlogs || []).filter((b) => b.status === "PUBLISHED").length;
-        const spDraft = (spBlogs || []).filter((b) => b.status !== "PUBLISHED").length;
+        if (spBlogs && spBlogs.length > 0) {
+          rawDbBlogs = spBlogs;
+        } else {
+          const { data: legacyBlogs } = await supabaseAdmin.from("blogs").select("id, slug, handle, status");
+          if (legacyBlogs) rawDbBlogs = legacyBlogs;
+        }
 
         const { count: spNewLeads } = await supabaseAdmin
           .from("leads")
@@ -125,8 +125,6 @@ export async function GET() {
         totalCollections = spTotalCollections || 0;
         totalPages = Math.max(spTotalPages || 0, localPages.length);
         totalFloorPlans = spTotalFloorPlans || 0;
-        publishedBlogs = spPublished;
-        draftBlogs = spDraft;
         totalLeads = Math.max(spTotalLeads || 0, localLeadStats.total);
         newLeads = Math.max(spNewLeads || 0, localLeadStats.newLeads);
         totalQuotations = spTotalQuotations || 0;
@@ -135,6 +133,26 @@ export async function GET() {
         recentQuotations = spQuotations || [];
       } catch (spErr) {
         console.warn("Supabase dashboard stats error:", spErr);
+      }
+    }
+
+    // Merge Blogs to match Articles & Resources list exactly
+    const existingBlogSlugs = new Set<string>();
+    let publishedBlogs = 0;
+    let draftBlogs = 0;
+
+    for (const lb of localBlogs) {
+      existingBlogSlugs.add(lb.slug.toLowerCase());
+      if (lb.status === "PUBLISHED" || !lb.status) publishedBlogs++;
+      else draftBlogs++;
+    }
+
+    for (const db of rawDbBlogs) {
+      const slug = String(db.slug || db.handle || db.id || "").toLowerCase();
+      if (!existingBlogSlugs.has(slug)) {
+        existingBlogSlugs.add(slug);
+        if (db.status === "PUBLISHED" || db.status === "published") publishedBlogs++;
+        else draftBlogs++;
       }
     }
 

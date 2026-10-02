@@ -92,15 +92,15 @@ export const STANDARD_EXCLUSIONS = [
  */
 export async function getActivePricingRules(): Promise<PricingRule[]> {
   try {
-    const res = await query("SELECT * FROM pricing_rules WHERE is_active = true ORDER BY category, label");
+    const res = await query("SELECT * FROM pricing_rules WHERE is_active = true ORDER BY display_order ASC, category, label");
     if (res && res.rows.length > 0) {
       return res.rows.map((r: any) => ({
         id: r.id,
         code: r.code,
         category: r.category,
-        label: r.label,
-        base_rate: Number(r.base_rate) || 0,
-        multiplier: Number(r.multiplier) || 0,
+        label: r.label || r.name || r.code,
+        base_rate: Number(r.base_rate !== undefined && r.base_rate !== null && Number(r.base_rate) > 0 ? r.base_rate : r.base_price) || 0,
+        multiplier: Number(r.multiplier !== undefined && r.multiplier !== null && Number(r.multiplier) > 0 ? r.multiplier : r.rate_per_sqft) || 0,
         min_sqft: r.min_sqft ? Number(r.min_sqft) : undefined,
         max_sqft: r.max_sqft ? Number(r.max_sqft) : undefined,
         description: r.description,
@@ -118,16 +118,16 @@ export async function getActivePricingRules(): Promise<PricingRule[]> {
         .from("pricing_rules")
         .select("*")
         .eq("is_active", true)
-        .order("category");
+        .order("display_order", { ascending: true });
 
       if (data && data.length > 0) {
         return data.map((r: any) => ({
           id: r.id,
           code: r.code,
           category: r.category,
-          label: r.label,
-          base_rate: Number(r.base_rate) || 0,
-          multiplier: Number(r.multiplier) || 0,
+          label: r.label || r.name || r.code,
+          base_rate: Number(r.base_rate !== undefined && r.base_rate !== null && Number(r.base_rate) > 0 ? r.base_rate : r.base_price) || 0,
+          multiplier: Number(r.multiplier !== undefined && r.multiplier !== null && Number(r.multiplier) > 0 ? r.multiplier : r.rate_per_sqft) || 0,
           min_sqft: r.min_sqft ? Number(r.min_sqft) : undefined,
           max_sqft: r.max_sqft ? Number(r.max_sqft) : undefined,
           description: r.description,
@@ -153,34 +153,41 @@ export async function calculateQuotation(input: PricingEngineInput): Promise<Det
 
   const lineItems: QuoteLineItem[] = [];
 
-  // 1. Determine Base Structure Model
-  let baseRule = rules.find(
+  // 1. Determine Model Rate / Base Structure
+  let modelRateRule = rules.find(
     (r) =>
-      r.category === "BASE_MODEL" &&
+      (r.category === "MODEL_RATE" || r.category === "BASE_MODEL" || r.category === "SQFT_RATE") &&
       (r.code.toLowerCase().includes(modelType.toLowerCase().slice(0, 4)) ||
+        modelType.toLowerCase().includes(r.code.toLowerCase().replace(/^(rate_|base_)/, "").slice(0, 4)) ||
+        r.label.toLowerCase().includes(modelType.toLowerCase().slice(0, 4)) ||
         modelName.toLowerCase().includes(r.label.toLowerCase().slice(0, 5)))
   );
-  if (!baseRule) {
-    baseRule = rules.find((r) => r.category === "BASE_MODEL") || DEFAULT_RULES[0];
+
+  if (!modelRateRule) {
+    modelRateRule = rules.find((r) => r.category === "MODEL_RATE" || r.category === "SQFT_RATE" || r.category === "BASE_MODEL") || DEFAULT_RULES[0];
   }
 
-  const basePrice = baseRule.base_rate;
-  lineItems.push({
-    id: baseRule.id || "base-model",
-    label: `${baseRule.label} (Model: ${modelName})`,
-    category: "BASE_MODEL",
-    amount: basePrice,
-    description: "Core engineered steel structural package and pre-drilled framing components.",
-  });
+  // Base flat amount (if any)
+  const basePrice = modelRateRule.base_rate > 0 ? modelRateRule.base_rate : 0;
+  if (basePrice > 0) {
+    lineItems.push({
+      id: modelRateRule.id || "base-model",
+      label: `${modelRateRule.label} (Model: ${modelName})`,
+      category: "BASE_MODEL",
+      amount: basePrice,
+      description: modelRateRule.description || "Core engineered steel structural package and pre-drilled framing components.",
+    });
+  }
 
   // 2. Determine SqFt Rate Multiplier
-  const sqftRule = rules.find((r) => r.category === "SQFT_RATE") || DEFAULT_RULES[4];
-  const sqftRate = sqftRule.multiplier > 0 ? sqftRule.multiplier : 85;
+  const sqftRate = modelRateRule.multiplier > 0 
+    ? modelRateRule.multiplier 
+    : (rules.find((r) => r.category === "SQFT_RATE")?.multiplier || 115);
   const sqftRateAmount = Math.round(sqft * sqftRate);
 
   lineItems.push({
-    id: sqftRule.id || "sqft-rate",
-    label: `Living Space Area Framing (${sqft.toLocaleString()} sq ft @ $${sqftRate}/sq ft)`,
+    id: modelRateRule.id || "sqft-rate",
+    label: `${modelRateRule.label || "Living Space Area Framing"} (${sqft.toLocaleString()} sq ft @ $${sqftRate}/sq ft)`,
     category: "SQFT_RATE",
     amount: sqftRateAmount,
     description: `Dimension rate calculation for ${sqft.toLocaleString()} sq ft gross floor area.`,
@@ -216,7 +223,12 @@ export async function calculateQuotation(input: PricingEngineInput): Promise<Det
     const isSelected =
       selectedUpgrades.includes(upRule.code) ||
       selectedUpgrades.includes(upRule.id) ||
-      selectedUpgrades.some((u) => u.toLowerCase() === upRule.label.toLowerCase());
+      selectedUpgrades.some(
+        (u) =>
+          u.toLowerCase() === upRule.label.toLowerCase() ||
+          u.toLowerCase() === upRule.code.toLowerCase() ||
+          upRule.code.toLowerCase().includes(u.toLowerCase())
+      );
 
     if (isSelected) {
       const upgradePrice = upRule.base_rate + Math.round(sqft * (upRule.multiplier || 0));
@@ -246,6 +258,12 @@ export async function calculateQuotation(input: PricingEngineInput): Promise<Det
     });
   }
 
+  // 6. Dynamic Exclusions from rules if configured
+  const exclusionRules = rules.filter((r) => r.category === "EXCLUSION");
+  const exclusions = exclusionRules.length > 0
+    ? exclusionRules.map((e) => e.label + (e.description ? `: ${e.description}` : ""))
+    : STANDARD_EXCLUSIONS;
+
   const discountsTotal = 0;
   const estimatedTotal = basePrice + sqftRateAmount + finishMultiplier + upgradesTotal + feesTotal - discountsTotal;
 
@@ -262,7 +280,7 @@ export async function calculateQuotation(input: PricingEngineInput): Promise<Det
     estimatedTotal,
     lineItems,
     inclusions: STANDARD_INCLUSIONS,
-    exclusions: STANDARD_EXCLUSIONS,
+    exclusions,
     disclaimer: STANDARD_DISCLAIMER,
   };
 }

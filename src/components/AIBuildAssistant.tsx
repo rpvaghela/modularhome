@@ -64,9 +64,9 @@ export default function AIBuildAssistant() {
       return {
         reply: "Our featured cabins and tiny homes include 'The Homestead Cabin' (1,200 sq ft, starting at $49,900) and 'The Retreat' luxury tiny home (650 sq ft, starting at $39,900), both factory engineered with precision.",
         actionButtons: [
-          { label: "The Homestead Cabin", href: "/models/the-homestead-cabin" },
-          { label: "The Retreat Tiny Home", href: "/models/the-retreat" },
-          { label: "The Yellowstone Ranch", href: "/models/the-yellowstone" },
+          { label: "The Homestead Cabin", href: "/buildings/the-homestead-cabin" },
+          { label: "The Retreat Tiny Home", href: "/buildings/the-retreat" },
+          { label: "The Yellowstone Ranch", href: "/buildings/the-yellowstone" },
         ],
       };
     }
@@ -75,8 +75,8 @@ export default function AIBuildAssistant() {
       return {
         reply: "Our Barndominiums blend steel-reinforced framing with open Scandinavian luxury interiors. Our top residential designs include 'The Lancaster' (2,200 sq ft, starting at $64,500) and 'The Hawthorne' (2,400 sq ft with wraparound porch).",
         actionButtons: [
-          { label: "View The Lancaster", href: "/models/the-lancaster" },
-          { label: "View The Hawthorne", href: "/models/the-hawthorne" },
+          { label: "View The Lancaster", href: "/buildings/the-lancaster" },
+          { label: "View The Hawthorne", href: "/buildings/the-hawthorne" },
           { label: "Calculate Quote", href: "/quote" },
         ],
       };
@@ -96,8 +96,8 @@ export default function AIBuildAssistant() {
       return {
         reply: "For workshops, commercial space, and multi-purpose buildings, take a look at 'The Timberline Workshop' (3,000 sq ft clear-span) and 'The Artisan Shed' (480 sq ft versatile studio kit).",
         actionButtons: [
-          { label: "Explore The Timberline", href: "/models/the-timberline-workshop" },
-          { label: "Explore The Artisan Shed", href: "/models/the-artisan-shed" },
+          { label: "Explore The Timberline", href: "/buildings/the-timberline-workshop" },
+          { label: "Explore The Artisan Shed", href: "/buildings/the-artisan-shed" },
         ],
       };
     }
@@ -105,7 +105,7 @@ export default function AIBuildAssistant() {
     return {
       reply: "Thank you for reaching out to ModularHome.com. We offer factory-built housing solutions from 650 sq ft cabins to 5,000+ sq ft custom estates. Would you like to explore existing models or build a custom quote?",
       actionButtons: [
-        { label: "Browse All Models", href: "/models" },
+        { label: "Browse All Models", href: "/buildings" },
         { label: "Request a Quote", href: "/quote" },
         { label: "Contact Us", href: "/contact" },
       ],

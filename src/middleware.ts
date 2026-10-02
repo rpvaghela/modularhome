@@ -7,9 +7,11 @@ const LEGACY_REDIRECTS: Record<string, string> = {
   "/collections/all": "/buildings",
   "/collections": "/buildings",
   "/catalog": "/buildings",
+  "/catalogue": "/buildings",
   "/floorplans": "/floor-plans",
   "/floor-plan": "/floor-plans",
   "/plans": "/floor-plans",
+  "/models": "/buildings",
 };
 
 const JWT_SECRET = new TextEncoder().encode(
@@ -17,36 +19,52 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 export async function middleware(request: NextRequest) {
-  const { pathname, searchParams } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
+  const normalizedPath = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
 
   // 1. Check exact match 301 SEO Redirects
-  if (LEGACY_REDIRECTS[pathname]) {
-    const redirectUrl = new URL(LEGACY_REDIRECTS[pathname], request.url);
-    return NextResponse.redirect(redirectUrl, { status: 301 });
+  const directTarget = LEGACY_REDIRECTS[normalizedPath] || LEGACY_REDIRECTS[pathname];
+  if (directTarget && directTarget !== pathname && directTarget !== normalizedPath) {
+    const targetUrl = new URL(directTarget + (search || ""), request.url);
+    return NextResponse.redirect(targetUrl, { status: 301 });
   }
 
   // 2. Handle Shopify pattern 301 redirects
-  if (pathname.startsWith("/products/")) {
-    const handle = pathname.replace("/products/", "");
-    const redirectUrl = new URL(`/buildings/${handle}`, request.url);
-    return NextResponse.redirect(redirectUrl, { status: 301 });
+  if (normalizedPath.startsWith("/products/")) {
+    const handle = normalizedPath.replace("/products/", "");
+    if (handle) {
+      const redirectUrl = new URL(`/buildings/${handle}${search || ""}`, request.url);
+      return NextResponse.redirect(redirectUrl, { status: 301 });
+    }
   }
 
-  if (pathname.startsWith("/blogs/news/")) {
-    const handle = pathname.replace("/blogs/news/", "");
-    const redirectUrl = new URL(`/resources/${handle}`, request.url);
-    return NextResponse.redirect(redirectUrl, { status: 301 });
+  if (normalizedPath.startsWith("/pages/")) {
+    const handle = normalizedPath.replace("/pages/", "");
+    if (handle) {
+      const redirectUrl = new URL(`/${handle}${search || ""}`, request.url);
+      return NextResponse.redirect(redirectUrl, { status: 301 });
+    }
   }
 
-  if (pathname.startsWith("/collections/")) {
-    const handle = pathname.replace("/collections/", "");
-    const redirectUrl = new URL(`/buildings?category=${encodeURIComponent(handle)}`, request.url);
-    return NextResponse.redirect(redirectUrl, { status: 301 });
+  if (normalizedPath.startsWith("/blogs/news/")) {
+    const handle = normalizedPath.replace("/blogs/news/", "");
+    if (handle) {
+      const redirectUrl = new URL(`/resources/${handle}${search || ""}`, request.url);
+      return NextResponse.redirect(redirectUrl, { status: 301 });
+    }
+  }
+
+  if (normalizedPath.startsWith("/collections/") && normalizedPath !== "/collections/all") {
+    const handle = normalizedPath.replace("/collections/", "");
+    if (handle) {
+      const redirectUrl = new URL(`/buildings?category=${encodeURIComponent(handle)}`, request.url);
+      return NextResponse.redirect(redirectUrl, { status: 301 });
+    }
   }
 
   // 3. Handle /admin/login page
   if (pathname === "/admin/login") {
-    const reason = searchParams.get("reason");
+    const reason = request.nextUrl.searchParams.get("reason");
     // If an explicit logout/expiry reason is present, clear stale cookies and allow login form
     if (reason) {
       const response = NextResponse.next();
@@ -143,13 +161,13 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/admin/:path*",
-    "/api/admin/:path*",
-    "/products/:path*",
-    "/blogs/news/:path*",
-    "/collections/:path*",
-    "/floorplans",
-    "/floor-plan",
-    "/plans",
+    /*
+     * Match all request paths except for static files:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public asset extensions (svg, png, jpg, etc.)
+     */
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map)$).*)",
   ],
 };

@@ -291,7 +291,35 @@ export async function PUT(
 
     const finalPage = updatedDbPage || localSaved;
 
-    // 4. Next.js Path Revalidation
+    // 4. Auto-create 301 Redirect if Slug Changed
+    if (oldSlug && oldSlug.toLowerCase() !== cleanSlug.toLowerCase()) {
+      const fromPath = `/${oldSlug.toLowerCase()}`;
+      const toPath = `/${cleanSlug.toLowerCase()}`;
+      try {
+        await query(
+          `INSERT INTO redirects (from_path, to_path, http_status, source, is_active, updated_at)
+           VALUES ($1, $2, 301, 'PAGE_SLUG_RENAME', true, NOW())
+           ON CONFLICT (from_path) DO UPDATE SET to_path = $2, is_active = true, updated_at = NOW();`,
+          [fromPath, toPath]
+        );
+      } catch (pgErr) {}
+
+      if (isSupabaseConfigured()) {
+        try {
+          await supabaseAdmin.from("redirects").upsert(
+            {
+              from_path: fromPath,
+              to_path: toPath,
+              http_status: 301,
+              source: "PAGE_SLUG_RENAME",
+            },
+            { onConflict: "from_path" }
+          );
+        } catch (sbErr) {}
+      }
+    }
+
+    // 5. Next.js Path Revalidation
     try {
       revalidatePath(`/${cleanSlug}`);
       revalidatePath(`/pages/${cleanSlug}`);

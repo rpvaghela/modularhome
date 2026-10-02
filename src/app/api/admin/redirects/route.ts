@@ -42,10 +42,22 @@ export async function GET(request: NextRequest) {
       const { data, error } = await supabaseAdmin
         .from("redirects")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("from_path", { ascending: true });
 
       if (!error && data) {
-        return NextResponse.json({ success: true, data });
+        const normalized = data.map((r: any) => ({
+          id: r.id,
+          source_path: r.source_path || r.from_path,
+          from_path: r.from_path || r.source_path,
+          target_path: r.target_path || r.to_path,
+          to_path: r.to_path || r.target_path,
+          status_code: Number(r.status_code || r.http_status || 301),
+          http_status: Number(r.http_status || r.status_code || 301),
+          is_active: r.is_active !== false,
+          notes: r.notes || r.source || null,
+          created_at: r.created_at || new Date().toISOString(),
+        }));
+        return NextResponse.json({ success: true, data: normalized });
       }
     }
 
@@ -67,28 +79,32 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { sourcePath, targetPath, statusCode, isActive, notes } = body;
 
-    if (!sourcePath || !targetPath) {
+    const rawSource = sourcePath || body.from_path || body.source_path;
+    const rawTarget = targetPath || body.to_path || body.target_path;
+
+    if (!rawSource || !rawTarget) {
       return NextResponse.json(
         { success: false, error: { message: "Source path and target path are required.", code: "VALIDATION_ERROR" } },
         { status: 400 }
       );
     }
 
-    const cleanSource = sourcePath.startsWith("/") ? sourcePath : `/${sourcePath}`;
-    const cleanTarget = targetPath.startsWith("/") || targetPath.startsWith("http") ? targetPath : `/${targetPath}`;
+    const cleanSource = rawSource.startsWith("/") ? rawSource : `/${rawSource}`;
+    const cleanTarget = rawTarget.startsWith("/") || rawTarget.startsWith("http") ? rawTarget : `/${rawTarget}`;
+    const statusNum = Number(statusCode || body.status_code || body.http_status) || 301;
+    const activeBool = isActive !== undefined ? Boolean(isActive) : true;
 
-    const newRedirect = {
-      source_path: cleanSource,
-      target_path: cleanTarget,
-      status_code: Number(statusCode) || 301,
-      is_active: isActive !== undefined ? Boolean(isActive) : true,
-      notes: notes || null,
+    const insertPayload = {
+      from_path: cleanSource,
+      to_path: cleanTarget,
+      http_status: statusNum,
+      source: notes || "admin_manual",
     };
 
     if (isSupabaseConfigured()) {
       const { data, error } = await supabaseAdmin
         .from("redirects")
-        .insert(newRedirect)
+        .upsert(insertPayload, { onConflict: "from_path" })
         .select()
         .single();
 
@@ -112,12 +128,28 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        data,
+        data: {
+          id: data.id,
+          source_path: data.from_path || cleanSource,
+          target_path: data.to_path || cleanTarget,
+          status_code: data.http_status || statusNum,
+          is_active: true,
+          notes: data.source,
+          created_at: new Date().toISOString(),
+        },
         message: "Redirect rule created successfully.",
       });
     }
 
-    const mock = { id: `red_${Date.now()}`, ...newRedirect, created_at: new Date().toISOString() };
+    const mock = {
+      id: `red_${Date.now()}`,
+      source_path: cleanSource,
+      target_path: cleanTarget,
+      status_code: statusNum,
+      is_active: activeBool,
+      notes,
+      created_at: new Date().toISOString(),
+    };
     memoryRedirects.unshift(mock);
 
     return NextResponse.json({

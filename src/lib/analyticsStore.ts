@@ -114,15 +114,11 @@ export async function getEcommerceAnalytics(params?: {
     .map(([date, val]) => ({ date, amount: val.amount, count: val.count }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  // Attribution Sources
-  const attributionMap: Record<string, { count: number; revenue: number }> = {
-    Google_Organic: { count: Math.max(1, Math.floor(paidOrders.length * 0.45)), revenue: 0 },
-    Direct: { count: Math.max(1, Math.floor(paidOrders.length * 0.3)), revenue: 0 },
-    YouTube: { count: Math.max(1, Math.floor(paidOrders.length * 0.25)), revenue: 0 },
-  };
+  // Attribution Sources (Deterministic reconciliation with actual order records)
+  const attributionMap: Record<string, { count: number; revenue: number }> = {};
 
   orders.forEach((o) => {
-    const src = o.attribution?.utm_source || "Direct";
+    const src = o.attribution?.utm_source || o.metadata?.utm_source || "Direct";
     if (!attributionMap[src]) attributionMap[src] = { count: 0, revenue: 0 };
     attributionMap[src].count += 1;
     if (o.payment_status === "PAID") {
