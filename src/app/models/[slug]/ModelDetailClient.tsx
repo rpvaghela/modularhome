@@ -34,7 +34,7 @@ export default function ModelDetailClient({
   relatedModels = [],
   phone = "+1 (812) 595-4033",
 }: ModelDetailClientProps) {
-  const primaryImg = model?.primaryImage || model?.image || (model?.gallery && model.gallery[0]) || "/finallogo.avif";
+  const primaryImg = model?.primaryImage || model?.image || (model?.gallery && model.gallery[0]) || "/newmodularlogo.png";
   const [activeImage, setActiveImage] = useState<string>(primaryImg);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [floorPlanExpanded, setFloorPlanExpanded] = useState(false);

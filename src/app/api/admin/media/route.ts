@@ -7,10 +7,10 @@ import { logAdminActivity } from "@/lib/activityLog";
 const memoryMediaAssets: any[] = [
   {
     id: "med-1",
-    filename: "finallogo.avif",
-    file_path: "/finallogo.avif",
-    public_url: "/finallogo.avif",
-    mime_type: "image/avif",
+    filename: "newmodularlogo.png",
+    file_path: "/newmodularlogo.png",
+    public_url: "/newmodularlogo.png",
+    mime_type: "image/png",
     file_size: 45000,
     alt_text: "ModularHome Official Brand Logo",
     created_at: new Date().toISOString(),

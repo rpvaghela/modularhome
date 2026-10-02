@@ -214,10 +214,10 @@ export default function AIBuildAssistant() {
             <div className="flex items-center gap-3">
               <div className="h-8 px-2.5 rounded-[8px] bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
                 <Image
-                  src="/finallogo.avif"
+                  src="/newmodularlogo.png"
                   alt="ModularHome.com"
-                  width={80}
-                  height={28}
+                  width={85}
+                  height={24}
                   className="h-5 w-auto object-contain"
                 />
               </div>

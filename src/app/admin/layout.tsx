@@ -479,10 +479,10 @@ export default function AdminLayout({
             <Link href="/admin" className="flex items-center gap-3 group">
               <div className="bg-white/95 p-2 rounded-xl border border-white/20 shadow-xs group-hover:scale-102 transition-transform">
                 <Image
-                  src="/finallogo.avif"
+                  src="/newmodularlogo.png"
                   alt="ModularHome Logo"
-                  width={130}
-                  height={30}
+                  width={140}
+                  height={32}
                   className="h-6 sm:h-7 w-auto object-contain"
                   priority
                 />

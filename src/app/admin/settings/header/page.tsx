@@ -138,7 +138,7 @@ export default function AdminHeaderSettingsPage() {
 
           <ImageUpload
             label="Header Brand Logo"
-            value={settings?.logoUrl || "/finallogo.avif"}
+            value={settings?.logoUrl || "/newmodularlogo.png"}
             onChange={(url) => setSettings({ ...settings, logoUrl: url })}
             folder="branding"
             aspectRatio="logo"

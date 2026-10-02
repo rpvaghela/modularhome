@@ -22,7 +22,7 @@ export interface PublicGlobalSettings {
 
 export const DEFAULT_SETTINGS: PublicGlobalSettings = {
   companyName: "ModularHome.com",
-  logoUrl: "/finallogo.avif",
+  logoUrl: "/newmodularlogo.png",
   faviconUrl: "/favicon.ico",
   phone: "+1 (812) 595-4033",
   email: "support@modularhome.com",

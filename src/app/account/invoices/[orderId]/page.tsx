@@ -82,11 +82,12 @@ export default function InvoicePage() {
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 border-b border-gray-200 pb-8">
           <div className="space-y-3">
             <Image
-              src="/finallogo.avif"
+              src="/newmodularlogo.png"
               alt="ModularHome"
-              width={160}
-              height={36}
-              className="h-8 w-auto object-contain"
+              width={180}
+              height={48}
+              className="h-9 w-auto object-contain"
+              priority
             />
             <div className="text-xs text-gray-500 leading-relaxed">
               <div className="font-bold text-[#101114]">ModularHome LLC</div>

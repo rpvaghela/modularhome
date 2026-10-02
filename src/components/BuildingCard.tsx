@@ -35,7 +35,7 @@ export default function BuildingCard({ model, priority = false }: BuildingCardPr
       {/* Image Viewport */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
         <Image
-          src={model.primaryImage || model.image || "/finallogo.avif"}
+          src={model.primaryImage || model.image || "/newmodularlogo.png"}
           alt={model.name}
           fill
           priority={priority}

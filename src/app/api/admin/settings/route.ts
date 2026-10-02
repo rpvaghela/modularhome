@@ -191,7 +191,7 @@ export async function PUT(request: NextRequest) {
 
       await query(upsertSql, [
         updatePayload.company_name || "ModularHome.com",
-        updatePayload.logo_url || "/finallogo.avif",
+        updatePayload.logo_url || "/newmodularlogo.png",
         updatePayload.logo_alt || "ModularHome.com Logo",
         updatePayload.favicon_url || "/favicon.ico",
         updatePayload.phone || "+1 (812) 595-4033",

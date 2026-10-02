@@ -25,7 +25,7 @@ INSERT INTO global_settings (
 ) VALUES (
   'default',
   'ModularHome',
-  '/finallogo.avif',
+  '/newmodularlogo.png',
   '/favicon.ico',
   '+1 (812) 595-4033',
   'support@modularhome.com',

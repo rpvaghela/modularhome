@@ -94,10 +94,10 @@ function CustomerLoginForm() {
       <div className="text-center space-y-2">
         <Link href="/" className="inline-block hover:opacity-90 transition-opacity">
           <Image
-            src="/finallogo.avif"
+            src="/newmodularlogo.png"
             alt="ModularHome"
-            width={160}
-            height={36}
+            width={180}
+            height={40}
             className="h-8 w-auto mx-auto object-contain"
             priority
           />

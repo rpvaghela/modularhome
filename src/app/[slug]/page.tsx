@@ -29,7 +29,7 @@ export async function generateMetadata({
   const description = page.metaDescription || page.subtitle || `Explore ${page.title} on ModularHome.com`;
   const ogTitle = page.ogTitle || title;
   const ogDescription = page.ogDescription || description;
-  const ogImage = page.ogImage || page.featuredImage || "/finallogo.avif";
+  const ogImage = page.ogImage || page.featuredImage || "/newmodularlogo.png";
 
   return {
     title,
@@ -104,7 +104,7 @@ export default async function DynamicSlugPage({ params }: DynamicSlugPageProps) 
       name: "ModularHome.com",
       logo: {
         "@type": "ImageObject",
-        url: "https://modularhome.com/finallogo.avif",
+        url: "https://modularhome.com/newmodularlogo.png",
       },
     },
   };

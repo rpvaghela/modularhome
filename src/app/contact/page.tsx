@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
       openGraph: {
         title: page.ogTitle || title,
         description: page.ogDescription || description,
-        images: page.ogImage ? [{ url: page.ogImage }] : (page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/finallogo.avif" }]),
+        images: page.ogImage ? [{ url: page.ogImage }] : (page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/newmodularlogo.png" }]),
       },
       alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
     };
@@ -69,7 +69,7 @@ export default async function ContactPage() {
         name: "ModularHome.com",
         logo: {
           "@type": "ImageObject",
-          url: "https://modularhome.com/finallogo.avif",
+          url: "https://modularhome.com/newmodularlogo.png",
         },
       },
     };

@@ -136,7 +136,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
 
   const phone = initialSettings?.phone || "+1 (812) 595-4033";
   const email = initialSettings?.email || "support@modularhome.com";
-  const logoUrl = initialSettings?.logoUrl || "/finallogo.avif";
+  const logoUrl = initialSettings?.logoUrl || "/newmodularlogo.png";
   const announcementText = initialSettings?.announcementText || "Direct Factory Modular & Prefab Home Builder • 2026 Models Released";
   const announcementLink = initialSettings?.announcementLink || "/buildings";
   const announcementEnabled = initialSettings?.announcementEnabled !== false;

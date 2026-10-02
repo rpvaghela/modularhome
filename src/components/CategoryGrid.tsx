@@ -26,7 +26,7 @@ export default function CategoryGrid({ collections }: CategoryGridProps) {
 
   const displayItems: CategoryItem[] = sortedCollections.slice(0, 10).map((col) => {
     let img = col.image || col.bannerImage;
-    if (!img || img.includes("placeholder") || img.includes("finallogo")) {
+    if (!img || img.includes("placeholder") || img.includes("newmodularlogo") || img.includes("finallogo")) {
       const lower = col.name.toLowerCase();
       if (lower.includes("barndo")) img = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=75";
       else if (lower.includes("cabin")) img = "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=600&q=75";

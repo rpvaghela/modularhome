@@ -22,7 +22,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
   }
 
   const companyName = initialSettings?.companyName || "ModularHome.com";
-  const logoUrl = initialSettings?.logoUrl || "/finallogo.avif";
+  const logoUrl = initialSettings?.logoUrl || "/newmodularlogo.png";
   const phone = initialSettings?.phone || "+1 (812) 595-4033";
   const emailAddress = initialSettings?.email || "support@modularhome.com";
   const address = initialSettings?.address || "Factory Headquarters, IN & Nationwide Delivery";

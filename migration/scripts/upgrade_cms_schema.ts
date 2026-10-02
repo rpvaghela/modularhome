@@ -60,7 +60,7 @@ async function checkAndUpgradeSchema() {
     `CREATE TABLE IF NOT EXISTS global_settings (
       id TEXT PRIMARY KEY DEFAULT 'primary',
       company_name TEXT DEFAULT 'ModularHome.com',
-      logo_url TEXT DEFAULT '/finallogo.avif',
+      logo_url TEXT DEFAULT '/newmodularlogo.png',
       logo_alt TEXT DEFAULT 'ModularHome.com Logo',
       favicon_url TEXT DEFAULT '/favicon.ico',
       phone TEXT DEFAULT '+1 (812) 595-4033',

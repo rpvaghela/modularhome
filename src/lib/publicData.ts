@@ -18,7 +18,7 @@ export function formatFloorPlan(p: any): FloorPlan {
     price: Number(p.price) || 495,
     salePrice: p.sale_price ? Number(p.sale_price) : undefined,
     currency: p.currency || "USD",
-    previewImage: p.preview_image || p.previewImage || "/finallogo.avif",
+    previewImage: p.preview_image || p.previewImage || "/newmodularlogo.png",
     gallery: Array.isArray(p.gallery) ? p.gallery : (p.gallery ? [p.gallery] : []),
     filePath: p.file_path,
     fileFormat: p.file_format || "PDF + CAD (DWG)",
@@ -61,7 +61,7 @@ export function formatProduct(p: any): BuildingModel {
       ? [...p.product_media].sort((a: any, b: any) => (a.position || 0) - (b.position || 0))[0]?.source_url
       : "") ||
     (Array.isArray(p.images) && p.images[0]) ||
-    "/finallogo.avif";
+    "/newmodularlogo.png";
 
   const galleryImgs =
     p.product_media && Array.isArray(p.product_media) && p.product_media.length > 0
@@ -573,7 +573,7 @@ export function formatCmsPage(p: any, sections: any[] = []): CmsPage {
     canonicalUrl: p.canonical_url || p.canonicalUrl || "",
     ogTitle: p.og_title || p.ogTitle || p.seo_title || p.seoTitle || `${p.title || "Modular Home"} | ModularHome.com`,
     ogDescription: p.og_description || p.ogDescription || p.seo_description || p.meta_description || p.metaDescription || p.subtitle || "",
-    ogImage: p.og_image || p.ogImage || p.featured_image || p.featuredImage || "/finallogo.avif",
+    ogImage: p.og_image || p.ogImage || p.featured_image || p.featuredImage || "/newmodularlogo.png",
     robots: p.robots || "index, follow",
     publishedAt: p.published_at || p.publishedAt || p.created_at || p.createdAt || new Date().toISOString(),
     createdAt: p.created_at || p.createdAt || new Date().toISOString(),

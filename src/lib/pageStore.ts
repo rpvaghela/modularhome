@@ -202,7 +202,7 @@ export function saveCustomPage(page: Partial<CmsPage> & { title: string; slug: s
     canonicalUrl: page.canonicalUrl || "",
     ogTitle: page.ogTitle || page.seoTitle || `${page.title} | ModularHome.com`,
     ogDescription: page.ogDescription || page.metaDescription || page.subtitle || "",
-    ogImage: page.ogImage || page.featuredImage || "/finallogo.avif",
+    ogImage: page.ogImage || page.featuredImage || "/newmodularlogo.png",
     robots: page.robots || "index, follow",
     publishedAt: page.publishedAt || (existingIdx >= 0 ? pages[existingIdx].publishedAt : now),
     createdAt: page.createdAt || (existingIdx >= 0 ? pages[existingIdx].createdAt : now),

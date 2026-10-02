@@ -30,7 +30,7 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
-      images: page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/finallogo.avif" }],
+      images: page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/newmodularlogo.png" }],
     },
     alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
   };
@@ -56,7 +56,7 @@ export default async function PagesSlugPage({ params }: PagesSlugProps) {
       name: "ModularHome.com",
       logo: {
         "@type": "ImageObject",
-        url: "https://modularhome.com/finallogo.avif",
+        url: "https://modularhome.com/newmodularlogo.png",
       },
     },
   };

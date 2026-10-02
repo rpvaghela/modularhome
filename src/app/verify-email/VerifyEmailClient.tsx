@@ -167,11 +167,11 @@ function VerifyEmailInner() {
       {/* Brand */}
       <Link href="/" className="inline-block hover:opacity-90 transition-opacity">
         <Image
-          src="/finallogo.avif"
+          src="/newmodularlogo.png"
           alt="ModularHome"
-          width={160}
-          height={36}
-          className="h-8 w-auto mx-auto object-contain"
+          width={180}
+          height={48}
+          className="h-9 w-auto mx-auto object-contain"
           priority
         />
       </Link>

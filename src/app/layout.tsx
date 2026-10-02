@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = settings.defaultSeoTitle || `${settings.companyName || "ModularHome.com"} | Modern Homes. A Smarter Way to Build.`;
   const description = settings.defaultMetaDescription || "Explore modular homes, prefab homes, cabins, ADUs, barndominiums, floor plans and custom home options.";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://modularhome.com";
-  const logoUrl = settings.logoUrl || "/finallogo.avif";
+  const logoUrl = settings.logoUrl || "/newmodularlogo.png";
   const faviconUrl = settings.faviconUrl || "/favicon.png?v=4";
 
   return {

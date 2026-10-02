@@ -39,7 +39,7 @@ const DEFAULT_MODEL: BuildingModel = {
   windRating: "150 MPH",
   snowLoad: "50 PSF",
   warranty: "50-Year Structural Guarantee",
-  primaryImage: "/finallogo.avif",
+  primaryImage: "/newmodularlogo.png",
   gallery: [],
   floorPlanImage: "",
   features: ["Precision cold-formed steel structure", "Wet-stamped state engineering calculations"],
@@ -351,7 +351,7 @@ export default function QuoteWizard() {
                         >
                           <div className="relative aspect-[16/10] w-full bg-[#f6f7f9]">
                             <Image
-                              src={m.primaryImage || "/finallogo.avif"}
+                              src={m.primaryImage || "/newmodularlogo.png"}
                               alt={m.name}
                               fill
                               className="object-cover"

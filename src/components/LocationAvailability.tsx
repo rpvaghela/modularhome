@@ -171,7 +171,7 @@ export default function LocationAvailability() {
                   return (
                     <div key={home.id} className="bg-[var(--soft)] border border-[var(--line)] rounded-[16px] overflow-hidden flex flex-col justify-between hover:border-[var(--r)] transition-all">
                       <div className="relative aspect-[16/10] w-full">
-                        <Image src={home.primaryImage || "/finallogo.avif"} alt={home.name} fill className="object-cover" />
+                        <Image src={home.primaryImage || "/newmodularlogo.png"} alt={home.name} fill className="object-cover" />
                       </div>
                       <div className="p-4 space-y-1">
                         <div className="text-xs font-bold text-[var(--ink)]">{home.name}</div>

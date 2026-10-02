@@ -25,7 +25,7 @@ function patchFiles() {
       ? [...p.product_media].sort((a: any, b: any) => (a.position || 0) - (b.position || 0))[0]?.source_url
       : "") ||
     (Array.isArray(p.images) && p.images[0]) ||
-    "/finallogo.avif";
+    "/newmodularlogo.png";
 
   const galleryImgs =
     p.product_media && Array.isArray(p.product_media) && p.product_media.length > 0
@@ -314,7 +314,7 @@ export default function BuildingCard({ model, priority = false }: BuildingCardPr
       {/* Image Viewport */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
         <Image
-          src={model.primaryImage || model.image || "/finallogo.avif"}
+          src={model.primaryImage || model.image || "/newmodularlogo.png"}
           alt={model.name}
           fill
           priority={priority}

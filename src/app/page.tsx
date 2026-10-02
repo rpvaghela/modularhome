@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
       openGraph: {
         title: page.ogTitle || title,
         description: page.ogDescription || description,
-        images: page.ogImage ? [{ url: page.ogImage }] : (page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/finallogo.avif" }]),
+        images: page.ogImage ? [{ url: page.ogImage }] : (page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/newmodularlogo.png" }]),
       },
       alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
     };
@@ -58,7 +58,7 @@ export default async function HomePage() {
     slug: p.slug,
     name: p.name,
     badge: idx === 0 ? "Best Seller" : idx === 1 ? "Quick Ship" : idx === 2 ? "Popular" : undefined,
-    image: p.primaryImage || p.image || "/finallogo.avif",
+    image: p.primaryImage || p.image || "/newmodularlogo.png",
     bedrooms: p.bedrooms || 3,
     bathrooms: p.bathrooms || 2,
     sqft: p.sqft || 1600,
@@ -70,7 +70,7 @@ export default async function HomePage() {
     slug: p.slug,
     name: p.name,
     badge: idx === 0 ? "Trending" : undefined,
-    image: p.primaryImage || p.image || "/finallogo.avif",
+    image: p.primaryImage || p.image || "/newmodularlogo.png",
     bedrooms: p.bedrooms || 3,
     bathrooms: p.bathrooms || 2,
     sqft: p.sqft || 1800,

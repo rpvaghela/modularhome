@@ -166,7 +166,7 @@ async function runMigration() {
 
     // 7. Global Settings Table additions
     `
-    ALTER TABLE global_settings ADD COLUMN IF NOT EXISTS logo_url TEXT DEFAULT '/finallogo.avif';
+    ALTER TABLE global_settings ADD COLUMN IF NOT EXISTS logo_url TEXT DEFAULT '/newmodularlogo.png';
     ALTER TABLE global_settings ADD COLUMN IF NOT EXISTS favicon_url TEXT DEFAULT '/favicon.ico';
     ALTER TABLE global_settings ADD COLUMN IF NOT EXISTS address TEXT DEFAULT 'Factory Headquarters, IN & Nationwide Delivery';
     ALTER TABLE global_settings ADD COLUMN IF NOT EXISTS cta_label TEXT DEFAULT 'Get Your Free Quote';
@@ -317,7 +317,7 @@ async function runMigration() {
       true,
       'Modular Homes For A Better Tomorrow | ModularHome.com',
       'Leading precision steel modular homes, luxury barndominiums, cabins, and downloadable architectural plans.',
-      '/finallogo.avif',
+      '/newmodularlogo.png',
       '/favicon.ico',
       'Factory Headquarters, IN & Nationwide Delivery',
       'Get Your Free Quote',
