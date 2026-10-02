@@ -118,9 +118,9 @@ function SignupFormInner() {
           <Image
             src="/newmodularlogo.png"
             alt="ModularHome"
-            width={220}
-            height={52}
-            className="h-9 sm:h-10 w-auto mx-auto object-contain"
+            width={280}
+            height={60}
+            className="h-11 sm:h-12 w-auto mx-auto object-contain"
             priority
           />
         </Link>

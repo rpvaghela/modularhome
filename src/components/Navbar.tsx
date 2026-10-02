@@ -404,7 +404,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
         
         {/* --- ROW 1: BRAND LOGO + GLOBAL SEARCH + CTAs --- */}
         <div className="border-b border-[#f0f2f5] w-full">
-          <div className="wrap h-[58px] sm:h-[68px] md:h-[74px] flex items-center justify-between gap-2 sm:gap-6">
+          <div className="wrap h-[64px] sm:h-[74px] md:h-[82px] flex items-center justify-between gap-3 sm:gap-6">
             
             {/* Left: Mobile Hamburger Toggle + Logo */}
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -417,14 +417,14 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
               </button>
 
               {/* Brand Logo */}
-              <Link href="/" className="flex items-center group select-none shrink-0 py-1">
+              <Link href="/" className="flex items-center group select-none shrink-0 py-0.5">
                 <Image
                   src={logoUrl}
                   alt={initialSettings?.companyName || "ModularHome.com"}
-                  width={280}
-                  height={55}
+                  width={340}
+                  height={68}
                   priority
-                  className="h-8 sm:h-9 md:h-10 lg:h-11 w-auto max-w-[180px] sm:max-w-[220px] md:max-w-[260px] lg:max-w-none object-contain hover:opacity-90 transition-opacity"
+                  className="h-9 sm:h-11 md:h-13 lg:h-[54px] xl:h-[58px] w-auto max-w-[200px] sm:max-w-[250px] md:max-w-[300px] lg:max-w-[340px] xl:max-w-none object-contain hover:opacity-90 transition-opacity"
                 />
               </Link>
             </div>
@@ -751,9 +751,9 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
               <Image
                 src={logoUrl}
                 alt="ModularHome.com"
-                width={200}
-                height={48}
-                className="h-8 sm:h-9 w-auto object-contain"
+                width={240}
+                height={52}
+                className="h-9 sm:h-10 w-auto object-contain"
               />
               <button
                 onClick={() => setMobileMenuOpen(false)}
