@@ -109,14 +109,48 @@ export function formatProduct(p: any): BuildingModel {
     });
   }
 
+  const isCabinOrTimber =
+    (p.title || p.name || "").toLowerCase().includes("cabin") ||
+    (p.title || p.name || "").toLowerCase().includes("log") ||
+    (p.title || p.name || "").toLowerCase().includes("timber") ||
+    (p.product_type || "").toLowerCase().includes("cabin") ||
+    (p.vendor || "").toLowerCase().includes("amish") ||
+    (p.description || p.description_html || "").toLowerCase().includes("log cabin");
+
+  const defaultFrame = isCabinOrTimber
+    ? "Precision-Engineered Heavy Timber & Milled Solid Log Wall System"
+    : "100% Commercial-Grade Galvanized Light Gauge Steel";
+
+  const defaultWarranty = isCabinOrTimber
+    ? "25-Year Structural Integrity & Craftsmanship Warranty"
+    : "50-Year Structural Steel Frame Warranty";
+
+  const defaultWind = isCabinOrTimber
+    ? "130+ MPH Wind Rated (Engineered Heavy Timber Construction)"
+    : "Up to 150 MPH (Engineered for Extreme Weather)";
+
+  const defaultFeatures = isCabinOrTimber
+    ? [
+        "Precision-Milled Interlocking Solid Log Joinery & Heavy Timber Framing",
+        "Tongue-and-Groove Ceiling Decking & Architectural Rafter System",
+        "Pre-Cut Precision Building Kit with Complete Assembly Documentation",
+        "Engineered for Severe Snow Loads & Year-Round Thermal Performance",
+      ]
+    : [
+        "Precision Commercial-Grade Galvanized Steel Framing",
+        "Energy-Efficient High-R Value Structural Insulated Panels (SIPs)",
+        "Engineered for Up to 150 MPH Wind & 50 PSF Snow Loads",
+        "Pre-drilled MEP & Fast Modular On-Site Assembly",
+      ];
+
   return {
     id: p.id,
     slug: p.handle || p.slug || p.id,
     name: p.title || p.name || "Precision Modular Model",
     series: p.series || p.product_type || "Essential Series",
     category: p.product_type || p.category || "Modular Homes",
-    architecturalStyle: p.architectural_style || p.architecturalStyle || "Modern Homes",
-    tagline: p.tagline || (sqft > 0 ? `${sqft} Sq Ft Precision Engineered Home` : ""),
+    architecturalStyle: p.architectural_style || p.architecturalStyle || (isCabinOrTimber ? "Rustic Cabin" : "Modern Homes"),
+    tagline: p.tagline || (sqft > 0 ? `${sqft} Sq Ft ${isCabinOrTimber ? "Handcrafted Log Cabin" : "Precision Engineered Home"}` : ""),
     description: p.description || p.description_html || "",
     sqft,
     bedrooms,
@@ -124,11 +158,11 @@ export function formatProduct(p: any): BuildingModel {
     stories,
     startingPrice: finalPrice,
     dimensions,
-    frameType: p.frame_type || p.frameType || "100% Commercial-Grade Galvanized Light Gauge Steel",
+    frameType: p.frame_type || p.frameType || defaultFrame,
     roofPitch: p.roof_pitch || p.roofPitch || "4:12 Pitch (Standing Seam Ready)",
-    windRating: p.wind_rating || p.windRating || "Up to 150 MPH (Engineered for Extreme Weather)",
+    windRating: p.wind_rating || p.windRating || defaultWind,
     snowLoad: p.snow_load || p.snowLoad || "50 PSF Ground Snow Load Rated",
-    warranty: p.warranty || "50-Year Structural Steel Frame Warranty",
+    warranty: p.warranty || defaultWarranty,
     primaryImage: primaryImg,
     image: primaryImg,
     gallery: galleryImgs.length > 0 ? galleryImgs : [primaryImg],
@@ -139,12 +173,7 @@ export function formatProduct(p: any): BuildingModel {
     videoTitle: p.video_title || p.videoTitle || "",
     features: Array.isArray(p.features) && p.features.length > 0
       ? p.features
-      : [
-          "Precision Commercial-Grade Galvanized Steel Framing",
-          "Energy-Efficient High-R Value Structural Insulated Panels (SIPs)",
-          "Engineered for Up to 150 MPH Wind & 50 PSF Snow Loads",
-          "Pre-drilled MEP & Fast Modular On-Site Assembly",
-        ],
+      : defaultFeatures,
     specs:
       specsArray.length > 0
         ? specsArray
@@ -154,8 +183,8 @@ export function formatProduct(p: any): BuildingModel {
             ...(bedrooms >= 0 ? [{ label: "Bedrooms", value: bedrooms === 0 ? "Studio / Open" : `${bedrooms} Bed` }] : []),
             ...(bathrooms > 0 ? [{ label: "Bathrooms", value: `${bathrooms} Bath` }] : []),
             ...(stories > 0 ? [{ label: "Stories", value: `${stories} Level` }] : []),
-            { label: "Frame Type", value: "100% Commercial-Grade Galvanized Light Gauge Steel" },
-            { label: "Warranty", value: "50-Year Structural Steel Frame Warranty" },
+            { label: "Frame Type", value: p.frame_type || p.frameType || defaultFrame },
+            { label: "Warranty", value: p.warranty || defaultWarranty },
           ],
     customizableOptions: Array.isArray(p.customizable_options || p.customizableOptions)
       ? p.customizable_options || p.customizableOptions

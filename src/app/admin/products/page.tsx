@@ -16,6 +16,23 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 
+function normalizeToCanonicalCategory(cat?: string | null): string {
+  if (!cat) return "Modular Homes";
+  const c = cat.toLowerCase().trim();
+  if (c.includes("barndo")) return "Barndominiums";
+  if (c.includes("cabin")) return "Cabins";
+  if (c.includes("tiny")) return "Tiny Homes";
+  if (c.includes("park model")) return "Park Models";
+  if (c.includes("house kit") || c.includes("home kit")) return "House Kits";
+  if (c.includes("adu") || c.includes("granny")) return "ADUs & Granny Pods";
+  if (c.includes("a-frame") || c.includes("aframe")) return "A-Frames";
+  if (c.includes("commercial")) return "Commercial Modular";
+  if (c.includes("prefab")) return "Prefab Homes";
+  if (c.includes("modular")) return "Modular Homes";
+  if (c.includes("residential")) return "Residential";
+  return cat;
+}
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,14 +42,17 @@ export default function AdminProductsPage() {
   const [fetchError, setFetchError] = useState("");
 
   const categories = [
-    "Modular Home",
-    "House Kit",
-    "Cabin",
-    "Barndominium",
-    "ADU",
-    "Tiny Home",
+    "Modular Homes",
+    "Prefab Homes",
+    "Barndominiums",
+    "Cabins",
+    "House Kits",
+    "Tiny Homes",
+    "Park Models",
+    "ADUs & Granny Pods",
+    "A-Frames",
+    "Commercial Modular",
     "Residential",
-    "Commercial",
   ];
 
   const fetchProducts = async () => {
@@ -248,7 +268,7 @@ export default function AdminProductsPage() {
                       </td>
                       <td className="py-4 px-5">
                         <span className="px-2.5 py-1 rounded-lg bg-[#f8f9fa] text-[#101114] border border-[#d5d9e0] font-bold text-[11px]">
-                          {prod.category || prod.product_type}
+                          {normalizeToCanonicalCategory(prod.category || prod.product_type)}
                         </span>
                       </td>
                       <td className="py-4 px-5 font-bold text-[#101114] text-sm font-serif">

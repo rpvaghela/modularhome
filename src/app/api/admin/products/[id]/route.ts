@@ -55,6 +55,14 @@ export async function GET(
       ? p.product_collections.map((pc: any) => pc.collection_id)
       : [];
 
+    const isCabinOrTimber =
+      (p.title || p.name || "").toLowerCase().includes("cabin") ||
+      (p.title || p.name || "").toLowerCase().includes("log") ||
+      (p.title || p.name || "").toLowerCase().includes("timber") ||
+      (p.product_type || "").toLowerCase().includes("cabin") ||
+      (p.vendor || "").toLowerCase().includes("amish") ||
+      (p.description_html || "").toLowerCase().includes("log cabin");
+
     const formatted = {
       id: p.id,
       _id: p.id,
@@ -69,8 +77,8 @@ export async function GET(
       category: p.product_type || p.category || "Modular Homes",
       product_type: p.product_type || p.category || "Modular Homes",
       vendor: p.vendor || "ModularHome",
-      series: p.series || "Essential Series",
-      architecturalStyle: p.architectural_style || "Modern Homes",
+      series: p.series || (isCabinOrTimber ? "Rustic Cabin Series" : "Essential Series"),
+      architecturalStyle: p.architectural_style || (isCabinOrTimber ? "Rustic Cabin" : "Modern Homes"),
       sqft: p.sqft || 0,
       bedrooms: p.bedrooms ?? 0,
       bathrooms: p.bathrooms ?? 0,
@@ -80,11 +88,11 @@ export async function GET(
       features: p.features || [],
       specs: p.specs || [],
       startingPrice,
-      frameType: "100% Commercial-Grade Galvanized Light Gauge Steel",
-      roofPitch: "4:12 Pitch",
-      windRating: "Up to 150 MPH",
-      snowLoad: "50 PSF",
-      warranty: "50-Year Structural Steel Frame Warranty",
+      frameType: p.frame_type || (isCabinOrTimber ? "Precision-Engineered Heavy Timber & Milled Solid Log Wall System" : "100% Commercial-Grade Galvanized Light Gauge Steel"),
+      roofPitch: p.roof_pitch || "4:12 Pitch",
+      windRating: p.wind_rating || (isCabinOrTimber ? "130+ MPH Wind Rated" : "Up to 150 MPH"),
+      snowLoad: p.snow_load || "50 PSF",
+      warranty: p.warranty || (isCabinOrTimber ? "25-Year Structural Integrity & Craftsmanship Warranty" : "50-Year Structural Steel Frame Warranty"),
       primaryImage: primaryImg,
       gallery,
       isPublished: p.status !== "draft" && p.status !== "archived",

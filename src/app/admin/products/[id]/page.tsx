@@ -16,6 +16,23 @@ import {
 } from "lucide-react";
 import ImageUpload, { GalleryUpload } from "@/components/admin/ImageUpload";
 
+function normalizeToCanonicalCategory(cat?: string | null): string {
+  if (!cat) return "Modular Homes";
+  const c = cat.toLowerCase().trim();
+  if (c.includes("barndo")) return "Barndominiums";
+  if (c.includes("cabin")) return "Cabins";
+  if (c.includes("tiny")) return "Tiny Homes";
+  if (c.includes("park model")) return "Park Models";
+  if (c.includes("house kit") || c.includes("home kit")) return "House Kits";
+  if (c.includes("adu") || c.includes("granny")) return "ADUs & Granny Pods";
+  if (c.includes("a-frame") || c.includes("aframe")) return "A-Frames";
+  if (c.includes("commercial")) return "Commercial Modular";
+  if (c.includes("prefab")) return "Prefab Homes";
+  if (c.includes("modular")) return "Modular Homes";
+  if (c.includes("residential")) return "Residential";
+  return cat;
+}
+
 export default function AdminEditProductPage() {
   const params = useParams();
   const router = useRouter();
@@ -42,6 +59,7 @@ export default function AdminEditProductPage() {
             [];
           setProduct({
             ...p,
+            category: normalizeToCanonicalCategory(p.category || p.product_type),
             collectionIds: assignedIds,
           });
         }
@@ -191,20 +209,21 @@ export default function AdminEditProductPage() {
               <div>
                 <label className="block text-xs font-bold text-[#101114] mb-1.5">Category</label>
                 <select
-                  value={product.category || "Residential"}
+                  value={normalizeToCanonicalCategory(product.category) || "Modular Homes"}
                   onChange={(e) => setProduct({ ...product, category: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
                 >
-                  <option value="Residential">Residential</option>
                   <option value="Modular Homes">Modular Homes</option>
                   <option value="Prefab Homes">Prefab Homes</option>
                   <option value="Barndominiums">Barndominiums</option>
                   <option value="Cabins">Cabins</option>
-                  <option value="Tiny Homes">Tiny Homes</option>
-                  <option value="ADUs">ADUs</option>
                   <option value="House Kits">House Kits</option>
+                  <option value="Tiny Homes">Tiny Homes</option>
+                  <option value="Park Models">Park Models</option>
+                  <option value="ADUs & Granny Pods">ADUs & Granny Pods</option>
                   <option value="A-Frames">A-Frames</option>
-                  <option value="Commercial">Commercial</option>
+                  <option value="Commercial Modular">Commercial Modular</option>
+                  <option value="Residential">Residential</option>
                 </select>
               </div>
 

@@ -49,7 +49,8 @@ export async function GET(request: NextRequest) {
       .order("created_at", { ascending: false });
 
     if (category && category !== "ALL") {
-      query = query.ilike("product_type", `%${category}%`);
+      const stem = category.toLowerCase().replace(/s$/, "").trim();
+      query = query.or(`product_type.ilike.%${stem}%,product_type.ilike.%${category}%`);
     }
 
     if (isPublishedParam !== null && isPublishedParam !== undefined && isPublishedParam !== "") {
