@@ -421,10 +421,10 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                 <Image
                   src={logoUrl}
                   alt={initialSettings?.companyName || "ModularHome.com"}
-                  width={210}
-                  height={48}
+                  width={260}
+                  height={60}
                   priority
-                  className="h-6 sm:h-8 md:h-9 w-auto max-w-[130px] sm:max-w-[180px] md:max-w-none object-contain hover:opacity-90 transition-opacity"
+                  className="h-8 sm:h-10 md:h-11 lg:h-12 w-auto max-w-[160px] sm:max-w-[220px] md:max-w-[260px] lg:max-w-none object-contain hover:opacity-90 transition-opacity"
                 />
               </Link>
             </div>
@@ -751,9 +751,9 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
               <Image
                 src={logoUrl}
                 alt="ModularHome.com"
-                width={160}
-                height={36}
-                className="h-7 w-auto object-contain"
+                width={200}
+                height={48}
+                className="h-8 sm:h-9 w-auto object-contain"
               />
               <button
                 onClick={() => setMobileMenuOpen(false)}

@@ -84,9 +84,9 @@ export default function InvoicePage() {
             <Image
               src="/newmodularlogo.png"
               alt="ModularHome"
-              width={180}
-              height={48}
-              className="h-9 w-auto object-contain"
+              width={240}
+              height={56}
+              className="h-10 sm:h-11 w-auto object-contain"
               priority
             />
             <div className="text-xs text-gray-500 leading-relaxed">

@@ -70,9 +70,9 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
               <Image
                 src={logoUrl}
                 alt={companyName}
-                width={200}
-                height={46}
-                className="h-8 sm:h-9 w-auto object-contain"
+                width={260}
+                height={60}
+                className="h-9 sm:h-11 md:h-12 w-auto object-contain"
               />
             </Link>
 

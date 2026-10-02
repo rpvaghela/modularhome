@@ -65,13 +65,13 @@ function ResetPasswordContent() {
 
   return (
     <div className="w-full max-w-md bg-white rounded-3xl border border-gray-200 shadow-xl p-8 sm:p-10 space-y-6 text-center">
-      <Link href="/" className="inline-block">
+      <Link href="/" className="inline-block hover:opacity-90 transition-opacity">
         <Image
           src="/newmodularlogo.png"
           alt="ModularHome"
-          width={180}
-          height={48}
-          className="h-9 w-auto mx-auto object-contain"
+          width={220}
+          height={52}
+          className="h-9 sm:h-10 w-auto mx-auto object-contain"
           priority
         />
       </Link>

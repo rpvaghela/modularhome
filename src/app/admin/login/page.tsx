@@ -270,13 +270,13 @@ export default function AdminLoginPage() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center space-y-3">
         <Link href="/" className="inline-block hover:opacity-90 transition-opacity">
-          <div className="bg-white/95 border border-white/20 p-3 rounded-2xl inline-flex items-center gap-3 shadow-2xl backdrop-blur-xs">
+          <div className="bg-white/95 border border-white/20 px-4 py-3 rounded-2xl inline-flex items-center gap-3 shadow-2xl backdrop-blur-xs">
             <Image
               src="/newmodularlogo.png"
               alt="ModularHome Logo"
-              width={180}
-              height={40}
-              className="h-7 sm:h-8 w-auto object-contain"
+              width={220}
+              height={52}
+              className="h-8 sm:h-9 md:h-10 w-auto object-contain"
               priority
             />
           </div>

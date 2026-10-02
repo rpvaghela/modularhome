@@ -477,13 +477,13 @@ export default function AdminLayout({
           {/* Brand Header */}
           <div className="h-20 flex items-center justify-between px-6 border-b border-white/10 bg-[#08090d] shrink-0">
             <Link href="/admin" className="flex items-center gap-3 group">
-              <div className="bg-white/95 p-2 rounded-xl border border-white/20 shadow-xs group-hover:scale-102 transition-transform">
+              <div className="bg-white/95 px-3 py-2 rounded-xl border border-white/20 shadow-xs group-hover:scale-102 transition-transform">
                 <Image
                   src="/newmodularlogo.png"
                   alt="ModularHome Logo"
-                  width={140}
-                  height={32}
-                  className="h-6 sm:h-7 w-auto object-contain"
+                  width={170}
+                  height={40}
+                  className="h-7 sm:h-8 w-auto object-contain"
                   priority
                 />
               </div>
