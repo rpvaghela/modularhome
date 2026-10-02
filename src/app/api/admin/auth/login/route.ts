@@ -5,6 +5,8 @@ import { checkLoginRateLimit, recordFailedLogin, clearLoginAttempts } from "@/li
 import { verifyTotpCode } from "@/lib/totp";
 import { logAdminActivity } from "@/lib/activityLog";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
@@ -238,7 +240,7 @@ export async function POST(request: NextRequest) {
       role: user.role || "SUPER_ADMIN",
     };
 
-    await createAdminSession(userId, sessionUser);
+    const sessionToken = await createAdminSession(userId, sessionUser);
 
     if (isSupabaseConfigured() && user.id && user.id !== "admin-root") {
       try {
@@ -261,10 +263,20 @@ export async function POST(request: NextRequest) {
       userAgent
     );
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       user: sessionUser,
     });
+
+    response.cookies.set("admin_session", sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 3600,
+    });
+
+    return response;
   } catch (error: any) {
     console.error("Admin login error:", error);
     return NextResponse.json(
@@ -276,4 +288,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
 

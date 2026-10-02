@@ -37,11 +37,25 @@ function LoginForm() {
     try {
       const res = await fetch("/api/admin/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ email, password, totpCode: require2FA ? totpCode : undefined }),
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get("content-type") || "";
+      let data: any = {};
+
+      if (contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.warn("Unexpected non-JSON response from login:", text.slice(0, 300));
+        setError("Unable to authenticate. The server returned an unexpected response.");
+        setIsLoading(false);
+        return;
+      }
 
       if (!res.ok || !data.success) {
         if (data.require2FA) {
