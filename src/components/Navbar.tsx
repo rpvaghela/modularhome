@@ -315,7 +315,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                 {/* Facebook */}
                 {socialLinks.facebook !== "" && (
                   <a
-                    href={socialLinks.facebook || "https://www.facebook.com"}
+                    href={socialLinks.facebook || "https://facebook.com/modularhome"}
                     target="_blank"
                     rel="noreferrer"
                     aria-label="Follow us on Facebook"
@@ -330,7 +330,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                 {/* Instagram */}
                 {socialLinks.instagram !== "" && (
                   <a
-                    href={socialLinks.instagram || "https://www.instagram.com"}
+                    href={socialLinks.instagram || "https://instagram.com/modularhome"}
                     target="_blank"
                     rel="noreferrer"
                     aria-label="Follow us on Instagram"
@@ -345,7 +345,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                 {/* YouTube */}
                 {socialLinks.youtube !== "" && (
                   <a
-                    href={socialLinks.youtube || "https://www.youtube.com"}
+                    href={socialLinks.youtube || "https://youtube.com/@modularhome"}
                     target="_blank"
                     rel="noreferrer"
                     aria-label="Follow us on YouTube"
@@ -358,9 +358,9 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                 )}
 
                 {/* TikTok */}
-                {socialLinks.tiktok && (
+                {socialLinks.tiktok !== "" && (
                   <a
-                    href={socialLinks.tiktok}
+                    href={socialLinks.tiktok || "https://tiktok.com/@modularhome"}
                     target="_blank"
                     rel="noreferrer"
                     aria-label="Follow us on TikTok"

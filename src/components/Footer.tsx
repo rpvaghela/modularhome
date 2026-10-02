@@ -84,7 +84,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
             <div className="flex items-center gap-2.5 justify-center md:justify-start pt-2">
               {socialLinks.facebook !== "" && (
                 <a
-                  href={socialLinks.facebook || "https://www.facebook.com"}
+                  href={socialLinks.facebook || "https://facebook.com/modularhome"}
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Facebook"
@@ -97,7 +97,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
               )}
               {socialLinks.instagram !== "" && (
                 <a
-                  href={socialLinks.instagram || "https://www.instagram.com"}
+                  href={socialLinks.instagram || "https://instagram.com/modularhome"}
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Instagram"
@@ -110,7 +110,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
               )}
               {socialLinks.youtube !== "" && (
                 <a
-                  href={socialLinks.youtube || "https://www.youtube.com"}
+                  href={socialLinks.youtube || "https://youtube.com/@modularhome"}
                   target="_blank"
                   rel="noreferrer"
                   aria-label="YouTube"
@@ -122,9 +122,9 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
                 </a>
               )}
               {/* TikTok */}
-              {socialLinks.tiktok && (
+              {socialLinks.tiktok !== "" && (
                 <a
-                  href={socialLinks.tiktok}
+                  href={socialLinks.tiktok || "https://tiktok.com/@modularhome"}
                   target="_blank"
                   rel="noreferrer"
                   aria-label="TikTok"
