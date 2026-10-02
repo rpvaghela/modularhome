@@ -48,6 +48,8 @@ const DEFAULT_MODEL: BuildingModel = {
 };
 
 const AVAILABLE_OPTIONS = [
+  { id: "opt-kitchen-lux", name: "Gourmet Chef Kitchen Cabinetry & Island", price: 18500, desc: "Soft-close quartz countertops, custom island, and commercial fixtures" },
+  { id: "opt-bath-spa", name: "Primary Spa Bathroom & Walk-in Shower", price: 11200, desc: "Frameless glass enclosure, double floating vanity, and floor-to-ceiling tile" },
   { id: "opt-porch", name: "Wraparound Covered Timber Porch", price: 14500, desc: "Solid 8x8 posts with black structural brackets" },
   { id: "opt-insul", name: "Extreme Climate R-38 Spray Foam Insulation", price: 9200, desc: "Superior closed-cell thermal break envelope" },
   { id: "opt-garage", name: "Attached 2-Car Insulated Garage Bay", price: 21000, desc: "Includes high-lift 10ft doors and concrete threshold" },
