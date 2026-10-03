@@ -43,8 +43,7 @@
       "label": "Floor Plans",
       "href": "/floor-plans",
       "order": 2,
-      "isVisible": true,
-      "badge": "NEW"
+      "isVisible": true
     },
     {
       "label": "Barndominiums",

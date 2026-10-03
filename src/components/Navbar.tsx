@@ -44,7 +44,7 @@ interface CategoryNavOption {
 
 const PRIMARY_MENU_OPTIONS: CategoryNavOption[] = [
   { label: "Modular Homes", href: "/buildings?category=Modular+Homes", categoryQuery: "Modular Homes" },
-  { label: "Floor Plans", href: "/floor-plans", categoryQuery: "Floor Plans", badge: "NEW" },
+  { label: "Floor Plans", href: "/floor-plans", categoryQuery: "Floor Plans" },
   { label: "Prefab Homes", href: "/buildings?category=Prefab+Homes", categoryQuery: "Prefab Homes" },
   { label: "Barndominiums", href: "/buildings?category=Barndominiums", categoryQuery: "Barndominiums" },
   { label: "House Kits", href: "/buildings?category=House+Kits", categoryQuery: "House Kits" },
@@ -153,11 +153,13 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
             const rawCat = item.href.split("category=")[1].split("&")[0];
             categoryQuery = decodeURIComponent(rawCat.replace(/\+/g, " "));
           }
+          const rawBadge = (item as any).badge;
+          const badge = (item.label?.toLowerCase().includes("floor plan") || item.href?.includes("floor-plans")) ? undefined : rawBadge;
           return {
             label: item.label,
             href: item.href,
             categoryQuery,
-            badge: (item as any).badge,
+            badge,
           };
         })
     : PRIMARY_MENU_OPTIONS;
