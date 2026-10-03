@@ -6,9 +6,25 @@ import { getPublicGlobalSettings } from "./settings";
 import { matchProductCategory } from "@/utils/categoryMatching";
 
 /**
+ * Normalizes image URLs ensuring proper protocol and valid fallback
+ */
+export function normalizeImageUrl(url?: string | null, fallback = "/newmodularlogo.png"): string {
+  if (!url || typeof url !== "string") return fallback;
+  const trimmed = url.trim();
+  if (!trimmed || trimmed === "undefined" || trimmed === "null") return fallback;
+  if (trimmed.startsWith("//")) return `https:${trimmed}`;
+  return trimmed;
+}
+
+/**
  * Normalizes Supabase floor plan row to FloorPlan interface
  */
 export function formatFloorPlan(p: any): FloorPlan {
+  const rawPreview = p.preview_image || p.previewImage || "/newmodularlogo.png";
+  const previewImg = normalizeImageUrl(rawPreview, "/newmodularlogo.png");
+  const rawGallery = Array.isArray(p.gallery) ? p.gallery : (p.gallery ? [p.gallery] : []);
+  const gallery = rawGallery.map((g: any) => normalizeImageUrl(g)).filter(Boolean);
+
   return {
     id: p.id,
     title: p.title || "Modern Floor Plan",
@@ -18,8 +34,8 @@ export function formatFloorPlan(p: any): FloorPlan {
     price: Number(p.price) || 495,
     salePrice: p.sale_price ? Number(p.sale_price) : undefined,
     currency: p.currency || "USD",
-    previewImage: p.preview_image || p.previewImage || "/newmodularlogo.png",
-    gallery: Array.isArray(p.gallery) ? p.gallery : (p.gallery ? [p.gallery] : []),
+    previewImage: previewImg,
+    gallery: gallery.length > 0 ? gallery : [previewImg],
     filePath: p.file_path,
     fileFormat: p.file_format || "PDF + CAD (DWG)",
     category: p.category || "Cabins",
@@ -52,7 +68,7 @@ export function formatProduct(p: any): BuildingModel {
     ? Object.entries(p.specs).map(([label, value]) => ({ label, value: String(value) }))
     : [];
 
-  const primaryImg =
+  const rawPrimary =
     p.primary_image_url ||
     p.hero_image ||
     p.featured_image ||
@@ -63,7 +79,9 @@ export function formatProduct(p: any): BuildingModel {
     (Array.isArray(p.images) && p.images[0]) ||
     "/newmodularlogo.png";
 
-  const galleryImgs =
+  const primaryImg = normalizeImageUrl(rawPrimary, "/newmodularlogo.png");
+
+  const rawGallery =
     p.product_media && Array.isArray(p.product_media) && p.product_media.length > 0
       ? [...p.product_media]
           .sort((a: any, b: any) => (a.position || 0) - (b.position || 0))
@@ -74,6 +92,8 @@ export function formatProduct(p: any): BuildingModel {
       : Array.isArray(p.gallery) && p.gallery.length > 0
       ? p.gallery
       : [primaryImg];
+
+  const galleryImgs = rawGallery.map((g: any) => normalizeImageUrl(g)).filter(Boolean);
 
   // Extract starting price from starting_price column or variants
   let startingPrice = Number(p.starting_price || p.price);
@@ -416,7 +436,7 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
           category: b.blog_title || b.category || "Building Guides",
           readTime: b.read_time || "5 min read",
           date: formattedDate,
-          image: b.image_url || b.featured_image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+          image: normalizeImageUrl(b.image_url || b.featured_image, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"),
           author: b.author || b.author_name || "ModularHome Engineering Team",
           embeddedVideoUrl: b.embedded_video_url,
           seoTitle: b.seo_title || `${b.title} | ModularHome.com Guide`,
@@ -500,7 +520,7 @@ export async function getPublicBlogBySlug(slugParam: string): Promise<ResourceAr
           category: blog.blog_title || blog.category || "Building Guides",
           readTime: blog.read_time || "5 min read",
           date: formattedDate,
-          image: blog.image_url || blog.featured_image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+          image: normalizeImageUrl(blog.image_url || blog.featured_image, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"),
           author: blog.author || blog.author_name || "ModularHome Engineering Team",
           embeddedVideoUrl: blog.embedded_video_url,
           seoTitle: blog.seo_title || `${blog.title} | ModularHome.com Guide`,
@@ -598,14 +618,14 @@ export function formatCmsPage(p: any, sections: any[] = []): CmsPage {
     subtitle: p.subtitle || "",
     content: p.body_html || p.content || "",
     status: status === "DRAFT" || status === "ARCHIVED" ? status : "PUBLISHED",
-    featuredImage: p.featured_image || p.featuredImage || "",
+    featuredImage: normalizeImageUrl(p.featured_image || p.featuredImage, ""),
     imageAlt: p.image_alt || p.imageAlt || `${p.title || "Page"} banner`,
     seoTitle: p.seo_title || p.seoTitle || `${p.title || "Modular Home"} | ModularHome.com`,
     metaDescription: p.seo_description || p.meta_description || p.metaDescription || p.subtitle || "",
     canonicalUrl: p.canonical_url || p.canonicalUrl || "",
     ogTitle: p.og_title || p.ogTitle || p.seo_title || p.seoTitle || `${p.title || "Modular Home"} | ModularHome.com`,
     ogDescription: p.og_description || p.ogDescription || p.seo_description || p.meta_description || p.metaDescription || p.subtitle || "",
-    ogImage: p.og_image || p.ogImage || p.featured_image || p.featuredImage || "/newmodularlogo.png",
+    ogImage: normalizeImageUrl(p.og_image || p.ogImage || p.featured_image || p.featuredImage, "/newmodularlogo.png"),
     robots: p.robots || "index, follow",
     publishedAt: p.published_at || p.publishedAt || p.created_at || p.createdAt || new Date().toISOString(),
     createdAt: p.created_at || p.createdAt || new Date().toISOString(),
@@ -769,8 +789,8 @@ export async function getPublicCollections(): Promise<PublicCollection[]> {
         slug: handle,
         tagline: col.tagline || `Engineered ${title}`,
         description: col.description_html || col.description || "",
-        image: col.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-        bannerImage: col.banner_image || col.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+        image: normalizeImageUrl(col.image, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"),
+        bannerImage: normalizeImageUrl(col.banner_image || col.image, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"),
         isFeatured: Boolean(col.is_featured),
         status: col.published !== false ? "PUBLISHED" : "DRAFT",
         displayOrder: Number(col.display_order) || 0,

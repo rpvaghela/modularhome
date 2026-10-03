@@ -165,9 +165,9 @@ export const config = {
      * Match all request paths except for static files:
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public asset extensions (svg, png, jpg, etc.)
+     * - favicon.ico, sitemap.xml, robots.txt
+     * - public asset extensions (svg, png, jpg, jpeg, gif, webp, avif, ico, css, js, map, etc.)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map)$).*)",
+    "/((?!_next/static|_next/image|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|css|js|map|woff|woff2|ttf|eot|pdf|mp4|webm|SVG|PNG|JPG|JPEG|GIF|WEBP|AVIF|ICO)$).*)",
   ],
 };

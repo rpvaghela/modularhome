@@ -2,30 +2,53 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // When hosted on Node.js / shared hosting / VPS / custom server, unoptimized avoids internal proxy failures and serves direct fast CDN URLs.
+    unoptimized: process.env.NEXT_IMAGE_OPTIMIZATION === "true" ? false : true,
     remotePatterns: [
-      // Supabase Storage - public images
-      {
-        protocol: "https",
-        hostname: "*.supabase.co",
-        pathname: "/storage/v1/object/public/**",
-      },
-
-      // Supabase Storage / other Supabase image URLs
+      // Supabase Storage & CDNs
       {
         protocol: "https",
         hostname: "*.supabase.co",
       },
+      {
+        protocol: "https",
+        hostname: "*.supabase.in",
+      },
+      {
+        protocol: "https",
+        hostname: "*.supabase.net",
+      },
 
-      // Unsplash
+      // Shopify CDN and subdomains
+      {
+        protocol: "https",
+        hostname: "cdn.shopify.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.shopify.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.myshopify.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.shopifycdn.com",
+      },
+
+      // Unsplash (Standard and Plus)
       {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
-
-      // Shopify CDN
       {
         protocol: "https",
-        hostname: "cdn.shopify.com",
+        hostname: "plus.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.unsplash.com",
       },
 
       // YouTube thumbnails
@@ -37,11 +60,61 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "img.youtube.com",
       },
+      {
+        protocol: "https",
+        hostname: "*.ytimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.youtube.com",
+      },
+
+      // Google User Content (OAuth profile pictures)
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.googleusercontent.com",
+      },
+
+      // Cloudinary & Pexels
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.pexels.com",
+      },
 
       // Placeholder images
       {
         protocol: "https",
         hostname: "via.placeholder.com",
+      },
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
+
+      // Local / Custom domains
+      {
+        protocol: "https",
+        hostname: "*.modularhome.com",
+      },
+      {
+        protocol: "https",
+        hostname: "modularhome.com",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
       },
     ],
   },
