@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "start:siteground": "node server.js",
     "lint": "eslint",
     "migration:inventory": "tsx migration/scripts/inventory_source.ts",
     "migration:dry-run": "tsx migration/scripts/dry_run.ts",
@@ -45,5 +46,9 @@
     "tailwindcss": "^4",
     "tsx": "^4.23.13",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20.9.0",
+    "npm": ">=10.0.0"
   }
 }
