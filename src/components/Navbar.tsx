@@ -621,24 +621,29 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
           </div>
         </div>
 
-        {/* --- ROW 2: DEDICATED CATEGORY NAVIGATION RIBBON --- */}
-        <div className="hidden lg:block border-b border-[#e5e7eb] bg-white/98 backdrop-blur-xs relative z-40 overflow-visible">
+        {/* --- ROW 2: CENTERED PRIMARY NAVIGATION RIBBON --- */}
+        <div className="hidden lg:block border-b border-gray-200/80 bg-white/98 backdrop-blur-md relative z-40 shadow-2xs">
           <div className="wrap relative overflow-visible">
-            <nav className="flex items-center justify-between gap-1 xl:gap-2 py-1.5 overflow-visible relative">
-              <div className="flex items-center gap-0.5 xl:gap-1.5 flex-wrap overflow-visible">
+            <nav className="flex items-center justify-center relative py-1.5 overflow-visible">
+              <div className="flex items-center justify-center gap-1 xl:gap-2 2xl:gap-3 flex-wrap overflow-visible">
                 {menuItems.map((item) => {
-                  const active = currentCategory === item.categoryQuery;
+                  const active = currentCategory === item.categoryQuery || pathname === item.href;
                   return (
                     <Link
                       key={item.label}
                       href={item.href}
-                      className={`inline-flex items-center px-2.5 xl:px-3 py-1.5 rounded-lg text-[12.5px] xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 ${
+                      className={`inline-flex items-center gap-1.5 px-3 xl:px-3.5 py-1.5 rounded-xl text-[13px] xl:text-[13.5px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 ${
                         active
-                          ? "bg-amber-50 text-[#b45309] ring-1 ring-amber-200/80 shadow-2xs font-extrabold"
-                          : "text-[#374151] hover:text-[#101114] hover:bg-[#f6f7f9]"
+                          ? "bg-amber-50 text-[#b45309] ring-1 ring-amber-300/80 shadow-2xs font-extrabold"
+                          : "text-gray-700 hover:text-[#101114] hover:bg-[#f6f7f9]"
                       }`}
                     >
                       <span>{item.label}</span>
+                      {item.badge && (
+                        <span className="px-1.5 py-0.5 rounded-md bg-[#fcb907] text-[#101114] text-[9px] font-black tracking-tight leading-none shadow-2xs">
+                          {item.badge}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
@@ -657,10 +662,10 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                       e.stopPropagation();
                       setMoreDropdownOpen(!moreDropdownOpen);
                     }}
-                    className={`inline-flex items-center gap-1 px-2.5 xl:px-3 py-1.5 rounded-lg text-[12.5px] xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 cursor-pointer ${
+                    className={`inline-flex items-center gap-1 px-3 xl:px-3.5 py-1.5 rounded-xl text-[13px] xl:text-[13.5px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 cursor-pointer ${
                       isMoreActive || moreDropdownOpen
-                        ? "bg-amber-50 text-[#b45309] ring-1 ring-amber-200/80 font-extrabold"
-                        : "text-[#374151] hover:text-[#101114] hover:bg-[#f6f7f9]"
+                        ? "bg-amber-50 text-[#b45309] ring-1 ring-amber-300/80 font-extrabold"
+                        : "text-gray-700 hover:text-[#101114] hover:bg-[#f6f7f9]"
                     }`}
                     aria-expanded={moreDropdownOpen}
                   >
@@ -668,10 +673,10 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                     <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${moreDropdownOpen ? "rotate-180" : ""}`} />
                   </button>
 
-                  {/* Dropdown Floating Card with hover bridge */}
+                  {/* Dropdown Floating Card with Centered Anchor */}
                   {moreDropdownOpen && (
                     <div 
-                      className="absolute left-0 top-full pt-1.5 w-88 z-[100] animate-in fade-in zoom-in-95 duration-150 max-h-[80vh] overflow-y-auto"
+                      className="absolute left-1/2 -translate-x-1/2 top-full pt-1.5 w-92 z-[100] animate-in fade-in zoom-in-95 duration-150 max-h-[80vh] overflow-y-auto"
                       onMouseEnter={() => setMoreDropdownOpen(true)}
                     >
                       <div className="bg-white border border-[#e5e7eb] rounded-2xl p-2.5 shadow-2xl ring-1 ring-black/5 space-y-2">
@@ -744,15 +749,6 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                   )}
                 </div>
               </div>
-
-              {/* End of Category Strip: Quick Link to Catalog */}
-              <Link
-                href="/buildings"
-                className="hidden 2xl:inline-flex items-center gap-1 text-[11.5px] font-bold text-gray-500 hover:text-[#d97706] transition-colors pl-2"
-              >
-                <span>View Full Catalog</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
             </nav>
           </div>
         </div>
