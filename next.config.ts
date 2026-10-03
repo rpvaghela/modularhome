@@ -3,18 +3,32 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
+      // Supabase Storage - public images
       {
         protocol: "https",
-        hostname: "**.supabase.co",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/**",
       },
+
+      // Supabase Storage / other Supabase image URLs
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+      },
+
+      // Unsplash
       {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+
+      // Shopify CDN
       {
         protocol: "https",
         hostname: "cdn.shopify.com",
       },
+
+      // YouTube thumbnails
       {
         protocol: "https",
         hostname: "i.ytimg.com",
@@ -23,12 +37,15 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "img.youtube.com",
       },
+
+      // Placeholder images
       {
         protocol: "https",
         hostname: "via.placeholder.com",
       },
     ],
   },
+
   async headers() {
     return [
       {
@@ -62,6 +79,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
   async rewrites() {
     return [
       {
