@@ -1,5 +1,41 @@
 [
   {
+    "id": "evt-1791013143064-kzse8",
+    "customer_id": "cust-1791013142876-2f60c5bf",
+    "event_type": "EMAIL_VERIFIED",
+    "actor_type": "CUSTOMER",
+    "actor_name": "Sarah Jenkins",
+    "details": {
+      "email": "test.client.1791013142673@example.com"
+    },
+    "created_at": "2026-10-03T07:39:03.064Z"
+  },
+  {
+    "id": "evt-1791013143053-fq8d2",
+    "customer_id": "cust-1791013142876-2f60c5bf",
+    "event_type": "VERIFICATION_RESENT",
+    "actor_type": "CUSTOMER",
+    "actor_name": "Sarah Jenkins",
+    "details": {
+      "email": "test.client.1791013142673@example.com"
+    },
+    "created_at": "2026-10-03T07:39:03.053Z"
+  },
+  {
+    "id": "evt-1791013142884-y3yhf",
+    "customer_id": "cust-1791013142876-2f60c5bf",
+    "event_type": "ACCOUNT_CREATED",
+    "actor_type": "CUSTOMER",
+    "actor_name": "Sarah Jenkins",
+    "details": {
+      "email": "test.client.1791013142673@example.com",
+      "phone": "+1 (812) 555-0199",
+      "terms_version": "v1.0",
+      "auth_user_id": null
+    },
+    "created_at": "2026-10-03T07:39:02.884Z"
+  },
+  {
     "id": "evt-1790957883560-8dofe",
     "customer_id": "cust-1790515953265-0b85b7b6",
     "event_type": "STATUS_CHANGED",

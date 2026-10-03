@@ -1,5 +1,24 @@
 [
   {
+    "id": "cust-1791013142876-2f60c5bf",
+    "auth_user_id": null,
+    "email": "test.client.1791013142673@example.com",
+    "name": "Sarah Jenkins",
+    "first_name": "Sarah",
+    "last_name": "Jenkins",
+    "phone": "+1 (812) 555-0199",
+    "password_hash": "$2b$10$GHE06o/NfUKVuWY14WnKxO7UnB7EMwvKVVLhOOnU3y4YC8p//62sy",
+    "status": "ACTIVE",
+    "email_verified": true,
+    "verification_token": null,
+    "verification_token_expires_at": null,
+    "terms_accepted_at": "2026-10-03T07:39:02.876Z",
+    "terms_version": "v1.0",
+    "provider": "EMAIL",
+    "created_at": "2026-10-03T07:39:02.876Z",
+    "updated_at": "2026-10-03T07:39:03.063Z"
+  },
+  {
     "id": "cust-1790942099112-e0c93be0",
     "auth_user_id": "0a03b408-780e-4643-b242-757de6df4835",
     "email": "chetansonawane1260@gmail.com",

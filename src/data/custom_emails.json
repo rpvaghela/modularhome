@@ -1,5 +1,35 @@
 [
   {
+    "id": "eml-1791013143050-m56rh",
+    "recipient": "test.client.1791013142673@example.com",
+    "template_type": "EMAIL_VERIFICATION",
+    "subject": "Verify your ModularHome.com customer account",
+    "customer_id": "cust-1791013142876-2f60c5bf",
+    "status": "SIMULATED",
+    "metadata": {
+      "resend_id": "sim_1791013143050",
+      "callbackUrl": "http://localhost:3000/auth/callback?token=be95b272183f798fa75187f4e61fa24d13929ac39f6e5bf7d81515ee9c1f794f",
+      "directVerifyUrl": "http://localhost:3000/verify-email?token=be95b272183f798fa75187f4e61fa24d13929ac39f6e5bf7d81515ee9c1f794f",
+      "name": "Sarah Jenkins"
+    },
+    "created_at": "2026-10-03T07:39:03.050Z"
+  },
+  {
+    "id": "eml-1791013142882-awm7g",
+    "recipient": "test.client.1791013142673@example.com",
+    "template_type": "EMAIL_VERIFICATION",
+    "subject": "Verify your ModularHome.com customer account",
+    "customer_id": "cust-1791013142876-2f60c5bf",
+    "status": "SIMULATED",
+    "metadata": {
+      "resend_id": "sim_1791013142882",
+      "callbackUrl": "http://localhost:3000/auth/callback?token=41b5165d34873bf4b40c35fd4fbe8eee316f1b03722f9f6ab481aa469c628712",
+      "directVerifyUrl": "http://localhost:3000/verify-email?token=41b5165d34873bf4b40c35fd4fbe8eee316f1b03722f9f6ab481aa469c628712",
+      "name": "Sarah Jenkins"
+    },
+    "created_at": "2026-10-03T07:39:02.882Z"
+  },
+  {
     "id": "eml-1790942101075-0lilr",
     "recipient": "chetansonawane1260@gmail.com",
     "template_type": "EMAIL_VERIFICATION",

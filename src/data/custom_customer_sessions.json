@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "id": "csess-1791013143075-du3ym",
+    "session_token": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImN1c3QtMTc5MTAxMzE0Mjg3Ni0yZjYwYzViZiIsImVtYWlsIjoidGVzdC5jbGllbnQuMTc5MTAxMzE0MjY3M0BleGFtcGxlLmNvbSIsIm5hbWUiOiJTYXJhaCBKZW5raW5zIiwicGhvbmUiOiIrMSAoODEyKSA1NTUtMDE5OSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJzdGF0dXMiOiJBQ1RJVkUiLCJpYXQiOjE3OTEwMTMxNDMsImV4cCI6MTc5MzYwNTE0M30.KV9aNHqSnkXn4Hyse9H2yhwj6mdVOkIqnK-LU2TXz94",
+    "customer_id": "cust-1791013142876-2f60c5bf",
+    "expires_at": 1793605143066,
+    "created_at": "2026-10-03T07:39:03.075Z"
+  }
+]
