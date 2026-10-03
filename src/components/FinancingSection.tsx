@@ -22,21 +22,21 @@ export default function FinancingSection() {
     : 0;
 
   return (
-    <section className="py-12 sm:py-16 bg-white" id="financing">
+    <section className="py-8 sm:py-14 bg-white" id="financing">
       <div className="wrap">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8 items-center">
           {/* Left: Financing Information */}
-          <div className="space-y-4">
+          <div className="space-y-3.5 sm:space-y-4">
             <div>
-              <h2 className="text-2xl sm:text-4xl font-black tracking-[-1.3px] text-[#101114] m-0 leading-tight">
+              <h2 className="text-xl xs:text-2xl sm:text-4xl font-black tracking-[-1px] sm:tracking-[-1.3px] text-[#101114] m-0 leading-tight">
                 Financing Your Modular Home
               </h2>
-              <p className="text-sm sm:text-base text-[#6b7280] mt-1.5 mb-0">
+              <p className="text-xs sm:text-base text-[#6b7280] mt-1 sm:mt-1.5 mb-0">
                 Flexible options to make your dream home a reality.
               </p>
             </div>
 
-            <div className="space-y-2 text-sm sm:text-base text-[#3f4650] font-semibold py-2">
+            <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm md:text-base text-[#3f4650] font-semibold py-1 sm:py-2">
               <div className="flex items-center gap-2">
                 <span className="text-emerald-600 font-black">✓</span>
                 <span>Competitive rates</span>
@@ -55,10 +55,10 @@ export default function FinancingSection() {
               </div>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-1 sm:pt-2">
               <Link
                 href="/contact"
-                className="btn-outline py-3 px-6 text-sm font-extrabold rounded-[11px]"
+                className="btn-outline py-2.5 sm:py-3 px-5 sm:px-6 text-xs sm:text-sm font-extrabold rounded-[11px]"
               >
                 Learn More →
               </Link>
@@ -66,8 +66,8 @@ export default function FinancingSection() {
           </div>
 
           {/* Right: Interactive Mortgage Calculator Card */}
-          <div className="card p-6 sm:p-7 bg-white">
-            <h3 className="text-xl font-black text-[#101114] mb-4">
+          <div className="card p-4 sm:p-7 bg-white mt-2 sm:mt-0">
+            <h3 className="text-lg sm:text-xl font-black text-[#101114] mb-3 sm:mb-4">
               Estimate Your Monthly Payment
             </h3>
 

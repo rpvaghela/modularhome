@@ -188,7 +188,7 @@ export default function AIBuildAssistant() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Open AI Housing Assistant"
-        className={`fixed bottom-6 right-6 z-40 p-3.5 sm:p-4 rounded-full shadow-2xl transition-all duration-300 flex items-center gap-2.5 cursor-pointer ${
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 p-3 sm:p-4 rounded-full shadow-2xl transition-all duration-300 flex items-center gap-2 cursor-pointer ${
           isOpen
             ? "bg-[#101114] text-[#fcb907] rotate-90"
             : "bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] hover:scale-105"
@@ -208,9 +208,9 @@ export default function AIBuildAssistant() {
 
       {/* Slide-over Drawer / Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-22 right-4 sm:right-6 z-40 w-[calc(100vw-2rem)] sm:w-[400px] h-[540px] max-h-[82vh] bg-white border border-[var(--line)] rounded-[22px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="fixed bottom-16 right-3 left-3 sm:left-auto sm:right-6 z-40 sm:w-[400px] w-auto h-[500px] sm:h-[540px] max-h-[80vh] bg-white border border-[var(--line)] rounded-[20px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
-          <div className="bg-[var(--ink)] text-white px-5 py-4 border-b border-white/10 flex items-center justify-between shadow-xs">
+          <div className="bg-[var(--ink)] text-white px-4 sm:px-5 py-3.5 sm:py-4 border-b border-white/10 flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-3">
               <div className="h-8 px-2.5 rounded-[8px] bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
                 <Image

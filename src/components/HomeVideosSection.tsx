@@ -46,31 +46,31 @@ export default function HomeVideosSection({ videos }: HomeVideosSectionProps) {
 
   return (
     <>
-      <section className="py-12 sm:py-16 bg-[#f6f7f9]">
+      <section className="py-8 sm:py-14 bg-[#f6f7f9]">
         <div className="wrap">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2.5 sm:gap-4 mb-5 sm:mb-8">
             <div>
-              <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] mb-1.5 flex items-center gap-2">
+              <div className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] mb-1 sm:mb-1.5 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#fcb907] animate-pulse"></span>
                 <span>Factory & Architectural Tours</span>
               </div>
-              <h2 className="text-2xl sm:text-4xl font-black tracking-[-1.3px] text-[#101114] m-0">
+              <h2 className="text-xl xs:text-2xl sm:text-4xl font-black tracking-[-1px] sm:tracking-[-1.3px] text-[#101114] m-0">
                 Watch Our Home Tours
               </h2>
-              <p className="text-sm sm:text-base text-[#6b7280] mt-1.5 mb-0">
+              <p className="text-xs sm:text-base text-[#6b7280] mt-1 sm:mt-1.5 mb-0">
                 Take a virtual tour of modular homes, steel framing, crane deliveries, and luxury interiors.
               </p>
             </div>
             <Link
               href="/videos"
-              className="text-[#d97706] hover:text-[#b45309] font-extrabold text-sm sm:text-base hover:underline whitespace-nowrap self-start sm:self-auto"
+              className="text-[#d97706] hover:text-[#b45309] font-extrabold text-xs sm:text-base hover:underline whitespace-nowrap self-start sm:self-auto"
             >
               View All Videos ({videoList.length}) →
             </Link>
           </div>
 
           {/* Asymmetric 5-Video Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr] gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr] gap-3.5 sm:gap-4">
             {/* Featured Main Video */}
             <div
               onClick={() => setSelectedVideo(mainVideo)}

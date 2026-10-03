@@ -422,13 +422,13 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
         
         {/* --- ROW 1: BRAND LOGO + GLOBAL SEARCH + CTAs --- */}
         <div className="border-b border-[#f0f2f5] w-full">
-          <div className="wrap h-[64px] sm:h-[74px] md:h-[82px] flex items-center justify-between gap-3 sm:gap-6">
+          <div className="wrap h-[58px] sm:h-[72px] md:h-[80px] flex items-center justify-between gap-1.5 xs:gap-2 sm:gap-4 md:gap-6">
             
             {/* Left: Mobile Hamburger Toggle + Logo */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="flex items-center gap-1 xs:gap-2 sm:gap-3 shrink-0 min-w-0">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-1.5 -ml-1 text-[#101114] hover:text-[#d97706] rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                className="lg:hidden p-1.5 -ml-1 text-[#101114] hover:text-[#d97706] rounded-lg hover:bg-gray-100 transition-colors cursor-pointer shrink-0"
                 aria-label="Toggle Menu"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
@@ -442,7 +442,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                   width={340}
                   height={68}
                   priority
-                  className="h-9 sm:h-11 md:h-13 lg:h-[54px] xl:h-[58px] w-auto max-w-[200px] sm:max-w-[250px] md:max-w-[300px] lg:max-w-[340px] xl:max-w-none object-contain hover:opacity-90 transition-opacity"
+                  className="h-7 xs:h-8 sm:h-10 md:h-12 lg:h-[50px] xl:h-[54px] w-auto max-w-[135px] xs:max-w-[170px] sm:max-w-[240px] md:max-w-[300px] lg:max-w-[340px] xl:max-w-none object-contain hover:opacity-90 transition-opacity"
                 />
               </Link>
             </div>
@@ -468,7 +468,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
             </div>
 
             {/* Right: Quick Features & Main CTA Button */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
               <Link
                 href="/upload-floor-plan"
                 className="hidden xl:inline-flex items-center gap-1.5 text-xs font-bold text-[#101114] hover:text-[#d97706] py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors"
@@ -482,7 +482,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                 type="button"
                 onClick={() => setIsCartOpen(true)}
                 aria-label={`View Cart with ${itemCount} items`}
-                className="relative p-2 text-[#101114] hover:text-[#d97706] hover:bg-gray-100 rounded-xl transition-colors cursor-pointer flex items-center justify-center"
+                className="relative p-1.5 sm:p-2 text-[#101114] hover:text-[#d97706] hover:bg-gray-100 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0"
               >
                 <ShoppingBag className="w-5 h-5" />
                 {itemCount > 0 && (
@@ -611,10 +611,11 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
 
               <Link
                 href={ctaLink}
-                className="inline-flex items-center gap-1 sm:gap-1.5 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black py-1.5 sm:py-2.5 px-2.5 sm:px-4 text-[11.5px] sm:text-xs md:text-[13px] tracking-tight rounded-lg sm:rounded-xl shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-1 sm:gap-1.5 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black py-1.5 sm:py-2.5 px-2 xs:px-3 sm:px-4 text-[11px] xs:text-xs md:text-[13px] tracking-tight rounded-lg sm:rounded-xl shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 whitespace-nowrap shrink-0"
               >
-                <span>{ctaLabel}</span>
-                <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span className="hidden xs:inline">{ctaLabel}</span>
+                <span className="xs:hidden">Get Quote</span>
+                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
               </Link>
             </div>
           </div>

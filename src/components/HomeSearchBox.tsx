@@ -41,19 +41,19 @@ export default function HomeSearchBox({ onFilterChange }: HomeSearchBoxProps) {
   };
 
   return (
-    <section className="py-10 sm:py-14 bg-white">
+    <section className="py-8 sm:py-12 bg-white">
       <div className="wrap">
-        <div className="card p-5 sm:p-7">
-          <div className="mb-5 sm:mb-6">
-            <h2 className="text-2xl sm:text-4xl font-black tracking-[-1.3px] text-[#101114] m-0">
+        <div className="card p-4 sm:p-7">
+          <div className="mb-4 sm:mb-6">
+            <h2 className="text-xl xs:text-2xl sm:text-4xl font-black tracking-[-1px] sm:tracking-[-1.3px] text-[#101114] m-0">
               Find Your Perfect Home
             </h2>
-            <p className="text-sm sm:text-base text-[#6b7280] mt-1.5 mb-0">
+            <p className="text-xs sm:text-base text-[#6b7280] mt-1 sm:mt-1.5 mb-0">
               Search hundreds of modular homes across the country.
             </p>
           </div>
 
-          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-[repeat(5,1fr)_180px] gap-3">
+          <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-[repeat(5,1fr)_180px] gap-2.5 sm:gap-3">
             {/* 1. Home Type */}
             <div className="border border-[#dfe2e7] rounded-[11px] p-3 sm:px-3.5 sm:py-2.5 bg-white flex flex-col justify-center focus-within:border-[#fcb907] focus-within:ring-1 focus-within:ring-[#fcb907] transition-all">
               <label className="block text-[11px] font-semibold text-[#6b7280] mb-0.5">

@@ -86,35 +86,35 @@ export default async function HomePage() {
     <div className="flex flex-col min-h-screen bg-white">
       {/* 1. HERO SECTION */}
       <section 
-        className="min-h-[560px] sm:min-h-[590px] lg:min-h-[620px] text-white flex items-center relative overflow-hidden bg-cover bg-center"
+        className="min-h-[500px] sm:min-h-[580px] lg:min-h-[620px] text-white flex items-center relative overflow-hidden bg-cover bg-center"
         style={{
-          backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.76) 0%, rgba(0,0,0,0.35) 48%, rgba(0,0,0,0.12) 100%), url('${heroBgImage}')`
+          backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.52) 48%, rgba(0,0,0,0.22) 100%), url('${heroBgImage}')`
         }}
       >
-        <div className="wrap w-full py-16 sm:py-20 relative z-10">
+        <div className="wrap w-full py-12 sm:py-16 md:py-20 relative z-10">
           <div className="max-w-2xl text-left">
-            <div className="text-xs sm:text-[13px] font-black tracking-[1.4px] text-white/95 uppercase mb-3">
+            <div className="inline-block text-[11px] sm:text-xs md:text-[13px] font-black tracking-[1.4px] sm:tracking-[2px] text-[#fcb907] uppercase mb-2.5 sm:mb-3.5 drop-shadow-xs">
               {heroTagline}
             </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-[68px] font-black tracking-[-2.5px] sm:tracking-[-3px] text-white leading-[0.98] sm:leading-[0.96] mb-4 sm:mb-5">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-[64px] font-black tracking-[-1.5px] sm:tracking-[-2.5px] text-white leading-[1.06] sm:leading-[0.98] mb-3.5 sm:mb-5 drop-shadow-sm">
               {heroHeading}
             </h1>
 
-            <p className="text-base sm:text-[19px] text-white/90 leading-[1.55] max-w-xl mb-7 sm:mb-8 font-normal">
+            <p className="text-sm sm:text-base md:text-[18px] text-white/90 leading-relaxed max-w-xl mb-6 sm:mb-8 font-normal drop-shadow-xs">
               {heroDesc}
             </p>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2.5 sm:gap-3.5 max-w-md xs:max-w-none">
               <Link
                 href="#quote"
-                className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] py-3.5 px-6 text-sm sm:text-base font-black rounded-[11px] shadow-lg text-center transition-all hover:shadow-xl hover:-translate-y-0.5"
+                className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] py-3 sm:py-3.5 px-6 text-sm sm:text-base font-black rounded-[11px] shadow-lg text-center transition-all hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 Get a Quote →
               </Link>
               <Link
                 href="#homes"
-                className="btn-outline py-3.5 px-6 text-sm sm:text-base font-extrabold rounded-[11px] bg-white/95 text-[#101114] hover:bg-white text-center hover:border-[#fcb907]"
+                className="btn-outline py-3 sm:py-3.5 px-6 text-sm sm:text-base font-extrabold rounded-[11px] bg-white/95 text-[#101114] hover:bg-white text-center hover:border-[#fcb907] active:scale-[0.98]"
               >
                 Browse Homes
               </Link>

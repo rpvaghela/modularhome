@@ -60,15 +60,15 @@ export default function QuoteAndStepsSection() {
   ];
 
   return (
-    <section className="py-12 sm:py-16 bg-[#f6f7f9]" id="quote">
+    <section className="py-8 sm:py-14 bg-[#f6f7f9]" id="quote">
       <div className="wrap">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-stretch">
           {/* Left Card: Custom Quote Form */}
-          <div className="card p-6 sm:p-7 bg-white">
-            <h2 className="text-2xl sm:text-3xl font-black tracking-[-1px] text-[#101114] mb-1">
+          <div className="card p-4 sm:p-7 bg-white">
+            <h2 className="text-xl xs:text-2xl sm:text-3xl font-black tracking-[-1px] text-[#101114] mb-1">
               Get Your Custom Quote
             </h2>
-            <p className="text-xs sm:text-sm text-[#6b7280] mb-5">
+            <p className="text-xs sm:text-sm text-[#6b7280] mb-4 sm:mb-5">
               Tell us about your project and we&apos;ll get back to you with custom pricing.
             </p>
 
@@ -90,14 +90,14 @@ export default function QuoteAndStepsSection() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+              <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 text-xs sm:text-sm">
                 <input
                   type="text"
                   placeholder="Full Name *"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all"
+                  className="w-full p-3 sm:p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all"
                 />
 
                 <input
@@ -106,7 +106,7 @@ export default function QuoteAndStepsSection() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all"
+                  className="w-full p-3 sm:p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all"
                 />
 
                 <input
@@ -115,13 +115,13 @@ export default function QuoteAndStepsSection() {
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all"
+                  className="w-full p-3 sm:p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all"
                 />
 
                 <select
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                  className="w-full p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all cursor-pointer"
+                  className="w-full p-3 sm:p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all cursor-pointer"
                 >
                   <option value="Select State">Select State</option>
                   <option value="Texas">Texas</option>
@@ -138,7 +138,7 @@ export default function QuoteAndStepsSection() {
                 <select
                   value={homeType}
                   onChange={(e) => setHomeType(e.target.value)}
-                  className="w-full p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all cursor-pointer"
+                  className="w-full p-3 sm:p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all cursor-pointer"
                 >
                   <option value="Select Home Type">Select Home Type</option>
                   <option value="Modular Home">Modular Home</option>
@@ -153,7 +153,7 @@ export default function QuoteAndStepsSection() {
                 <select
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}
-                  className="w-full p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all cursor-pointer"
+                  className="w-full p-3 sm:p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all cursor-pointer"
                 >
                   <option value="Select Budget">Select Budget</option>
                   <option value="Under $75K">Under $75K</option>
@@ -166,11 +166,11 @@ export default function QuoteAndStepsSection() {
                   placeholder="Project details, preferred size, timeline, etc."
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
-                  className="sm:col-span-2 w-full p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] min-h-[95px] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all resize-y"
+                  className="sm:col-span-2 w-full p-3 sm:p-3.5 border border-[#d8dce3] rounded-[9px] bg-white text-[#101114] min-h-[90px] focus:outline-none focus:border-[#fcb907] focus:ring-1 focus:ring-[#fcb907] transition-all resize-y"
                 />
 
                 <div className="sm:col-span-2">
-                  <label className="flex items-center gap-2 w-full p-3 border border-dashed border-[#d8dce3] hover:border-[#fcb907] rounded-[9px] cursor-pointer text-xs text-[#6b7280] transition-colors bg-[#f8f9fa]">
+                  <label className="flex items-center gap-2 w-full p-2.5 sm:p-3 border border-dashed border-[#d8dce3] hover:border-[#fcb907] rounded-[9px] cursor-pointer text-xs text-[#6b7280] transition-colors bg-[#f8f9fa]">
                     <UploadCloud className="w-4 h-4 text-[#d97706] shrink-0" />
                     <span className="truncate">
                       {fileName ? `Attached: ${fileName}` : "Attach Blueprint or Sketches (PDF, JPG, PNG)"}
@@ -187,7 +187,7 @@ export default function QuoteAndStepsSection() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="sm:col-span-2 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] w-full py-3.5 text-sm font-black rounded-[11px] shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="sm:col-span-2 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] w-full py-3 sm:py-3.5 text-sm font-black rounded-[11px] shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>
@@ -203,26 +203,26 @@ export default function QuoteAndStepsSection() {
           </div>
 
           {/* Right Card: How It Works */}
-          <div className="card p-6 sm:p-7 bg-white flex flex-col justify-between">
+          <div className="card p-4 sm:p-7 bg-white flex flex-col justify-between mt-2 sm:mt-0">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-[-1px] text-[#101114] mb-1">
+              <h2 className="text-xl xs:text-2xl sm:text-3xl font-black tracking-[-1px] text-[#101114] mb-1">
                 How It Works
               </h2>
-              <p className="text-xs sm:text-sm text-[#6b7280] mb-6">
+              <p className="text-xs sm:text-sm text-[#6b7280] mb-4 sm:mb-6">
                 A simple, transparent process from start to finish.
               </p>
 
               {/* 5 Steps Numbered Process Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-2 mt-4">
+              <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-2 mt-2 sm:mt-4">
                 {steps.map((st) => (
-                  <div key={st.num} className="text-center p-3 sm:p-2 bg-[#f8f9fa] rounded-xl border border-[#e7e9ee] hover:border-[#fcb907]/50 transition-colors">
-                    <div className="w-[38px] h-[38px] rounded-full bg-[#fcb907] text-[#101114] flex items-center justify-center font-black text-sm mx-auto mb-2 shadow-xs">
+                  <div key={st.num} className="text-center p-2.5 sm:p-2 bg-[#f8f9fa] rounded-xl border border-[#e7e9ee] hover:border-[#fcb907]/50 transition-colors">
+                    <div className="w-[34px] sm:w-[38px] h-[34px] sm:h-[38px] rounded-full bg-[#fcb907] text-[#101114] flex items-center justify-center font-black text-xs sm:text-sm mx-auto mb-1.5 sm:mb-2 shadow-xs">
                       {st.num}
                     </div>
-                    <h3 className="block text-sm font-black text-[#101114] m-0">
+                    <h3 className="block text-xs sm:text-sm font-black text-[#101114] m-0">
                       {st.title}
                     </h3>
-                    <p className="text-[11px] text-[#6b7280] mt-0.5 mb-0 font-medium">
+                    <p className="text-[10px] sm:text-[11px] text-[#6b7280] mt-0.5 mb-0 font-medium">
                       {st.desc}
                     </p>
                   </div>
@@ -231,11 +231,11 @@ export default function QuoteAndStepsSection() {
             </div>
 
             {/* Supporting Trust Note */}
-            <div className="p-4 bg-[#f6f7f9] border border-[#e7e9ee] rounded-xl mt-6 space-y-1">
-              <div className="text-xs font-black text-[#101114] uppercase tracking-wider">
+            <div className="p-3.5 sm:p-4 bg-[#f6f7f9] border border-[#e7e9ee] rounded-xl mt-5 sm:mt-6 space-y-1">
+              <div className="text-[11px] sm:text-xs font-black text-[#101114] uppercase tracking-wider">
                 Turnkey Project Delivery
               </div>
-              <p className="text-xs text-[#6b7280] leading-relaxed m-0">
+              <p className="text-[11px] sm:text-xs text-[#6b7280] leading-relaxed m-0">
                 From initial site evaluation and architectural permitting to modular factory production and crane assembly on your foundation.
               </p>
             </div>

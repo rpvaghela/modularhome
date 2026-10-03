@@ -20,31 +20,31 @@ export default function HomeTestimonialsSection({ initialReviews }: HomeTestimon
   }
 
   return (
-    <section className="py-12 sm:py-16 bg-white" id="testimonials">
+    <section className="py-8 sm:py-14 bg-white" id="testimonials">
       <div className="wrap">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2.5 sm:gap-4 mb-5 sm:mb-8">
           <div>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-[-1.3px] text-[#101114] m-0">
+            <h2 className="text-xl xs:text-2xl sm:text-4xl font-black tracking-[-1px] sm:tracking-[-1.3px] text-[#101114] m-0">
               What Our Customers Say
             </h2>
-            <p className="text-sm sm:text-base text-[#6b7280] mt-1.5 mb-0">
+            <p className="text-xs sm:text-base text-[#6b7280] mt-1 sm:mt-1.5 mb-0">
               Real stories and verified ratings from modular homeowners nationwide.
             </p>
           </div>
           <Link
             href="/contact"
-            className="text-[#d97706] hover:text-[#b45309] font-extrabold text-sm sm:text-base hover:underline whitespace-nowrap self-start sm:self-auto"
+            className="text-[#d97706] hover:text-[#b45309] font-extrabold text-xs sm:text-base hover:underline whitespace-nowrap self-start sm:self-auto"
           >
             Contact Our Team →
           </Link>
         </div>
 
         {/* Testimonial Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-5">
           {reviews.map((rev, idx) => (
             <div
               key={idx}
-              className="card p-6 flex flex-col justify-between bg-white hover:-translate-y-1 transition-all"
+              className="card p-4 sm:p-6 flex flex-col justify-between bg-white hover:-translate-y-1 transition-all"
             >
               <div>
                 <div className="text-[#fcb907] text-xl font-bold tracking-wider mb-3">

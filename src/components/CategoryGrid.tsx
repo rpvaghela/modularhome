@@ -49,34 +49,34 @@ export default function CategoryGrid({ collections }: CategoryGridProps) {
   }
 
   return (
-    <section className="py-12 sm:py-16 bg-[#f6f7f9]">
+    <section className="py-8 sm:py-14 bg-[#f6f7f9]">
       <div className="wrap">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2.5 sm:gap-4 mb-5 sm:mb-8">
           <div>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-[-1.3px] text-[#101114] m-0">
+            <h2 className="text-xl xs:text-2xl sm:text-4xl font-black tracking-[-1px] sm:tracking-[-1.3px] text-[#101114] m-0">
               Shop by Home Type
             </h2>
-            <p className="text-sm sm:text-base text-[#6b7280] mt-1.5 mb-0">
+            <p className="text-xs sm:text-base text-[#6b7280] mt-1 sm:mt-1.5 mb-0">
               Explore our most popular home categories and engineered architectural series.
             </p>
           </div>
           <Link
             href="/buildings"
-            className="text-[#d97706] hover:text-[#b45309] font-extrabold text-sm sm:text-base hover:underline whitespace-nowrap self-start sm:self-auto"
+            className="text-[#d97706] hover:text-[#b45309] font-extrabold text-xs sm:text-base hover:underline whitespace-nowrap self-start sm:self-auto"
           >
             View All Categories ({collections?.length || displayItems.length}) →
           </Link>
         </div>
 
         {/* 10 Category Cards 5-Column Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4">
           {displayItems.map((cat) => (
             <Link
               key={cat.id}
               href={cat.href}
               className="card overflow-hidden group hover:-translate-y-1 transition-all block"
             >
-              <div className="relative h-[135px] sm:h-[145px] w-full overflow-hidden bg-gray-100">
+              <div className="relative h-[115px] xs:h-[130px] sm:h-[145px] w-full overflow-hidden bg-gray-100">
                 <Image
                   src={cat.image}
                   alt={cat.name}
@@ -85,12 +85,12 @@ export default function CategoryGrid({ collections }: CategoryGridProps) {
                   className="object-cover transition-transform duration-500 ease-out group-hover:scale-108"
                 />
               </div>
-              <div className="p-3.5 bg-white flex items-center justify-between">
-                <h3 className="text-sm sm:text-[15px] font-extrabold text-[#101114] group-hover:text-[#d97706] transition-colors m-0 line-clamp-1">
+              <div className="p-2.5 sm:p-3.5 bg-white flex items-center justify-between">
+                <h3 className="text-xs sm:text-[14.5px] font-extrabold text-[#101114] group-hover:text-[#d97706] transition-colors m-0 line-clamp-1">
                   {cat.name}
                 </h3>
                 {typeof cat.productCount === "number" && cat.productCount > 0 && (
-                  <span className="text-[11px] font-bold text-[#6b7280] ml-1 shrink-0">
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[#6b7280] ml-1 shrink-0">
                     ({cat.productCount})
                   </span>
                 )}

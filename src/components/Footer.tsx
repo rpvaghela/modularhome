@@ -60,28 +60,28 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
   };
 
   return (
-    <footer className="bg-white border-t border-[#e7e9ee] pt-12 sm:pt-14 pb-8">
+    <footer className="bg-white border-t border-[#e7e9ee] pt-8 sm:pt-14 pb-6 sm:pb-8">
       <div className="wrap">
         {/* 4 Columns: Brand (1.5fr), Quick Links (1fr), Home Types & Resources (1fr), Contact & Newsletter (1fr) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_repeat(3,1fr)] gap-8 sm:gap-10 pb-8 text-center md:text-left">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_repeat(3,1fr)] gap-6 sm:gap-10 pb-6 sm:pb-8 text-center sm:text-left">
           {/* Column 1: Brand */}
-          <div className="space-y-3">
-            <Link href="/" className="inline-flex items-center justify-center md:justify-start">
+          <div className="space-y-2.5 sm:space-y-3">
+            <Link href="/" className="inline-flex items-center justify-center sm:justify-start">
               <Image
                 src={logoUrl}
                 alt={companyName}
                 width={340}
                 height={68}
-                className="h-11 sm:h-12 md:h-14 lg:h-[56px] w-auto object-contain"
+                className="h-8 xs:h-9 sm:h-12 md:h-14 lg:h-[52px] w-auto object-contain"
               />
             </Link>
 
-            <p className="text-sm text-[#69707d] leading-relaxed max-w-sm mx-auto md:mx-0 font-medium">
+            <p className="text-xs sm:text-sm text-[#69707d] leading-relaxed max-w-sm mx-auto sm:mx-0 font-medium">
               {footerText}
             </p>
 
             {/* Social Icons */}
-            <div className="flex items-center gap-2.5 justify-center md:justify-start pt-2">
+            <div className="flex items-center gap-2.5 justify-center sm:justify-start pt-1 sm:pt-2">
               {socialLinks.facebook !== "" && (
                 <a
                   href={socialLinks.facebook || "https://facebook.com/modularhome"}

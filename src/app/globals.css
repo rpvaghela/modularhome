@@ -154,6 +154,13 @@ h6 *,
   }
 }
 
+@media (max-width: 400px) {
+  .wrap {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
 .card {
   background: #ffffff;
   border: 1px solid var(--line);

@@ -20,21 +20,21 @@ export default function NearMeSection() {
   };
 
   return (
-    <section className="py-12 sm:py-16 bg-white">
+    <section className="py-8 sm:py-14 bg-white">
       <div className="wrap">
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-2xl sm:text-4xl font-black tracking-[-1.3px] text-[#101114] m-0">
+        <div className="mb-5 sm:mb-8">
+          <h2 className="text-xl xs:text-2xl sm:text-4xl font-black tracking-[-1px] sm:tracking-[-1.3px] text-[#101114] m-0">
             Find Homes Near You
           </h2>
-          <p className="text-sm sm:text-base text-[#6b7280] mt-1.5 mb-0">
+          <p className="text-xs sm:text-base text-[#6b7280] mt-1 sm:mt-1.5 mb-0">
             We deliver modular homes nationwide.
           </p>
         </div>
 
         {/* 3-Column Layout: ZIP Search (1fr), Map Visual (1.2fr), Delivery Info (0.8fr) */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr_0.8fr] gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr_0.8fr] gap-3.5 sm:gap-5">
           {/* Card 1: Search by ZIP Code */}
-          <div className="card p-6 sm:p-7 flex flex-col justify-between">
+          <div className="card p-4 sm:p-7 flex flex-col justify-between">
             <div>
               <h3 className="text-xl font-black text-[#101114] mb-3">
                 Search by ZIP Code
