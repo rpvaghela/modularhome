@@ -11,7 +11,6 @@ import {
   ChevronDown, 
   ArrowRight, 
   Search, 
-  FileSpreadsheet, 
   Play, 
   BookOpen, 
   Info, 
@@ -19,19 +18,17 @@ import {
   Star, 
   Sparkles,
   Layers,
-  HelpCircle,
-  Building2,
-  CheckCircle2,
   FileText,
   ShieldCheck,
   ShoppingBag,
   User,
   LogOut,
   LayoutDashboard,
-  Download
+  Download,
+  Home
 } from "lucide-react";
 import { PublicGlobalSettings } from "@/lib/settings";
-import { CmsPage } from "@/lib/publicData";
+import { CmsPage, MegaMenuCatalog } from "@/lib/publicData";
 import { useCart } from "@/context/CartContext";
 import { useCustomerAuth } from "@/context/CustomerAuthContext";
 
@@ -44,14 +41,13 @@ interface CategoryNavOption {
 
 const PRIMARY_MENU_OPTIONS: CategoryNavOption[] = [
   { label: "Modular Homes", href: "/buildings?category=Modular+Homes", categoryQuery: "Modular Homes" },
-  { label: "Floor Plans", href: "/floor-plans", categoryQuery: "Floor Plans" },
   { label: "Prefab Homes", href: "/buildings?category=Prefab+Homes", categoryQuery: "Prefab Homes" },
   { label: "Barndominiums", href: "/buildings?category=Barndominiums", categoryQuery: "Barndominiums" },
   { label: "House Kits", href: "/buildings?category=House+Kits", categoryQuery: "House Kits" },
   { label: "Tiny Homes", href: "/buildings?category=Tiny+Homes", categoryQuery: "Tiny Homes" },
   { label: "Park Models", href: "/buildings?category=Park+Models", categoryQuery: "Park Models" },
   { label: "Cabins", href: "/buildings?category=Cabins", categoryQuery: "Cabins" },
-  { label: "ADU's & Granny Pods", href: "/buildings?category=ADUs+%26+Granny+Pods", categoryQuery: "ADUs & Granny Pods" },
+  { label: "ADUs & Granny Pods", href: "/buildings?category=ADUs+%26+Granny+Pods", categoryQuery: "ADUs & Granny Pods" },
   { label: "A-Frames", href: "/buildings?category=A-Frame+Homes", categoryQuery: "A-Frame Homes" },
   { label: "Commercial", href: "/buildings?category=Commercial+Buildings", categoryQuery: "Commercial Buildings" },
 ];
@@ -73,7 +69,7 @@ const CORE_MORE_OPTIONS = [
     label: "Upload Floor Plan", 
     href: "/upload-floor-plan", 
     desc: "Submit your sketch or CAD for instant estimate",
-    icon: FileSpreadsheet 
+    icon: FileText 
   },
   { 
     label: "Factory Video Tours", 
@@ -107,18 +103,25 @@ const CORE_MORE_OPTIONS = [
   },
 ];
 
-interface NavbarContentProps {
+export interface NavbarProps {
   initialSettings?: PublicGlobalSettings;
   customPages?: CmsPage[];
+  megaMenuCatalog?: MegaMenuCatalog;
 }
 
-function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps) {
+function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {} }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openMegaCategory, setOpenMegaCategory] = useState<string | null>(null);
+  const [mobileExpandedCategory, setMobileExpandedCategory] = useState<string | null>(null);
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  const headerContainerRef = useRef<HTMLElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const megaMenuPanelRef = useRef<HTMLDivElement>(null);
+  
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -144,48 +147,41 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
   const ctaLink = initialSettings?.ctaLink || "/quote";
   const socialLinks = initialSettings?.socialLinks || {};
 
-  const menuItems: CategoryNavOption[] = (initialSettings?.navLinks && initialSettings.navLinks.length > 0)
-    ? initialSettings.navLinks
-        .filter((item: any) => item.isVisible !== false)
-        .map((item) => {
-          let categoryQuery: string | undefined = undefined;
-          if (item.href && item.href.includes("category=")) {
-            const rawCat = item.href.split("category=")[1].split("&")[0];
-            categoryQuery = decodeURIComponent(rawCat.replace(/\+/g, " "));
-          }
-          const rawBadge = (item as any).badge;
-          const badge = (item.label?.toLowerCase().includes("floor plan") || item.href?.includes("floor-plans")) ? undefined : rawBadge;
-          return {
-            label: item.label,
-            href: item.href,
-            categoryQuery,
-            badge,
-          };
-        })
-    : PRIMARY_MENU_OPTIONS;
+  // Row 2 is dedicated strictly to the 10 building product categories
+  const menuItems: CategoryNavOption[] = PRIMARY_MENU_OPTIONS;
 
+  // Close menus on route change
   useEffect(() => {
     setMobileMenuOpen(false);
+    setOpenMegaCategory(null);
     setMoreDropdownOpen(false);
     setUserMenuOpen(false);
   }, [pathname, searchParams]);
 
-  if (pathname?.startsWith("/admin")) {
-    return null;
-  }
-
-  // Handle outside click for "More" dropdown and "User Menu" dropdown
+  // Handle outside clicks and Escape key
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (headerContainerRef.current && !headerContainerRef.current.contains(event.target as Node)) {
+        setOpenMegaCategory(null);
         setMoreDropdownOpen(false);
-      }
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setUserMenuOpen(false);
       }
     }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpenMegaCategory(null);
+        setMoreDropdownOpen(false);
+        setUserMenuOpen(false);
+      }
+    }
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   // Prevent background scroll when mobile drawer is open
@@ -199,6 +195,10 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
       document.body.style.overflow = "unset";
     };
   }, [mobileMenuOpen]);
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -217,6 +217,22 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
     "/upload-floor-plan",
   ].some((path) => pathname.startsWith(path)) || currentCategory === "Custom Homes" || publishedPages.some((p) => pathname === `/${p.slug}`);
 
+  // Toggles the mega-menu for a category
+  const handleCategoryClick = (categoryLabel: string) => {
+    setOpenMegaCategory((prev) => (prev === categoryLabel ? null : categoryLabel));
+    setMoreDropdownOpen(false);
+    setUserMenuOpen(false);
+  };
+
+  // Hover transition if already opened
+  const handleCategoryMouseEnter = (categoryLabel: string) => {
+    if (openMegaCategory && openMegaCategory !== categoryLabel && megaMenuCatalog[categoryLabel]) {
+      setOpenMegaCategory(categoryLabel);
+    }
+  };
+
+  const activeCategoryData = openMegaCategory ? megaMenuCatalog[openMegaCategory] : null;
+
   return (
     <>
       {/* ========================================================================= */}
@@ -227,7 +243,6 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
           <div className="wrap py-1.5 sm:py-2 flex items-center justify-between gap-2">
             {/* Left: Phone & Support Email */}
             <div className="flex items-center gap-2 sm:gap-4 text-gray-300 overflow-hidden">
-              {/* Phone Number - Prominent & High Impact */}
               <a
                 href={`tel:${phone.replace(/[^0-9+]/g, "")}`}
                 className="inline-flex items-center gap-1.5 sm:gap-2 hover:text-[#fcb907] transition-all text-xs sm:text-[14px] lg:text-[15px] font-extrabold text-white group shrink-0"
@@ -242,7 +257,6 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
 
               <span className="text-[#fcb907]/40 text-[10px] hidden xs:inline">●</span>
 
-              {/* Email Link */}
               <a
                 href={`mailto:${email}`}
                 className="hidden xs:inline-flex items-center gap-1.5 hover:text-[#fcb907] transition-colors text-[11px] sm:text-[12px] text-gray-300 group truncate"
@@ -254,7 +268,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
               </a>
             </div>
 
-            {/* Middle: Announcement message on larger screens */}
+            {/* Middle: Announcement message */}
             <div className="hidden xl:flex items-center gap-2 text-[11.5px] text-gray-300 truncate max-w-md">
               <span className="w-1.5 h-1.5 rounded-full bg-[#fcb907] animate-pulse"></span>
               <Link href={announcementLink} className="hover:text-[#fcb907] hover:underline truncate">
@@ -311,16 +325,15 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
 
               <div className="hidden sm:flex items-center gap-1.5">
                 <span className="text-[10.5px] font-bold tracking-wider uppercase text-gray-400 mr-1 hidden md:inline">
-                  FOLLOW US:
+                  FOLLOW:
                 </span>
 
-                {/* Facebook */}
                 {socialLinks.facebook !== "" && (
                   <a
                     href={socialLinks.facebook || "https://facebook.com/modularhome"}
                     target="_blank"
                     rel="noreferrer"
-                    aria-label="Follow us on Facebook"
+                    aria-label="Facebook"
                     className="w-[22px] h-[22px] rounded-full bg-white/10 text-white hover:bg-[#fcb907] hover:text-[#101114] flex items-center justify-center hover:scale-110 transition-all"
                   >
                     <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -329,13 +342,12 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                   </a>
                 )}
 
-                {/* Instagram */}
                 {socialLinks.instagram !== "" && (
                   <a
                     href={socialLinks.instagram || "https://instagram.com/modularhome"}
                     target="_blank"
                     rel="noreferrer"
-                    aria-label="Follow us on Instagram"
+                    aria-label="Instagram"
                     className="w-[22px] h-[22px] rounded-full bg-white/10 text-white hover:bg-[#fcb907] hover:text-[#101114] flex items-center justify-center hover:scale-110 transition-all"
                   >
                     <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -344,13 +356,12 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                   </a>
                 )}
 
-                {/* YouTube */}
                 {socialLinks.youtube !== "" && (
                   <a
                     href={socialLinks.youtube || "https://youtube.com/@modularhome"}
                     target="_blank"
                     rel="noreferrer"
-                    aria-label="Follow us on YouTube"
+                    aria-label="YouTube"
                     className="w-[22px] h-[22px] rounded-full bg-white/10 text-white hover:bg-[#fcb907] hover:text-[#101114] flex items-center justify-center hover:scale-110 transition-all"
                   >
                     <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -359,47 +370,16 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                   </a>
                 )}
 
-                {/* TikTok */}
                 {socialLinks.tiktok !== "" && (
                   <a
                     href={socialLinks.tiktok || "https://tiktok.com/@modularhome"}
                     target="_blank"
                     rel="noreferrer"
-                    aria-label="Follow us on TikTok"
+                    aria-label="TikTok"
                     className="w-[22px] h-[22px] rounded-full bg-white/10 text-white hover:bg-[#fcb907] hover:text-[#101114] flex items-center justify-center hover:scale-110 transition-all"
                   >
                     <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                       <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-1.01-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.16 1.18 2.09 2.35 2.3 1.05.21 2.18-.08 2.96-.8.61-.53.97-1.3 1.01-2.11.05-3.87.02-7.74.03-11.61z" />
-                    </svg>
-                  </a>
-                )}
-
-                {/* Twitter / X */}
-                {(socialLinks.twitter || socialLinks.x) && (
-                  <a
-                    href={socialLinks.twitter || socialLinks.x}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="Follow us on X"
-                    className="w-[22px] h-[22px] rounded-full bg-white/10 text-white hover:bg-[#fcb907] hover:text-[#101114] flex items-center justify-center hover:scale-110 transition-all"
-                  >
-                    <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                    </svg>
-                  </a>
-                )}
-
-                {/* LinkedIn */}
-                {socialLinks.linkedin && (
-                  <a
-                    href={socialLinks.linkedin}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="Follow us on LinkedIn"
-                    className="w-[22px] h-[22px] rounded-full bg-white/10 text-white hover:bg-[#fcb907] hover:text-[#101114] flex items-center justify-center hover:scale-110 transition-all"
-                  >
-                    <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76c.97 0 1.76-.79 1.76-1.76s-.79-1.76-1.76-1.76-1.76.79-1.76 1.76.79 1.76 1.76 1.76m1.39 9.74v-8.37H5.07v8.37h2.78z" />
                     </svg>
                   </a>
                 )}
@@ -418,12 +398,14 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
       )}
 
       {/* ========================================================================= */}
-      {/* 2. STICKY TWO-TIER ARCHITECTURAL HEADER */}
+      {/* 2. STICKY TWO-TIER ARCHITECTURAL HEADER + PRODUCT MEGA MENU */}
       {/* ========================================================================= */}
-      <header className="sticky top-0 z-50 bg-white/98 backdrop-blur-md shadow-xs transition-shadow w-full">
-        
+      <header 
+        ref={headerContainerRef}
+        className="sticky top-0 z-50 bg-white/98 backdrop-blur-md shadow-xs transition-shadow w-full select-none"
+      >
         {/* --- ROW 1: BRAND LOGO + GLOBAL SEARCH + CTAs --- */}
-        <div className="border-b border-[#f0f2f5] w-full">
+        <div className="border-b border-[#f0f2f5] w-full bg-white">
           <div className="wrap h-[58px] sm:h-[72px] md:h-[80px] flex items-center justify-between gap-1.5 xs:gap-2 sm:gap-4 md:gap-6">
             
             {/* Left: Mobile Hamburger Toggle + Logo */}
@@ -436,7 +418,6 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                 {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
               </button>
 
-              {/* Brand Logo */}
               <Link href="/" className="flex items-center group select-none shrink-0 py-0.5">
                 <Image
                   src={logoUrl}
@@ -471,14 +452,6 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
 
             {/* Right: Quick Features & Main CTA Button */}
             <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
-              <Link
-                href="/upload-floor-plan"
-                className="hidden xl:inline-flex items-center gap-1.5 text-xs font-bold text-[#101114] hover:text-[#d97706] py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <FileSpreadsheet className="w-4 h-4 text-[#d97706]" />
-                <span>Floor Plans</span>
-              </Link>
-
               {/* Shopping Cart Button */}
               <button
                 type="button"
@@ -524,14 +497,12 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                     <ChevronDown className={`w-3 h-3 text-gray-500 transition-transform duration-150 ${userMenuOpen ? "rotate-180" : ""}`} />
                   </button>
 
-                  {/* Dropdown Menu */}
                   {userMenuOpen && (
                     <div
                       className="absolute right-0 top-full pt-1.5 w-64 z-[100] animate-in fade-in zoom-in-95 duration-150"
                       onMouseEnter={() => setUserMenuOpen(true)}
                     >
                       <div className="bg-white border border-[#e5e7eb] rounded-2xl p-2.5 shadow-2xl ring-1 ring-black/5 space-y-2">
-                        {/* Header Summary */}
                         <div className="px-3 py-2 bg-gray-50 rounded-xl border border-gray-100">
                           <div className="text-xs font-extrabold text-[#101114] truncate">
                             {customer.name || "Customer"}
@@ -547,7 +518,6 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                           )}
                         </div>
 
-                        {/* Navigation Links */}
                         <div className="space-y-0.5">
                           <Link
                             href="/account"
@@ -583,7 +553,6 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                           </Link>
                         </div>
 
-                        {/* Sign Out */}
                         <div className="pt-1 border-t border-gray-100">
                           <button
                             onClick={() => {
@@ -623,26 +592,65 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
           </div>
         </div>
 
-        {/* --- ROW 2: CENTERED PRIMARY NAVIGATION RIBBON --- */}
-        <div className="hidden lg:block border-b border-gray-200/80 bg-white/98 backdrop-blur-md relative z-40 shadow-2xs">
+        {/* --- ROW 2: PRIMARY ARCHITECTURAL HOUSING CATEGORIES RIBBON --- */}
+        <div className="hidden lg:block border-b border-gray-200/80 bg-white relative z-40">
           <div className="wrap relative overflow-visible">
-            <nav className="flex items-center justify-center relative py-1.5 overflow-visible">
-              <div className="flex items-center justify-center gap-1 xl:gap-2 2xl:gap-3 flex-wrap overflow-visible">
+            <nav 
+              className="flex items-center justify-center relative py-1.5 overflow-visible"
+              aria-label="Main Housing Categories Navigation"
+            >
+              <div className="flex items-center justify-between w-full max-w-full gap-0.5 xl:gap-1.5 2xl:gap-2 flex-nowrap overflow-visible">
                 {menuItems.map((item) => {
-                  const active = currentCategory === item.categoryQuery || pathname === item.href;
+                  const hasMegaMenu = Boolean(megaMenuCatalog && megaMenuCatalog[item.label]);
+                  const isMegaOpen = openMegaCategory === item.label;
+                  const activeRoute = currentCategory === item.categoryQuery || (pathname === item.href && !currentCategory);
+                  
+                  if (hasMegaMenu) {
+                    return (
+                      <button
+                        key={item.label}
+                        type="button"
+                        onClick={() => handleCategoryClick(item.label)}
+                        onMouseEnter={() => handleCategoryMouseEnter(item.label)}
+                        aria-expanded={isMegaOpen}
+                        aria-controls="mega-menu-panel"
+                        aria-haspopup="true"
+                        className={`inline-flex items-center gap-1 px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-[12px] xl:text-[12.5px] 2xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 cursor-pointer shrink-0 ${
+                          isMegaOpen
+                            ? "bg-amber-50/90 text-[#b45309] font-black"
+                            : activeRoute
+                            ? "bg-gray-100 text-[#101114] font-black"
+                            : "text-gray-700 hover:text-[#101114] hover:bg-gray-50/80"
+                        }`}
+                        style={{ fontFamily: "var(--font-manrope), sans-serif" }}
+                      >
+                        <span>{item.label}</span>
+                        {item.badge && (
+                          <span className="px-1.5 py-0.5 rounded bg-[#fcb907] text-[#101114] text-[8.5px] font-black tracking-tight leading-none">
+                            {item.badge}
+                          </span>
+                        )}
+                        <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${isMegaOpen ? "rotate-180 text-[#b45309]" : ""}`} />
+                      </button>
+                    );
+                  }
+
+                  // Direct link
                   return (
                     <Link
                       key={item.label}
                       href={item.href}
-                      className={`inline-flex items-center gap-1.5 px-3 xl:px-3.5 py-1.5 rounded-xl text-[13px] xl:text-[13.5px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 ${
-                        active
-                          ? "bg-amber-50 text-[#b45309] ring-1 ring-amber-300/80 shadow-2xs font-extrabold"
-                          : "text-gray-700 hover:text-[#101114] hover:bg-[#f6f7f9]"
+                      onClick={() => setOpenMegaCategory(null)}
+                      className={`inline-flex items-center gap-1 px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-[12px] xl:text-[12.5px] 2xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 shrink-0 ${
+                        activeRoute
+                          ? "bg-amber-50/90 text-[#b45309] font-black"
+                          : "text-gray-700 hover:text-[#101114] hover:bg-gray-50/80"
                       }`}
+                      style={{ fontFamily: "var(--font-manrope), sans-serif" }}
                     >
                       <span>{item.label}</span>
                       {item.badge && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-[#fcb907] text-[#101114] text-[9px] font-black tracking-tight leading-none shadow-2xs">
+                        <span className="px-1.5 py-0.5 rounded bg-[#fcb907] text-[#101114] text-[8.5px] font-black tracking-tight leading-none">
                           {item.badge}
                         </span>
                       )}
@@ -653,8 +661,11 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                 {/* "More" Dropdown Menu */}
                 <div 
                   ref={dropdownRef}
-                  className="relative inline-block"
-                  onMouseEnter={() => setMoreDropdownOpen(true)}
+                  className="relative inline-block shrink-0"
+                  onMouseEnter={() => {
+                    setMoreDropdownOpen(true);
+                    setOpenMegaCategory(null);
+                  }}
                   onMouseLeave={() => setMoreDropdownOpen(false)}
                 >
                   <button
@@ -663,19 +674,21 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                       e.preventDefault();
                       e.stopPropagation();
                       setMoreDropdownOpen(!moreDropdownOpen);
+                      setOpenMegaCategory(null);
                     }}
-                    className={`inline-flex items-center gap-1 px-3 xl:px-3.5 py-1.5 rounded-xl text-[13px] xl:text-[13.5px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 cursor-pointer ${
+                    className={`inline-flex items-center gap-1 px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-[12px] xl:text-[12.5px] 2xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 cursor-pointer ${
                       isMoreActive || moreDropdownOpen
-                        ? "bg-amber-50 text-[#b45309] ring-1 ring-amber-300/80 font-extrabold"
-                        : "text-gray-700 hover:text-[#101114] hover:bg-[#f6f7f9]"
+                        ? "bg-amber-50/90 text-[#b45309] font-black"
+                        : "text-gray-700 hover:text-[#101114] hover:bg-gray-50/80"
                     }`}
+                    style={{ fontFamily: "var(--font-manrope), sans-serif" }}
                     aria-expanded={moreDropdownOpen}
                   >
                     <span>More</span>
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${moreDropdownOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${moreDropdownOpen ? "rotate-180" : ""}`} />
                   </button>
 
-                  {/* Dropdown Floating Card with Centered Anchor */}
+                  {/* Dropdown Floating Card */}
                   {moreDropdownOpen && (
                     <div 
                       className="absolute left-1/2 -translate-x-1/2 top-full pt-1.5 w-92 z-[100] animate-in fade-in zoom-in-95 duration-150 max-h-[80vh] overflow-y-auto"
@@ -710,7 +723,6 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                           </div>
                         </div>
 
-                        {/* Dynamic Custom CMS Pages Section */}
                         {publishedPages.length > 0 && (
                           <div className="border-t border-[#f0f2f5] pt-2">
                             <div className="text-[10px] font-extrabold uppercase tracking-wider text-[#d97706] px-3 py-1 border-b border-gray-100 mb-1 flex items-center justify-between">
@@ -754,6 +766,189 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
             </nav>
           </div>
         </div>
+
+        {/* ========================================================================= */}
+        {/* --- DESKTOP FULL-WIDTH PRODUCT MEGA-MENU DROPDOWN PANEL --- */}
+        {/* ========================================================================= */}
+        {openMegaCategory && activeCategoryData && (
+          <div
+            id="mega-menu-panel"
+            ref={megaMenuPanelRef}
+            className="hidden lg:block absolute top-full left-0 right-0 w-full bg-white border-b border-gray-200/90 shadow-2xl z-50 animate-in fade-in slide-in-from-top-1 duration-150"
+            style={{ fontFamily: "var(--font-manrope), sans-serif" }}
+          >
+            <div className="wrap py-7 px-4 sm:px-6">
+              <div className="grid grid-cols-12 gap-8 items-stretch">
+                
+                {/* LEFT SIDE: Category Information + Product Links List */}
+                <div className="col-span-7 xl:col-span-8 flex flex-col justify-between pr-6 border-r border-gray-100">
+                  <div>
+                    {/* Header */}
+                    <div className="mb-4">
+                      <div className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-[#d97706] mb-1">
+                        <span className="w-2 h-2 rounded-full bg-[#fcb907]"></span>
+                        <span>{activeCategoryData.categoryLabel}</span>
+                      </div>
+                      <div 
+                        className="text-2xl font-black tracking-tight text-[#101114]"
+                        style={{ fontFamily: "var(--font-manrope), sans-serif" }}
+                      >
+                        {activeCategoryData.categoryLabel}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1 font-medium">
+                        {activeCategoryData.tagline || `Explore top-rated precision models and custom options.`}
+                      </p>
+                    </div>
+
+                    {/* Products Links Grid */}
+                    {activeCategoryData.products && activeCategoryData.products.length > 0 ? (
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-4 gap-y-1.5 my-2">
+                        {activeCategoryData.products.map((item) => (
+                          <Link
+                            key={item.id}
+                            href={item.href}
+                            onClick={() => setOpenMegaCategory(null)}
+                            className="group flex items-center justify-between p-2.5 rounded-xl hover:bg-amber-50/60 transition-all border border-transparent hover:border-amber-200/50"
+                          >
+                            <div className="min-w-0 pr-2">
+                              <div className="flex items-center gap-1.5">
+                                <span 
+                                  className="text-[13.5px] font-bold text-[#1e293b] group-hover:text-[#d97706] transition-colors truncate"
+                                  style={{ fontFamily: "var(--font-manrope), sans-serif" }}
+                                >
+                                  {item.name}
+                                </span>
+                                {item.badge && (
+                                  <span className="px-1.5 py-0.5 rounded bg-amber-100 text-[#b45309] text-[9px] font-black uppercase shrink-0">
+                                    {item.badge}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[11px] text-[#64748b] font-medium flex items-center gap-1.5 mt-0.5">
+                                {item.startingPrice && item.startingPrice > 0 ? (
+                                  <span className="text-[#0f172a] font-bold">
+                                    ${new Intl.NumberFormat("en-US").format(item.startingPrice)}
+                                  </span>
+                                ) : null}
+                                {item.sqft && item.sqft > 0 ? (
+                                  <span>• {item.sqft} SQ FT</span>
+                                ) : null}
+                                {item.bedrooms && item.bedrooms > 0 ? (
+                                  <span>• {item.bedrooms} Bed</span>
+                                ) : null}
+                              </div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#d97706] group-hover:translate-x-0.5 transition-all shrink-0" />
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-6 px-4 bg-gray-50 rounded-xl text-center text-xs text-gray-500 font-medium my-2">
+                        No featured models listed yet in this section.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Explore All CTA Link */}
+                  <div className="pt-4 mt-3 border-t border-gray-100 flex items-center justify-between">
+                    <Link
+                      href={activeCategoryData.viewAllHref}
+                      onClick={() => setOpenMegaCategory(null)}
+                      className="inline-flex items-center gap-2 text-sm font-black text-[#d97706] hover:text-[#b45309] group"
+                      style={{ fontFamily: "var(--font-manrope), sans-serif" }}
+                    >
+                      <span className="group-hover:underline">Explore All {activeCategoryData.categoryLabel}</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform stroke-[2.5]" />
+                    </Link>
+
+                    <Link
+                      href="/quote"
+                      onClick={() => setOpenMegaCategory(null)}
+                      className="text-xs text-gray-400 hover:text-gray-700 font-medium hover:underline"
+                    >
+                      Need Custom Pricing? Get a Quote →
+                    </Link>
+                  </div>
+                </div>
+
+                {/* RIGHT SIDE: Featured Model Showcase Card */}
+                <div className="col-span-5 xl:col-span-4 flex flex-col">
+                  {activeCategoryData.featuredProduct ? (
+                    <Link
+                      href={activeCategoryData.featuredProduct.href}
+                      onClick={() => setOpenMegaCategory(null)}
+                      className="block h-full group bg-[#f8fafc] hover:bg-amber-50/40 border border-gray-200/80 hover:border-amber-300/80 rounded-2xl p-4 transition-all duration-200 shadow-xs hover:shadow-md flex flex-col justify-between"
+                    >
+                      <div>
+                        {/* Image Container with Badge */}
+                        <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-gray-200 mb-3.5">
+                          <Image
+                            src={activeCategoryData.featuredProduct.image || "/newmodularlogo.png"}
+                            alt={activeCategoryData.featuredProduct.name}
+                            fill
+                            sizes="(max-width: 1200px) 35vw, 400px"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute top-2.5 left-2.5 bg-[#101114]/90 backdrop-blur-xs text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-md shadow-xs">
+                            ★ {activeCategoryData.featuredProduct.badge || "Featured Model"}
+                          </div>
+                        </div>
+
+                        {/* Card Details */}
+                        <div className="text-[10.5px] font-extrabold uppercase tracking-widest text-[#d97706]">
+                          {activeCategoryData.categoryLabel}
+                        </div>
+                        <div 
+                          className="text-base font-black text-[#101114] group-hover:text-[#d97706] transition-colors truncate mt-0.5"
+                          style={{ fontFamily: "var(--font-manrope), sans-serif" }}
+                        >
+                          {activeCategoryData.featuredProduct.name}
+                        </div>
+                        <p className="text-xs text-[#64748b] line-clamp-1 mt-0.5 font-medium">
+                          {activeCategoryData.featuredProduct.tagline || `${activeCategoryData.categoryLabel} Floor Plan & Kit`}
+                        </p>
+                      </div>
+
+                      <div className="mt-3 pt-3 border-t border-gray-200/60 flex items-center justify-between text-xs">
+                        {activeCategoryData.featuredProduct.startingPrice && activeCategoryData.featuredProduct.startingPrice > 0 ? (
+                          <div>
+                            <span className="text-[10px] text-gray-400 block uppercase font-bold">Starting Price</span>
+                            <span className="font-black text-[#101114] text-[13px]">
+                              ${new Intl.NumberFormat("en-US").format(activeCategoryData.featuredProduct.startingPrice)}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="text-gray-500 font-bold">Custom Quote Available</div>
+                        )}
+
+                        <span className="inline-flex items-center gap-1 font-black text-[#d97706] group-hover:underline">
+                          <span>View Model</span>
+                          <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                        </span>
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100 text-center flex-1 flex flex-col items-center justify-center">
+                      <Home className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                      <div className="text-xs font-bold text-gray-700">Custom Engineering Available</div>
+                      <p className="text-[11px] text-gray-500 mt-1">
+                        We build bespoke floor plans and structures configured to your exact site specs.
+                      </p>
+                      <Link
+                        href={activeCategoryData.viewAllHref}
+                        onClick={() => setOpenMegaCategory(null)}
+                        className="inline-block mt-3 text-xs font-black text-[#d97706] hover:underline"
+                      >
+                        Explore All {activeCategoryData.categoryLabel} →
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* ========================================================================= */}
@@ -773,7 +968,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
               />
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-1.5 text-gray-500 hover:text-[#101114] rounded-lg hover:bg-gray-100"
+                className="p-1.5 text-gray-500 hover:text-[#101114] rounded-lg hover:bg-gray-100 cursor-pointer"
                 aria-label="Close Menu"
               >
                 <X className="w-5 h-5" />
@@ -794,28 +989,92 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
               </form>
             </div>
 
-            {/* Mobile Categories List */}
+            {/* Mobile Categories List with Expandable Accordions */}
             <div className="py-3 flex-1 space-y-4">
               <div>
                 <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">
                   Building Categories
                 </div>
                 <div className="space-y-1">
-                  {menuItems.map((item) => (
-                    <Link
-                      key={item.label}
-                      href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-[#101114] hover:bg-[#f6f7f9] hover:text-[#d97706]"
-                    >
-                      <span>{item.label}</span>
-                      {item.badge && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-[#fcb907] text-[#101114] text-[9px] font-black">
-                          {item.badge}
-                        </span>
-                      )}
-                    </Link>
-                  ))}
+                  {menuItems.map((item) => {
+                    const catData = megaMenuCatalog[item.label];
+                    const hasSubItems = Boolean(catData && catData.products && catData.products.length > 0);
+                    const isExpanded = mobileExpandedCategory === item.label;
+
+                    if (!hasSubItems) {
+                      return (
+                        <div key={item.label} className="border-b border-gray-50 last:border-none pb-0.5">
+                          <Link
+                            href={item.href}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-[#101114] hover:bg-[#f6f7f9] hover:text-[#d97706]"
+                          >
+                            <span className="flex items-center gap-1.5">
+                              {item.label}
+                              {item.badge && (
+                                <span className="px-1.5 py-0.5 rounded-md bg-[#fcb907] text-[#101114] text-[9px] font-black">
+                                  {item.badge}
+                                </span>
+                              )}
+                            </span>
+                            <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                          </Link>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={item.label} className="border-b border-gray-50 last:border-none pb-0.5">
+                        <button
+                          type="button"
+                          onClick={() => setMobileExpandedCategory(isExpanded ? null : item.label)}
+                          className="w-full text-left flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-[#101114] hover:bg-[#f6f7f9] hover:text-[#d97706] cursor-pointer"
+                        >
+                          <span className="flex items-center gap-1.5">
+                            {item.label}
+                            {item.badge && (
+                              <span className="px-1.5 py-0.5 rounded-md bg-[#fcb907] text-[#101114] text-[9px] font-black">
+                                {item.badge}
+                              </span>
+                            )}
+                          </span>
+                          <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isExpanded ? "rotate-180 text-[#d97706]" : ""}`} />
+                        </button>
+
+                        {/* Accordion Content */}
+                        {isExpanded && (
+                          <div className="pl-4 pr-2 py-1.5 space-y-1 bg-amber-50/40 rounded-xl my-1">
+                            {catData.products.slice(0, 4).map((p) => (
+                              <Link
+                                key={p.id}
+                                href={p.href}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="flex items-center justify-between py-1.5 px-2 text-[11.5px] font-semibold text-gray-700 hover:text-[#d97706]"
+                              >
+                                <span className="truncate">{p.name}</span>
+                                {p.startingPrice ? (
+                                  <span className="text-[10px] text-gray-500 font-bold shrink-0 ml-2">
+                                    ${new Intl.NumberFormat("en-US").format(p.startingPrice)}
+                                  </span>
+                                ) : null}
+                              </Link>
+                            ))}
+
+                            <div className="pt-1 border-t border-amber-200/50">
+                              <Link
+                                href={catData.viewAllHref}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="inline-flex items-center gap-1 py-1.5 px-2 text-xs font-black text-[#d97706] hover:underline"
+                              >
+                                <span>Explore All {item.label}</span>
+                                <ArrowRight className="w-3 h-3 stroke-[2.5]" />
+                              </Link>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -967,7 +1226,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
                     <span>Contact</span>
                   </Link>
                   <Link href="/upload-floor-plan" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#d97706] flex items-center gap-1.5">
-                    <FileSpreadsheet className="w-3.5 h-3.5 text-[#d97706]" />
+                    <FileText className="w-3.5 h-3.5 text-[#d97706]" />
                     <span>Custom Plans</span>
                   </Link>
                 </div>
@@ -1000,12 +1259,7 @@ function NavbarContent({ initialSettings, customPages = [] }: NavbarContentProps
   );
 }
 
-export interface NavbarProps {
-  initialSettings?: PublicGlobalSettings;
-  customPages?: CmsPage[];
-}
-
-export default function Navbar({ initialSettings, customPages = [] }: NavbarProps) {
+export default function Navbar({ initialSettings, customPages = [], megaMenuCatalog = {} }: NavbarProps) {
   const pathname = usePathname();
   if (pathname?.startsWith("/admin")) {
     return null;
@@ -1015,7 +1269,7 @@ export default function Navbar({ initialSettings, customPages = [] }: NavbarProp
     <Suspense fallback={
       <header className="sticky top-0 z-50 bg-white/98 backdrop-blur-md border-b border-[#e7e9ee] h-[110px]" />
     }>
-      <NavbarContent initialSettings={initialSettings} customPages={customPages} />
+      <NavbarContent initialSettings={initialSettings} customPages={customPages} megaMenuCatalog={megaMenuCatalog} />
     </Suspense>
   );
 }

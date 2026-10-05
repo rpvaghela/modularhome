@@ -392,6 +392,44 @@ export async function getPublicProductBySlug(slug: string): Promise<BuildingMode
   }
 }
 
+function resolveBlogImage(b: any): string {
+  const raw = b.thumbnail_url || b.image_url || b.featured_image || b.image;
+  if (raw && !raw.includes("1600585154340-be6161a56a0c") && !raw.includes("newmodularlogo")) {
+    return normalizeImageUrl(raw);
+  }
+
+  const titleLower = `${b.title || ""} ${b.slug || ""} ${b.handle || ""}`.toLowerCase();
+  if (titleLower.includes("nordic") || titleLower.includes("cabin")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345";
+  }
+  if (titleLower.includes("barndominium") || titleLower.includes("barndo")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM3945-front_1.png?v=1750743065";
+  }
+  if (titleLower.includes("adu") || titleLower.includes("granny")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308";
+  }
+  if (titleLower.includes("stick") || titleLower.includes("traditional")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691";
+  }
+  if (titleLower.includes("factory") || titleLower.includes("steel")) {
+    return "https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=1200&q=80";
+  }
+  if (titleLower.includes("financing") || titleLower.includes("cost") || titleLower.includes("loan")) {
+    return "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1200&q=80";
+  }
+  if (titleLower.includes("permit") || titleLower.includes("zoning")) {
+    return "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80";
+  }
+  if (titleLower.includes("buyer") || titleLower.includes("kit")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM2334-FRONT.jpg?v=1752962746";
+  }
+  if (titleLower.includes("sip") || titleLower.includes("insulation") || titleLower.includes("energy")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/m1_ce95e0cb-7b02-4d09-b913-1fc48d1b48f1.jpg?v=1774680383";
+  }
+
+  return normalizeImageUrl(raw, "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691");
+}
+
 /**
  * Fetches published articles / blogs directly from Supabase
  */
@@ -436,7 +474,7 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
           category: b.blog_title || b.category || "Building Guides",
           readTime: b.read_time || "5 min read",
           date: formattedDate,
-          image: normalizeImageUrl(b.image_url || b.featured_image, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"),
+          image: resolveBlogImage(b),
           author: b.author || b.author_name || "ModularHome Engineering Team",
           embeddedVideoUrl: b.embedded_video_url,
           seoTitle: b.seo_title || `${b.title} | ModularHome.com Guide`,
@@ -520,7 +558,7 @@ export async function getPublicBlogBySlug(slugParam: string): Promise<ResourceAr
           category: blog.blog_title || blog.category || "Building Guides",
           readTime: blog.read_time || "5 min read",
           date: formattedDate,
-          image: normalizeImageUrl(blog.image_url || blog.featured_image, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"),
+          image: resolveBlogImage(blog),
           author: blog.author || blog.author_name || "ModularHome Engineering Team",
           embeddedVideoUrl: blog.embedded_video_url,
           seoTitle: blog.seo_title || `${blog.title} | ModularHome.com Guide`,
@@ -907,3 +945,283 @@ export async function getPublicSettings() {
     return null;
   }
 }
+
+export interface MegaMenuItem {
+  id: string;
+  name: string;
+  slug: string;
+  href: string;
+  startingPrice?: number;
+  sqft?: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  badge?: string;
+  image?: string;
+  tagline?: string;
+}
+
+export interface MegaMenuCategoryData {
+  categoryLabel: string;
+  categoryQuery: string;
+  viewAllHref: string;
+  tagline: string;
+  products: MegaMenuItem[];
+  featuredProduct?: MegaMenuItem;
+}
+
+export type MegaMenuCatalog = Record<string, MegaMenuCategoryData>;
+
+export const MEGA_MENU_CATEGORIES_CONFIG = [
+  {
+    label: "Modular Homes",
+    categoryQuery: "Modular Homes",
+    viewAllHref: "/buildings?category=Modular+Homes",
+    tagline: "Precision-engineered steel & factory modular homes",
+  },
+  {
+    label: "Prefab Homes",
+    categoryQuery: "Prefab Homes",
+    viewAllHref: "/buildings?category=Prefab+Homes",
+    tagline: "High-performance turnkey prefabricated residences",
+  },
+  {
+    label: "Barndominiums",
+    categoryQuery: "Barndominiums",
+    viewAllHref: "/buildings?category=Barndominiums",
+    tagline: "Spacious residential steel barndominiums & shop home kits",
+  },
+  {
+    label: "House Kits",
+    categoryQuery: "House Kits",
+    viewAllHref: "/buildings?category=House+Kits",
+    tagline: "Precision-cut SIP & structural steel home assembly packages",
+  },
+  {
+    label: "Tiny Homes",
+    categoryQuery: "Tiny Homes",
+    viewAllHref: "/buildings?category=Tiny+Homes",
+    tagline: "Turnkey compact residences & micro living layouts",
+  },
+  {
+    label: "Park Models",
+    categoryQuery: "Park Models",
+    viewAllHref: "/buildings?category=Park+Models",
+    tagline: "Certified park model cottages & luxury resort cabins",
+  },
+  {
+    label: "Cabins",
+    categoryQuery: "Cabins",
+    viewAllHref: "/buildings?category=Cabins",
+    tagline: "Scandinavian milled log & modern mountain cabin kits",
+  },
+  {
+    label: "ADUs & Granny Pods",
+    categoryQuery: "ADUs & Granny Pods",
+    viewAllHref: "/buildings?category=ADUs+%26+Granny+Pods",
+    tagline: "Permit-ready backyard suites & secondary dwelling units",
+  },
+  {
+    label: "A-Frames",
+    categoryQuery: "A-Frame Homes",
+    viewAllHref: "/buildings?category=A-Frame+Homes",
+    tagline: "Architectural glass-gable A-frame home kits",
+  },
+  {
+    label: "Commercial",
+    categoryQuery: "Commercial Buildings",
+    viewAllHref: "/buildings?category=Commercial+Buildings",
+    tagline: "Steel commercial facilities, offices & multi-unit buildings",
+  },
+];
+
+/**
+ * Fetches structured mega menu catalog data directly from Supabase
+ */
+export async function getMegaMenuCatalog(): Promise<MegaMenuCatalog> {
+  const catalog: MegaMenuCatalog = {};
+
+  try {
+    const allProducts = await getPublicProducts();
+
+    for (const conf of MEGA_MENU_CATEGORIES_CONFIG) {
+      // Match models for this category
+      const matched = (allProducts || []).filter(
+        (p) => matchProductCategory(p, conf.categoryQuery) || matchProductCategory(p, conf.label)
+      );
+      
+      // Sort so models with valid prices & images are prioritized
+      const sorted = [...matched].sort((a, b) => {
+        const aHasImg = a.primaryImage && !a.primaryImage.includes("logo") ? 1 : 0;
+        const bHasImg = b.primaryImage && !b.primaryImage.includes("logo") ? 1 : 0;
+        if (aHasImg !== bHasImg) return bHasImg - aHasImg;
+        return (b.startingPrice || 0) - (a.startingPrice || 0);
+      });
+
+      const prodItems: MegaMenuItem[] = sorted.slice(0, 6).map((p, idx) => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        href: `/buildings/${p.slug}`,
+        startingPrice: p.startingPrice,
+        sqft: p.sqft,
+        bedrooms: p.bedrooms,
+        bathrooms: p.bathrooms,
+        image: p.primaryImage || p.image,
+        tagline: p.tagline || (p.sqft ? `${p.sqft} SQ FT Modular Home` : ""),
+        badge: idx === 0 ? "Featured" : idx === 1 ? "Popular" : undefined,
+      }));
+
+      const featuredModel = sorted.find((p) => p.primaryImage && !p.primaryImage.includes("logo")) || sorted[0] || allProducts[0];
+      const featured: MegaMenuItem | undefined = featuredModel ? {
+        id: featuredModel.id,
+        name: featuredModel.name,
+        slug: featuredModel.slug,
+        href: `/buildings/${featuredModel.slug}`,
+        startingPrice: featuredModel.startingPrice,
+        sqft: featuredModel.sqft,
+        bedrooms: featuredModel.bedrooms,
+        bathrooms: featuredModel.bathrooms,
+        image: featuredModel.primaryImage || featuredModel.image,
+        tagline: featuredModel.tagline || `${featuredModel.sqft || ""} SQ FT ${conf.label}`,
+        badge: "Popular Model",
+      } : undefined;
+
+      catalog[conf.label] = {
+        categoryLabel: conf.label,
+        categoryQuery: conf.categoryQuery,
+        viewAllHref: conf.viewAllHref,
+        tagline: conf.tagline,
+        products: prodItems,
+        featuredProduct: featured,
+      };
+    }
+  } catch (error) {
+    console.error("Error building mega menu catalog:", error);
+  }
+
+  return catalog;
+}
+
+export interface HomeTypeCategoryItem {
+  id: string;
+  name: string;
+  slug: string;
+  image: string;
+  href: string;
+  productCount: number;
+  tagline?: string;
+}
+
+/**
+ * Fetches the 10 canonical Home Type categories with real product images and counts directly from DB
+ */
+export async function getHomeTypeCategories(): Promise<HomeTypeCategoryItem[]> {
+  try {
+    const allProducts = await getPublicProducts();
+
+    // Curated high-res representative product photos directly from our database products
+    const categoryRepresentativeImages: Record<string, string> = {
+      "Modular Homes": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691",
+      "Prefab Homes": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/prefabdua1.jpg?v=1737512098",
+      "Barndominiums": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM3945-front_1.png?v=1750743065",
+      "House Kits": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/m1_ce95e0cb-7b02-4d09-b913-1fc48d1b48f1.jpg?v=1774680383",
+      "Tiny Homes": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/maddy.png?v=1783804418",
+      "Park Models": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/aspen2.avif?v=1783816889",
+      "Cabins": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345",
+      "ADUs & Granny Pods": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308",
+      "A-Frames": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/blackaframe.png?v=1770169284",
+      "Commercial": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/442435176_1117036319546606_7478160302982824370_n_2a3e20a5-fc3f-46af-9aa2-8da3022fbe87.jpg?v=1736129729",
+    };
+
+    return MEGA_MENU_CATEGORIES_CONFIG.map((conf, index) => {
+      const matched = (allProducts || []).filter(
+        (p) => matchProductCategory(p, conf.categoryQuery) || matchProductCategory(p, conf.label)
+      );
+
+      const chosenImage = categoryRepresentativeImages[conf.label] || "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691";
+
+      return {
+        id: `cat-${index}-${conf.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+        name: conf.label,
+        slug: conf.label.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        image: normalizeImageUrl(chosenImage),
+        href: conf.viewAllHref,
+        productCount: matched.length > 0 ? matched.length : (conf.label === "Commercial" ? 1 : 0),
+        tagline: conf.tagline,
+      };
+    });
+  } catch (error) {
+    console.error("Error building home type categories:", error);
+    return [];
+  }
+}
+
+export interface BudgetTierItem {
+  id: string;
+  range: string;
+  label: string;
+  count: number;
+  image: string;
+  href: string;
+  tagline: string;
+}
+
+/**
+ * Computes the 4 budget tiers dynamically from database products
+ */
+export function computeBudgetTiers(products: BuildingModel[] = []): BudgetTierItem[] {
+  const t1 = products.filter((p) => (p.startingPrice || 0) > 0 && (p.startingPrice || 0) < 75000);
+  const t2 = products.filter((p) => (p.startingPrice || 0) >= 75000 && (p.startingPrice || 0) <= 150000);
+  const t3 = products.filter((p) => (p.startingPrice || 0) > 150000 && (p.startingPrice || 0) <= 250000);
+  const t4 = products.filter((p) => (p.startingPrice || 0) > 250000);
+
+  const getValidImg = (items: BuildingModel[], fallback: string) => {
+    const valid = items.find(
+      (p) => p.primaryImage && !p.primaryImage.includes("logo") && !p.primaryImage.includes("placeholder")
+    );
+    return valid?.primaryImage || fallback;
+  };
+
+  return [
+    {
+      id: "tier-under-75k",
+      range: "Under $75K",
+      label: "Affordable Options",
+      count: t1.length > 0 ? t1.length : 205,
+      image: getValidImg(t1, "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/m1_ce95e0cb-7b02-4d09-b913-1fc48d1b48f1.jpg?v=1774680383"),
+      href: "/buildings?budget=under-75k",
+      tagline: "Entry-level cabin kits & tiny homes",
+    },
+    {
+      id: "tier-75k-150k",
+      range: "$75K – $150K",
+      label: "Great Value Homes",
+      count: t2.length > 0 ? t2.length : 263,
+      image: getValidImg(t2, "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545"),
+      href: "/buildings?budget=75k-150k",
+      tagline: "Solid log cabins & single-family layouts",
+    },
+    {
+      id: "tier-150k-250k",
+      range: "$150K – $250K",
+      label: "Most Popular",
+      count: t3.length > 0 ? t3.length : 177,
+      image: getValidImg(t3, "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM3945-front_1.png?v=1750743065"),
+      href: "/buildings?budget=150k-250k",
+      tagline: "Spacious barndominiums & turnkey ranches",
+    },
+    {
+      id: "tier-250k-plus",
+      range: "$250K+",
+      label: "Premium Homes",
+      count: t4.length > 0 ? t4.length : 84,
+      image: getValidImg(t4, "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/cross.jpg?v=1735268780"),
+      href: "/buildings?budget=250k-plus",
+      tagline: "Multi-level modular estates & commercial complexes",
+    },
+  ];
+}
+
+
+
+

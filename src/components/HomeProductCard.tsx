@@ -52,15 +52,15 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
       </div>
 
       {/* Card Body */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      <div className="p-4 flex-1 flex flex-col justify-between font-sans">
         <div>
-          <h3 className="text-base sm:text-lg font-black text-[#101114] mb-1 group-hover:text-[#d97706] transition-colors">
+          <h3 className="font-sans text-base sm:text-[17px] font-black text-[#101114] mb-1 group-hover:text-[#d97706] transition-colors line-clamp-2 min-h-[44px] sm:min-h-[50px] leading-snug">
             {product.name}
           </h3>
-          <div className="text-[13px] text-[#6b7280] font-medium">
+          <div className="font-sans text-[13px] text-[#6b7280] font-medium">
             {metaString}
           </div>
-          <div className="text-[21px] text-[#101114] font-black my-2.5 flex items-baseline gap-1">
+          <div className="font-sans text-[20px] sm:text-[22px] text-[#101114] font-black my-2.5 flex items-baseline gap-1">
             <span className="text-[#d97706]">{formattedPrice}</span>
           </div>
         </div>

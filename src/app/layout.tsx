@@ -7,7 +7,7 @@ import CartDrawer from "@/components/CartDrawer";
 import { CartProvider } from "@/context/CartContext";
 import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
 import { getPublicGlobalSettings } from "@/lib/settings";
-import { getPublicPages } from "@/lib/publicData";
+import { getPublicPages, getMegaMenuCatalog } from "@/lib/publicData";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -89,9 +89,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [settings, pages] = await Promise.all([
+  const [settings, pages, megaMenuCatalog] = await Promise.all([
     getPublicGlobalSettings(),
     getPublicPages(),
+    getMegaMenuCatalog(),
   ]);
 
   return (
@@ -106,7 +107,7 @@ export default async function RootLayout({
       <body className={`min-h-screen flex flex-col bg-white text-[#101114] antialiased selection:bg-[#fcb907] selection:text-[#101114] ${manrope.className}`}>
         <CustomerAuthProvider>
           <CartProvider>
-            <Navbar initialSettings={settings} customPages={pages} />
+            <Navbar initialSettings={settings} customPages={pages} megaMenuCatalog={megaMenuCatalog} />
             <main className="flex-1">
               {children}
             </main>
@@ -119,3 +120,4 @@ export default async function RootLayout({
     </html>
   );
 }
+
