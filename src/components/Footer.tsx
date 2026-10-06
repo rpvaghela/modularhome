@@ -485,9 +485,9 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
         {/* ========================================================= */}
         {/* BOTTOM BAR: Policies and Copyright                        */}
         {/* ========================================================= */}
-        <div className="pt-6 sm:pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#6b7280]">
+        <div className="pt-6 sm:pt-8 flex flex-col xl:flex-row items-center justify-between gap-4 text-xs text-[#6b7280]">
           {/* Copyright */}
-          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-center md:text-left">
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-center xl:text-left shrink-0">
             <span className="font-medium text-[#4b5563]">
               © {currentYear} {companyName}. All rights reserved.
             </span>
@@ -498,17 +498,17 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
           </div>
 
           {/* Policy Links */}
-          <nav aria-label="Legal & Policies" className="flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-4 gap-y-2 text-[11px] sm:text-xs text-center max-w-xl">
+          <nav aria-label="Legal & Policies" className="flex flex-wrap items-center justify-center xl:justify-end gap-x-3 sm:gap-x-4 gap-y-2 text-[11px] sm:text-xs text-center xl:text-right pr-0 md:pr-44 xl:pr-48">
             <Link
               href="/privacy-policy"
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5"
+              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5 whitespace-nowrap"
             >
               Privacy Policy
             </Link>
             <span className="text-[#d1d5db] select-none" aria-hidden="true">•</span>
             <Link
               href="/terms-of-service"
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5"
+              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5 whitespace-nowrap"
             >
               Terms of Service
             </Link>
