@@ -155,6 +155,32 @@ export function matchProductCategory(
     );
   }
 
+  if (clean.includes("park model") || clean.includes("park models")) {
+    return (
+      mCols.some((c) => c.includes("park") || c.includes("cabin")) ||
+      mName.includes("park model") ||
+      mName.includes("cabin") ||
+      mStyle.includes("cabin") ||
+      mDesc.includes("park model") ||
+      mDesc.includes("cabin")
+    );
+  }
+
+  if (clean.includes("adu") || clean.includes("granny pod")) {
+    return (
+      mName.includes("adu") ||
+      mName.includes("granny pod") ||
+      mStyle.includes("adu") ||
+      mDesc.includes("adu") ||
+      mDesc.includes("granny pod") ||
+      mCols.some((c) => c.includes("adu") || c.includes("granny-pod") || c.includes("granny pods"))
+    );
+  }
+
+  if (clean.includes("custom home") || clean.includes("custom homes") || clean === "custom") {
+    return true; // All modular homes support custom architectural layouts
+  }
+
   if (clean.includes("modular")) {
     return true; // All precision homes in catalog are modular
   }

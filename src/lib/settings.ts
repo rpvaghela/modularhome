@@ -7,6 +7,7 @@ export interface PublicGlobalSettings {
   phone: string;
   email: string;
   address: string;
+  businessHours?: string;
   socialLinks: Record<string, string>;
   announcementEnabled: boolean;
   announcementText: string;
@@ -27,6 +28,7 @@ export const DEFAULT_SETTINGS: PublicGlobalSettings = {
   phone: "+1 (812) 595-4033",
   email: "support@modularhome.com",
   address: "Factory Headquarters, IN & Nationwide Delivery",
+  businessHours: "Mon – Fri: 8:00 AM – 6:00 PM EST",
   socialLinks: {
     facebook: "https://facebook.com/modularhome",
     instagram: "https://instagram.com/modularhome",
@@ -164,6 +166,7 @@ export async function getPublicGlobalSettings(): Promise<PublicGlobalSettings> {
       phone: raw.phone || localSettings.phone,
       email: raw.email || localSettings.email,
       address: raw.address || localSettings.address,
+      businessHours: raw.business_hours || raw.businessHours || localSettings.businessHours,
       socialLinks: socialLinks || localSettings.socialLinks,
       announcementEnabled: raw.announcement_enabled ?? raw.announcementEnabled ?? localSettings.announcementEnabled,
       announcementText: raw.announcement_text || raw.announcementText || localSettings.announcementText,
