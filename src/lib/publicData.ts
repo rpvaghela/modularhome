@@ -1579,6 +1579,9 @@ export async function getMegaMenuCatalog(): Promise<MegaMenuCatalog> {
       const matched = (allProducts || []).filter(
         (p) => matchProductCategory(p, conf.categoryQuery) || matchProductCategory(p, conf.label)
       );
+
+      // Only include category in menu if it has available products
+      if (matched.length === 0) continue;
       
       // Sort so models with valid prices & images are prioritized
       const sorted = [...matched].sort((a, b) => {
@@ -1682,10 +1685,10 @@ export async function getHomeTypeCategories(): Promise<HomeTypeCategoryItem[]> {
         slug: conf.label.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
         image: normalizeImageUrl(chosenImage),
         href: conf.viewAllHref,
-        productCount: matched.length > 0 ? matched.length : (conf.label === "Commercial" ? 1 : 0),
+        productCount: matched.length,
         tagline: conf.tagline,
       };
-    });
+    }).filter((cat) => cat.productCount > 0);
 
     setCached(cacheKey, result, 60000);
     return result;

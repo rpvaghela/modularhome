@@ -147,8 +147,14 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
   const ctaLink = initialSettings?.ctaLink || "/quote";
   const socialLinks = initialSettings?.socialLinks || {};
 
-  // Row 2 is dedicated strictly to the 10 building product categories
-  const menuItems: CategoryNavOption[] = PRIMARY_MENU_OPTIONS;
+  // Display strictly the building product categories that are available with active models
+  const menuItems: CategoryNavOption[] = PRIMARY_MENU_OPTIONS.filter((item) => {
+    if (megaMenuCatalog && Object.keys(megaMenuCatalog).length > 0) {
+      const catData = megaMenuCatalog[item.label];
+      return Boolean(catData && catData.products && catData.products.length > 0);
+    }
+    return true;
+  });
 
   // Close menus on route change
   useEffect(() => {

@@ -1,32 +1,26 @@
-import "dotenv/config";
-import { supabaseAdmin } from "../../src/lib/supabase";
+import * as fs from 'fs';
+import * as path from 'path';
+import { matchProductCategory } from '../../src/utils/categoryMatching';
 
-async function checkCategories() {
-  console.log("Checking categories...");
-  const { data: pTypes, error: pErr } = await supabaseAdmin
-    .from("products")
-    .select("product_type");
+const catalogPath = path.join(__dirname, '..', '..', 'src', 'data', 'all_products_catalog.json');
+const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
 
-  if (pErr) console.error("Error fetching product_types:", pErr);
+const categories = [
+  'Modular Homes',
+  'Prefab Homes',
+  'Barndominiums',
+  'House Kits',
+  'Tiny Homes',
+  'Park Models',
+  'Cabins',
+  'ADUs & Granny Pods',
+  'A-Frames',
+  'Commercial Buildings',
+  'Commercial'
+];
 
-  const typeCounts: Record<string, number> = {};
-  pTypes?.forEach((p) => {
-    const t = (p.product_type || "").trim();
-    if (t) typeCounts[t] = (typeCounts[t] || 0) + 1;
-  });
-
-  console.log("Top 20 Product Types in DB:");
-  console.table(Object.entries(typeCounts).sort((a, b) => b[1] - a[1]).slice(0, 20));
-
-  const { data: cols, error: cErr } = await supabaseAdmin
-    .from("collections")
-    .select("id, title, handle")
-    .limit(30);
-
-  if (cErr) console.error("Error fetching collections:", cErr);
-
-  console.log("Sample Collections in DB:");
-  console.table(cols?.slice(0, 20));
-}
-
-checkCategories();
+console.log('--- Product Matching Counts per Category ---');
+categories.forEach(cat => {
+  const count = catalog.filter((p: any) => matchProductCategory(p, cat)).length;
+  console.log(`${cat}: ${count} available`);
+});

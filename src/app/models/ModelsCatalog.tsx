@@ -20,14 +20,14 @@ const DEFAULT_CATEGORY_TABS = [
   "All",
   "Modular Homes",
   "Prefab Homes",
+  "Barndominiums",
   "House Kits",
   "Tiny Homes",
-  "Cabins For Sale",
-  "Barndominium Kits",
-  "Steel Barndominium Kits",
-  "Granny Pods",
-  "Commercial Modular Buildings",
-  "A-Frame Cabins",
+  "Park Models",
+  "Cabins",
+  "ADUs & Granny Pods",
+  "A-Frames",
+  "Commercial Buildings",
 ];
 
 const ARCHITECTURAL_STYLES = [
@@ -105,7 +105,7 @@ export default function ModelsCatalog() {
           const colJson = await colRes.json();
           if (isMounted && colJson.success && Array.isArray(colJson.data) && colJson.data.length > 0) {
             const topCols = colJson.data
-              .filter((c: any) => c.productCount > 0 || /modular|prefab|cabin|barndo|kit|turnkey|affordable/i.test(c.name))
+              .filter((c: any) => c.productCount > 0)
               .slice(0, 15)
               .map((c: any) => c.name);
             const merged = Array.from(new Set(["All", ...DEFAULT_CATEGORY_TABS, ...topCols]));
