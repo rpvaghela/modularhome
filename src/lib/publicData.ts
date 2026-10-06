@@ -5,6 +5,31 @@ import { ResourceArticle } from "@/data/resources";
 import { getPublicGlobalSettings } from "./settings";
 import { matchProductCategory } from "@/utils/categoryMatching";
 
+interface CacheEntry<T> {
+  data: T;
+  expiry: number;
+}
+
+const MEMORY_CACHE = new Map<string, CacheEntry<any>>();
+
+export function getCached<T>(key: string): T | null {
+  const entry = MEMORY_CACHE.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expiry) {
+    MEMORY_CACHE.delete(key);
+    return null;
+  }
+  return entry.data as T;
+}
+
+export function setCached<T>(key: string, data: T, ttlMs = 60000): void {
+  MEMORY_CACHE.set(key, { data, expiry: Date.now() + ttlMs });
+}
+
+export function clearPublicDataCache(): void {
+  MEMORY_CACHE.clear();
+}
+
 /**
  * Normalizes image URLs ensuring proper protocol and valid fallback
  */
@@ -249,23 +274,31 @@ export async function getPublicFloorPlans(params?: {
       return [];
     }
 
-    let query = supabaseAdmin
-      .from("floor_plans")
-      .select("*")
-      .eq("status", "PUBLISHED")
-      .order("display_order", { ascending: true })
-      .order("created_at", { ascending: false });
+    const cacheKey = "all_floor_plans_raw";
+    let formattedAll = getCached<FloorPlan[]>(cacheKey);
+
+    if (!formattedAll) {
+      let query = supabaseAdmin
+        .from("floor_plans")
+        .select("*")
+        .eq("status", "PUBLISHED")
+        .order("display_order", { ascending: true })
+        .order("created_at", { ascending: false });
+
+      const { data: dbPlans, error } = await query;
+      if (error || !dbPlans || dbPlans.length === 0) {
+        return [];
+      }
+
+      formattedAll = dbPlans.map(formatFloorPlan);
+      setCached(cacheKey, formattedAll, 60000);
+    }
+
+    let formatted = [...formattedAll];
 
     if (params?.category && params.category !== "ALL") {
-      query = query.eq("category", params.category);
+      formatted = formatted.filter((p) => (p.category || "").toLowerCase() === params.category!.toLowerCase());
     }
-
-    const { data: dbPlans, error } = await query;
-    if (error || !dbPlans || dbPlans.length === 0) {
-      return [];
-    }
-
-    let formatted = dbPlans.map(formatFloorPlan);
 
     if (params?.search && params.search.trim()) {
       const q = params.search.toLowerCase().trim();
@@ -290,6 +323,10 @@ export async function getPublicFloorPlans(params?: {
 export async function getPublicFloorPlanBySlug(slug: string): Promise<FloorPlan | null> {
   try {
     if (isSupabaseConfigured()) {
+      const allPlans = await getPublicFloorPlans();
+      const match = allPlans.find((p) => p.slug === slug || p.id === slug);
+      if (match) return match;
+
       const { data: plan, error } = await supabaseAdmin
         .from("floor_plans")
         .select("*")
@@ -319,26 +356,35 @@ export async function getPublicProducts(params?: {
       return [];
     }
 
-    let query = supabaseAdmin
-      .from("products")
-      .select("*, product_variants(*), product_media(*), product_collections(collection_id, collections(id, handle, title))")
-      .or("status.eq.active,status.is.null")
-      .neq("product_type", "Furniture & Accessories")
-      .order("created_at", { ascending: false })
-      .limit(5000);
+    const cacheKey = "all_products_raw";
+    let formattedAll = getCached<BuildingModel[]>(cacheKey);
+
+    if (!formattedAll) {
+      let query = supabaseAdmin
+        .from("products")
+        .select("*, product_variants(*), product_media(*), product_collections(collection_id, collections(id, handle, title))")
+        .or("status.eq.active,status.is.null")
+        .neq("product_type", "Furniture & Accessories")
+        .order("created_at", { ascending: false })
+        .limit(5000);
+
+      const { data: dbProducts, error } = await query;
+      if (error || !dbProducts || dbProducts.length === 0) {
+        return [];
+      }
+
+      formattedAll = dbProducts
+        .map(formatProduct)
+        .filter((m) => m.category !== "Furniture & Accessories" && m.category !== "Furniture & Decor");
+
+      setCached(cacheKey, formattedAll, 60000);
+    }
+
+    let formatted = [...formattedAll];
 
     if (params?.isFeatured) {
-      query = query.eq("is_featured", true);
+      formatted = formatted.filter((m) => (m as any).isFeatured || (m.tags && m.tags.includes("Featured")));
     }
-
-    const { data: dbProducts, error } = await query;
-    if (error || !dbProducts || dbProducts.length === 0) {
-      return [];
-    }
-
-    let formatted = dbProducts
-      .map(formatProduct)
-      .filter((m) => m.category !== "Furniture & Accessories" && m.category !== "Furniture & Decor");
 
     // Filter by Category
     if (params?.category && params.category !== "All" && params.category !== "ALL") {
@@ -439,53 +485,59 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
       return [];
     }
 
-    let { data: blogPosts, error } = await supabaseAdmin
-      .from("blog_posts")
-      .select("*")
-      .order("published_at", { ascending: false });
+    const cacheKey = "all_blogs_raw";
+    let blogsList = getCached<ResourceArticle[]>(cacheKey);
 
-    if (error || !blogPosts || blogPosts.length === 0) {
-      const { data: legacy } = await supabaseAdmin
-        .from("blogs")
+    if (!blogsList) {
+      let { data: blogPosts, error } = await supabaseAdmin
+        .from("blog_posts")
         .select("*")
-        .order("created_at", { ascending: false });
-      blogPosts = legacy || [];
-    }
+        .order("published_at", { ascending: false });
 
-    let blogsList: ResourceArticle[] = [];
-    if (blogPosts && blogPosts.length > 0) {
-      for (const b of blogPosts) {
-        let formattedDate = "Recent";
-        if (b.published_at || b.created_at) {
-          try {
-            const d = new Date(b.published_at || b.created_at);
-            if (!isNaN(d.getTime())) {
-              const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-              formattedDate = `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
-            }
-          } catch {}
-        }
-        blogsList.push({
-          id: b.id,
-          title: b.title,
-          slug: b.handle || b.slug || b.id,
-          excerpt: b.excerpt || b.seo_description || b.meta_description || "",
-          content: typeof b.body_html === "string" ? [b.body_html] : (Array.isArray(b.content) ? b.content : (b.content ? [b.content] : [])),
-          category: b.blog_title || b.category || "Building Guides",
-          readTime: b.read_time || "5 min read",
-          date: formattedDate,
-          image: resolveBlogImage(b),
-          author: b.author || b.author_name || "ModularHome Engineering Team",
-          embeddedVideoUrl: b.embedded_video_url,
-          seoTitle: b.seo_title || `${b.title} | ModularHome.com Guide`,
-          metaDescription: b.seo_description || b.meta_description || b.excerpt,
-          tags: Array.isArray(b.tags) ? b.tags : [],
-          keyTakeaways: Array.isArray(b.key_takeaways) ? b.key_takeaways : undefined,
-        });
+      if (error || !blogPosts || blogPosts.length === 0) {
+        const { data: legacy } = await supabaseAdmin
+          .from("blogs")
+          .select("*")
+          .order("created_at", { ascending: false });
+        blogPosts = legacy || [];
       }
+
+      blogsList = [];
+      if (blogPosts && blogPosts.length > 0) {
+        for (const b of blogPosts) {
+          let formattedDate = "Recent";
+          if (b.published_at || b.created_at) {
+            try {
+              const d = new Date(b.published_at || b.created_at);
+              if (!isNaN(d.getTime())) {
+                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                formattedDate = `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+              }
+            } catch {}
+          }
+          blogsList.push({
+            id: b.id,
+            title: b.title,
+            slug: b.handle || b.slug || b.id,
+            excerpt: b.excerpt || b.seo_description || b.meta_description || "",
+            content: typeof b.body_html === "string" ? [b.body_html] : (Array.isArray(b.content) ? b.content : (b.content ? [b.content] : [])),
+            category: b.blog_title || b.category || "Building Guides",
+            readTime: b.read_time || "5 min read",
+            date: formattedDate,
+            image: resolveBlogImage(b),
+            author: b.author || b.author_name || "ModularHome Engineering Team",
+            embeddedVideoUrl: b.embedded_video_url,
+            seoTitle: b.seo_title || `${b.title} | ModularHome.com Guide`,
+            metaDescription: b.seo_description || b.meta_description || b.excerpt,
+            tags: Array.isArray(b.tags) ? b.tags : [],
+            keyTakeaways: Array.isArray(b.key_takeaways) ? b.key_takeaways : undefined,
+          });
+        }
+      }
+      setCached(cacheKey, blogsList, 60000);
     }
 
-    let filtered = blogsList;
+    let filtered = [...blogsList];
     if (params?.category && params.category !== "ALL" && params.category !== "All") {
       filtered = filtered.filter(
         (a) => (a.category || "").toLowerCase() === params.category!.toLowerCase()
@@ -802,42 +854,51 @@ export async function getPublicCollections(): Promise<PublicCollection[]> {
       return [];
     }
 
-    const { data: dbCollections, error } = await supabaseAdmin
-      .from("collections")
-      .select(`
-        *,
-        product_collections (
-          product_id
-        )
-      `)
-      .eq("published", true)
-      .order("title", { ascending: true });
+    const cacheKey = "all_collections_raw";
+    let collectionsList = getCached<PublicCollection[]>(cacheKey);
 
-    if (error || !dbCollections || dbCollections.length === 0) {
-      return [];
+    if (!collectionsList) {
+      const { data: dbCollections, error } = await supabaseAdmin
+        .from("collections")
+        .select(`
+          *,
+          product_collections (
+            product_id
+          )
+        `)
+        .eq("published", true)
+        .order("title", { ascending: true });
+
+      if (error || !dbCollections || dbCollections.length === 0) {
+        return [];
+      }
+
+      collectionsList = dbCollections.map((col: any) => {
+        const pIds = col.product_collections ? col.product_collections.map((pc: any) => pc.product_id) : [];
+        const title = col.title || col.name || "";
+        const handle = col.handle || col.slug || "";
+        return {
+          id: col.id,
+          name: title,
+          slug: handle,
+          tagline: col.tagline || `Engineered ${title}`,
+          description: col.description_html || col.description || "",
+          image: normalizeImageUrl(col.image, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"),
+          bannerImage: normalizeImageUrl(col.banner_image || col.image, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"),
+          isFeatured: Boolean(col.is_featured),
+          status: col.published !== false ? "PUBLISHED" : "DRAFT",
+          displayOrder: Number(col.display_order) || 0,
+          seoTitle: col.seo_title || `${title} | ModularHome`,
+          metaDescription: col.seo_description || col.meta_description || (col.description_html ? col.description_html.replace(/<[^>]*>?/gm, "").slice(0, 160) : ""),
+          productCount: pIds.length,
+          productIds: pIds,
+        };
+      });
+
+      setCached(cacheKey, collectionsList, 60000);
     }
 
-    return dbCollections.map((col: any) => {
-      const pIds = col.product_collections ? col.product_collections.map((pc: any) => pc.product_id) : [];
-      const title = col.title || col.name || "";
-      const handle = col.handle || col.slug || "";
-      return {
-        id: col.id,
-        name: title,
-        slug: handle,
-        tagline: col.tagline || `Engineered ${title}`,
-        description: col.description_html || col.description || "",
-        image: normalizeImageUrl(col.image, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"),
-        bannerImage: normalizeImageUrl(col.banner_image || col.image, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"),
-        isFeatured: Boolean(col.is_featured),
-        status: col.published !== false ? "PUBLISHED" : "DRAFT",
-        displayOrder: Number(col.display_order) || 0,
-        seoTitle: col.seo_title || `${title} | ModularHome`,
-        metaDescription: col.seo_description || col.meta_description || (col.description_html ? col.description_html.replace(/<[^>]*>?/gm, "").slice(0, 160) : ""),
-        productCount: pIds.length,
-        productIds: pIds,
-      };
-    });
+    return collectionsList;
   } catch (error) {
     console.error("Error fetching public collections:", error);
     return [];
@@ -871,28 +932,36 @@ export async function getPublicCollectionBySlug(slug: string): Promise<PublicCol
 export async function getPublicReviews(): Promise<PublicReview[]> {
   try {
     if (isSupabaseConfigured()) {
-      const { data, error } = await supabaseAdmin
-        .from("reviews")
-        .select("*")
-        .eq("status", "PUBLISHED")
-        .order("display_order", { ascending: true })
-        .order("created_at", { ascending: false });
+      const cacheKey = "all_reviews_raw";
+      let cachedReviews = getCached<PublicReview[]>(cacheKey);
 
-      if (!error && data && data.length > 0) {
-        return data.map((r: any) => ({
-          id: r.id,
-          customerName: r.customer_name,
-          location: r.location || "USA",
-          rating: Number(r.rating) || 5,
-          reviewText: r.review_text,
-          projectTitle: r.project_title || "Modular Home Build",
-          imageUrl: r.image_url,
-          status: r.status,
-          isFeatured: Boolean(r.is_featured),
-          displayOrder: Number(r.display_order) || 0,
-          reviewDate: r.review_date || r.created_at,
-        }));
+      if (!cachedReviews) {
+        const { data, error } = await supabaseAdmin
+          .from("reviews")
+          .select("*")
+          .eq("status", "PUBLISHED")
+          .order("display_order", { ascending: true })
+          .order("created_at", { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          cachedReviews = data.map((r: any) => ({
+            id: r.id,
+            customerName: r.customer_name,
+            location: r.location || "USA",
+            rating: Number(r.rating) || 5,
+            reviewText: r.review_text,
+            projectTitle: r.project_title || "Modular Home Build",
+            imageUrl: r.image_url,
+            status: r.status,
+            isFeatured: Boolean(r.is_featured),
+            displayOrder: Number(r.display_order) || 0,
+            reviewDate: r.review_date || r.created_at,
+          }));
+          setCached(cacheKey, cachedReviews, 60000);
+        }
       }
+
+      if (cachedReviews) return cachedReviews;
     }
   } catch (error) {
     console.warn("Supabase reviews fetch error:", error);
@@ -906,28 +975,36 @@ export async function getPublicReviews(): Promise<PublicReview[]> {
 export async function getPublicFaqs(category?: string): Promise<PublicFaq[]> {
   try {
     if (isSupabaseConfigured()) {
-      let query = supabaseAdmin
-        .from("faqs")
-        .select("*")
-        .eq("status", "PUBLISHED")
-        .order("display_order", { ascending: true });
+      const cacheKey = `faqs_${category || "all"}`;
+      let cachedFaqs = getCached<PublicFaq[]>(cacheKey);
 
-      if (category && category !== "ALL") {
-        query = query.eq("category", category);
+      if (!cachedFaqs) {
+        let query = supabaseAdmin
+          .from("faqs")
+          .select("*")
+          .eq("status", "PUBLISHED")
+          .order("display_order", { ascending: true });
+
+        if (category && category !== "ALL") {
+          query = query.eq("category", category);
+        }
+
+        const { data, error } = await query;
+        if (!error && data && data.length > 0) {
+          cachedFaqs = data.map((f: any) => ({
+            id: f.id,
+            question: f.question,
+            answer: f.answer,
+            category: f.category || "General",
+            pageSlug: f.page_slug || "all",
+            status: f.status,
+            displayOrder: Number(f.display_order) || 0,
+          }));
+          setCached(cacheKey, cachedFaqs, 60000);
+        }
       }
 
-      const { data, error } = await query;
-      if (!error && data && data.length > 0) {
-        return data.map((f: any) => ({
-          id: f.id,
-          question: f.question,
-          answer: f.answer,
-          category: f.category || "General",
-          pageSlug: f.page_slug || "all",
-          status: f.status,
-          displayOrder: Number(f.display_order) || 0,
-        }));
-      }
+      if (cachedFaqs) return cachedFaqs;
     }
   } catch (error) {
     console.warn("Supabase FAQs fetch error:", error);
@@ -1038,6 +1115,10 @@ export const MEGA_MENU_CATEGORIES_CONFIG = [
  * Fetches structured mega menu catalog data directly from Supabase
  */
 export async function getMegaMenuCatalog(): Promise<MegaMenuCatalog> {
+  const cacheKey = "mega_menu_catalog";
+  const cached = getCached<MegaMenuCatalog>(cacheKey);
+  if (cached) return cached;
+
   const catalog: MegaMenuCatalog = {};
 
   try {
@@ -1095,6 +1176,7 @@ export async function getMegaMenuCatalog(): Promise<MegaMenuCatalog> {
         featuredProduct: featured,
       };
     }
+    setCached(cacheKey, catalog, 60000);
   } catch (error) {
     console.error("Error building mega menu catalog:", error);
   }
@@ -1117,6 +1199,10 @@ export interface HomeTypeCategoryItem {
  */
 export async function getHomeTypeCategories(): Promise<HomeTypeCategoryItem[]> {
   try {
+    const cacheKey = "home_type_categories_raw";
+    const cached = getCached<HomeTypeCategoryItem[]>(cacheKey);
+    if (cached) return cached;
+
     const allProducts = await getPublicProducts();
 
     // Curated high-res representative product photos directly from our database products
@@ -1133,7 +1219,7 @@ export async function getHomeTypeCategories(): Promise<HomeTypeCategoryItem[]> {
       "Commercial": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/442435176_1117036319546606_7478160302982824370_n_2a3e20a5-fc3f-46af-9aa2-8da3022fbe87.jpg?v=1736129729",
     };
 
-    return MEGA_MENU_CATEGORIES_CONFIG.map((conf, index) => {
+    const result = MEGA_MENU_CATEGORIES_CONFIG.map((conf, index) => {
       const matched = (allProducts || []).filter(
         (p) => matchProductCategory(p, conf.categoryQuery) || matchProductCategory(p, conf.label)
       );
@@ -1150,6 +1236,9 @@ export async function getHomeTypeCategories(): Promise<HomeTypeCategoryItem[]> {
         tagline: conf.tagline,
       };
     });
+
+    setCached(cacheKey, result, 60000);
+    return result;
   } catch (error) {
     console.error("Error building home type categories:", error);
     return [];

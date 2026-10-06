@@ -8,7 +8,7 @@ interface HomeArticlesSectionProps {
 }
 
 export default function HomeArticlesSection({ articles = [] }: HomeArticlesSectionProps) {
-  const displayArticles = articles.slice(0, 3);
+  const displayArticles = articles.slice(0, 4);
 
   if (displayArticles.length === 0) {
     return null;
@@ -39,8 +39,8 @@ export default function HomeArticlesSection({ articles = [] }: HomeArticlesSecti
           </Link>
         </div>
 
-        {/* 3 Featured Article Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 font-sans">
+        {/* 4 Featured Article Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 font-sans">
           {displayArticles.map((art) => (
             <Link
               key={art.id || art.slug}
@@ -48,12 +48,12 @@ export default function HomeArticlesSection({ articles = [] }: HomeArticlesSecti
               className="group rounded-2xl bg-white border border-gray-200/90 hover:border-[#fcb907] overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.98] transition-all duration-300 flex flex-col justify-between block"
             >
               <div>
-                <div className="relative h-[180px] sm:h-[200px] w-full overflow-hidden bg-gray-100">
+                <div className="relative h-[180px] sm:h-[190px] w-full overflow-hidden bg-gray-100">
                   <Image
                     src={art.image || "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345"}
                     alt={art.title}
                     fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover transition-transform duration-700 ease-out group-hover:scale-108"
                   />
                   {art.category && (

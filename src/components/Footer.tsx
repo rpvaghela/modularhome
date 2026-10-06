@@ -66,7 +66,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_repeat(3,1fr)] gap-6 sm:gap-10 pb-6 sm:pb-8 text-center sm:text-left">
           {/* Column 1: Brand */}
           <div className="space-y-2.5 sm:space-y-3">
-            <Link href="/" className="inline-flex items-center justify-center sm:justify-start">
+            <Link href="/" prefetch={true} className="inline-flex items-center justify-center sm:justify-start">
               <Image
                 src={logoUrl}
                 alt={companyName}

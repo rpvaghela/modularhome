@@ -19,7 +19,7 @@ import { getPublicProducts, getPublicReviews, getPublicSettings, getPublicCollec
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPublicPageBySlug("home");
@@ -207,7 +207,7 @@ export default async function HomePage() {
       <TrustBar />
 
       {/* 3. FIND YOUR PERFECT HOME (Search & Filter Section) */}
-      <HomeSearchBox />
+      <HomeSearchBox categories={homeCategories} totalModelsCount={products?.length} />
 
       {/* 4. SHOP BY HOME TYPE (10 Category 5-Column Grid) */}
       <CategoryGrid categories={homeCategories} collections={collections} />

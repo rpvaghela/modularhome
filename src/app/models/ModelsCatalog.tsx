@@ -64,18 +64,24 @@ export default function ModelsCatalog() {
   
   const initialCategory = searchParams.get("category") || "All";
   const initialSearch = searchParams.get("search") || "";
+  const initialBudget = searchParams.get("budget") || "all";
+  const initialBeds = searchParams.get("beds") || searchParams.get("bedrooms") || "all";
+  const initialBaths = searchParams.get("baths") || searchParams.get("bathrooms") || "all";
+  const initialStyle = searchParams.get("style") || "All";
+  const initialLocation = searchParams.get("location") || "";
 
   const [loading, setLoading] = useState(true);
   const [models, setModels] = useState<BuildingModel[]>([]);
   const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORY_TABS);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
-  const [selectedStyle, setSelectedStyle] = useState<string>("All");
+  const [selectedStyle, setSelectedStyle] = useState<string>(initialStyle);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [bedroomFilter, setBedroomFilter] = useState<string>("all");
-  const [bathroomFilter, setBathroomFilter] = useState<string>("all");
+  const [bedroomFilter, setBedroomFilter] = useState<string>(initialBeds);
+  const [bathroomFilter, setBathroomFilter] = useState<string>(initialBaths);
   const [storiesFilter, setStoriesFilter] = useState<string>("all");
-  const [maxPrice, setMaxPrice] = useState<number>(350000);
+  const [budgetFilter, setBudgetFilter] = useState<string>(initialBudget);
   const [minSqft, setMinSqft] = useState<number>(0);
+  const [locationFilter, setLocationFilter] = useState<string>(initialLocation);
 
   // Load models and categories
   useEffect(() => {
@@ -124,15 +130,25 @@ export default function ModelsCatalog() {
   // Sync state with URL search params
   useEffect(() => {
     const cat = searchParams.get("category");
-    if (cat) {
-      setSelectedCategory(cat);
-    } else {
-      setSelectedCategory("All");
-    }
+    setSelectedCategory(cat || "All");
+
     const search = searchParams.get("search");
-    if (search) {
-      setSearchQuery(search);
-    }
+    setSearchQuery(search || "");
+
+    const budget = searchParams.get("budget");
+    setBudgetFilter(budget || "all");
+
+    const beds = searchParams.get("beds") || searchParams.get("bedrooms");
+    setBedroomFilter(beds || "all");
+
+    const baths = searchParams.get("baths") || searchParams.get("bathrooms");
+    setBathroomFilter(baths || "all");
+
+    const style = searchParams.get("style");
+    setSelectedStyle(style || "All");
+
+    const loc = searchParams.get("location");
+    setLocationFilter(loc || "");
   }, [searchParams]);
 
   // Handle category tab change with URL update
@@ -179,18 +195,26 @@ export default function ModelsCatalog() {
       }
 
       // 4. Bedrooms Filter
-      if (bedroomFilter !== "all") {
+      if (bedroomFilter !== "all" && bedroomFilter !== "Any") {
         const requiredBeds = parseInt(bedroomFilter, 10);
-        if (model.bedrooms < requiredBeds) {
-          return false;
+        if (!isNaN(requiredBeds)) {
+          if (requiredBeds === 4) {
+            if ((model.bedrooms || 0) < 4) return false;
+          } else {
+            if ((model.bedrooms || 0) !== requiredBeds && !(requiredBeds === 1 && (model.bedrooms || 0) === 0)) {
+              return false;
+            }
+          }
         }
       }
 
       // 5. Bathrooms Filter
-      if (bathroomFilter !== "all") {
+      if (bathroomFilter !== "all" && bathroomFilter !== "Any") {
         const requiredBaths = parseInt(bathroomFilter, 10);
-        if (model.bathrooms < requiredBaths) {
-          return false;
+        if (!isNaN(requiredBaths)) {
+          if ((model.bathrooms || 0) < requiredBaths) {
+            return false;
+          }
         }
       }
 
@@ -202,9 +226,20 @@ export default function ModelsCatalog() {
         }
       }
 
-      // 7. Max Price Filter
-      if (model.startingPrice && model.startingPrice > maxPrice) {
-        return false;
+      // 7. Budget / Price Tier Filter
+      if (budgetFilter && budgetFilter !== "all" && budgetFilter !== "Any Budget") {
+        const price = model.startingPrice || 0;
+        if (budgetFilter === "under-75k") {
+          if (price <= 0 || price >= 75000) return false;
+        } else if (budgetFilter === "75k-150k") {
+          if (price < 75000 || price > 150000) return false;
+        } else if (budgetFilter === "150k-250k") {
+          if (price < 150000 || price > 250000) return false;
+        } else if (budgetFilter === "250k-plus") {
+          if (price < 250000) return false;
+        } else if (!isNaN(Number(budgetFilter))) {
+          if (price > Number(budgetFilter)) return false;
+        }
       }
 
       // 8. Min Sqft Filter
@@ -214,7 +249,7 @@ export default function ModelsCatalog() {
 
       return true;
     });
-  }, [models, selectedCategory, selectedStyle, searchQuery, bedroomFilter, bathroomFilter, storiesFilter, maxPrice, minSqft]);
+  }, [models, selectedCategory, selectedStyle, searchQuery, bedroomFilter, bathroomFilter, storiesFilter, budgetFilter, minSqft]);
 
   const handleResetFilters = () => {
     handleCategoryChange("All");
@@ -223,19 +258,23 @@ export default function ModelsCatalog() {
     setBedroomFilter("all");
     setBathroomFilter("all");
     setStoriesFilter("all");
-    setMaxPrice(350000);
+    setBudgetFilter("all");
     setMinSqft(0);
+    setLocationFilter("");
+    const newUrl = pathname;
+    window.history.replaceState(null, "", newUrl);
   };
 
   const isFiltered =
     selectedCategory !== "All" ||
     selectedStyle !== "All" ||
     searchQuery !== "" ||
-    bedroomFilter !== "all" ||
-    bathroomFilter !== "all" ||
+    (bedroomFilter !== "all" && bedroomFilter !== "Any") ||
+    (bathroomFilter !== "all" && bathroomFilter !== "Any") ||
     storiesFilter !== "all" ||
-    maxPrice < 350000 ||
-    minSqft > 0;
+    (budgetFilter !== "all" && budgetFilter !== "Any Budget") ||
+    minSqft > 0 ||
+    locationFilter !== "";
 
   return (
     <div className="min-h-screen bg-white pt-24 pb-20 text-[#101114]">
@@ -336,7 +375,7 @@ export default function ModelsCatalog() {
                 <option value="1">1 Bedroom</option>
                 <option value="2">2 Bedrooms</option>
                 <option value="3">3 Bedrooms</option>
-                <option value="4+">4+ Bedrooms</option>
+                <option value="4">4+ Bedrooms</option>
               </select>
             </div>
 
@@ -351,7 +390,7 @@ export default function ModelsCatalog() {
                 <option value="all">Any Baths</option>
                 <option value="1">1 Bath</option>
                 <option value="2">2 Baths</option>
-                <option value="3+">3+ Baths</option>
+                <option value="3">3+ Baths</option>
               </select>
             </div>
 
@@ -385,19 +424,22 @@ export default function ModelsCatalog() {
               </select>
             </div>
 
-            {/* Max Budget Filter */}
+            {/* Budget Tier / Max Budget Filter */}
             <div className="flex flex-col bg-white border border-[#dfe2e7] px-3 py-2 rounded-[9px]">
-              <span className="text-[10px] text-[#6b7280] uppercase font-bold">Max Budget</span>
+              <span className="text-[10px] text-[#6b7280] uppercase font-bold">Budget</span>
               <select
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
+                value={budgetFilter}
+                onChange={(e) => setBudgetFilter(e.target.value)}
                 className="bg-transparent text-xs text-[#101114] focus:outline-none font-bold cursor-pointer pt-0.5"
               >
-                <option value={350000}>All Budgets</option>
-                <option value={300000}>Under $300k</option>
-                <option value={200000}>Under $200k</option>
-                <option value={150000}>Under $150k</option>
-                <option value={100000}>Under $100k</option>
+                <option value="all">All Budgets</option>
+                <option value="under-75k">Under $75K</option>
+                <option value="75k-150k">$75K – $150K</option>
+                <option value="150k-250k">$150K – $250K</option>
+                <option value="250k-plus">$250K+</option>
+                <option value="100000">Under $100k</option>
+                <option value="200000">Under $200k</option>
+                <option value="300000">Under $300k</option>
               </select>
             </div>
           </div>

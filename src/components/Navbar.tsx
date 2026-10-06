@@ -418,7 +418,12 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                 {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
               </button>
 
-              <Link href="/" className="flex items-center group select-none shrink-0 py-0.5">
+              <Link
+                href="/"
+                prefetch={true}
+                onMouseEnter={() => router.prefetch("/")}
+                className="flex items-center group select-none shrink-0 py-0.5"
+              >
                 <Image
                   src={logoUrl}
                   alt={initialSettings?.companyName || "ModularHome.com"}
@@ -959,13 +964,20 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
           <div className="w-[88%] max-w-sm bg-white h-full shadow-2xl flex flex-col p-5 overflow-y-auto animate-in slide-in-from-left duration-200">
             {/* Drawer Header */}
             <div className="flex items-center justify-between pb-4 border-b border-[#e7e9ee]">
-              <Image
-                src={logoUrl}
-                alt="ModularHome.com"
-                width={240}
-                height={52}
-                className="h-9 sm:h-10 w-auto object-contain"
-              />
+              <Link
+                href="/"
+                prefetch={true}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center"
+              >
+                <Image
+                  src={logoUrl}
+                  alt="ModularHome.com"
+                  width={240}
+                  height={52}
+                  className="h-9 sm:h-10 w-auto object-contain"
+                />
+              </Link>
               <button
                 onClick={() => setMobileMenuOpen(false)}
                 className="p-1.5 text-gray-500 hover:text-[#101114] rounded-lg hover:bg-gray-100 cursor-pointer"
