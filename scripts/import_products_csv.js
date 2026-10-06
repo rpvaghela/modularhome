@@ -49,34 +49,34 @@ async function processProductsCsv() {
 
   // Helper to determine product category
   function determineCategory(type, title, tags, collections) {
-    const text = `${type || ''} ${title || ''} ${tags || ''} ${collections || ''}`.toLowerCase();
+    const mainText = `${type || ''} ${title || ''}`.toLowerCase();
     
-    if (text.includes('park model') || text.includes('park-model') || text.includes('park_model') || text.includes('rv park model')) {
+    if (mainText.includes('park model') || mainText.includes('rv park model')) {
       return 'Park Models';
     }
-    if (text.includes('barndominium') || text.includes('barndo') || text.includes('shop house') || text.includes('shop home')) {
+    if (mainText.includes('barndominium') || mainText.includes('barndo') || mainText.includes('shop house') || mainText.includes('shop home')) {
       return 'Barndominiums';
     }
-    if (text.includes('a-frame') || text.includes('aframe')) {
+    if (mainText.includes('a-frame') || mainText.includes('aframe')) {
       return 'A-Frames';
     }
-    if (text.includes('granny pod') || text.includes('adu') || text.includes('secondary dwelling') || text.includes('backyard suite')) {
+    if (mainText.includes('granny pod') || mainText.includes('adu') || mainText.includes('secondary dwelling') || mainText.includes('backyard suite')) {
       return 'ADUs & Granny Pods';
     }
-    if (text.includes('tiny home') || text.includes('micro home') || text.includes('tiny house')) {
+    if (mainText.includes('tiny home') || mainText.includes('micro home') || mainText.includes('tiny house') || mainText.includes('tiny tim')) {
       return 'Tiny Homes';
     }
-    if (text.includes('house kit') || text.includes('sip panel') || text.includes('panelized sip') || text.includes('home kit')) {
-      return 'House Kits';
-    }
-    if (text.includes('cabin') || text.includes('log home') || text.includes('timber frame') || text.includes('rustic')) {
-      return 'Cabins';
-    }
-    if (text.includes('commercial') || text.includes('retail') || text.includes('office')) {
+    if (mainText.includes('commercial building') || mainText.includes('commercial warehouse') || mainText.includes('retail office')) {
       return 'Commercial';
     }
-    if (text.includes('prefab') || text.includes('panelized')) {
-      return 'Prefab Homes';
+    if (mainText.includes('house kit') || mainText.includes('metal house kit') || mainText.includes('steel house kit') || mainText.includes('home kit') || mainText.includes('sip panel')) {
+      return 'House Kits';
+    }
+    if (mainText.includes('cabin') || mainText.includes('log home') || mainText.includes('timber frame') || mainText.includes('rustic') || mainText.includes('modern cabin')) {
+      return 'Cabins';
+    }
+    if (mainText.includes('modular') || mainText.includes('prefab') || mainText.includes('panelized') || mainText.includes('rancher') || mainText.includes('craftsman') || mainText.includes('bungalow') || mainText.includes('chalet') || mainText.includes('cottage')) {
+      return 'Modular Homes';
     }
     return 'Modular Homes';
   }
@@ -237,7 +237,15 @@ async function processProductsCsv() {
   }
 
   // Process and finalize all products
-  const allProducts = Array.from(productsMap.values()).map(p => {
+  const allProducts = Array.from(productsMap.values())
+    .filter(p => {
+      const lowerName = (p.name || '').toLowerCase();
+      if (lowerName.includes('greeting card') || lowerName.includes('end table') || lowerName.includes('coffee table')) {
+        return false;
+      }
+      return true;
+    })
+    .map(p => {
     // Specific curated overrides for sample products
     if (p.slug === 'azteca-modern-cabin-14-by-40' || p.slug.includes('azteca')) {
       p.sqft = 560;
