@@ -1602,7 +1602,7 @@ export async function getMegaMenuCatalog(): Promise<MegaMenuCatalog> {
         badge: idx === 0 ? "Featured" : idx === 1 ? "Popular" : undefined,
       }));
 
-      const featuredModel = sorted.find((p) => p.primaryImage && !p.primaryImage.includes("logo")) || sorted[0] || allProducts[0];
+      const featuredModel = sorted.find((p) => p.primaryImage && !p.primaryImage.includes("logo")) || sorted[0];
       const featured: MegaMenuItem | undefined = featuredModel ? {
         id: featuredModel.id,
         name: featuredModel.name,
