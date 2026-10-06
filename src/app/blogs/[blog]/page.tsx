@@ -51,15 +51,19 @@ export default async function BlogCategoryPage({ params }: BlogCategoryPageProps
   const allArticles = await getPublicBlogs();
   const formattedBlogName = blog.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
-  // Match articles in this category or blog handle
-  const articles = allArticles.filter(
-    (a) =>
-      a.category.toLowerCase().replace(/[^a-z0-9]+/g, "-") === blog.toLowerCase() ||
-      a.category.toLowerCase().includes(blog.toLowerCase().replace(/-/g, " ")) ||
-      blog.toLowerCase().includes(a.category.toLowerCase().replace(/[^a-z0-9]+/g, "-")) ||
-      blog.toLowerCase() === "news" ||
-      blog.toLowerCase() === "all"
-  );
+  const cleanBlog = blog.toLowerCase().trim();
+  const articles = allArticles.filter((a) => {
+    if (cleanBlog === "all" || cleanBlog === "modular-homes" || cleanBlog === "news") return true;
+    const catSlug = (a.category || "").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const catText = (a.category || "").toLowerCase();
+    const cleanBlogText = cleanBlog.replace(/-/g, " ");
+    return (
+      catSlug === cleanBlog ||
+      catText.includes(cleanBlogText) ||
+      cleanBlogText.includes(catText) ||
+      (a.tags && a.tags.some((t: string) => t.toLowerCase().includes(cleanBlogText)))
+    );
+  });
 
   const canonical = getCanonicalUrl(`/blogs/${blog}`);
 

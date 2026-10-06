@@ -68,19 +68,35 @@ export default function ModelDetailClient({
   const specsList = Array.isArray(model?.specs) ? model.specs : [];
   const optionsList = Array.isArray(model?.customizableOptions) ? model.customizableOptions : [];
   
-  const rawFloorPlan = model?.floorPlanImage || model?.floorPlan;
+  const rawFloorPlan = (model?.floorPlanImage || model?.floorPlan || "").trim();
   
-  // Real floor plan detection: must not be a placeholder or duplicate of the exterior photo
+  const isBlueprintKeyword = (url?: string | null) => {
+    if (!url) return false;
+    const l = url.toLowerCase();
+    return (
+      l.includes("floor-plan") ||
+      l.includes("floorplan") ||
+      l.includes("blueprint") ||
+      l.includes("schematic") ||
+      l.includes("cad") ||
+      l.includes("layout") ||
+      l.includes("drawing") ||
+      l.includes("dimension")
+    );
+  };
+
+  // Real floor plan detection: must not be a placeholder, gallery photo, or exterior photo
   const hasRealFloorPlan = Boolean(
-    rawFloorPlan && 
+    rawFloorPlan &&
     !rawFloorPlan.includes("newmodularlogo") && 
     !rawFloorPlan.includes("finallogo") &&
     rawFloorPlan !== rawPrimary &&
     rawFloorPlan !== primaryImg &&
-    !galleryList.includes(rawFloorPlan)
+    !galleryList.includes(rawFloorPlan) &&
+    isBlueprintKeyword(rawFloorPlan)
   );
 
-  const floorPlanImg = hasRealFloorPlan ? rawFloorPlan! : "";
+  const floorPlanImg = hasRealFloorPlan ? rawFloorPlan : "";
 
   // Base price dynamically derives from selected variant or startingPrice
   const baseStartingPrice = Number(model?.startingPrice) || 0;

@@ -681,70 +681,80 @@ function resolveBlogImage(b: any): string {
 }
 
 /**
- * Fetches published articles / blogs directly from Supabase
+ * Fetches published articles / blogs directly from Supabase or verified local store
  */
 export async function getPublicBlogs(params?: { category?: string; search?: string }): Promise<ResourceArticle[]> {
   try {
-    if (!isSupabaseConfigured()) {
-      return [];
-    }
-
     const cacheKey = "all_blogs_raw";
     let blogsList = getCached<ResourceArticle[]>(cacheKey);
 
-    if (!blogsList) {
-      let { data: blogPosts, error } = await supabaseAdmin
-        .from("blog_posts")
-        .select("*")
-        .order("published_at", { ascending: false });
-
-      if (error || !blogPosts || blogPosts.length === 0) {
-        const { data: legacy } = await supabaseAdmin
-          .from("blogs")
-          .select("*")
-          .order("created_at", { ascending: false });
-        blogPosts = legacy || [];
-      }
-
+    if (!blogsList || blogsList.length === 0) {
       blogsList = [];
-      if (blogPosts && blogPosts.length > 0) {
-        for (const b of blogPosts) {
-          let formattedDate = "Recent";
-          if (b.published_at || b.created_at) {
-            try {
-              const d = new Date(b.published_at || b.created_at);
-              if (!isNaN(d.getTime())) {
-                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                formattedDate = `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+
+      if (isSupabaseConfigured()) {
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 800);
+
+          let { data: blogPosts, error } = await supabaseAdmin
+            .from("blog_posts")
+            .select("*")
+            .abortSignal(controller.signal)
+            .order("published_at", { ascending: false });
+
+          clearTimeout(timer);
+
+          if (!error && blogPosts && blogPosts.length > 0) {
+            for (const b of blogPosts) {
+              let formattedDate = "Recent";
+              if (b.published_at || b.created_at) {
+                try {
+                  const d = new Date(b.published_at || b.created_at);
+                  if (!isNaN(d.getTime())) {
+                    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    formattedDate = `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+                  }
+                } catch {}
               }
-            } catch {}
+              blogsList.push({
+                id: b.id,
+                title: b.title,
+                slug: b.handle || b.slug || b.id,
+                excerpt: b.excerpt || b.seo_description || b.meta_description || "",
+                content: typeof b.body_html === "string" ? [b.body_html] : (Array.isArray(b.content) ? b.content : (b.content ? [b.content] : [])),
+                category: b.blog_title || b.category || "Building Guides",
+                readTime: b.read_time || "5 min read",
+                date: formattedDate,
+                image: resolveBlogImage(b),
+                author: b.author || b.author_name || "ModularHome Engineering Team",
+                embeddedVideoUrl: b.embedded_video_url,
+                seoTitle: b.seo_title || `${b.title} | ModularHome.com Guide`,
+                metaDescription: b.seo_description || b.meta_description || b.excerpt,
+                tags: Array.isArray(b.tags) ? b.tags : [],
+                keyTakeaways: Array.isArray(b.key_takeaways) ? b.key_takeaways : undefined,
+              });
+            }
           }
-          blogsList.push({
-            id: b.id,
-            title: b.title,
-            slug: b.handle || b.slug || b.id,
-            excerpt: b.excerpt || b.seo_description || b.meta_description || "",
-            content: typeof b.body_html === "string" ? [b.body_html] : (Array.isArray(b.content) ? b.content : (b.content ? [b.content] : [])),
-            category: b.blog_title || b.category || "Building Guides",
-            readTime: b.read_time || "5 min read",
-            date: formattedDate,
-            image: resolveBlogImage(b),
-            author: b.author || b.author_name || "ModularHome Engineering Team",
-            embeddedVideoUrl: b.embedded_video_url,
-            seoTitle: b.seo_title || `${b.title} | ModularHome.com Guide`,
-            metaDescription: b.seo_description || b.meta_description || b.excerpt,
-            tags: Array.isArray(b.tags) ? b.tags : [],
-            keyTakeaways: Array.isArray(b.key_takeaways) ? b.key_takeaways : undefined,
-          });
+        } catch (e) {
+          // ignore
         }
       }
+
+      if (blogsList.length === 0) {
+        blogsList = [...RESOURCE_ARTICLES];
+      }
+
       setCached(cacheKey, blogsList, 60000);
     }
 
     let filtered = [...blogsList];
     if (params?.category && params.category !== "ALL" && params.category !== "All") {
+      const cleanCat = params.category.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       filtered = filtered.filter(
-        (a) => (a.category || "").toLowerCase() === params.category!.toLowerCase()
+        (a) =>
+          (a.category || "").toLowerCase().replace(/[^a-z0-9]+/g, "-") === cleanCat ||
+          (a.category || "").toLowerCase().includes(params.category!.toLowerCase()) ||
+          params.category!.toLowerCase().includes((a.category || "").toLowerCase())
       );
     }
     if (params?.search && params.search.trim()) {
@@ -760,7 +770,7 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
     return filtered;
   } catch (e) {
     console.error("Error fetching public blogs:", e);
-    return [];
+    return [...RESOURCE_ARTICLES];
   }
 }
 
