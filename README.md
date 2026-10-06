@@ -1,951 +1,1079 @@
-You are the lead engineer responsible for completing the ModularHome Shopify → Next.js SEO-preserving migration.
+# MODULARHOME — COMPLETE DATA CORRECTION & MIGRATION RECONCILIATION
+
+You are working on the ModularHome.com migration project.
 
 IMPORTANT:
-This is NOT a redesign task.
-This is NOT a DNS-switch task.
-This is an SEO migration and URL compatibility task.
+This is NOT a request to manually patch a few example products.
+The client has identified systemic data migration, product mapping, category,
+image, pricing, SEO, URL and frontend data-binding problems.
+
+You must audit and correct the migration at the SOURCE → DATA → DATABASE →
+FRONTEND level.
+
+DO NOT mark the migration complete until the complete audit passes.
+
+============================================================
+0. CRITICAL RULES
+============================================================
 
 DO NOT change DNS.
-DO NOT switch modularhome.com.
-DO NOT delete Shopify content.
-DO NOT delete production Supabase data.
-DO NOT make destructive database changes.
-DO NOT disable the existing Shopify website.
 
-The existing Shopify website must remain available until the migration is tested and approved.
+DO NOT switch modularhome.com from Shopify.
+
+DO NOT modify the live Shopify website.
+
+DO NOT delete source migration files.
+
+DO NOT invent product information.
+
+DO NOT generate fake prices, dimensions, specifications, variants,
+warranties or features.
+
+DO NOT manually hardcode individual product fixes.
+
+DO NOT fix only the examples mentioned by the client.
+
+The examples are symptoms of a larger data-mapping problem.
+
+Every correction must be made through the authoritative data pipeline
+so that the correction automatically appears everywhere.
 
 ============================================================
-PROJECT INFORMATION
+1. AUTHORITATIVE DATA SOURCES
 ============================================================
 
-Current Shopify:
+There are TWO different authoritative sources.
+
+SOURCE A — MODULARHOME
 https://modularhome.com/
 
-Development preview:
-https://modularhome.vercel.app/
-
-SiteGround:
-https://osagiej6.sg-host.com/
-
-Final production:
-https://modularhome.com/
-
-Repository:
-SteelWeb
-
-Technology:
-- Next.js 16.3.5
-- React 19
-- TypeScript
-- Tailwind CSS v4
-- Supabase PostgreSQL
-- SiteGround Node.js 22
-- Stripe
-- Resend
-- YouTube API
-- OpenAI
-
-Existing architecture already includes:
-- Navbar
-- Mobile navigation
-- Product catalog
-- Collections
-- Dynamic CMS pages
-- Floor plans
-- Blog/resources
-- Quote system
-- Admin
-- Supabase
-- SEO metadata
-- Sitemap
-- Middleware redirects
-
-Preserve working functionality.
-
-============================================================
-PRIMARY OBJECTIVE
-============================================================
-
-Protect the existing SEO of modularhome.com while moving the website from Shopify to Next.js/SiteGround.
-
-The target architecture is:
-
-EXISTING SHOPIFY URL
-        ↓
-SAME PUBLIC URL IN NEXT.JS
-        ↓
-HTTP 200
-
-Only use a redirect when the original URL genuinely cannot be retained.
-
-The following public URL patterns must be supported:
-
-/products/[existing-handle]
-/collections/[existing-handle]
-/pages/[existing-handle]
-/blogs/[existing-blog-handle]/[existing-article-handle]
-
-Do NOT automatically convert all Shopify URLs to:
-
-/buildings/[slug]
-
-or:
-
-/buildings?category=[category]
-
-if the original Shopify URL can be served directly.
-
-============================================================
-PHASE 1 — INSPECT THE EXISTING CODEBASE
-============================================================
-
-Before changing code, inspect:
-
-- package.json
-- next.config.ts
-- middleware.ts
-- sitemap.ts
-- robots implementation
-- layout.tsx
-- Navbar.tsx
-- Footer.tsx
-- publicData.ts
-- Supabase client
-- Supabase schema
-- product routes
-- collection routes
-- blog routes
-- CMS routes
-- floor plan routes
-- migration scripts
-- redirect logic
-- SEO utilities
-- metadata generation
-- all existing migration/reconciliation scripts
-
-Determine:
-
-1. Current product URL architecture.
-2. Current collection URL architecture.
-3. Current CMS URL architecture.
-4. Current blog URL architecture.
-5. Current redirect architecture.
-6. Current sitemap architecture.
-7. Current canonical implementation.
-8. Current robots implementation.
-9. Current preview/noindex behavior.
-10. Existing migration data available in the repository.
-
-DO NOT rewrite working components unnecessarily.
-
-============================================================
-PHASE 2 — CREATE MIGRATION TRACKING SYSTEM
-============================================================
-
-Create a migration tracking structure.
-
-Preferred format:
-
-CSV or XLSX if the project already has migration tooling.
-
-Required columns:
-
-content_type
-existing_shopify_url
-handle
-title
-existing_seo_title
-existing_meta_description
-existing_canonical
-existing_index_status
-new_destination_url
-action
-content_migration_status
-redirect_test_result
-final_review_status
-notes
-
-Allowed actions:
-
-RETAIN
-REDIRECT
-RETIRE
-
-Every known URL must have exactly one documented decision.
-
-Do not invent Shopify URLs.
-
-If the Shopify inventory is not available locally, clearly report:
-
-BLOCKED — Shopify URL inventory not provided.
-
-Do not fabricate an inventory.
-
-============================================================
-PHASE 3 — URL COMPATIBILITY ROUTES
-============================================================
-
-Implement public compatibility routes.
-
-PRODUCTS:
-
-/products/[handle]
-
-The route must:
-
-1. Receive Shopify handle.
-2. Resolve product from Supabase.
-3. Render the matching product.
-4. Return HTTP 200.
-5. Generate correct metadata.
-6. Generate correct canonical.
-7. Render correct images.
-8. Render correct structured data.
-9. Return genuine 404 if product does not exist.
-
-Do NOT redirect a valid product to an unrelated product.
-
-============================================================
-COLLECTIONS
-============================================================
-
-Implement:
-
-/collections/[handle]
-
-Resolve the exact Shopify collection handle.
-
-Render:
-
-- collection title
-- collection description
-- SEO content
-- collection image
-- correct products
-- filters if supported
-- pagination if required
-- metadata
-- canonical
-- structured data where appropriate
-
-Example:
-
-/collections/cabins
-
-must render the Cabin collection.
-
-Do not redirect all collections to a generic buildings page.
-
-============================================================
-CMS PAGES
-============================================================
-
-Implement:
-
-/pages/[handle]
-
-Resolve the migrated CMS page.
-
-Examples:
-
-/pages/about-us
-/pages/contact
-/pages/financing
-/pages/pricing
-/pages/team
-/pages/warranty
-
-Use actual handles from migrated data.
-
-Only published pages should render.
-
-Missing pages must return HTTP 404.
-
-============================================================
-BLOG ARTICLES
-============================================================
-
-Implement/support:
-
-/blogs/[blog]/[article]
-
-Example:
-
-/blogs/news/example-article
-
-The article page must preserve:
-
-- original title
-- original body
-- headings
-- paragraphs
-- lists
-- tables
-- images
-- image captions
-- embedded videos
-- author
-- publication date
-- SEO title
-- meta description
-- canonical
-- internal links
-- relevant structured data
-
-IMPORTANT:
-
-Do NOT summarize articles.
-
-Do NOT rewrite established articles.
-
-Do NOT replace article content with AI-generated content.
-
-Preserve the migrated source content.
-
-============================================================
-PHASE 4 — EXISTING CONTENT RECONCILIATION
-============================================================
-
-Use existing migration data and Supabase records.
-
-Verify:
-
-PRODUCTS:
-- title
-- handle/slug
-- description
-- price
-- images
-- variants
-- options
-- specifications
-- collections
-- SEO title
-- meta description
-
-COLLECTIONS:
-- title
-- handle
-- description
-- image
-- products
-- SEO title
-- meta description
-
-PAGES:
-- title
-- body
-- metadata
-- publication state
-
-BLOGS:
-- blog handle
-- article handle
-- title
-- body
-- images
-- author
-- publication date
-- metadata
-
-Do not fabricate missing data.
-
-If source information is unavailable, report it as unresolved.
-
-============================================================
-PHASE 5 — AMISH BUILT CABINS DATA
-============================================================
-
-IMPORTANT:
-
-Amish Built Cabins product/catalog data must be reconciled separately from existing ModularHome content.
-
-Do NOT blindly overwrite established ModularHome:
-
-- descriptions
+Use ModularHome as the authority for:
+
+- Navigation
+- Menus
+- Submenus
+- Pages
+- Blogs/articles
+- Existing SEO content
 - SEO titles
-- meta descriptions
-- blog content
-- collection content
-- URLs
+- Meta descriptions
+- Existing URLs
+- URL slugs
+- Internal links
+- Canonical strategy
+- Existing Shopify redirects
 
-with Amish Built Cabins data.
+SOURCE B — AMISH BUILT CABINS
+https://amishbuiltcabins.com/
 
-Use the source catalog for product reconciliation only where appropriate.
+Use Amish Built Cabins as the authority for:
 
-Flag conflicts for review.
+- Products
+- Product/model names
+- Product descriptions
+- Product categories
+- Prices
+- Variants
+- Options
+- Dimensions
+- Square footage
+- Living area
+- Porch area
+- Bedrooms
+- Bathrooms
+- Features
+- Specifications
+- Product images
+- Gallery images
+- Floor plans
+- Actual product information
 
-============================================================
-PHASE 6 — REDIRECT SYSTEM
-============================================================
-
-Audit the existing middleware redirects.
-
-Existing patterns may include:
-
-/products/:handle
-/collections/:handle
-/blogs/news/:handle
-/pages/:handle
-
-DO NOT automatically redirect these if direct URL compatibility has been implemented.
-
-Redirect only when:
-
-1. The original URL changed.
-2. There is a known final destination.
-3. The old URL cannot be preserved.
-
-Use permanent server-side redirects.
-
-Preferred:
-
-301
-
-or appropriate 308.
-
-Every redirect must satisfy:
-
-OLD URL
-   ↓
-ONE REDIRECT
-   ↓
-FINAL URL
-   ↓
-HTTP 200
-
-No:
-
-redirect → redirect → final
-
-No loops.
-
-No unrelated homepage redirects.
+NEVER mix the two source authorities.
 
 ============================================================
-PHASE 7 — IMPORT/RECONCILE EXISTING REDIRECTS
+2. FIRST — CREATE A COMPLETE SOURCE AUDIT
 ============================================================
 
-Inspect existing Shopify redirect data.
+Before modifying production application data, inspect the current
+migration source files and application data.
 
-If available, import/reconcile it into the Next.js migration system.
+Identify:
 
-Create a canonical redirect map.
+- Product source files
+- Blog source files
+- Page source files
+- Collection source files
+- SEO files
+- URL mapping
+- Redirect mapping
+- Product catalog
+- Existing database seed files
+- Existing hardcoded product data
+- Quote/pricing data
+- Menu data
+- Image mappings
 
-Detect:
+Create:
 
-- duplicate redirects
-- conflicting redirects
-- redirect chains
-- loops
-- redirects to missing pages
-- redirects to unrelated pages
+migration/reports/source_authority_map.md
 
-Report all problems.
+Document:
+
+DATA TYPE | AUTHORITATIVE SOURCE | SOURCE FILE | DESTINATION
+
+Example:
+
+Products | Amish Built Cabins | Products.csv | Product catalog
+Blogs | ModularHome | admin_articles.json | Blog database
+Pages | ModularHome | admin_pages.json | CMS pages
+SEO | ModularHome | admin_seo_combined.json | SEO metadata
+Menus | ModularHome | admin_menus.json | Navigation
+Redirects | ModularHome | existing_redirects.csv | Middleware
 
 ============================================================
-PHASE 8 — INTERNAL LINKS
+3. PRODUCT MASTER DATA PIPELINE
 ============================================================
 
-Audit internal links throughout the application.
+Create ONE canonical product data model.
+
+The frontend, collections, search, homepage cards and quote system
+must all consume this same product model.
+
+Recommended canonical structure:
+
+{
+  id,
+  slug,
+  name,
+  description,
+  category,
+  subcategory,
+  sqft,
+  dimensions,
+  livingArea,
+  porchArea,
+  bedrooms,
+  bathrooms,
+  specifications,
+  features,
+  startingPrice,
+  variants,
+  availability,
+  primaryImage,
+  gallery,
+  floorPlanImage,
+  floorPlanAvailable,
+  sourceUrl
+}
+
+Do not create separate competing values for:
+
+- Homepage
+- Product card
+- Product detail
+- Quote wizard
+- Search
+- Collection
+
+All must read the same canonical product record.
+
+============================================================
+4. PRODUCT SOURCE RECONCILIATION
+============================================================
+
+Audit EVERY product.
+
+Do not audit only:
+
+- Azteca Modern Cabin
+- Country Rancher
+
+Those are examples of the problem.
+
+For every product compare:
+
+SOURCE
+vs
+CURRENT DATABASE/CATALOG
 
 Check:
 
-- Navbar
-- Mobile menu
-- Footer
-- Homepage
-- Product pages
-- Collection pages
-- Blog articles
-- Breadcrumbs
-- Related products
-- CTAs
-- Floor plans
-- CMS pages
+- Name
+- Slug
+- Description
+- Category
+- Dimensions
+- Square footage
+- Living area
+- Porch area
+- Bedrooms
+- Bathrooms
+- Specifications
+- Features
+- Starting price
+- Variant prices
+- Variant names
+- Availability
+- Primary image
+- Gallery
+- Floor plan
 
-Internal links must point directly to final URLs.
+Create:
 
-Do NOT intentionally link through redirects.
+migration/reports/product_source_reconciliation.csv
 
-Remove production references to:
+Columns:
 
-https://modularhome.vercel.app/
+product_slug
+product_name
+source_url
+field
+source_value
+current_value
+match_status
+recommended_action
 
-and:
+match_status:
 
-https://osagiej6.sg-host.com/
+MATCH
+MISMATCH
+MISSING_SOURCE
+MISSING_DESTINATION
+DUPLICATE
+HUMAN_REVIEW
 
-from production content.
+IMPORTANT:
+
+If the source does not contain a value:
+
+DO NOT invent it.
 
 Use:
 
-https://modularhome.com/
-
-where production URLs are required.
-
-============================================================
-PHASE 9 — CANONICAL URLS
-============================================================
-
-Production canonical hostname:
-
-https://modularhome.com/
-
-Use one preferred hostname.
-
-If www is not preferred:
-
-https://www.modularhome.com/
-
-must redirect to:
-
-https://modularhome.com/
-
-HTTP must redirect to HTTPS.
-
-Verify every public page type.
-
-Product example:
-
-URL:
-https://modularhome.com/products/example
-
-Canonical:
-https://modularhome.com/products/example
-
-Collection example:
-
-URL:
-https://modularhome.com/collections/cabins
-
-Canonical:
-https://modularhome.com/collections/cabins
-
-Do not accidentally canonicalize every filtered page to an unrelated page.
-
-Review:
-
-- query parameters
-- filters
-- pagination
-- variants
-- search pages
+NULL
+NOT_AVAILABLE
+or the application's approved empty-state.
 
 ============================================================
-PHASE 10 — PREVIEW NOINDEX
+5. AZTECA VALIDATION
 ============================================================
 
-Preview hosts:
+Explicitly verify the Azteca Modern Cabin against the Amish source.
 
-https://modularhome.vercel.app/
-https://osagiej6.sg-host.com/
+The client reported:
 
-must not be indexable.
+Homepage:
+560 sq ft
 
-Implement hostname-aware robots metadata.
+Product page:
+850 sq ft / 24x36
 
-Preview:
+Product name:
+14x40
 
-noindex, nofollow
+Find the authoritative source value.
 
-Production:
+Then make the canonical product record contain ONLY the verified
+source value.
 
-index, follow
-
-CRITICAL:
-
-Do NOT use a global environment variable that accidentally makes modularhome.com noindex.
-
-Verify by checking the actual rendered HTML.
-
-Do not rely only on robots.txt.
-
-============================================================
-PHASE 11 — SEO METADATA
-============================================================
-
-Verify each page type:
+After correction verify:
 
 Homepage
-Product
+Collection card
+Search result
+Product page
+Quote wizard
+Admin
+
+all display the SAME value.
+
+Do not manually patch the homepage.
+
+============================================================
+6. COUNTRY RANCHER VALIDATION
+============================================================
+
+The client reported:
+
+New website:
+144 sq ft
+
+Source:
+1,144 sq ft living area
++
+360 sq ft porch
+
+Verify the source.
+
+Correct the canonical product record.
+
+Then verify the value everywhere:
+
+Homepage
 Collection
-CMS page
-Blog article
-Floor plan
+Search
+Product detail
+Quote
+Admin
 
-Must have:
-
-- title
-- description
-- canonical
-- H1
-- meaningful content
-- OpenGraph metadata
-- Twitter metadata where configured
-- appropriate JSON-LD
-
-Structured data must match visible content.
-
-DO NOT fabricate:
-
-- ratings
-- reviews
-- prices
-- availability
-- offers
-
-If information is missing, do not output false structured data.
+No individual component should contain a hardcoded alternative value.
 
 ============================================================
-PHASE 12 — 404 HANDLING
+7. PRODUCT CONSISTENCY TEST
 ============================================================
 
-A genuinely missing URL must return HTTP 404.
+Create an automated consistency test.
 
-Do NOT return:
+For every public product:
 
-HTTP 200
+DATABASE
+==
+LISTING CARD
+==
+PRODUCT DETAIL
+==
+QUOTE DATA
 
-with:
+Check:
 
-"Product not found"
+name
+sqft
+dimensions
+price
+variants
+images
+category
+
+Create:
+
+migration/scripts/test_product_consistency.ts
+
+Output:
+
+TOTAL PRODUCTS
+PASSED
+FAILED
+MISMATCH COUNT
+
+The test must fail if one product has different values between
+components.
+
+============================================================
+8. CATEGORY / COLLECTION RECONCILIATION
+============================================================
+
+Rebuild product-to-category mapping from the authoritative
+Amish Built Cabins source.
+
+Do NOT trust the existing category assignment blindly.
+
+For every product determine:
+
+primary category
+secondary category
+collection membership
+
+Remove unrelated products.
+
+Pay special attention to:
+
+- Park Models
+- Cabins
+- House Kits
+- Barndominiums
+- Modular Homes
+- ADUs & Granny Pods
+- Tiny Homes
+- A-Frames
+
+The client reported:
+
+Park Models incorrectly contains approximately 729 products including
+steel house kits and barndominiums.
+
+Audit the entire category.
+
+DO NOT manually remove a few products.
+
+Rebuild the relationship from source data.
+
+Create:
+
+migration/reports/category_reconciliation.csv
+
+Columns:
+
+product_slug
+product_name
+source_category
+current_category
+source_collections
+current_collections
+status
+action
+
+============================================================
+9. COLLECTION COUNT VERIFICATION
+============================================================
+
+For every collection:
+
+Calculate actual product count from canonical product data.
+
+Compare:
+
+source count
+database count
+frontend count
+
+Create:
+
+migration/scripts/test_collection_counts.ts
+
+The test must detect:
+
+- unrelated products
+- missing products
+- duplicate products
+- incorrect counts
+
+============================================================
+10. MENU → COLLECTION → PRODUCT RELATIONSHIP
+============================================================
+
+Use ModularHome as the authoritative source for menu hierarchy.
+
+Verify:
+
+Menu
+ ↓
+Submenu
+ ↓
+Collection
+ ↓
+Products
+
+Every menu item must point to the correct collection.
+
+Every collection must contain the correct products.
+
+Every product must belong to the correct category.
+
+Do not change menu names unless required by the ModularHome source.
+
+Create:
+
+migration/reports/menu_collection_product_audit.md
+
+============================================================
+11. IMAGE / GALLERY RECONCILIATION
+============================================================
+
+Use Amish Built Cabins as the product image authority.
+
+For every product verify:
+
+primary image
+gallery
+image order
+duplicates
+cross-product images
+floor plan
+
+Create:
+
+migration/reports/product_media_reconciliation.csv
+
+Columns:
+
+product_slug
+primary_image
+gallery_count
+floor_plan
+image_status
+floor_plan_status
+source_reference
+action
+
+Classifications:
+
+MATCH
+MISSING
+WRONG_PRODUCT
+DUPLICATE
+FLOOR_PLAN_MISSING
+HUMAN_REVIEW
+
+============================================================
+12. FLOOR PLAN SAFETY RULE
+============================================================
+
+NEVER use an exterior product photograph as a floor plan.
+
+If:
+
+floorPlanImage == exteriorImage
+
+or the image is not actually a blueprint/floor plan:
+
+REMOVE IT.
+
+Use the approved UI:
+
+"Floor Plan Not Available"
 
 or:
 
-"Page not found"
+"Architectural Blueprint Available Upon Request"
 
-in the page body.
+Do NOT substitute an unrelated image.
 
-Use proper Next.js notFound() behavior.
+Explicitly test the Azteca example.
+
+============================================================
+13. PRICING & VARIANT RECONCILIATION
+============================================================
+
+Use Amish Built Cabins as the pricing authority.
+
+For every product compare:
+
+base price
+variant prices
+option names
+variant names
+package names
+
+Do NOT generate generic upgrade pricing.
+
+Explicitly verify the Azteca source options.
+
+The client reported:
+
+$33,900
+$120,000
+$135,000
+
+Verify these against the source.
+
+Then store the actual source variants.
+
+Create:
+
+migration/reports/product_pricing_reconciliation.csv
+
+Columns:
+
+product_slug
+variant
+source_price
+current_price
+match_status
+action
+
+============================================================
+14. QUOTE SYSTEM REBUILD
+============================================================
+
+The quote system MUST consume the same canonical product data.
+
+Do NOT maintain separate hardcoded quote prices.
+
+Flow:
+
+Product
+ ↓
+Variant
+ ↓
+Base Price
+ ↓
+Selected Options
+ ↓
+Quote Calculation
+
+Create:
+
+migration/scripts/test_quote_product_consistency.ts
+
+For each tested product verify:
+
+product price
+variant price
+quote base price
+
+are identical to canonical product data.
 
 Test:
 
-- missing product
-- missing collection
-- missing CMS page
-- missing blog article
+Azteca
+Country Rancher
+Pioneer Rancher
+Campfire Rancher
+
+plus samples from EVERY major category.
 
 ============================================================
-PHASE 13 — SITEMAP
+15. REMOVE HARD-CODED PRODUCT VALUES
 ============================================================
 
-Audit the current sitemap implementation.
+Search the entire codebase for hardcoded product values.
 
-Production sitemap must contain only:
+Search for:
 
-- final canonical URLs
-- indexable URLs
-- valid HTTP 200 pages
+sqft
+price
+dimensions
+bedrooms
+bathrooms
+variant
+startingPrice
+floorPlan
+product names
 
-Exclude:
+Identify values embedded directly in:
 
-- redirects
-- 404 pages
-- 410 pages
-- admin
-- preview URLs
-- temporary URLs
-- duplicate URLs
+.ts
+.tsx
+.json
+constants
+components
+quote logic
+homepage cards
+collection cards
 
-Include appropriate:
+Create:
 
-- products
-- collections
-- pages
-- blogs
-- articles
-- floor plans
+migration/reports/hardcoded_product_data_audit.md
 
-Do not include Vercel or SiteGround hostnames.
+Replace hardcoded values with canonical product data.
 
-============================================================
-PHASE 14 — ROBOTS.TXT
-============================================================
+Exception:
 
-Production robots.txt must:
+Static UI labels are allowed.
 
-Allow public crawling.
-
-Reference:
-
-https://modularhome.com/sitemap.xml
-
-Do not accidentally block:
-
-- images
-- CSS
-- JavaScript
-- public pages
-- Supabase assets required for rendering
-
-Preview environments should have stronger noindex protection.
+Product facts are NOT allowed to be hardcoded.
 
 ============================================================
-PHASE 15 — IMAGE AND ASSET MIGRATION
+16. BLOG MIGRATION
 ============================================================
 
-Audit:
+Use ModularHome as the authoritative source.
 
-- product images
-- collection images
-- blog images
-- CMS images
-- floor plans
-- PDFs
-- CAD files
-- downloadable assets
-- video embeds
+Verify all 190 articles.
 
-Every migrated asset must work independently from Shopify.
+Check:
 
-Do not leave critical production content dependent on Shopify if the migration requires independent hosting.
+title
+full HTML body
+headings
+author
+publication date
+featured image
+content images
+videos
+tags
+category
+SEO title
+meta description
+slug
+canonical
+internal links
 
-Verify Supabase Storage image URLs.
+Do NOT rewrite or summarize articles.
 
-Verify SiteGround image loading.
+Create:
 
-Verify Next.js image configuration.
-
-Do not break existing image optimization unnecessarily.
+migration/reports/blog_final_reconciliation.csv
 
 ============================================================
-PHASE 16 — BUILD
+17. PAGE & SEO MIGRATION
 ============================================================
 
-Keep SiteGround Node.js 22.
+Use ModularHome as authority.
 
-Keep:
+Verify all existing public pages.
 
-"build": "next build --webpack"
+Check:
+
+title
+H1
+content
+SEO title
+meta description
+canonical
+slug
+internal links
+image alt text where available
+
+Blank stored SEO override does NOT automatically mean no SEO metadata.
+
+Use rendered SEO baseline where appropriate.
+
+============================================================
+18. URL MIGRATION
+============================================================
+
+Build one complete URL inventory.
+
+For every source URL determine:
+
+KEEP
+301
+404/RETIRE
+HUMAN_REVIEW
+
+Never redirect all URLs to homepage.
+
+Create:
+
+migration/reports/final_url_mapping.csv
+
+Columns:
+
+old_url
+new_url
+action
+status_code
+canonical
+reason
+
+============================================================
+19. REDIRECT VALIDATION
+============================================================
+
+Verify:
+
+- All original Shopify redirects
+- All additional migration redirects
+- Affiliate redirects:
+  /aflaki
+  /osi
+  /zahid
+
+Every redirect must be:
+
+301
+one-hop
+no loop
+no chain
+
+Create:
+
+migration/scripts/test_all_redirects.ts
+
+Output:
+
+TOTAL
+PASS
+FAIL
+CHAINS
+LOOPS
+
+============================================================
+20. FRONTEND DATA-BINDING AUDIT
+============================================================
+
+Trace the complete data flow.
+
+For product:
+
+SOURCE
+ ↓
+IMPORT
+ ↓
+DATABASE / JSON
+ ↓
+PUBLIC DATA LAYER
+ ↓
+SERVER COMPONENT
+ ↓
+CLIENT COMPONENT
+ ↓
+UI
+
+Identify any component that bypasses the canonical data layer.
+
+Pay special attention to:
+
+Homepage
+Product cards
+Collection pages
+Search
+Product detail
+Quote wizard
+Admin product management
+Mega menu
+
+Every product fact must originate from canonical product data.
+
+============================================================
+21. FULL END-TO-END TEST
+============================================================
+
+Create:
+
+migration/scripts/run_final_data_audit.ts
+
+For every major category select representative products.
+
+Minimum:
+
+Modular Homes
+Cabins
+House Kits
+Barndominiums
+ADUs
+Park Models
+Tiny Homes
+A-Frames
+
+For each sample test:
+
+SOURCE
+→ DATABASE
+→ COLLECTION
+→ PRODUCT CARD
+→ PRODUCT PAGE
+→ QUOTE
+
+Verify:
+
+name
+price
+sqft
+dimensions
+variants
+images
+floor plan
+category
+
+============================================================
+22. DO NOT STOP AT EXAMPLES
+============================================================
+
+The client explicitly said:
+
+"Please check every product for similar errors, not just these two."
+
+Therefore:
+
+DO NOT declare success because:
+
+Azteca passes
+Country Rancher passes
+
+The complete dataset must pass.
+
+============================================================
+23. FINAL BUILD
+============================================================
 
 Run:
 
-npm install
 npm run build
 
-The build must pass.
+Use the project's configured production build command.
 
-Do not revert to:
+Resolve all build errors.
 
-next build
+Then run:
 
-if this reintroduces the SiteGround Turbopack restriction problem.
+npx tsx migration/scripts/run_final_data_audit.ts
 
-============================================================
-PHASE 17 — AUTOMATED URL TESTER
-============================================================
-
-Create or extend a migration URL test script.
-
-It should read the migration tracking dataset.
-
-For each URL test:
-
-- status code
-- redirect location
-- final status
-- final URL
-- page title
-- canonical
-- robots/index status
-
-Expected:
-
-RETAIN:
-200
-
-REDIRECT:
-301/308
-→ exact expected URL
-→ 200
-
-RETIRE:
-404 or 410
-
-Detect:
-
-- redirect chains
-- redirect loops
-- incorrect destinations
-- unexpected 404
-- unexpected 500
-- noindex on valuable production pages
-- wrong canonical
-- temporary hostname references
-
-Output a report.
+and all supporting migration tests.
 
 ============================================================
-PHASE 18 — PRIORITY SEO TESTS
+24. FINAL REPORTS
 ============================================================
 
-Prioritize:
+Generate all of these:
 
-- highest traffic landing pages
-- top products
-- top collections
-- important blog articles
-- high-value category pages
-- pages with backlinks
-- pages generating leads
-
-However, do not consider the migration ready until the complete known inventory is tested.
-
-============================================================
-PHASE 19 — SEARCH CONSOLE / ANALYTICS
-============================================================
-
-Do not remove existing Search Console verification.
-
-Do not remove existing analytics.
-
-Check for:
-
-- duplicate analytics
-- broken analytics
-- missing conversion events
-- quote submission tracking
-- page view tracking
-
-Because the domain remains:
-
-modularhome.com
-
-DO NOT use Google's Change of Address tool.
-
-If Search Console access/data is unavailable to the coding agent, report:
-
-BLOCKED — external Search Console access required.
-
-Do not pretend this has been completed.
+migration/reports/product_source_reconciliation.csv
+migration/reports/category_reconciliation.csv
+migration/reports/product_media_reconciliation.csv
+migration/reports/product_pricing_reconciliation.csv
+migration/reports/blog_final_reconciliation.csv
+migration/reports/final_url_mapping.csv
+migration/reports/menu_collection_product_audit.md
+migration/reports/hardcoded_product_data_audit.md
+migration/reports/final_data_audit.md
 
 ============================================================
-PHASE 20 — MIGRATION REPORT
+25. FINAL REPORT FORMAT
 ============================================================
 
-Create a final migration report containing:
+final_data_audit.md must contain:
 
-A. URL inventory count
-B. Products count
-C. Collections count
-D. Pages count
-E. Blog count
-F. Redirect count
-G. Retained URL count
-H. Redirected URL count
-I. Retired URL count
-J. Missing/unresolved URL count
-K. Broken URL count
-L. Missing content count
-M. Missing assets count
-N. Canonical errors
-O. Noindex errors
-P. Sitemap errors
-Q. Robots errors
+# ModularHome Final Data Migration Audit
+
+## Source Authority
+ModularHome:
+https://modularhome.com/
+
+Amish Built Cabins:
+https://amishbuiltcabins.com/
+
+## Products
+
+Source records:
+Imported:
+Matched:
+Mismatched:
+Missing:
+Human review:
+
+## Categories
+
+Total categories:
+Products checked:
+Incorrect mappings:
+Corrected:
+
+## Images
+
+Products checked:
+Correct:
+Missing:
+Wrong:
+Duplicate:
+
+## Floor Plans
+
+Available:
+Missing:
+Incorrect:
+Corrected:
+
+## Pricing
+
+Products checked:
+Variants checked:
+Price mismatches:
+Corrected:
+
+## Blogs
+
+Source:
+Imported:
+Missing:
+Mismatched:
+
+## Pages
+
+Source:
+Imported:
+Missing:
+Mismatched:
+
+## URLs
+
+Total:
+200:
+301:
+404:
+Unexpected:
+
+## Frontend Consistency
+
+Database = Listing:
+Database = Product Page:
+Database = Quote:
+
+## Build
+
+Build:
+PASS/FAIL
+
+## Final Result
+
+PASS
+or
+REVIEW REQUIRED
+
+============================================================
+26. FINAL PASS CONDITIONS
+============================================================
+
+Only report:
+
+FINAL RESULT: PASS
+
+when ALL are true:
+
+- Every product audited
+- No unexplained product mismatch
+- No incorrect category mapping
+- No wrong product image
+- No exterior image used as floor plan
+- No unexplained pricing mismatch
+- No unexplained variant mismatch
+- Quote uses canonical product data
+- Homepage uses canonical product data
+- Collection pages use canonical product data
+- Product pages use canonical product data
+- 190 blogs verified
+- 51 pages verified
+- URLs mapped
+- Redirects verified
+- No redirect loops
+- No redirect chains
+- Build passes
+- Final automated audit passes
+
+If any item remains unresolved:
+
+FINAL RESULT: REVIEW REQUIRED
+
+============================================================
+27. DNS SAFETY
+============================================================
+
+ABSOLUTELY DO NOT:
+
+- change DNS
+- change domain records
+- disconnect Shopify
+- point modularhome.com to SiteGround
+- delete Shopify data
+
+Keep:
+
+https://modularhome.com/
+
+on Shopify.
 
 Use:
 
-DONE
-IN PROGRESS
-BLOCKED
+https://osagiej6.sg-host.com/
 
-for each migration phase.
+for staging verification.
 
-For every BLOCKED item explain:
-
-- what is missing
-- why it cannot be completed
-- what access/file/data is required
+Only after stakeholder approval should DNS cutover be performed.
 
 ============================================================
-PHASE 21 — FINAL PRE-LAUNCH CHECKLIST
+FINAL INSTRUCTION
 ============================================================
 
-DO NOT allow DNS switch until all applicable items pass:
+Do not simply tell me what is wrong.
 
-[ ] Shopify backup available
-[ ] Complete URL inventory
-[ ] Migration sheet complete
-[ ] Product reconciliation complete
-[ ] Collection reconciliation complete
-[ ] Page reconciliation complete
-[ ] Blog reconciliation complete
-[ ] Asset verification complete
-[ ] URL compatibility complete
-[ ] Redirect mapping complete
-[ ] Redirect testing complete
-[ ] Internal links fixed
-[ ] Canonicals verified
-[ ] Preview noindex verified
-[ ] Production indexability verified
-[ ] Sitemap verified
-[ ] Robots verified
-[ ] SEO metadata verified
-[ ] Structured data verified
-[ ] 404 handling verified
-[ ] Forms verified
-[ ] Images verified
-[ ] Build passes
-[ ] Critical URLs tested
-[ ] Migration evidence generated
-[ ] Final content sync completed
-[ ] Human approval received
+IMPLEMENT THE CORRECTIONS.
 
-============================================================
-PHASE 22 — DNS
-============================================================
+Start with the source/data reconciliation, then fix the canonical product
+data model, category relationships, media mappings, pricing/variants and
+quote integration.
 
-DO NOT perform DNS changes.
+After implementation, run the complete audit.
 
-The coding agent must stop before DNS.
+Return:
 
-Only after explicit human approval should DNS be changed.
+1. Files changed
+2. Data records corrected
+3. Number of products audited
+4. Number of mismatches found
+5. Number of mismatches corrected
+6. Remaining issues
+7. Test results
+8. Build result
+9. Final recommendation
 
-============================================================
-FINAL OUTPUT
-============================================================
-
-When finished, provide:
-
-1. Files created
-2. Files modified
-3. Routes created
-4. Routes modified
-5. Database queries modified
-6. Redirect changes
-7. Canonical changes
-8. Sitemap changes
-9. Robots changes
-10. Preview noindex implementation
-11. URL compatibility implementation
-12. Test commands executed
-13. Build result
-14. Migration statistics
-15. Remaining blockers
-16. Required human actions
-
-Do not simply say "completed".
-
-Provide evidence for every completed phase.
-
-MOST IMPORTANT:
-
-Protect existing SEO.
-
-Preserve existing Shopify URLs wherever possible.
-
-Do not rewrite existing content.
-
-Do not fabricate missing data.
-
-Do not switch DNS.
-
-Do not delete Shopify.
-
-Do not make destructive production database changes.
-
-Start by inspecting the existing implementation and migration data.
-Then implement the URL compatibility and SEO migration system.
-Then run the tests.
-Then produce the migration report.
+DO NOT claim completion until the complete dataset passes.
