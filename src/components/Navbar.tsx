@@ -616,7 +616,15 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                         key={item.label}
                         type="button"
                         onClick={() => handleCategoryClick(item.label)}
-                        onMouseEnter={() => handleCategoryMouseEnter(item.label)}
+                        onDoubleClick={() => {
+                          setOpenMegaCategory(null);
+                          setMoreDropdownOpen(false);
+                          router.push(item.href);
+                        }}
+                        onMouseEnter={() => {
+                          router.prefetch(item.href);
+                          handleCategoryMouseEnter(item.label);
+                        }}
                         aria-expanded={isMegaOpen}
                         aria-controls="mega-menu-panel"
                         aria-haspopup="true"
@@ -645,6 +653,7 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                     <Link
                       key={item.label}
                       href={item.href}
+                      prefetch={true}
                       onClick={() => setOpenMegaCategory(null)}
                       className={`inline-flex items-center gap-1 px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-[12px] xl:text-[12.5px] 2xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 shrink-0 ${
                         activeRoute
@@ -680,6 +689,11 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                       e.stopPropagation();
                       setMoreDropdownOpen(!moreDropdownOpen);
                       setOpenMegaCategory(null);
+                    }}
+                    onDoubleClick={() => {
+                      setMoreDropdownOpen(false);
+                      setOpenMegaCategory(null);
+                      router.push("/buildings");
                     }}
                     className={`inline-flex items-center gap-1 px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-[12px] xl:text-[12.5px] 2xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 cursor-pointer ${
                       isMoreActive || moreDropdownOpen
@@ -1040,6 +1054,10 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                         <button
                           type="button"
                           onClick={() => setMobileExpandedCategory(isExpanded ? null : item.label)}
+                          onDoubleClick={() => {
+                            setMobileMenuOpen(false);
+                            router.push(item.href);
+                          }}
                           className="w-full text-left flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-[#101114] hover:bg-[#f6f7f9] hover:text-[#d97706] cursor-pointer"
                         >
                           <span className="flex items-center gap-1.5">
