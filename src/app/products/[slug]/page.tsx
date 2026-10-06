@@ -41,6 +41,8 @@ export async function generateMetadata({
     ? (model.image && !model.image.includes("newmodularlogo") ? model.image : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80")
     : model.primaryImage;
 
+  const canonical = `https://modularhome.com/products/${slug}`;
+
   return {
     title,
     description,

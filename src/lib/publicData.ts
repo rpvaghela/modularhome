@@ -584,22 +584,6 @@ export async function getPublicProductBySlug(slug: string): Promise<BuildingMode
     }
   }
 
-  // Next, try local Postgres
-  if (!result) {
-    try {
-      const { query } = await import("./db");
-      const pgRes = await query(
-        `SELECT * FROM products WHERE LOWER(handle) = $1 OR id::text = $1 OR LOWER(slug) = $1 LIMIT 1`,
-        [clean]
-      );
-      if (pgRes && pgRes.rows && pgRes.rows.length > 0) {
-        result = formatProduct(pgRes.rows[0]);
-      }
-    } catch (pgErr) {
-      // ignore
-    }
-  }
-
   // Fallback generation for valid product slugs so no click ever 404s
   if (!result && clean && clean.length > 2 && !clean.includes("not-found")) {
     const words = clean

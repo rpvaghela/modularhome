@@ -94,9 +94,9 @@ export default async function HomePage() {
           : idx === 9
           ? "Customer Favorite"
           : undefined,
-      image: (!p.primaryImage && !p.image) || (p.primaryImage || p.image || "").includes("newmodularlogo")
+      image: ((!p.primaryImage && !p.image) || (p.primaryImage || p.image || "").includes("newmodularlogo")
         ? getCategoryFallbackImage(p.category || p.series, p.name, p.slug)
-        : (p.primaryImage || p.image),
+        : (p.primaryImage || p.image)) || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
       bedrooms: p.bedrooms || 3,
       bathrooms: p.bathrooms || 2,
       sqft: p.sqft || 1600,
@@ -116,9 +116,9 @@ export default async function HomePage() {
       slug: p.slug,
       name: cleanName,
       badge: idx === 0 ? "Trending" : idx === 3 ? "Staff Pick" : undefined,
-      image: (!p.primaryImage && !p.image) || (p.primaryImage || p.image || "").includes("newmodularlogo")
+      image: ((!p.primaryImage && !p.image) || (p.primaryImage || p.image || "").includes("newmodularlogo")
         ? getCategoryFallbackImage(p.category || p.series, p.name, p.slug)
-        : (p.primaryImage || p.image),
+        : (p.primaryImage || p.image)) || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
       bedrooms: p.bedrooms || 3,
       bathrooms: p.bathrooms || 2,
       sqft: p.sqft || 1800,

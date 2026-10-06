@@ -18,7 +18,7 @@ import {
   DollarSign,
   Info,
 } from "lucide-react";
-import { PricingRule, DeterministicQuotationResult } from "@/lib/pricingEngine";
+import type { PricingRule, DeterministicQuotationResult } from "@/lib/pricingEngine";
 
 export default function AdminPricingPage() {
   const [rules, setRules] = useState<PricingRule[]>([]);
