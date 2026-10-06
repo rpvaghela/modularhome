@@ -13,9 +13,14 @@ import {
   Bed, 
   Bath, 
   CheckCircle2, 
-  X 
+  X,
+  Compass,
+  FileCheck,
+  Layers,
+  Sparkles,
+  Download
 } from "lucide-react";
-import { BuildingModel } from "@/data/models";
+import { BuildingModel, BuildingModelVariant } from "@/data/models";
 import BuildingCard from "@/components/BuildingCard";
 import VideoModal from "@/components/VideoModal";
 import ShareButton from "@/components/ShareButton";
@@ -41,10 +46,19 @@ export default function ModelDetailClient({
   const primaryImg = (!rawPrimary || rawPrimary.includes("newmodularlogo") || rawPrimary.includes("finallogo"))
     ? fallbackImg
     : rawPrimary;
+  
   const [activeImage, setActiveImage] = useState<string>(primaryImg);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [floorPlanExpanded, setFloorPlanExpanded] = useState(false);
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+
+  // Multi-tier variants handling
+  const variants: BuildingModelVariant[] = Array.isArray(model?.variants) ? model.variants : [];
+  const [selectedVariantId, setSelectedVariantId] = useState<string>(
+    variants.length > 0 ? variants[0].id : ""
+  );
+
+  const activeVariant = variants.find((v) => v.id === selectedVariantId) || (variants.length > 0 ? variants[0] : null);
 
   const rawGallery = Array.isArray(model?.gallery) && model.gallery.length > 0 ? model.gallery : [primaryImg];
   const filteredGallery = rawGallery.filter((g) => g && !g.includes("newmodularlogo") && !g.includes("finallogo"));
@@ -53,26 +67,40 @@ export default function ModelDetailClient({
   const featuresList = Array.isArray(model?.features) ? model.features : [];
   const specsList = Array.isArray(model?.specs) ? model.specs : [];
   const optionsList = Array.isArray(model?.customizableOptions) ? model.customizableOptions : [];
+  
   const rawFloorPlan = model?.floorPlanImage || model?.floorPlan;
-  const floorPlanImg = (!rawFloorPlan || rawFloorPlan.includes("newmodularlogo") || rawFloorPlan.includes("finallogo"))
-    ? primaryImg
-    : rawFloorPlan;
-  const startingPrice = Number(model?.startingPrice) || 0;
+  
+  // Real floor plan detection: must not be a placeholder or duplicate of the exterior photo
+  const hasRealFloorPlan = Boolean(
+    rawFloorPlan && 
+    !rawFloorPlan.includes("newmodularlogo") && 
+    !rawFloorPlan.includes("finallogo") &&
+    rawFloorPlan !== rawPrimary &&
+    rawFloorPlan !== primaryImg &&
+    !galleryList.includes(rawFloorPlan)
+  );
 
-  const formattedBasePrice = startingPrice > 0 ? formatPrice(startingPrice) : "Custom Quote";
+  const floorPlanImg = hasRealFloorPlan ? rawFloorPlan! : "";
+
+  // Base price dynamically derives from selected variant or startingPrice
+  const baseStartingPrice = Number(model?.startingPrice) || 0;
+  const currentBasePrice = activeVariant ? (Number(activeVariant.price) || baseStartingPrice) : baseStartingPrice;
+
+  const formattedBasePrice = currentBasePrice > 0 ? formatPrice(currentBasePrice) : "Custom Quote";
 
   const optionsTotal = selectedOptions.reduce((acc, optId) => {
     const opt = optionsList.find((o) => o.id === optId);
     return acc + (opt ? opt.price : 0);
   }, 0);
 
-  const totalCalculatedPrice = startingPrice + optionsTotal;
+  const totalCalculatedPrice = currentBasePrice + optionsTotal;
 
   const toggleOption = (id: string) => {
     setSelectedOptions((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
+
   const handleOpenVideo = () => {
     const vidUrl = model?.videoUrl || "https://www.youtube-nocookie.com/embed/MHWHDE87Pp4";
     setActiveVideo({
@@ -109,6 +137,17 @@ export default function ModelDetailClient({
             <span>/</span>
             <Link href="/buildings" className="hover:text-[#101114] transition-colors">Buildings</Link>
             <span>/</span>
+            {model?.category && (
+              <>
+                <Link 
+                  href={`/buildings?category=${encodeURIComponent(model.category)}`}
+                  className="hover:text-[#101114] transition-colors hidden sm:inline"
+                >
+                  {model.category}
+                </Link>
+                <span className="hidden sm:inline">/</span>
+              </>
+            )}
             <span className="text-[#d97706] font-bold uppercase truncate">{model?.name}</span>
           </div>
 
@@ -196,6 +235,51 @@ export default function ModelDetailClient({
                 </p>
               </div>
 
+              {/* Multi-tier Variant Selector (if available) */}
+              {variants.length > 1 && (
+                <div className="space-y-2 pt-1 border-t border-[#e7e9ee]">
+                  <label className="text-[11px] font-extrabold uppercase tracking-wider text-[#101114] flex items-center justify-between">
+                    <span>Select Build Package / Size</span>
+                    <span className="text-[#d97706] font-semibold lowercase">
+                      {variants.length} options available
+                    </span>
+                  </label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {variants.map((v) => {
+                      const isSelected = v.id === (activeVariant?.id || "");
+                      return (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={() => setSelectedVariantId(v.id)}
+                          className={`flex items-center justify-between p-3 rounded-[10px] border text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-white border-[#d97706] ring-2 ring-[#d97706]/20 shadow-xs"
+                              : "bg-white/60 border-[#e7e9ee] hover:bg-white hover:border-[#cbd5e1]"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div
+                              className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                                isSelected
+                                  ? "border-[#d97706] bg-[#d97706]"
+                                  : "border-[#9ca3af]"
+                              }`}
+                            >
+                              {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                            </div>
+                            <span className="text-xs font-bold text-[#101114]">{v.title}</span>
+                          </div>
+                          <span className="text-xs font-extrabold text-[#d97706]">
+                            {formatPrice(v.price)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Core Specs Grid */}
               <div className="grid grid-cols-3 gap-3 p-3.5 bg-white border border-[#e7e9ee] rounded-[11px] text-center">
                 <div className="flex flex-col items-center">
@@ -224,7 +308,9 @@ export default function ModelDetailClient({
               {/* Price Calculation Box */}
               <div className="pt-2 border-t border-[#e7e9ee] flex items-baseline justify-between">
                 <div>
-                  <div className="text-[10px] uppercase tracking-wider text-[#6b7280] font-bold">Starting Price</div>
+                  <div className="text-[10px] uppercase tracking-wider text-[#6b7280] font-bold">
+                    {activeVariant ? `${activeVariant.title} Price` : "Starting Price"}
+                  </div>
                   <div className="text-3xl font-black text-[#d97706]">
                     {totalCalculatedPrice > 0 ? formatPrice(totalCalculatedPrice) : "Custom Quote"}
                   </div>
@@ -241,7 +327,7 @@ export default function ModelDetailClient({
               {/* Call-to-action buttons */}
               <div className="space-y-2.5 pt-1">
                 <Link
-                  href="/quote"
+                  href={`/quote?model=${encodeURIComponent(model.slug)}${activeVariant ? `&variant=${encodeURIComponent(activeVariant.id)}` : ""}`}
                   className="btn-primary w-full py-3.5 text-xs sm:text-sm font-extrabold rounded-[11px] shadow-sm flex items-center justify-center gap-2"
                 >
                   <span>Customize & Get Official Quote</span>
@@ -250,7 +336,7 @@ export default function ModelDetailClient({
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <a
-                    href="tel:+18125954033"
+                    href={`tel:${phone.replace(/[^0-9+]/g, "")}`}
                     className="btn-outline py-2.5 text-xs font-bold rounded-[9px] flex items-center justify-center gap-1.5"
                   >
                     <Phone className="w-3.5 h-3.5 text-[#d97706]" />
@@ -258,7 +344,7 @@ export default function ModelDetailClient({
                   </a>
 
                   <Link
-                    href="/upload-floor-plan"
+                    href={`/upload-floor-plan?model=${encodeURIComponent(model.slug)}`}
                     className="btn-outline py-2.5 text-xs font-bold rounded-[9px] flex items-center justify-center gap-1.5"
                   >
                     <span>Upload Plan</span>
@@ -278,7 +364,7 @@ export default function ModelDetailClient({
               {/* Engineering highlights badge */}
               <div className="p-3 bg-white border border-[#e7e9ee] rounded-[9px] flex items-center gap-2.5 text-xs text-[#6b7280]">
                 <ShieldCheck className="w-4 h-4 text-[#fcb907] shrink-0" />
-                <span>{model.warranty} • IBC & IRC Engineered</span>
+                <span>{model.warranty || "50-Year Structural"} • IBC & IRC Engineered</span>
               </div>
             </div>
           </div>
@@ -309,33 +395,114 @@ export default function ModelDetailClient({
                     Architectural Floor Plan
                   </h2>
                 </div>
-                <button
-                  onClick={() => setFloorPlanExpanded(true)}
-                  className="btn-outline py-1.5 px-3 text-xs font-bold rounded-[9px] flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Maximize2 className="w-3.5 h-3.5" />
-                  <span>Enlarge Blueprint</span>
-                </button>
+                {hasRealFloorPlan && (
+                  <button
+                    onClick={() => setFloorPlanExpanded(true)}
+                    className="btn-outline py-1.5 px-3 text-xs font-bold rounded-[9px] flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                    <span>Enlarge Blueprint</span>
+                  </button>
+                )}
               </div>
 
-              {/* Floor Plan Viewer Box */}
-              <div
-                onClick={() => setFloorPlanExpanded(true)}
-                className="cursor-pointer relative aspect-[16/9] w-full rounded-[14px] overflow-hidden bg-[#f6f7f9] border border-[#e7e9ee] group shadow-sm"
-              >
-                <Image
-                  src={floorPlanImg}
-                  alt={`${model?.name || "Model"} Floor Plan Schematic`}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 65vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white">
-                  <span className="font-semibold">{model?.dimensions || "Standard Footprint"}</span>
-                  <span className="text-[#f6f7f9] font-bold">Click to view full layout →</span>
+              {/* Floor Plan Viewer Box or Verified Architectural Schematic Fallback */}
+              {hasRealFloorPlan ? (
+                <div
+                  onClick={() => setFloorPlanExpanded(true)}
+                  className="cursor-pointer relative aspect-[16/9] w-full rounded-[14px] overflow-hidden bg-[#f6f7f9] border border-[#e7e9ee] group shadow-sm"
+                >
+                  <Image
+                    src={floorPlanImg}
+                    alt={`${model?.name || "Model"} Floor Plan Schematic`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 65vw"
+                    className="object-contain p-4 group-hover:scale-105 transition-transform duration-500 bg-white"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 pointer-events-none" />
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white">
+                    <span className="font-semibold">{model?.dimensions || "Standard Footprint"}</span>
+                    <span className="text-[#fcb907] font-bold">Click to view full layout →</span>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="relative rounded-[16px] overflow-hidden bg-[#0f1218] border border-[#262b36] p-7 sm:p-9 text-white shadow-md">
+                  {/* Grid background effect */}
+                  <div className="absolute inset-0 bg-[radial-gradient(#fcb907_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none" />
+                  
+                  <div className="relative z-10 space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-[12px] bg-[#fcb907]/10 border border-[#fcb907]/30 flex items-center justify-center shrink-0">
+                          <Compass className="w-6 h-6 text-[#fcb907]" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#fcb907]">
+                            Engineered Blueprint Schematic
+                          </span>
+                          <h3 className="text-xl font-black text-white">
+                            {model.name} — Architectural Layout
+                          </h3>
+                        </div>
+                      </div>
+
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-xs font-bold text-gray-200 border border-white/15 w-fit">
+                        <FileCheck className="w-3.5 h-3.5 text-[#fcb907]" />
+                        <span>CAD & PDF Available</span>
+                      </span>
+                    </div>
+
+                    {/* Dimensions & Spatial Breakdown */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                      <div className="p-3.5 rounded-[10px] bg-white/5 border border-white/10">
+                        <span className="text-[10px] uppercase text-gray-400 font-bold block">Footprint</span>
+                        <span className="text-sm font-black text-white">
+                          {model.dimensions || (model.sqft > 0 ? `${model.sqft} SQ FT` : "Custom Dimensions")}
+                        </span>
+                      </div>
+                      <div className="p-3.5 rounded-[10px] bg-white/5 border border-white/10">
+                        <span className="text-[10px] uppercase text-gray-400 font-bold block">Living Area</span>
+                        <span className="text-sm font-black text-white">
+                          {model.sqft > 0 ? `${model.sqft} SQ FT` : "Flexible Layout"}
+                        </span>
+                      </div>
+                      <div className="p-3.5 rounded-[10px] bg-white/5 border border-white/10">
+                        <span className="text-[10px] uppercase text-gray-400 font-bold block">Bedrooms / Baths</span>
+                        <span className="text-sm font-black text-white">
+                          {model.bedrooms > 0 ? `${model.bedrooms}B / ${model.bathrooms}BA` : "Studio / Open Layout"}
+                        </span>
+                      </div>
+                      <div className="p-3.5 rounded-[10px] bg-white/5 border border-white/10">
+                        <span className="text-[10px] uppercase text-gray-400 font-bold block">Framing</span>
+                        <span className="text-sm font-black text-[#fcb907]">
+                          {model.frameType || "Precision Steel / Timber"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-300 leading-relaxed max-w-2xl">
+                      Architectural blueprints and engineering CAD schematics for the <strong className="text-white">{model.name}</strong> are generated per project to match local building codes, snow loads, and wind ratings. Full electrical schematics, plumbing rough-ins, and wall stud elevations are included.
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-3 pt-2">
+                      <Link
+                        href={`/quote?model=${encodeURIComponent(model.slug)}&request=floorplan`}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[9px] bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider transition-all shadow-md"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Request Official Floor Plan CAD & PDF</span>
+                      </Link>
+
+                      <Link
+                        href={`/upload-floor-plan?model=${encodeURIComponent(model.slug)}`}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[9px] bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition-all"
+                      >
+                        <span>Submit Custom Layout Modification</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
             </section>
 
             {/* Technical Specifications Table */}
@@ -353,11 +520,11 @@ export default function ModelDetailClient({
                 <div className="divide-y divide-[#e7e9ee]">
                   <div className="grid grid-cols-2 p-3.5 text-xs">
                     <span className="text-[#6b7280] uppercase font-bold">Framing System</span>
-                    <span className="text-[#101114] font-semibold">{model?.frameType || "Light Gauge Steel"}</span>
+                    <span className="text-[#101114] font-semibold">{model?.frameType || "Light Gauge Steel / Amish Timber"}</span>
                   </div>
                   <div className="grid grid-cols-2 p-3.5 text-xs bg-[#f6f7f9]">
                     <span className="text-[#6b7280] uppercase font-bold">Standard Dimensions</span>
-                    <span className="text-[#101114] font-semibold">{model?.dimensions || "24' x 36'"}</span>
+                    <span className="text-[#101114] font-semibold">{model?.dimensions || "Custom Sizing Available"}</span>
                   </div>
                   <div className="grid grid-cols-2 p-3.5 text-xs">
                     <span className="text-[#6b7280] uppercase font-bold">Roof Pitch & Profile</span>
@@ -472,13 +639,15 @@ export default function ModelDetailClient({
               {/* Total Calculation */}
               <div className="pt-4 border-t border-[#e7e9ee] space-y-2.5">
                 <div className="flex justify-between text-xs text-[#6b7280]">
-                  <span>Base Model:</span>
+                  <span>{activeVariant ? activeVariant.title : "Base Model"}:</span>
                   <span className="text-[#101114] font-semibold">{formattedBasePrice}</span>
                 </div>
-                <div className="flex justify-between text-xs text-[#6b7280]">
-                  <span>Selected Upgrades:</span>
-                  <span className="text-[#d97706] font-bold">+{formatPrice(optionsTotal)}</span>
-                </div>
+                {selectedOptions.length > 0 && optionsTotal > 0 && (
+                  <div className="flex justify-between text-xs text-[#6b7280]">
+                    <span>Selected Upgrades:</span>
+                    <span className="text-[#d97706] font-bold">+{formatPrice(optionsTotal)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm font-bold text-[#101114] pt-2 border-t border-[#e7e9ee]">
                   <span>Updated Estimate:</span>
                   <span className="text-[#d97706] text-xl font-black">
@@ -489,7 +658,7 @@ export default function ModelDetailClient({
                 {/* Main Action CTAs */}
                 <div className="space-y-2 pt-2">
                   <Link
-                    href="/quote"
+                    href={`/quote?model=${encodeURIComponent(model.slug)}${activeVariant ? `&variant=${encodeURIComponent(activeVariant.id)}` : ""}`}
                     className="btn-primary w-full py-3.5 text-xs font-extrabold rounded-[11px] flex items-center justify-center gap-2"
                   >
                     <span>Request a Detailed Quote</span>
@@ -542,7 +711,7 @@ export default function ModelDetailClient({
       </div>
 
       {/* Floor Plan Fullscreen Modal */}
-      {floorPlanExpanded && (
+      {floorPlanExpanded && hasRealFloorPlan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
           <div className="relative max-w-5xl w-full bg-white border border-[#e7e9ee] rounded-[18px] p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-[#e7e9ee]">

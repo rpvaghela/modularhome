@@ -171,7 +171,7 @@ async function runComprehensiveTests() {
   ];
   for (const p of testPaths) {
     const canonical = getCanonicalUrl(p);
-    if (canonical.startsWith("https://modularhome.com") && !canonical.includes("//modularhome.com/")) {
+    if (canonical.startsWith("https://modularhome.com") && !canonical.replace("https://", "").includes("//")) {
       results.canonicals.passed++;
     } else {
       results.canonicals.failed++;

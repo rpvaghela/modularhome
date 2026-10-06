@@ -1,3 +1,14 @@
+export interface BuildingModelVariant {
+  id: string;
+  title: string;
+  price: number;
+  sku?: string;
+  available?: boolean;
+  option1?: string;
+  option2?: string;
+  compareAtPrice?: number;
+}
+
 export interface BuildingModel {
   id: string;
   slug: string;
@@ -38,8 +49,10 @@ export interface BuildingModel {
     price: number;
     description: string;
   }[];
+  variants?: BuildingModelVariant[];
   tags?: string[];
   collections?: string[];
+  status?: string;
 }
 
 export const CATEGORIES = [
@@ -392,37 +405,41 @@ export const BUILDING_MODELS: BuildingModel[] = [
     "slug": "14-by-40-azteca-modern-cabin",
     "name": "Azteca Modern Cabin (14 by 40)",
     "series": "Architectural Series",
-    "category": "Building Materials",
+    "category": "Cabins",
     "architecturalStyle": "Rustic Cabin",
-    "tagline": "Precision Engineered Home Kit",
-    "description": "<p><strong>14x40 Azteca Modern Cabin </strong></p>\n<p>Introducing the 14x40 Azteca Modern Cabin House Shell—an elegant and versatile home shell designed to combine style and functionality. This Amish-built cabin shell features a sturdy, weather-resistant 26-gauge metal roof and is completed on the outside, with all doors and double-pane windows already installed, ensuring your home is secure and ready for the next steps.</p>\n<p>Choose from multiple exterior finish options, including cedar log siding, board and batten, or hardy board, each offering its own unique charm and durability. The Azteca Modern Cabin shell offers a blank canvas inside, giving you the flexibility to design the interior to your liking. Alternatively, we can take care of the finishing touches for you, including spray foam insulation, electrical, plumbing, HVAC, luxury vinyl plank flooring, shiplap walls and ceilings, kitchen cabinets, and bathroom fixtures, transforming your cabin into a beautiful, move-in ready home.</p>\n<p><em><strong>ALSO OFFERED FULLY TURNKEY MOVE IN READY AS A 2 BED 1 BATH AND 2 BED 2 BATH, SEE PRICING OPTIONS BELOW FOR ALL 3 OPTIONS!</strong></em></p>\n<p>Contact us today for pricing and to discuss how we can help bring your dream cabin to life. Call us at 502-298-8946. With a turnaround time of 14–16 weeks, our team is eager to help you create the perfect home from the Azteca Modern Cabin House Shell.</p>",
-    "sqft": 850,
+    "tagline": "560 Sq Ft Amish-Built Cabin • Shell & Turnkey Options",
+    "description": "<p><strong>14x40 Azteca Modern Cabin</strong></p>\n<p>Introducing the 14x40 Azteca Modern Cabin House Shell—an elegant and versatile home shell designed to combine style and functionality. This Amish-built cabin shell features a sturdy, weather-resistant 26-gauge metal roof and is completed on the outside, with all doors and double-pane windows already installed, ensuring your home is secure and ready for the next steps.</p>\n<p>Choose from multiple exterior finish options, including cedar log siding, board and batten, or hardy board, each offering its own unique charm and durability. The Azteca Modern Cabin shell offers a blank canvas inside, giving you the flexibility to design the interior to your liking. Alternatively, we can take care of the finishing touches for you, including spray foam insulation, electrical, plumbing, HVAC, luxury vinyl plank flooring, shiplap walls and ceilings, kitchen cabinets, and bathroom fixtures, transforming your cabin into a beautiful, move-in ready home.</p>\n<p><em><strong>ALSO OFFERED FULLY TURNKEY MOVE IN READY AS A 2 BED 1 BATH AND 2 BED 2 BATH, SEE PRICING OPTIONS BELOW FOR ALL 3 OPTIONS!</strong></em></p>\n<p>Contact us today for pricing and to discuss how we can help bring your dream cabin to life. With a turnaround time of 14–16 weeks, our team is eager to help you create the perfect home from the Azteca Modern Cabin House Shell.</p>",
+    "sqft": 560,
     "bedrooms": 2,
     "bathrooms": 1,
     "stories": 1,
     "startingPrice": 33900,
-    "dimensions": "24x36 ft",
-    "frameType": "100% Commercial-Grade Galvanized Light Gauge Steel",
-    "roofPitch": "4:12 Pitch (Standing Seam Ready)",
-    "windRating": "Up to 150 MPH (Engineered for Extreme Weather)",
+    "dimensions": "14x40 ft",
+    "frameType": "Amish-Crafted Heavy Timber & Solid Wood System",
+    "roofPitch": "4:12 Pitch 26-Gauge Metal Roofing",
+    "windRating": "130+ MPH (Engineered Timber Construction)",
     "snowLoad": "50 PSF Ground Snow Load Rated",
-    "warranty": "50-Year Structural Frame Warranty",
+    "warranty": "25-Year Amish Craftsmanship Warranty",
     "primaryImage": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345",
     "image": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345",
     "gallery": [
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345"
     ],
-    "floorPlanImage": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345",
+    "floorPlanImage": "",
     "features": [
-      "Precision Light-Gauge Steel Framing",
-      "Energy-Efficient High-R Value Structural Insulated Panels (SIPs)",
-      "Engineered for Severe Snow & Wind Loads",
-      "Pre-drilled MEP & Fast Modular On-Site Assembly"
+      "Amish-Built Solid Timber & Weather-Resistant 26-Gauge Metal Roof",
+      "Exterior Fully Finished with Installed Double-Pane Windows & Doors",
+      "Available as Pre-Built Shell or Full Turnkey Move-In Ready",
+      "Choice of Cedar Log Siding, Board & Batten, or Hardy Board Exterior"
     ],
     "specs": [
       {
+        "label": "Dimensions",
+        "value": "14×40 ft"
+      },
+      {
         "label": "Living Area",
-        "value": "850 SQ FT"
+        "value": "560 SQ FT"
       },
       {
         "label": "Bedrooms",
@@ -430,38 +447,183 @@ export const BUILDING_MODELS: BuildingModel[] = [
       },
       {
         "label": "Bathrooms",
-        "value": "1 Bath"
+        "value": "1-2 Bath"
       },
       {
         "label": "Frame Type",
-        "value": "Light Gauge Galvanized Steel"
+        "value": "Heavy Timber & Solid Wood Joinery"
+      },
+      {
+        "label": "Roofing",
+        "value": "26-Gauge Heavy Duty Metal Roof"
       },
       {
         "label": "Warranty",
-        "value": "50-Year Structural Frame Warranty"
+        "value": "25-Year Amish Craftsmanship Warranty"
+      }
+    ],
+    "variants": [
+      {
+        "id": "azteca-shell",
+        "title": "14x40 Cabin Shell (Exterior Finished, Windows & Doors)",
+        "price": 33900,
+        "available": true
+      },
+      {
+        "id": "azteca-2b1b-turnkey",
+        "title": "2 Bed 1 Bath Move-In Ready Turnkey",
+        "price": 120000,
+        "available": true
+      },
+      {
+        "id": "azteca-2b2b-turnkey",
+        "title": "2 Bed 2 Bath Move-In Ready Turnkey",
+        "price": 135000,
+        "available": true
       }
     ],
     "customizableOptions": [
       {
         "id": "opt-1",
-        "name": "Covered Timber Deck",
+        "name": "Covered Timber Porch Addition",
         "price": 12500,
-        "description": "Composite decking & timber posts"
+        "description": "Solid timber posts & decking"
       },
       {
         "id": "opt-2",
-        "name": "R-38 Closed-Cell Insulation",
-        "price": 6800,
-        "description": "High-efficiency thermal barrier"
+        "name": "Extreme Climate Closed-Cell Spray Foam",
+        "price": 4800,
+        "description": "R-21+ continuous thermal barrier"
       }
     ],
     "tags": [
       "Featured",
+      "Cabin",
       "Turnkey",
-      "Modular"
+      "Shell Available"
     ],
     "collections": [
-      "Building Materials"
+      "Cabins",
+      "cabins-for-sale",
+      "modular-homes"
+    ]
+  },
+  {
+    "id": "country-rancher-cabin",
+    "slug": "the-country-rancher-amish-built-modular-cabin",
+    "name": "The Country Rancher Amish Built Modular Cabin",
+    "series": "Ranch Series",
+    "category": "Cabins",
+    "architecturalStyle": "Rustic Cabin",
+    "tagline": "1,144 Sq Ft Living Space • 360 Sq Ft Porch (1,504 Sq Ft Total)",
+    "description": "<p><strong>The Country Rancher Amish Built Modular Cabin</strong></p>\n<p>The Country Rancher offers 1,144 sq ft of interior living space plus an expansive 360 sq ft covered porch for a total footprint of 1,504 sq ft. Built with Amish timber craftsmanship, this home features 3 bedrooms, 2 full bathrooms, high vaulted ceilings, and options for both pre-built shell and complete turnkey delivery.</p>",
+    "sqft": 1144,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "stories": 1,
+    "startingPrice": 79000,
+    "dimensions": "28x48 ft + 8x45 ft Porch",
+    "frameType": "Amish Handcrafted Timber & Solid Log System",
+    "roofPitch": "5:12 Pitch Architectural Metal Roof",
+    "windRating": "130+ MPH Wind Rated",
+    "snowLoad": "50 PSF Ground Snow Load Rated",
+    "warranty": "25-Year Structural Integrity Warranty",
+    "primaryImage": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345",
+    "image": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345",
+    "gallery": [
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345"
+    ],
+    "floorPlanImage": "",
+    "features": [
+      "1,144 SQ FT Heated Living Space + 360 SQ FT Covered Porch",
+      "Master Suite with En-Suite Bath and Walk-In Closet",
+      "Open Concept Great Room with Vaulted Tongue-and-Groove Ceilings",
+      "Amish-Built Solid Wood Construction & Energy-Efficient Envelope"
+    ],
+    "specs": [
+      {
+        "label": "Living Area",
+        "value": "1,144 SQ FT"
+      },
+      {
+        "label": "Covered Porch",
+        "value": "360 SQ FT"
+      },
+      {
+        "label": "Total Footprint",
+        "value": "1,504 SQ FT"
+      },
+      {
+        "label": "Dimensions",
+        "value": "28×48 ft (+ 8×45 ft Porch)"
+      },
+      {
+        "label": "Bedrooms",
+        "value": "3 Bed (1, 2 & 3 Bed Options)"
+      },
+      {
+        "label": "Bathrooms",
+        "value": "2 Bath"
+      },
+      {
+        "label": "Stories",
+        "value": "1 Level Ranch"
+      },
+      {
+        "label": "Warranty",
+        "value": "25-Year Structural Integrity Warranty"
+      }
+    ],
+    "variants": [
+      {
+        "id": "rancher-1bed",
+        "title": "1 Bed 1 Bath Configuration",
+        "price": 79000,
+        "available": true
+      },
+      {
+        "id": "rancher-2bed",
+        "title": "2 Bed 1 Bath Configuration",
+        "price": 89000,
+        "available": true
+      },
+      {
+        "id": "rancher-3bed2bath-shell",
+        "title": "3 Bed 2 Bath Pre-Built Shell",
+        "price": 98000,
+        "available": true
+      },
+      {
+        "id": "rancher-3bed2bath-turnkey",
+        "title": "3 Bed 2 Bath Turnkey Move-In Ready",
+        "price": 165000,
+        "available": true
+      }
+    ],
+    "customizableOptions": [
+      {
+        "id": "opt-ranch-kitchen",
+        "name": "Amish Custom Hickory Kitchen Cabinets",
+        "price": 14500,
+        "description": "Solid hickory soft-close cabinetry with quartz countertops"
+      },
+      {
+        "id": "opt-ranch-fireplace",
+        "name": "Stone Hearth Fireplace with Timber Mantel",
+        "price": 8900,
+        "description": "Propane or wood-burning stone fireplace installation"
+      }
+    ],
+    "tags": [
+      "Featured",
+      "Cabin",
+      "Ranch",
+      "Turnkey"
+    ],
+    "collections": [
+      "Cabins",
+      "cabins-for-sale",
+      "modular-homes"
     ]
   },
   {
