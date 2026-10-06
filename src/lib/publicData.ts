@@ -254,12 +254,23 @@ export function formatProduct(p: any): BuildingModel {
         "Pre-drilled MEP & Fast Modular On-Site Assembly",
       ];
 
+  const rawTitle = String(p.title || p.name || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const cleanTitle =
+    rawTitle && rawTitle.length > 2 && !/^(?:and we|see below|check out|electrical$|<)/i.test(rawTitle)
+      ? rawTitle
+      : (p.handle || p.slug
+          ? String(p.handle || p.slug).replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())
+          : "Precision Modular Model");
+
   return {
-    id: p.id,
+    id: String(p.id || p.handle || p.slug),
     slug: p.handle || p.slug || p.id,
-    name: p.title || p.name || "Precision Modular Model",
+    name: cleanTitle,
     series: p.series || p.product_type || "Essential Series",
-    category: p.product_type || p.category || "Modular Homes",
+    category: p.category || p.product_type || "Modular Homes",
     architecturalStyle: p.architectural_style || p.architecturalStyle || (isCabinOrTimber ? "Rustic Cabin" : "Modern Homes"),
     tagline: p.tagline || (sqft > 0 ? `${sqft} Sq Ft ${isCabinOrTimber ? "Handcrafted Log Cabin" : "Precision Engineered Home"}` : ""),
     description: p.description || p.description_html || "",
@@ -457,9 +468,14 @@ export function getLocalProducts(): BuildingModel[] {
 
   // 2. All catalog items
   if (Array.isArray(ALL_PRODUCTS_CATALOG)) {
-    for (const raw of ALL_PRODUCTS_CATALOG) {
+    for (const rawItem of ALL_PRODUCTS_CATALOG) {
+      const raw = rawItem as any;
+      if (!raw || (!raw.slug && !raw.handle)) continue;
+      const rawTitle = String(raw.title || raw.name || "").trim();
+      if (/^<|and we'll respond|see below for|check out the|^electrical$/i.test(rawTitle)) continue;
+
       const p = formatProduct(raw);
-      if (p && p.slug) {
+      if (p && p.slug && !p.slug.includes("<")) {
         const clean = p.slug.toLowerCase().trim();
         if (!seenSlugs.has(clean)) {
           seenSlugs.add(clean);

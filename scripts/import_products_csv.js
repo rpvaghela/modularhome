@@ -9,6 +9,7 @@ async function processProductsCsv() {
     return;
   }
 
+  console.log('Reading and parsing Products.csv with streaming quote-balanced parser...');
   const fileStream = fs.createReadStream(csvPath, { encoding: 'utf8' });
   const rl = readline.createInterface({
     input: fileStream,
@@ -17,7 +18,34 @@ async function processProductsCsv() {
 
   let headers = [];
   let isHeader = true;
-  const productsMap = new Map(); // handle -> product object
+  let pendingRecord = '';
+  let inQuotes = false;
+  const productsMap = new Map();
+
+  function parseCsvRecord(recordStr) {
+    const fields = [];
+    let cur = '';
+    let inQ = false;
+    for (let i = 0; i < recordStr.length; i++) {
+      const c = recordStr[i];
+      const next = recordStr[i + 1];
+      if (c === '"') {
+        if (inQ && next === '"') {
+          cur += '"';
+          i++;
+        } else {
+          inQ = !inQ;
+        }
+      } else if (c === ',' && !inQ) {
+        fields.push(cur);
+        cur = '';
+      } else {
+        cur += c;
+      }
+    }
+    fields.push(cur);
+    return fields;
+  }
 
   // Helper to determine product category
   function determineCategory(type, title, tags, collections) {
@@ -91,34 +119,25 @@ async function processProductsCsv() {
     return { sqft, dimensions, bedrooms, bathrooms };
   }
 
-  // Parse CSV line handling quotes
-  function parseLine(line) {
-    const cells = [];
-    let insideQuotes = false;
-    let current = '';
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      if (char === '"') {
-        if (insideQuotes && line[i + 1] === '"') {
-          current += '"';
-          i++;
-        } else {
-          insideQuotes = !insideQuotes;
-        }
-      } else if (char === ',' && !insideQuotes) {
-        cells.push(current.trim());
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    cells.push(current.trim());
-    return cells;
-  }
-
   for await (const line of rl) {
-    if (!line.trim()) continue;
-    const cells = parseLine(line);
+    if (!pendingRecord) {
+      pendingRecord = line;
+    } else {
+      pendingRecord += '\n' + line;
+    }
+
+    let qCount = 0;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === '"') qCount++;
+    }
+    if (qCount % 2 !== 0) {
+      inQuotes = !inQuotes;
+    }
+
+    if (inQuotes) continue;
+
+    const cells = parseCsvRecord(pendingRecord);
+    pendingRecord = '';
 
     if (isHeader) {
       headers = cells.map(h => h.replace(/^\uFEFF/, '').trim());
