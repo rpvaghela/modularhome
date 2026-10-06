@@ -153,20 +153,20 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
   ];
 
   return (
-    <footer className="bg-white border-t border-[#e7e9ee] pt-10 sm:pt-14 pb-8 text-[#101114]" aria-label="Site Footer">
+    <footer className="bg-white border-t border-[#e7e9ee] pt-10 sm:pt-14 pb-24 md:pb-10 text-[#101114]" aria-label="Site Footer">
       <div className="wrap">
         {/* 4 Balanced Columns Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 pb-10 border-b border-[#e7e9ee]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10 pb-8 border-b border-[#e7e9ee]">
           
           {/* ========================================================= */}
           {/* COLUMN 1: Explore Homes                                    */}
           {/* ========================================================= */}
-          <div className="border-b border-[#f0f2f5] md:border-b-0 pb-5 md:pb-0">
+          <div className="border-b border-[#f0f2f5] md:border-b-0 pb-4 md:pb-0">
             {/* Mobile Accordion Header */}
             <button
               type="button"
               onClick={() => toggleSection("explore")}
-              className="flex items-center justify-between w-full md:hidden py-1 text-left font-black text-base text-[#101114]"
+              className="flex items-center justify-between w-full md:hidden py-2 text-left font-black text-base text-[#101114] tracking-tight bg-transparent cursor-pointer"
               aria-expanded={openSections.explore}
             >
               <span>Explore Homes</span>
@@ -183,7 +183,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
             </h3>
 
             {/* Links List */}
-            <div className={`space-y-2.5 pt-3 md:pt-0 ${openSections.explore ? "block" : "hidden md:block"}`}>
+            <div className={`space-y-2 pt-2 md:pt-0 ${openSections.explore ? "block" : "hidden md:block"}`}>
               {exploreLinks.map((item) => (
                 <div key={item.label}>
                   <Link
@@ -200,12 +200,12 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
           {/* ========================================================= */}
           {/* COLUMN 2: Plan Your Home                                  */}
           {/* ========================================================= */}
-          <div className="border-b border-[#f0f2f5] md:border-b-0 pb-5 md:pb-0">
+          <div className="border-b border-[#f0f2f5] md:border-b-0 pb-4 md:pb-0">
             {/* Mobile Accordion Header */}
             <button
               type="button"
               onClick={() => toggleSection("plan")}
-              className="flex items-center justify-between w-full md:hidden py-1 text-left font-black text-base text-[#101114]"
+              className="flex items-center justify-between w-full md:hidden py-2 text-left font-black text-base text-[#101114] tracking-tight bg-transparent cursor-pointer"
               aria-expanded={openSections.plan}
             >
               <span>Plan Your Home</span>
@@ -222,7 +222,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
             </h3>
 
             {/* Links List */}
-            <div className={`space-y-2.5 pt-3 md:pt-0 ${openSections.plan ? "block" : "hidden md:block"}`}>
+            <div className={`space-y-2 pt-2 md:pt-0 ${openSections.plan ? "block" : "hidden md:block"}`}>
               {planLinks.map((item) => (
                 <div key={item.label}>
                   <Link
@@ -239,12 +239,12 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
           {/* ========================================================= */}
           {/* COLUMN 3: Company & Resources                              */}
           {/* ========================================================= */}
-          <div className="border-b border-[#f0f2f5] md:border-b-0 pb-5 md:pb-0">
+          <div className="border-b border-[#f0f2f5] md:border-b-0 pb-4 md:pb-0">
             {/* Mobile Accordion Header */}
             <button
               type="button"
               onClick={() => toggleSection("company")}
-              className="flex items-center justify-between w-full md:hidden py-1 text-left font-black text-base text-[#101114]"
+              className="flex items-center justify-between w-full md:hidden py-2 text-left font-black text-base text-[#101114] tracking-tight bg-transparent cursor-pointer"
               aria-expanded={openSections.company}
             >
               <span>Company & Resources</span>
@@ -261,7 +261,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
             </h3>
 
             {/* Links List */}
-            <div className={`space-y-2.5 pt-3 md:pt-0 ${openSections.company ? "block" : "hidden md:block"}`}>
+            <div className={`space-y-2 pt-2 md:pt-0 ${openSections.company ? "block" : "hidden md:block"}`}>
               {companyLinks.map((item) => (
                 <div key={item.label}>
                   <Link
@@ -283,7 +283,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
             <button
               type="button"
               onClick={() => toggleSection("contact")}
-              className="flex items-center justify-between w-full md:hidden py-1 text-left font-black text-base text-[#101114]"
+              className="flex items-center justify-between w-full md:hidden py-2 text-left font-black text-base text-[#101114] tracking-tight bg-transparent cursor-pointer"
               aria-expanded={openSections.contact}
             >
               <span>Contact & Stay Connected</span>
@@ -485,65 +485,65 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
         {/* ========================================================= */}
         {/* BOTTOM BAR: Policies and Copyright                        */}
         {/* ========================================================= */}
-        <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#6b7280]">
+        <div className="pt-6 sm:pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#6b7280]">
           {/* Copyright */}
-          <div className="flex items-center gap-2 text-center md:text-left">
-            <span>
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-center md:text-left">
+            <span className="font-medium text-[#4b5563]">
               © {currentYear} {companyName}. All rights reserved.
             </span>
-            <span className="hidden sm:inline text-[#d1d5db]">•</span>
-            <span className="hidden sm:inline text-[#9ca3af]">
+            <span className="hidden sm:inline text-[#d1d5db]" aria-hidden="true">•</span>
+            <span className="text-[#9ca3af] text-[11px] sm:text-xs">
               Nationwide Precision Steel Modular Homes
             </span>
           </div>
 
           {/* Policy Links */}
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+          <nav aria-label="Legal & Policies" className="flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-4 gap-y-2 text-[11px] sm:text-xs text-center max-w-xl">
             <Link
               href="/privacy-policy"
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors"
+              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5"
             >
               Privacy Policy
             </Link>
-            <span className="text-[#d1d5db]">•</span>
+            <span className="text-[#d1d5db] select-none" aria-hidden="true">•</span>
             <Link
               href="/terms-of-service"
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors"
+              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5"
             >
               Terms of Service
             </Link>
-            <span className="text-[#d1d5db]">•</span>
+            <span className="text-[#d1d5db] select-none" aria-hidden="true">•</span>
             <Link
               href="/refund-cancellation-policy"
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors"
+              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5 whitespace-nowrap"
             >
-              Refund & Cancellation Policy
+              Refund & Cancellation
             </Link>
-            <span className="text-[#d1d5db]">•</span>
+            <span className="text-[#d1d5db] select-none" aria-hidden="true">•</span>
             <Link
               href="/shipping-delivery-policy"
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors"
+              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5 whitespace-nowrap"
             >
-              Shipping & Delivery Policy
+              Shipping & Delivery
             </Link>
-            <span className="text-[#d1d5db]">•</span>
+            <span className="text-[#d1d5db] select-none" aria-hidden="true">•</span>
             <Link
               href="/accessibility"
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors"
+              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5 whitespace-nowrap"
             >
-              Accessibility Statement
+              Accessibility
             </Link>
-            <span className="text-[#d1d5db]">•</span>
+            <span className="text-[#d1d5db] select-none" aria-hidden="true">•</span>
             {/* Interactive Cookie Settings Trigger */}
             <button
               type="button"
               onClick={() => setShowCookieModal(true)}
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors underline cursor-pointer bg-transparent border-none p-0 inline-flex items-center gap-1"
+              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors underline cursor-pointer bg-transparent border-none p-0 inline-flex items-center gap-1 py-0.5 whitespace-nowrap"
             >
               <Sliders className="w-3 h-3 text-[#9ca3af]" />
               Cookie Settings
             </button>
-          </div>
+          </nav>
         </div>
       </div>
 

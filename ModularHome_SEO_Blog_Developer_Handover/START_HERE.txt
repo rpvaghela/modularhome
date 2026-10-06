@@ -1,0 +1,32 @@
+MODULARHOME FULL-SITE SEO & BLOG MIGRATION PACK
+Captured: 2026-10-06T09:56:54Z
+Source: https://modularhome.com/
+
+SCOPE
+All public sitemap URLs and homepage-linked additions; full-site SEO including product SEO; full blog bodies; public page and collection content. Product catalogue import data (prices, variants, product body imports and image tables) excluded by request because products are already on the new site.
+
+COUNTS
+Inventory: 3313 URLs (3,311 sitemap URLs plus 2 homepage links).
+Successful captures: 1566. Errors: 74. Public HTML not captured: 1673 (authenticated SEO/content still exported).
+Article HTML files: 190 of 190 article URLs.
+
+START HERE
+Open ModularHome_SEO_Blog_Migration_Workbook.xlsx. URL Mapping contains proposed retained URLs, not verified destinations on the new site. SEO Inventory is the public rendered baseline. Blogs links to all 190 individual article HTML copies. Admin SEO contains complete authenticated SEO records; Existing Redirects and Admin Menus contain the owner-side settings. Pages and Collections contain source content excerpts; full extracted bodies are in JSON. Issues identifies errors and missing metadata. Missing Exports lists private data still needed.
+
+FILES
+blogs/: article HTML copies for offline handover. Import only article content, omitting the archive title/source wrapper. These copies have noindex, and asset references remain remote.
+data/admin_articles.json: full article bodies, summaries, images, tags, dates and authors. data/admin_pages.json and admin_collections.json: full stored content. data/admin_seo_combined.json: complete stored SEO inventory. data/admin_menus.json: menu hierarchy. data/existing_redirects.csv: original redirect rules.
+data/seo_and_content.json: SEO metadata, source structured data and full extracted content for non-product pages. Product records include metadata and URL data only. Product full-page H1/structured data may not be captured; consult capture_scope.
+data/seo_inventory.csv, url_mapping.csv, blog_inventory.csv: portable migration tables.
+data/navigation.json and shopify_homepage_snapshot.html: reference menus, original nesting and homepage sections.
+sitemaps/: original captured XML inventory.
+
+LIMITS
+Authenticated Shopify exports are included for all 190 articles, 51 pages, 3 blogs, 469 collections, 2717 product SEO records, menus and 9 existing redirects. This is a migration data pack, not a full operational backup or completed redirect implementation. No source-to-new-site route matching has been verified. Image/video/PDF references are retained but binary assets are not downloaded. Existing redirects are exported but not deployed. SEO app configuration, Search Console and analytics are still needed. Admin records outside the public sitemap are retained separately and are not automatically proposed for publication. Full blog bodies, authors and original dates come from authenticated Shopify Admin. Stored SEO overrides are retained separately from rendered values; null stored fields indicate no explicit override, not necessarily absent rendered SEO. Blank SEO fields mean absent in the capture; they are not invented. Main-content fallback needs review before importing page/collection content.
+
+NEXT STEPS FOR RUSHIKESH
+1. Confirm each old public URL exists unchanged on the new deployment or map it to the precise equivalent.
+2. Use Admin SEO for stored metadata and SEO Inventory for the available public rendered baseline. Preserve existing SEO metadata and blog bodies; verify product SEO against the products already imported.
+3. Resolve all fetch errors and content issues. Keep product URL inventory entries even though product import files were excluded.
+4. Import existing_redirects.csv into the new deployment and test every rule. Obtain remaining missing exports; download approved assets; test permanent redirects, canonicals, sitemap and production indexability.
+5. Refresh new/edited Shopify articles and pages immediately before DNS change. Do not switch DNS based solely on this pack.
