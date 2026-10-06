@@ -37,7 +37,7 @@ export function getPool(): Pool | null {
         },
         max: 10,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 4000,
+        connectionTimeoutMillis: 1000,
       });
 
       pool.on("error", (err) => {
@@ -75,7 +75,7 @@ export async function query<T extends QueryResultRow = any>(
 
     // If DNS resolution fails (e.g. IPv6-only direct Supabase host on IPv4 network)
     if (errorMsg.includes("ENOTFOUND") || errorMsg.includes("ETIMEDOUT") || errorMsg.includes("ECONNREFUSED")) {
-      dbDisabledUntil = now + 60000; // Back off direct postgres for 60 seconds to avoid request latency
+      dbDisabledUntil = now + 86400000; // Back off direct postgres for 24 hours to avoid request latency
       
       if (now - lastDbErrorLoggedAt > 60000) {
         lastDbErrorLoggedAt = now;

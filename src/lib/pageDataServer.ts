@@ -80,7 +80,9 @@ export async function getPublicPageBySlug(slugParam: string): Promise<CmsPage | 
     }
   } catch {}
 
-  return null;
+  // 4. Fallback to publicData getPublicPageBySlug
+  const { getPublicPageBySlug: getPublicPageFallback } = await import("./publicData");
+  return await getPublicPageFallback(cleanSlug);
 }
 
 /**

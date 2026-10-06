@@ -157,18 +157,10 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/blog",
-        destination: "/resources",
-      },
-      {
-        source: "/blogs",
-        destination: "/resources",
+        destination: "/blogs",
       },
       {
         source: "/blog/:slug",
-        destination: "/resources/:slug",
-      },
-      {
-        source: "/blogs/:slug",
         destination: "/resources/:slug",
       },
     ];

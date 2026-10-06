@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
+import SHOPIFY_REDIRECTS_DATA from "@/data/shopify_redirects.json";
 
-// Standard 301 SEO redirects mapping (e.g. from Shopify legacy paths)
+// Explicit static legacy redirects mapping
 const LEGACY_REDIRECTS: Record<string, string> = {
-  "/collections/all": "/buildings",
-  "/collections": "/buildings",
   "/catalog": "/buildings",
   "/catalogue": "/buildings",
   "/floorplans": "/floor-plans",
@@ -14,65 +13,50 @@ const LEGACY_REDIRECTS: Record<string, string> = {
   "/models": "/buildings",
 };
 
+// Imported Matrixify Shopify redirects (472 mapped paths)
+const SHOPIFY_REDIRECTS: Record<string, string> = SHOPIFY_REDIRECTS_DATA as Record<string, string>;
+
 const JWT_SECRET = new TextEncoder().encode(
   process.env.ADMIN_SESSION_SECRET || "modularhome_secure_jwt_session_secret_key_2026_change_in_production"
 );
 
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+  const host = request.headers.get("host") || "";
+  const isPreviewHost =
+    host.includes("vercel.app") ||
+    host.includes("sg-host.com");
+
+  // Normalize path (strip trailing slash if length > 1)
   const normalizedPath = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const lowerPath = normalizedPath.toLowerCase();
 
-  // 1. Check exact match 301 SEO Redirects
-  const directTarget = LEGACY_REDIRECTS[normalizedPath] || LEGACY_REDIRECTS[pathname];
-  if (directTarget && directTarget !== pathname && directTarget !== normalizedPath) {
+  // 1. Check exact match 301 Shopify & Legacy Redirects
+  const directTarget =
+    SHOPIFY_REDIRECTS[lowerPath] ||
+    SHOPIFY_REDIRECTS[normalizedPath] ||
+    LEGACY_REDIRECTS[lowerPath] ||
+    LEGACY_REDIRECTS[normalizedPath];
+
+  if (directTarget && directTarget !== pathname && directTarget !== normalizedPath && directTarget !== lowerPath) {
     const targetUrl = new URL(directTarget + (search || ""), request.url);
-    return NextResponse.redirect(targetUrl, { status: 301 });
-  }
-
-  // 2. Handle Shopify pattern 301 redirects
-  if (normalizedPath.startsWith("/products/")) {
-    const handle = normalizedPath.replace("/products/", "");
-    if (handle) {
-      const redirectUrl = new URL(`/buildings/${handle}${search || ""}`, request.url);
-      return NextResponse.redirect(redirectUrl, { status: 301 });
+    const redirectResponse = NextResponse.redirect(targetUrl, { status: 301 });
+    if (isPreviewHost) {
+      redirectResponse.headers.set("X-Robots-Tag", "noindex, nofollow");
     }
+    return redirectResponse;
   }
 
-  if (normalizedPath.startsWith("/pages/")) {
-    const handle = normalizedPath.replace("/pages/", "");
-    if (handle) {
-      const redirectUrl = new URL(`/${handle}${search || ""}`, request.url);
-      return NextResponse.redirect(redirectUrl, { status: 301 });
-    }
-  }
-
-  if (normalizedPath.startsWith("/blogs/news/")) {
-    const handle = normalizedPath.replace("/blogs/news/", "");
-    if (handle) {
-      const redirectUrl = new URL(`/resources/${handle}${search || ""}`, request.url);
-      return NextResponse.redirect(redirectUrl, { status: 301 });
-    }
-  }
-
-  if (normalizedPath.startsWith("/collections/") && normalizedPath !== "/collections/all") {
-    const handle = normalizedPath.replace("/collections/", "");
-    if (handle) {
-      const redirectUrl = new URL(`/buildings?category=${encodeURIComponent(handle)}`, request.url);
-      return NextResponse.redirect(redirectUrl, { status: 301 });
-    }
-  }
-
-  // 3. Handle /admin/login page
+  // 2. Handle /admin/login page
   if (pathname === "/admin/login") {
     const reason = request.nextUrl.searchParams.get("reason");
-    // If an explicit logout/expiry reason is present, clear stale cookies and allow login form
     if (reason) {
       const response = NextResponse.next();
       response.cookies.delete("admin_session");
+      if (isPreviewHost) response.headers.set("X-Robots-Tag", "noindex, nofollow");
       return response;
     }
 
-    // Only redirect to /admin if session token exists AND is actively valid
     const sessionCookie = request.cookies.get("admin_session");
     if (sessionCookie && sessionCookie.value) {
       try {
@@ -83,14 +67,17 @@ export async function middleware(request: NextRequest) {
       } catch {
         const response = NextResponse.next();
         response.cookies.delete("admin_session");
+        if (isPreviewHost) response.headers.set("X-Robots-Tag", "noindex, nofollow");
         return response;
       }
     }
 
-    return NextResponse.next();
+    const res = NextResponse.next();
+    if (isPreviewHost) res.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return res;
   }
 
-  // 4. Protect /admin UI routes (except /admin/login)
+  // 3. Protect /admin UI routes (except /admin/login)
   if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
     const sessionCookie = request.cookies.get("admin_session");
 
@@ -103,7 +90,6 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    // Validate cryptographic signature & expiration time
     try {
       const { payload } = await jwtVerify(sessionCookie.value, JWT_SECRET);
       if (!payload || !payload.email) {
@@ -119,7 +105,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 5. Protect /api/admin API routes (except login and logout)
+  // 4. Protect /api/admin API routes (except login and logout)
   if (
     pathname.startsWith("/api/admin") &&
     !pathname.startsWith("/api/admin/auth/login") &&
@@ -156,7 +142,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  if (isPreviewHost) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+
+  return response;
 }
 
 export const config = {

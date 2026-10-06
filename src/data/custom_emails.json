@@ -38,8 +38,8 @@
     "status": "FAILED",
     "metadata": {
       "error": "The modularhome.com domain is not verified. Please, add and verify your domain on https://resend.com/domains",
-      "callbackUrl": "https://modularhome.vercel.app/auth/callback?token=cd3a8bc25f3b88c083f32c7eef8f725940616b77b56588c7d693ab32249a4d9e",
-      "directVerifyUrl": "https://modularhome.vercel.app/verify-email?token=cd3a8bc25f3b88c083f32c7eef8f725940616b77b56588c7d693ab32249a4d9e",
+      "callbackUrl": "https://modularhome.com/auth/callback?token=cd3a8bc25f3b88c083f32c7eef8f725940616b77b56588c7d693ab32249a4d9e",
+      "directVerifyUrl": "https://modularhome.com/verify-email?token=cd3a8bc25f3b88c083f32c7eef8f725940616b77b56588c7d693ab32249a4d9e",
       "name": "rushi"
     },
     "created_at": "2026-10-02T11:55:01.075Z"
@@ -53,8 +53,8 @@
     "status": "FAILED",
     "metadata": {
       "error": "The modularhome.com domain is not verified. Please, add and verify your domain on https://resend.com/domains",
-      "callbackUrl": "https://modularhome.vercel.app/auth/callback?token=f32b50978cb5683c1511c646c0220bb111beff7e9aa206ac5c8ebc6212764962",
-      "directVerifyUrl": "https://modularhome.vercel.app/verify-email?token=f32b50978cb5683c1511c646c0220bb111beff7e9aa206ac5c8ebc6212764962",
+      "callbackUrl": "https://modularhome.com/auth/callback?token=f32b50978cb5683c1511c646c0220bb111beff7e9aa206ac5c8ebc6212764962",
+      "directVerifyUrl": "https://modularhome.com/verify-email?token=f32b50978cb5683c1511c646c0220bb111beff7e9aa206ac5c8ebc6212764962",
       "name": "CHETAN SONAWANE"
     },
     "created_at": "2026-09-27T13:32:34.454Z"

@@ -7,6 +7,7 @@ import { FloorPlan } from "@/data/floorPlans";
 import { useCart } from "@/context/CartContext";
 import { stripHtml } from "@/utils/text";
 import { Bed, Bath, Maximize2, Layers, Download, CheckCircle, ArrowRight, ShoppingBag } from "lucide-react";
+import ShareButton from "@/components/ShareButton";
 
 interface FloorPlanCardProps {
   plan: FloorPlan;
@@ -19,6 +20,16 @@ export default function FloorPlanCard({ plan, onInstantBuy }: FloorPlanCardProps
     plan.salePrice && plan.price > plan.salePrice
       ? Math.round(((plan.price - plan.salePrice) / plan.price) * 100)
       : null;
+
+  const planUrl = `/floor-plans/${plan.slug}`;
+  const shareItem = {
+    title: plan.title,
+    url: planUrl,
+    description: `${plan.title} - ${plan.squareFeet.toLocaleString()} sqft, ${plan.bedrooms} Bed, ${plan.bathrooms} Bath. Complete Architectural Plan Set.`,
+    image: plan.previewImage,
+    category: plan.category,
+    price: plan.salePrice ? `$${plan.salePrice}` : `$${plan.price}`,
+  };
 
   return (
     <div className="group bg-white rounded-2xl border border-stone-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden">
@@ -33,16 +44,23 @@ export default function FloorPlanCard({ plan, onInstantBuy }: FloorPlanCardProps
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 opacity-70 group-hover:opacity-80 transition-opacity" />
 
-        {/* Top Badges */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+        {/* Top Badges & Share */}
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
           <span className="px-3 py-1 bg-white/90 backdrop-blur-md text-stone-900 text-xs font-semibold rounded-full shadow-sm">
             {plan.category}
           </span>
-          {discountPercent && (
-            <span className="px-2.5 py-1 bg-orange-600 text-white text-xs font-bold rounded-full shadow-sm">
-              Save {discountPercent}%
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {discountPercent && (
+              <span className="px-2.5 py-1 bg-orange-600 text-white text-xs font-bold rounded-full shadow-sm">
+                Save {discountPercent}%
+              </span>
+            )}
+            <ShareButton
+              variant="icon"
+              item={shareItem}
+              buttonTitle={`Share ${plan.title}`}
+            />
+          </div>
         </div>
 
         {/* Bottom Quick Specs on Image */}

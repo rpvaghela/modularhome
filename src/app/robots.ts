@@ -1,7 +1,8 @@
 import { MetadataRoute } from "next";
+import { PRODUCTION_CANONICAL_HOST } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://modularhome.com";
+  const baseUrl = PRODUCTION_CANONICAL_HOST;
 
   return {
     rules: [

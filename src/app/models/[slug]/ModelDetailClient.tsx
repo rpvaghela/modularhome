@@ -18,6 +18,7 @@ import {
 import { BuildingModel } from "@/data/models";
 import BuildingCard from "@/components/BuildingCard";
 import VideoModal from "@/components/VideoModal";
+import ShareButton from "@/components/ShareButton";
 import { VideoItem } from "@/data/videos";
 import { formatPrice } from "@/utils/currency";
 import RichHtmlContent from "@/components/RichHtmlContent";
@@ -78,16 +79,34 @@ export default function ModelDetailClient({
     });
   };
 
+  const modelShareData = {
+    title: model?.name || "Modular Building Model",
+    url: `/buildings/${model?.slug}`,
+    description: `${model?.name} - ${model?.tagline || ""}. ${model?.sqft ? `${model.sqft} SQ FT` : ""} precision modular home. Starting at ${formattedBasePrice}.`,
+    image: primaryImg,
+    category: model?.series || model?.category,
+    price: totalCalculatedPrice > 0 ? formatPrice(totalCalculatedPrice) : formattedBasePrice,
+  };
+
   return (
     <div className="min-h-screen bg-white pt-24 pb-28 text-[#101114]">
-      {/* Top Breadcrumb */}
+      {/* Top Breadcrumb & Share Actions */}
       <div className="wrap py-4 text-xs text-[#6b7280]">
-        <div className="flex items-center gap-2">
-          <Link href="/" className="hover:text-[#101114] transition-colors">Home</Link>
-          <span>/</span>
-          <Link href="/buildings" className="hover:text-[#101114] transition-colors">Buildings</Link>
-          <span>/</span>
-          <span className="text-[#d97706] font-bold uppercase">{model?.name}</span>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
+            <Link href="/" className="hover:text-[#101114] transition-colors">Home</Link>
+            <span>/</span>
+            <Link href="/buildings" className="hover:text-[#101114] transition-colors">Buildings</Link>
+            <span>/</span>
+            <span className="text-[#d97706] font-bold uppercase truncate">{model?.name}</span>
+          </div>
+
+          <ShareButton
+            variant="button"
+            label="Share Model"
+            item={modelShareData}
+            buttonTitle={`Share ${model?.name}`}
+          />
         </div>
       </div>
 
@@ -107,6 +126,15 @@ export default function ModelDetailClient({
                 className="object-cover transition-all duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+
+              {/* Floating Share Icon Top-Right */}
+              <div className="absolute top-4 right-4 z-10">
+                <ShareButton
+                  variant="icon"
+                  item={modelShareData}
+                  buttonTitle={`Share ${model?.name}`}
+                />
+              </div>
 
               {/* Video Tour Quick Trigger Badge */}
               <button
@@ -225,6 +253,15 @@ export default function ModelDetailClient({
                     <span>Upload Plan</span>
                   </Link>
                 </div>
+
+                {/* Share Model Full Width Action */}
+                <ShareButton
+                  variant="outline"
+                  label="Share This Model"
+                  className="w-full"
+                  item={modelShareData}
+                  buttonTitle={`Share ${model?.name}`}
+                />
               </div>
 
               {/* Engineering highlights badge */}
@@ -455,6 +492,17 @@ export default function ModelDetailClient({
                     <Phone className="w-3.5 h-3.5 text-[#d97706]" />
                     <span>Call {phone}</span>
                   </a>
+
+                  <ShareButton
+                    variant="outline"
+                    label="Share Configured Estimate"
+                    className="w-full"
+                    item={{
+                      ...modelShareData,
+                      price: totalCalculatedPrice > 0 ? formatPrice(totalCalculatedPrice) : formattedBasePrice,
+                    }}
+                    buttonTitle={`Share ${model?.name}`}
+                  />
                 </div>
               </div>
             </div>

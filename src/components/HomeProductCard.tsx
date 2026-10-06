@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import ShareButton from "@/components/ShareButton";
 
 export interface ProductItem {
   id: string;
@@ -49,6 +52,22 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 20vw"
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-108"
         />
+
+        {/* Share Button Overlay */}
+        <div className="absolute top-2.5 right-2.5 z-10">
+          <ShareButton
+            variant="icon"
+            item={{
+              title: product.name,
+              url: href,
+              description: `${product.name} - ${metaString}. Starting at ${formattedPrice}`,
+              image: product.image,
+              category: product.badge || "Modular Home",
+              price: formattedPrice,
+            }}
+            buttonTitle={`Share ${product.name}`}
+          />
+        </div>
       </div>
 
       {/* Card Body */}
@@ -76,3 +95,4 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
     </div>
   );
 }
+

@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FloorPlan, INITIAL_FLOOR_PLANS } from "@/data/floorPlans";
 import FloorPlanCheckoutModal from "@/components/FloorPlanCheckoutModal";
+import ShareButton from "@/components/ShareButton";
 import {
   Bed,
   Bath,
@@ -16,7 +17,6 @@ import {
   ShieldCheck,
   FileCode2,
   ArrowLeft,
-  Share2,
   Sparkles,
   Zap,
   ShoppingBag,
@@ -35,7 +35,6 @@ export default function FloorPlanDetailPage() {
   });
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     async function loadPlan() {
@@ -110,34 +109,33 @@ export default function FloorPlanDetailPage() {
       ? Math.round(((plan.price - plan.salePrice) / plan.price) * 100)
       : null;
 
-  const handleShare = () => {
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const planShareData = {
+    title: plan.title,
+    url: `/floor-plans/${plan.slug}`,
+    description: `${plan.title} - ${plan.squareFeet.toLocaleString()} sqft, ${plan.bedrooms} Bed, ${plan.bathrooms} Bath. Complete CAD + Stamped Blueprint set.`,
+    image: selectedImage || plan.previewImage,
+    category: plan.category,
+    price: plan.salePrice ? `$${plan.salePrice}` : `$${plan.price}`,
   };
 
   return (
     <div className="min-h-screen bg-[#FAF8F5] text-stone-900 pb-24">
-      {/* Breadcrumb Navigation */}
+      {/* Breadcrumb Navigation & Share */}
       <div className="bg-white border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
           <Link
             href="/floor-plans"
             className="inline-flex items-center gap-2 text-xs font-semibold text-stone-600 hover:text-orange-600 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            Back to Floor Plan Catalog
+            <span>Back to Floor Plan Catalog</span>
           </Link>
-          <button
-            type="button"
-            onClick={handleShare}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors cursor-pointer"
-          >
-            <Share2 className="w-3.5 h-3.5" />
-            {copied ? "Link Copied!" : "Share Plan"}
-          </button>
+          <ShareButton
+            variant="button"
+            label="Share Plan"
+            item={planShareData}
+            buttonTitle={`Share ${plan.title}`}
+          />
         </div>
       </div>
 
@@ -163,6 +161,15 @@ export default function FloorPlanDetailPage() {
                     Save {discountPercent}%
                   </span>
                 )}
+              </div>
+
+              {/* Floating Share Button on Blueprint Stage */}
+              <div className="absolute top-4 right-4 z-10">
+                <ShareButton
+                  variant="icon"
+                  item={planShareData}
+                  buttonTitle={`Share ${plan.title}`}
+                />
               </div>
             </div>
 
@@ -344,6 +351,14 @@ export default function FloorPlanDetailPage() {
                   <ShoppingBag className="w-4 h-4 text-stone-700" />
                   Add to Cart
                 </button>
+
+                <ShareButton
+                  variant="outline"
+                  label="Share This Floor Plan"
+                  className="w-full"
+                  item={planShareData}
+                  buttonTitle={`Share ${plan.title}`}
+                />
               </div>
 
               {/* Value Props Bullet List */}
