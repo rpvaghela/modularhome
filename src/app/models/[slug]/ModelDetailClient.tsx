@@ -22,6 +22,7 @@ import ShareButton from "@/components/ShareButton";
 import { VideoItem } from "@/data/videos";
 import { formatPrice } from "@/utils/currency";
 import RichHtmlContent from "@/components/RichHtmlContent";
+import { getCategoryFallbackImage } from "@/lib/publicData";
 
 interface ModelDetailClientProps {
   model: BuildingModel;
@@ -35,17 +36,27 @@ export default function ModelDetailClient({
   relatedModels = [],
   phone = "+1 (812) 595-4033",
 }: ModelDetailClientProps) {
-  const primaryImg = model?.primaryImage || model?.image || (model?.gallery && model.gallery[0]) || "/newmodularlogo.png";
+  const fallbackImg = getCategoryFallbackImage(model?.category || model?.series, model?.name, model?.slug);
+  const rawPrimary = model?.primaryImage || model?.image || (model?.gallery && model.gallery[0]) || "";
+  const primaryImg = (!rawPrimary || rawPrimary.includes("newmodularlogo") || rawPrimary.includes("finallogo"))
+    ? fallbackImg
+    : rawPrimary;
   const [activeImage, setActiveImage] = useState<string>(primaryImg);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [floorPlanExpanded, setFloorPlanExpanded] = useState(false);
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
 
-  const galleryList = Array.isArray(model?.gallery) && model.gallery.length > 0 ? model.gallery : [primaryImg];
+  const rawGallery = Array.isArray(model?.gallery) && model.gallery.length > 0 ? model.gallery : [primaryImg];
+  const filteredGallery = rawGallery.filter((g) => g && !g.includes("newmodularlogo") && !g.includes("finallogo"));
+  const galleryList = filteredGallery.length > 0 ? filteredGallery : [primaryImg];
+
   const featuresList = Array.isArray(model?.features) ? model.features : [];
   const specsList = Array.isArray(model?.specs) ? model.specs : [];
   const optionsList = Array.isArray(model?.customizableOptions) ? model.customizableOptions : [];
-  const floorPlanImg = model?.floorPlanImage || model?.floorPlan || primaryImg;
+  const rawFloorPlan = model?.floorPlanImage || model?.floorPlan;
+  const floorPlanImg = (!rawFloorPlan || rawFloorPlan.includes("newmodularlogo") || rawFloorPlan.includes("finallogo"))
+    ? primaryImg
+    : rawFloorPlan;
   const startingPrice = Number(model?.startingPrice) || 0;
 
   const formattedBasePrice = startingPrice > 0 ? formatPrice(startingPrice) : "Custom Quote";

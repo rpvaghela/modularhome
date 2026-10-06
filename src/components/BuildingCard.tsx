@@ -5,6 +5,7 @@ import Image from "next/image";
 import { BuildingModel } from "@/data/models";
 import { formatPrice } from "@/utils/currency";
 import ShareButton from "@/components/ShareButton";
+import { getCategoryFallbackImage } from "@/lib/publicData";
 
 interface BuildingCardProps {
   model: BuildingModel;
@@ -34,12 +35,18 @@ export default function BuildingCard({ model, priority = false }: BuildingCardPr
   const specsText = specsList.length > 0 ? specsList.join(" | ") : "Precision Modular Construction";
   const modelUrl = `/buildings/${model.slug}`;
 
+  const fallbackImg = getCategoryFallbackImage(model.category || model.series, model.name, model.slug);
+  const rawImage = model.primaryImage || model.image;
+  const imageSrc = (!rawImage || rawImage.includes("newmodularlogo") || rawImage.includes("finallogo"))
+    ? fallbackImg
+    : rawImage;
+
   return (
     <div className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between bg-white relative">
       {/* Image Viewport */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
         <Image
-          src={model.primaryImage || model.image || "/newmodularlogo.png"}
+          src={imageSrc}
           alt={model.name}
           fill
           priority={priority}
@@ -55,7 +62,7 @@ export default function BuildingCard({ model, priority = false }: BuildingCardPr
               title: model.name,
               url: modelUrl,
               description: `${model.name} - ${specsText}. Starting at ${formattedPrice}`,
-              image: model.primaryImage || model.image,
+              image: imageSrc,
               category: model.category || model.series,
               price: formattedPrice,
             }}

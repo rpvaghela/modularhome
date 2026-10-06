@@ -37,7 +37,9 @@ export async function generateMetadata({
     truncateText(model.description, 160) ||
     `Explore the ${model.name} precision-engineered modular home model on ModularHome.com.`;
 
-  const canonical = getCanonicalUrl(`/products/${model.slug}`);
+  const productImage = (!model.primaryImage || model.primaryImage.includes("newmodularlogo"))
+    ? (model.image && !model.image.includes("newmodularlogo") ? model.image : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80")
+    : model.primaryImage;
 
   return {
     title,
@@ -53,7 +55,7 @@ export async function generateMetadata({
       siteName: "ModularHome.com",
       images: [
         {
-          url: model.primaryImage || "/newmodularlogo.png",
+          url: productImage,
           alt: model.name,
         },
       ],
@@ -63,7 +65,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [model.primaryImage || "/newmodularlogo.png"],
+      images: [productImage],
     },
   };
 }

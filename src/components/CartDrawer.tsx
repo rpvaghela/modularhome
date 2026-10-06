@@ -146,7 +146,7 @@ export default function CartDrawer() {
                   <div key={item.id} className="pt-4 first:pt-0 flex gap-4 items-start">
                     <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
                       <Image
-                        src={item.previewImage || "/newmodularlogo.png"}
+                        src={(!item.previewImage || item.previewImage.includes("newmodularlogo")) ? "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80" : item.previewImage}
                         alt={item.title}
                         fill
                         className="object-cover"

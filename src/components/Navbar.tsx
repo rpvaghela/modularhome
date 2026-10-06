@@ -406,10 +406,10 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
       >
         {/* --- ROW 1: BRAND LOGO + GLOBAL SEARCH + CTAs --- */}
         <div className="border-b border-[#f0f2f5] w-full bg-white">
-          <div className="wrap h-[58px] sm:h-[72px] md:h-[80px] flex items-center justify-between gap-1.5 xs:gap-2 sm:gap-4 md:gap-6">
+          <div className="wrap h-[62px] sm:h-[76px] md:h-[84px] flex items-center justify-between gap-1.5 xs:gap-2 sm:gap-4 md:gap-6">
             
             {/* Left: Mobile Hamburger Toggle + Logo */}
-            <div className="flex items-center gap-1 xs:gap-2 sm:gap-3 shrink-0 min-w-0">
+            <div className="flex items-center gap-1.5 xs:gap-2.5 sm:gap-3 shrink-0 min-w-0">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="lg:hidden p-1.5 -ml-1 text-[#101114] hover:text-[#d97706] rounded-lg hover:bg-gray-100 transition-colors cursor-pointer shrink-0"
@@ -427,10 +427,10 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                 <Image
                   src={logoUrl}
                   alt={initialSettings?.companyName || "ModularHome.com"}
-                  width={340}
-                  height={68}
+                  width={400}
+                  height={85}
                   priority
-                  className="h-7 xs:h-8 sm:h-10 md:h-12 lg:h-[50px] xl:h-[54px] w-auto max-w-[135px] xs:max-w-[170px] sm:max-w-[240px] md:max-w-[300px] lg:max-w-[340px] xl:max-w-none object-contain hover:opacity-90 transition-opacity"
+                  className="h-8.5 xs:h-9.5 sm:h-12 md:h-14 lg:h-[58px] xl:h-[64px] w-auto max-w-[185px] xs:max-w-[235px] sm:max-w-[310px] md:max-w-[360px] lg:max-w-[420px] xl:max-w-none object-contain hover:opacity-90 transition-opacity"
                 />
               </Link>
             </div>
@@ -902,7 +902,7 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                         {/* Image Container with Badge */}
                         <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-gray-200 mb-3.5">
                           <Image
-                            src={activeCategoryData.featuredProduct.image || "/newmodularlogo.png"}
+                            src={activeCategoryData.featuredProduct.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"}
                             alt={activeCategoryData.featuredProduct.name}
                             fill
                             sizes="(max-width: 1200px) 35vw, 400px"
@@ -987,9 +987,9 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                 <Image
                   src={logoUrl}
                   alt="ModularHome.com"
-                  width={240}
-                  height={52}
-                  className="h-9 sm:h-10 w-auto object-contain"
+                  width={300}
+                  height={65}
+                  className="h-10 sm:h-12 w-auto max-w-[200px] object-contain"
                 />
               </Link>
               <button

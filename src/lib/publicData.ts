@@ -44,12 +44,50 @@ export function clearPublicDataCache(): void {
 }
 
 /**
+ * Resolves an appropriate high-resolution architectural image based on category and model keywords
+ */
+export function getCategoryFallbackImage(category?: string, name?: string, slug?: string): string {
+  const text = `${category || ""} ${name || ""} ${slug || ""}`.toLowerCase();
+  if (text.includes("cabin") || text.includes("log home") || text.includes("wood") || text.includes("timber") || text.includes("rustic") || text.includes("berkley")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345";
+  }
+  if (text.includes("barndo") || text.includes("barndominium") || text.includes("steel home")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM3945-front_1.png?v=1750743065";
+  }
+  if (text.includes("tiny") || text.includes("micro") || text.includes("small")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/maddy.png?v=1783804418";
+  }
+  if (text.includes("adu") || text.includes("granny") || text.includes("studio") || text.includes("pod")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308";
+  }
+  if (text.includes("a-frame") || text.includes("aframe")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/blackaframe.png?v=1770169284";
+  }
+  if (text.includes("kit") || text.includes("framing") || text.includes("panelized") || text.includes("sip")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/m1_ce95e0cb-7b02-4d09-b913-1fc48d1b48f1.jpg?v=1774680383";
+  }
+  if (text.includes("commercial") || text.includes("office") || text.includes("multi")) {
+    return "https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=1200&q=80";
+  }
+  if (text.includes("modern") || text.includes("luxury") || text.includes("architectural")) {
+    return "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80";
+  }
+  return "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80";
+}
+
+/**
  * Normalizes image URLs ensuring proper protocol and valid fallback
  */
-export function normalizeImageUrl(url?: string | null, fallback = "/newmodularlogo.png"): string {
+export function normalizeImageUrl(
+  url?: string | null,
+  fallback = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+): string {
   if (!url || typeof url !== "string") return fallback;
   const trimmed = url.trim();
   if (!trimmed || trimmed === "undefined" || trimmed === "null") return fallback;
+  if (trimmed.includes("newmodularlogo") || trimmed.includes("finallogo")) {
+    return fallback;
+  }
   if (trimmed.startsWith("//")) return `https:${trimmed}`;
   return trimmed;
 }
@@ -58,15 +96,18 @@ export function normalizeImageUrl(url?: string | null, fallback = "/newmodularlo
  * Normalizes Supabase floor plan row to FloorPlan interface
  */
 export function formatFloorPlan(p: any): FloorPlan {
-  const rawPreview = p.preview_image || p.previewImage || "/newmodularlogo.png";
-  const previewImg = normalizeImageUrl(rawPreview, "/newmodularlogo.png");
+  const defaultPlanFallback = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80";
+  const rawPreview = p.preview_image || p.previewImage || p.image_url || p.image || defaultPlanFallback;
+  const previewImg = normalizeImageUrl(rawPreview, defaultPlanFallback);
   const rawGallery = Array.isArray(p.gallery) ? p.gallery : (p.gallery ? [p.gallery] : []);
-  const gallery = rawGallery.map((g: any) => normalizeImageUrl(g)).filter(Boolean);
+  const gallery = rawGallery
+    .map((g: any) => normalizeImageUrl(g, defaultPlanFallback))
+    .filter((g: string) => g && !g.includes("newmodularlogo") && !g.includes("finallogo"));
 
   return {
     id: p.id,
-    title: p.title || "Modern Floor Plan",
-    slug: p.slug || p.id,
+    title: p.title || p.name || "Modern Floor Plan",
+    slug: p.slug || p.handle || p.id,
     tagline: p.tagline || "",
     description: p.description || "",
     price: Number(p.price) || 495,
@@ -79,7 +120,7 @@ export function formatFloorPlan(p: any): FloorPlan {
     category: p.category || "Cabins",
     bedrooms: Number(p.bedrooms) || 2,
     bathrooms: Number(p.bathrooms) || 1,
-    squareFeet: Number(p.square_feet || p.squareFeet) || 800,
+    squareFeet: Number(p.square_feet || p.squareFeet || p.sqft) || 800,
     dimensions: p.dimensions || "24x36 ft",
     stories: Number(p.stories) || 1,
     includedItems: Array.isArray(p.included_items) ? p.included_items : [
@@ -106,18 +147,28 @@ export function formatProduct(p: any): BuildingModel {
     ? Object.entries(p.specs).map(([label, value]) => ({ label, value: String(value) }))
     : [];
 
+  const fallbackImg = getCategoryFallbackImage(
+    p.product_type || p.category || p.series,
+    p.title || p.name,
+    p.handle || p.slug || p.id
+  );
+
   const rawPrimary =
     p.primary_image_url ||
+    p.primaryImage ||
     p.hero_image ||
     p.featured_image ||
     p.primary_image ||
+    p.image_url ||
+    p.image ||
+    p.preview_image ||
     (p.product_media && p.product_media.length > 0
       ? [...p.product_media].sort((a: any, b: any) => (a.position || 0) - (b.position || 0))[0]?.source_url
       : "") ||
     (Array.isArray(p.images) && p.images[0]) ||
-    "/newmodularlogo.png";
+    fallbackImg;
 
-  const primaryImg = normalizeImageUrl(rawPrimary, "/newmodularlogo.png");
+  const primaryImg = normalizeImageUrl(rawPrimary, fallbackImg);
 
   const rawGallery =
     p.product_media && Array.isArray(p.product_media) && p.product_media.length > 0
@@ -131,10 +182,12 @@ export function formatProduct(p: any): BuildingModel {
       ? p.gallery
       : [primaryImg];
 
-  const galleryImgs = rawGallery.map((g: any) => normalizeImageUrl(g)).filter(Boolean);
+  const galleryImgs = rawGallery
+    .map((g: any) => normalizeImageUrl(g, fallbackImg))
+    .filter((g: string) => g && !g.includes("newmodularlogo") && !g.includes("finallogo"));
 
   // Extract starting price from starting_price column or variants
-  let startingPrice = Number(p.starting_price || p.price);
+  let startingPrice = Number(p.starting_price || p.startingPrice || p.price);
   if ((!startingPrice || isNaN(startingPrice) || startingPrice <= 0) && p.product_variants && Array.isArray(p.product_variants) && p.product_variants.length > 0) {
     const validPrices = p.product_variants
       .map((v: any) => Number(v.price))
@@ -447,7 +500,7 @@ export async function getPublicProductBySlug(slug: string): Promise<BuildingMode
     (m) => (m.slug && m.slug.toLowerCase() === clean) || (m.id && m.id.toLowerCase() === clean)
   );
   if (catalogMatch) {
-    const formattedCatalog = catalogMatch as BuildingModel;
+    const formattedCatalog = formatProduct(catalogMatch);
     setCached(cacheKey, formattedCatalog, 60000);
     return formattedCatalog;
   }
@@ -971,14 +1024,14 @@ export async function getPublicPageBySlug(slugParam: string): Promise<CmsPage | 
       subtitle: fallback.subtitle || "",
       content: fallback.content || "",
       status: "PUBLISHED",
-      featuredImage: "/newmodularlogo.png",
+      featuredImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
       imageAlt: fallback.title || "ModularHome banner",
       seoTitle: `${fallback.title} | ModularHome.com`,
       metaDescription: fallback.metaDescription || "ModularHome.com official page",
       canonicalUrl: `https://modularhome.com/pages/${cleanSlug}`,
       ogTitle: `${fallback.title} | ModularHome.com`,
       ogDescription: fallback.metaDescription || "ModularHome.com official page",
-      ogImage: "/newmodularlogo.png",
+      ogImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
       robots: "index, follow",
       publishedAt: "2026-01-01T00:00:00.000Z",
       createdAt: "2026-01-01T00:00:00.000Z",
@@ -996,14 +1049,14 @@ export async function getPublicPageBySlug(slugParam: string): Promise<CmsPage | 
       subtitle: `${title} - ModularHome.com`,
       content: `<p>Learn more about ${title} and explore modular construction solutions from ModularHome.com.</p>`,
       status: "PUBLISHED",
-      featuredImage: "/newmodularlogo.png",
+      featuredImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
       imageAlt: `${title} banner`,
       seoTitle: `${title} | ModularHome.com`,
       metaDescription: `Learn more about ${title} at ModularHome.com. Precision engineered prefab construction.`,
       canonicalUrl: `https://modularhome.com/pages/${cleanSlug}`,
       ogTitle: `${title} | ModularHome.com`,
       ogDescription: `Learn more about ${title} at ModularHome.com.`,
-      ogImage: "/newmodularlogo.png",
+      ogImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
       robots: "index, follow",
       publishedAt: "2026-01-01T00:00:00.000Z",
       createdAt: "2026-01-01T00:00:00.000Z",
@@ -1053,14 +1106,14 @@ export async function getPublicPages(): Promise<CmsPage[]> {
         subtitle: fb.subtitle || "",
         content: fb.content || "",
         status: "PUBLISHED",
-        featuredImage: "/newmodularlogo.png",
+        featuredImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
         imageAlt: fb.title || slug,
         seoTitle: `${fb.title} | ModularHome.com`,
         metaDescription: fb.metaDescription || "",
         canonicalUrl: `https://modularhome.com/pages/${slug}`,
         ogTitle: `${fb.title} | ModularHome.com`,
         ogDescription: fb.metaDescription || "",
-        ogImage: "/newmodularlogo.png",
+        ogImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
         robots: "index, follow",
         publishedAt: "2026-01-01T00:00:00.000Z",
         createdAt: "2026-01-01T00:00:00.000Z",
