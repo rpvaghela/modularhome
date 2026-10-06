@@ -48,55 +48,45 @@ export function matchProductCategory(
   const mName = (model.name || "").toLowerCase();
   const mCat = normalizeCategory(model.category || "");
 
-  // 1. Cabins (High priority isolation to prevent rustic cabins bleeding into Modular Homes)
-  if (clean === "cabins" || clean.includes("cabin")) {
-    return (
-      mCat === "cabins" ||
-      (mName.includes("cabin") &&
-        !mName.includes("barndo") &&
-        !mName.includes("park model") &&
-        !mName.includes("a-frame") &&
-        !mName.includes("aframe"))
-    );
-  }
-
-  // 2. Modular Homes (Strict Modular Homes; NEVER match Cabins)
-  if (clean === "modular homes" || clean === "modular home" || clean === "modular") {
-    if (mCat === "cabins" || mName.includes("cabin")) return false;
-    return (
-      mCat === "modular homes" ||
-      mCat === "modular home" ||
-      (mName.includes("modular") && !mName.includes("cabin")) ||
-      (mName.includes("rancher") && !mName.includes("cabin") && !mCat.includes("cabin")) ||
-      (mName.includes("craftsman") && !mName.includes("cabin") && !mCat.includes("cabin"))
-    );
-  }
-
-  // 3. Prefab Homes (Strict Prefab Homes; NEVER match Cabins)
-  if (clean === "prefab homes" || clean === "prefab home" || clean === "prefab") {
-    if (mCat === "cabins" || mName.includes("cabin")) return false;
-    return (
-      mCat === "prefab homes" ||
-      mCat === "prefab home" ||
-      mCat === "modular homes" ||
-      (mName.includes("prefab") && !mName.includes("cabin")) ||
-      (mName.includes("panelized") && !mName.includes("cabin"))
-    );
-  }
-
-  // 4. Barndominiums
+  // 1. Barndominiums
   if (clean.includes("barndo") || clean.includes("barndominium")) {
     return mCat === "barndominiums" || mName.includes("barndo") || mName.includes("barndominium");
   }
 
-  // 5. House Kits
-  if (clean === "house kits" || clean.includes("house kit")) {
-    if (mCat === "cabins" || mName.includes("cabin")) return false;
+  // 2. Park Models
+  if (clean === "park models" || clean === "park model") {
+    return mCat === "park models" || mName.includes("park model");
+  }
+
+  // 3. A-Frames
+  if (clean.includes("a frame") || clean.includes("aframe")) {
     return (
-      mCat === "house kits" ||
-      mName.includes("house kit") ||
-      mName.includes("home kit") ||
-      mName.includes("sip panel")
+      mCat.includes("a frame") ||
+      mCat.includes("aframe") ||
+      mName.includes("a-frame") ||
+      mName.includes("aframe")
+    );
+  }
+
+  // 4. ADUs & Granny Pods
+  if (clean.includes("granny pod") || clean.includes("adu")) {
+    return (
+      mCat.includes("adu") ||
+      mCat.includes("granny pod") ||
+      mName.includes("adu") ||
+      mName.includes("granny pod") ||
+      mName.includes("secondary dwelling")
+    );
+  }
+
+  // 5. Commercial
+  if (clean.includes("commercial")) {
+    return (
+      mCat.includes("commercial") ||
+      mName.includes("commercial") ||
+      mName.includes("pole barn") ||
+      mName.includes("garage") ||
+      mName.includes("workshop")
     );
   }
 
@@ -104,47 +94,84 @@ export function matchProductCategory(
   if (clean.includes("tiny home")) {
     return (
       mCat === "tiny homes" ||
-      mName.includes("tiny home") ||
+      (mName.includes("tiny home") && !mName.includes("park model")) ||
       mName.includes("tiny house") ||
       mName.includes("tiny tim")
     );
   }
 
-  // 7. Park Models
-  if (clean === "park models" || clean === "park model") {
-    return mCat === "park models" || mName.includes("park model");
-  }
-
-  // 8. ADUs & Granny Pods
-  if (clean.includes("granny pod") || clean.includes("adu")) {
-    return (
-      mCat === "adus & granny pods" ||
-      mCat === "adus and granny pods" ||
-      mName.includes("adu") ||
-      mName.includes("granny pod") ||
-      mName.includes("secondary dwelling")
-    );
-  }
-
-  // 9. A-Frames
-  if (clean.includes("a frame") || clean.includes("aframe")) {
-    return (
-      mCat === "a-frames" ||
-      mCat === "a frames" ||
+  // 7. Cabins (Must not be barndo, park model, or a-frame)
+  if (clean === "cabins" || clean.includes("cabin")) {
+    if (
+      mName.includes("barndo") ||
+      mName.includes("park model") ||
       mName.includes("a-frame") ||
       mName.includes("aframe")
+    ) {
+      return false;
+    }
+    return mCat === "cabins" || mName.includes("cabin");
+  }
+
+  // 8. Modular Homes (Strict Modular Homes - Never match barndo, cabin, house kit, log home, or park model)
+  if (clean === "modular homes" || clean === "modular home" || clean === "modular") {
+    if (
+      mName.includes("barndo") ||
+      mName.includes("cabin") ||
+      mName.includes("log home") ||
+      mName.includes("house kit") ||
+      mName.includes("home kit") ||
+      mName.includes("pole barn") ||
+      mCat === "barndominiums" ||
+      mCat === "cabins" ||
+      mCat === "house kits" ||
+      mCat === "park models"
+    ) {
+      return false;
+    }
+    return (
+      mCat === "modular homes" ||
+      mCat === "modular home" ||
+      mName.includes("modular") ||
+      mName.includes("farmhouse charm")
     );
   }
 
-  // 10. Commercial
-  if (clean.includes("commercial")) {
+  // 9. Prefab Homes (Strict Prefab Homes - Panelized/Prefab modular homes, not barndos or cabins)
+  if (clean === "prefab homes" || clean === "prefab home" || clean === "prefab") {
+    if (
+      mName.includes("barndo") ||
+      mName.includes("cabin") ||
+      mName.includes("log home") ||
+      mCat === "barndominiums" ||
+      mCat === "cabins" ||
+      mCat === "park models"
+    ) {
+      return false;
+    }
     return (
-      mCat === "commercial" ||
-      mCat.includes("commercial") ||
-      mName.includes("commercial") ||
-      mName.includes("pole barn") ||
-      mName.includes("garage") ||
-      mName.includes("workshop")
+      mCat === "prefab homes" ||
+      mCat === "prefab home" ||
+      mCat === "modular homes" ||
+      mName.includes("prefab") ||
+      mName.includes("panelized")
+    );
+  }
+
+  // 10. House Kits (Assembly packages, not barndos or cabins)
+  if (clean === "house kits" || clean.includes("house kit")) {
+    if (
+      mName.includes("barndo") ||
+      mCat === "barndominiums" ||
+      mCat === "cabins"
+    ) {
+      return false;
+    }
+    return (
+      mCat === "house kits" ||
+      mName.includes("house kit") ||
+      mName.includes("home kit") ||
+      mName.includes("sip panel")
     );
   }
 
