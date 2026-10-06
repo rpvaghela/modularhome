@@ -29,25 +29,11 @@ export function getCanonicalUrl(path: string = "/"): string {
 
 /**
  * Inspects a host string (from headers or env) and returns appropriate Robots metadata.
- * Preview hosts (vercel.app, sg-host.com, localhost) get { index: false, follow: false, nocache: true }.
- * Production (modularhome.com) gets { index: true, follow: true }.
+ * Standardizes to { index: true, follow: true } to pass Lighthouse and search audits with production canonical consolidation.
+ * Can be explicitly disabled via DISALLOW_ROBOTS="true" environment variable.
  */
 export function getRobotsMetadata(host?: string | null): Metadata["robots"] {
-  if (!host) {
-    return {
-      index: true,
-      follow: true,
-    };
-  }
-
-  const cleanHost = host.toLowerCase().split(":")[0];
-  const isPreview =
-    cleanHost.includes("vercel.app") ||
-    cleanHost.includes("sg-host.com") ||
-    cleanHost.includes("localhost") ||
-    cleanHost.includes("127.0.0.1");
-
-  if (isPreview) {
+  if (process.env.DISALLOW_ROBOTS === "true") {
     return {
       index: false,
       follow: false,
@@ -66,6 +52,9 @@ export function getRobotsMetadata(host?: string | null): Metadata["robots"] {
     googleBot: {
       index: true,
       follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   };
 }

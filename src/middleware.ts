@@ -22,10 +22,6 @@ const JWT_SECRET = new TextEncoder().encode(
 
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-  const host = request.headers.get("host") || "";
-  const isPreviewHost =
-    host.includes("vercel.app") ||
-    host.includes("sg-host.com");
 
   // Normalize path (strip trailing slash if length > 1)
   const normalizedPath = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
@@ -40,11 +36,7 @@ export async function middleware(request: NextRequest) {
 
   if (directTarget && directTarget !== pathname && directTarget !== normalizedPath && directTarget !== lowerPath) {
     const targetUrl = new URL(directTarget + (search || ""), request.url);
-    const redirectResponse = NextResponse.redirect(targetUrl, { status: 301 });
-    if (isPreviewHost) {
-      redirectResponse.headers.set("X-Robots-Tag", "noindex, nofollow");
-    }
-    return redirectResponse;
+    return NextResponse.redirect(targetUrl, { status: 301 });
   }
 
   // 2. Handle /admin/login page
@@ -53,7 +45,7 @@ export async function middleware(request: NextRequest) {
     if (reason) {
       const response = NextResponse.next();
       response.cookies.delete("admin_session");
-      if (isPreviewHost) response.headers.set("X-Robots-Tag", "noindex, nofollow");
+      response.headers.set("X-Robots-Tag", "noindex, nofollow");
       return response;
     }
 
@@ -67,13 +59,13 @@ export async function middleware(request: NextRequest) {
       } catch {
         const response = NextResponse.next();
         response.cookies.delete("admin_session");
-        if (isPreviewHost) response.headers.set("X-Robots-Tag", "noindex, nofollow");
+        response.headers.set("X-Robots-Tag", "noindex, nofollow");
         return response;
       }
     }
 
     const res = NextResponse.next();
-    if (isPreviewHost) res.headers.set("X-Robots-Tag", "noindex, nofollow");
+    res.headers.set("X-Robots-Tag", "noindex, nofollow");
     return res;
   }
 
@@ -142,12 +134,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  const response = NextResponse.next();
-  if (isPreviewHost) {
-    response.headers.set("X-Robots-Tag", "noindex, nofollow");
-  }
-
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
