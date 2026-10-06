@@ -483,65 +483,60 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
         </div>
 
         {/* ========================================================= */}
-        {/* BOTTOM BAR: Policies and Copyright                        */}
+        {/* BOTTOM BAR: Policies, Legal and Copyright                */}
         {/* ========================================================= */}
-        <div className="pt-6 sm:pt-8 flex flex-col xl:flex-row items-center justify-between gap-4 text-xs text-[#6b7280]">
-          {/* Copyright */}
-          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-center xl:text-left shrink-0">
-            <span className="font-medium text-[#4b5563]">
-              © {currentYear} {companyName}. All rights reserved.
+        <div className="pt-8 mt-2 flex flex-col md:flex-row items-center justify-between gap-5 text-xs text-[#6b7280]">
+          {/* Left: Copyright & Engineering Tagline */}
+          <div className="flex flex-col sm:flex-row items-center gap-1.5 sm:gap-2 text-center md:text-left">
+            <span className="font-semibold text-[#101114]">
+              © {currentYear} {companyName}.
             </span>
-            <span className="hidden sm:inline text-[#d1d5db]" aria-hidden="true">•</span>
-            <span className="text-[#9ca3af] text-[11px] sm:text-xs">
-              Nationwide Precision Steel Modular Homes
+            <span className="text-[#6b7280]">All rights reserved.</span>
+            <span className="hidden lg:inline text-[#d1d5db]" aria-hidden="true">•</span>
+            <span className="text-[#9ca3af] text-[11px] hidden lg:inline">
+              Precision Engineered Modular Housing & Cabins
             </span>
           </div>
 
-          {/* Policy Links */}
-          <nav aria-label="Legal & Policies" className="flex flex-wrap items-center justify-center xl:justify-end gap-x-3 sm:gap-x-4 gap-y-2 text-[11px] sm:text-xs text-center xl:text-right pr-0 md:pr-44 xl:pr-48">
+          {/* Right: Policy Links & Cookie Settings */}
+          <nav aria-label="Legal & Policies" className="flex flex-wrap items-center justify-center md:justify-end gap-x-4 sm:gap-x-6 gap-y-2 text-xs">
             <Link
               href="/privacy-policy"
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5 whitespace-nowrap"
+              className="text-[#6b7280] hover:text-[#d97706] transition-colors py-0.5 whitespace-nowrap"
             >
               Privacy Policy
             </Link>
-            <span className="text-[#d1d5db] select-none" aria-hidden="true">•</span>
             <Link
               href="/terms-of-service"
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5 whitespace-nowrap"
+              className="text-[#6b7280] hover:text-[#d97706] transition-colors py-0.5 whitespace-nowrap"
             >
               Terms of Service
             </Link>
-            <span className="text-[#d1d5db] select-none" aria-hidden="true">•</span>
             <Link
               href="/refund-cancellation-policy"
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5 whitespace-nowrap"
+              className="text-[#6b7280] hover:text-[#d97706] transition-colors py-0.5 whitespace-nowrap"
             >
-              Refund & Cancellation
+              Refund Policy
             </Link>
-            <span className="text-[#d1d5db] select-none" aria-hidden="true">•</span>
             <Link
               href="/shipping-delivery-policy"
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5 whitespace-nowrap"
+              className="text-[#6b7280] hover:text-[#d97706] transition-colors py-0.5 whitespace-nowrap"
             >
               Shipping & Delivery
             </Link>
-            <span className="text-[#d1d5db] select-none" aria-hidden="true">•</span>
             <Link
               href="/accessibility"
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors inline-block py-0.5 whitespace-nowrap"
+              className="text-[#6b7280] hover:text-[#d97706] transition-colors py-0.5 whitespace-nowrap"
             >
               Accessibility
             </Link>
-            <span className="text-[#d1d5db] select-none" aria-hidden="true">•</span>
-            {/* Interactive Cookie Settings Trigger */}
             <button
               type="button"
               onClick={() => setShowCookieModal(true)}
-              className="font-medium text-[#4b5563] hover:text-[#d97706] transition-colors underline cursor-pointer bg-transparent border-none p-0 inline-flex items-center gap-1 py-0.5 whitespace-nowrap"
+              className="text-[#6b7280] hover:text-[#d97706] transition-colors inline-flex items-center gap-1.5 py-0.5 whitespace-nowrap cursor-pointer bg-transparent border-none p-0"
             >
-              <Sliders className="w-3 h-3 text-[#9ca3af]" />
-              Cookie Settings
+              <Sliders className="w-3.5 h-3.5 text-[#9ca3af]" />
+              <span>Cookie Settings</span>
             </button>
           </nav>
         </div>
