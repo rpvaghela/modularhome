@@ -12,7 +12,7 @@ function LoginForm() {
   const redirectPath = searchParams.get("redirect") || "/admin";
   const reason = searchParams.get("reason");
 
-  const [email, setEmail] = useState("admin@modularhome.com");
+  const [email, setEmail] = useState("modularhome.admin@gmail.com");
   const [password, setPassword] = useState("");
   const [totpCode, setTotpCode] = useState("");
   const [require2FA, setRequire2FA] = useState(false);
@@ -83,8 +83,8 @@ function LoginForm() {
   };
 
   const handleFillDemo = () => {
-    setEmail("admin@modularhome.com");
-    setPassword("admin@26");
+    setEmail("modularhome.admin@gmail.com");
+    setPassword("modularhome123");
     setRequire2FA(false);
     setTotpCode("");
   };
@@ -145,7 +145,7 @@ function LoginForm() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@modularhome.com"
+                  placeholder="modularhome.admin@gmail.com"
                   className="block w-full pl-10 pr-4 py-3 bg-[#f8f9fa] border border-[#d5d9e0] rounded-xl text-[#101114] text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#fcb907] focus:bg-white transition-all font-medium"
                 />
               </div>
@@ -243,7 +243,7 @@ function LoginForm() {
       {/* Developer Demo Quick Fill */}
       <div className="pt-5 border-t border-[#e7e9ee] flex items-center justify-between gap-2">
         <div className="text-[11px] text-[#6b7280] font-mono truncate">
-          admin@modularhome.com
+          modularhome.admin@gmail.com
         </div>
         <button
           type="button"

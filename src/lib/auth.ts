@@ -88,7 +88,7 @@ export async function createAdminSession(
 
   const user: AdminSessionUser = userFallback || {
     id: userId,
-    email: "admin@modularhome.com",
+    email: process.env.ADMIN_DEFAULT_EMAIL || "modularhome.admin@gmail.com",
     name: "Admin User",
     role: "SUPER_ADMIN",
   };

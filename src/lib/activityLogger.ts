@@ -19,7 +19,7 @@ export async function logActivity(input: ActivityLogInput): Promise<void> {
       const session = await getAdminSession();
       if (session) {
         actorId = session.id || "admin-root";
-        actorEmail = session.email || "admin@modularhome.com";
+        actorEmail = session.email || "modularhome.admin@gmail.com";
       }
     } catch {}
 
