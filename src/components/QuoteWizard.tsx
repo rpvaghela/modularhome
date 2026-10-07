@@ -187,7 +187,11 @@ export default function QuoteWizard() {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error?.message || "Failed to submit quote request.");
+        const errorMsg =
+          typeof data.error === "string"
+            ? data.error
+            : data.error?.message || data.message || "Failed to submit quote request.";
+        throw new Error(errorMsg);
       }
 
       setIsSubmitted(true);

@@ -1,5 +1,67 @@
 [
   {
+    "id": "evt-1791389333030-nene9",
+    "customer_id": "cust-1790515953265-0b85b7b6",
+    "event_type": "LOGGED_IN",
+    "actor_type": "CUSTOMER",
+    "actor_name": "CHETAN SONAWANE",
+    "details": {
+      "email": "chetansonawane2006@gmail.com"
+    },
+    "created_at": "2026-10-07T16:08:53.030Z"
+  },
+  {
+    "id": "evt-1791389278677-6tivp",
+    "customer_id": "cust-1790942099112-e0c93be0",
+    "event_type": "EMAIL_VERIFIED_BY_ADMIN",
+    "actor_type": "ADMIN",
+    "actor_name": "Admin Superuser",
+    "details": {
+      "previousVerified": false,
+      "newVerified": true,
+      "email": "chetansonawane1260@gmail.com",
+      "reason": "Manual admin verification override"
+    },
+    "created_at": "2026-10-07T16:07:58.677Z"
+  },
+  {
+    "id": "evt-1791387972584-3kfbn",
+    "customer_id": "cust-1790515953265-0b85b7b6",
+    "event_type": "LOGGED_IN",
+    "actor_type": "CUSTOMER",
+    "actor_name": "CHETAN SONAWANE",
+    "details": {
+      "email": "chetansonawane2006@gmail.com"
+    },
+    "created_at": "2026-10-07T15:46:12.584Z"
+  },
+  {
+    "id": "evt-1791387950334-sra03",
+    "customer_id": "cust-1790515953265-0b85b7b6",
+    "event_type": "STATUS_CHANGED",
+    "actor_type": "ADMIN",
+    "actor_name": "Admin Superuser",
+    "details": {
+      "previousStatus": "DISABLED",
+      "newStatus": "ACTIVE"
+    },
+    "created_at": "2026-10-07T15:45:50.334Z"
+  },
+  {
+    "id": "evt-1791387935173-3sggz",
+    "customer_id": "cust-1790515953265-0b85b7b6",
+    "event_type": "EMAIL_VERIFIED_BY_ADMIN",
+    "actor_type": "ADMIN",
+    "actor_name": "Admin Superuser",
+    "details": {
+      "previousVerified": false,
+      "newVerified": true,
+      "email": "chetansonawane2006@gmail.com",
+      "reason": "Manual admin verification override"
+    },
+    "created_at": "2026-10-07T15:45:35.173Z"
+  },
+  {
     "id": "evt-1791013143064-kzse8",
     "customer_id": "cust-1791013142876-2f60c5bf",
     "event_type": "EMAIL_VERIFIED",

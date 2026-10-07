@@ -88,7 +88,7 @@ function getContactEmail(): string {
 }
 
 function getAdminNotificationEmail(): string {
-  return process.env.ADMIN_NOTIFICATION_EMAIL || "modularhome.admin@gmail.com";
+  return process.env.ADMIN_EMAIL || process.env.ADMIN_NOTIFICATION_EMAIL || "modularhome.admin@gmail.com";
 }
 
 function wrapEmailTemplate(title: string, bodyContent: string): string {

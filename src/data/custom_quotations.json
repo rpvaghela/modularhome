@@ -1,0 +1,359 @@
+[
+  {
+    "id": "bbcba62d-4f44-4c66-b83f-af4cd5037a38",
+    "customer_id": null,
+    "customer_name": "Marcus Aurelius",
+    "customer_email": "marcus.aurelius@example.com",
+    "customer_phone": "+1 812-555-0188",
+    "customer_zip": "47401",
+    "model_slug": "the-ridgeline-barndominium-kit",
+    "model_name": "The Ridgeline Barndominium Kit",
+    "sqft": 2400,
+    "dimensions": null,
+    "options": [
+      {
+        "id": "opt-insul",
+        "name": "Extreme Climate R-38 Spray Foam Insulation",
+        "price": 9200
+      },
+      {
+        "id": "opt-porch",
+        "name": "Wraparound Covered Timber Porch",
+        "price": 14500
+      }
+    ],
+    "pricing_inputs": {
+      "sqft": 2400,
+      "finishLevel": "STANDARD"
+    },
+    "estimated_amount": 381800,
+    "line_items": [
+      {
+        "id": "95956da6-1813-48e3-b250-436cf08bd048",
+        "label": "Barndominium Clearspan Rate (2,400 sq ft @ $135/sq ft)",
+        "category": "SQFT_RATE",
+        "amount": 324000,
+        "description": "Dimension rate calculation for 2,400 sq ft gross floor area."
+      },
+      {
+        "id": "finish-standard",
+        "label": "Standard Interior Drywall & Insulation Package",
+        "category": "FINISH_LEVEL",
+        "amount": 48000,
+        "description": "Standard R-21 wall batts, subfloor underlayment, and pre-hung entry doors."
+      },
+      {
+        "id": "efd91d79-eea3-4ad4-9fa6-586e56ed4256",
+        "label": "State Stamped Engineering Package",
+        "category": "FEE",
+        "amount": 3500,
+        "description": "Wet-stamped architectural, structural, electrical and plumbing plans for local permits"
+      },
+      {
+        "id": "e15e1279-6bbd-4b07-9213-1e4fc6a2af58",
+        "label": "Regional Freight & Logistics",
+        "category": "FEE",
+        "amount": 4800,
+        "description": "Standard flatbed delivery and crane rigging coordinator within 500 miles"
+      },
+      {
+        "id": "def16e3a-749c-40f0-9dd6-48315059c79e",
+        "label": "Municipal Permitting Assistance",
+        "category": "FEE",
+        "amount": 1500,
+        "description": "Dedicated project manager permit submittal facilitation"
+      }
+    ],
+    "inclusions": [
+      "Engineered structural light-gauge steel framing panels",
+      "Factory-assembled exterior wall & roof truss assemblies",
+      "Comprehensive architectural CAD & assembly blueprints",
+      "Manufacturer structural warranty (50-Year Steel Warranty)",
+      "Factory crating and moisture-barrier protective wrapping"
+    ],
+    "exclusions": [
+      "On-Site Foundation & Concrete Slab: Slab or crawlspace poured by local contractor per stamped plans",
+      "Municipal Utility Tap & Trenching: Local septic, sewer, water, and power connection by licensed trade contractors"
+    ],
+    "disclaimer": "Preliminary deterministic estimate generated in accordance with ModularHome.com factory rates (Rule Version v2026.1). Pricing excludes site-specific foundation excavation, local utility hookups, crane offloading, and municipal permit taxes.",
+    "pricing_rule_version": "v2026.1",
+    "timeline": "Ready in 3-6 Months",
+    "requirements": "Require stamped architectural CAD plans and flatbed logistics estimate.",
+    "notes": null,
+    "internal_notes": null,
+    "assigned_to": null,
+    "follow_up_date": null,
+    "source": "QUOTE_WIZARD",
+    "status": "PENDING",
+    "created_at": "2026-10-07T16:14:08.328Z",
+    "updated_at": "2026-10-07T16:14:08.329Z"
+  },
+  {
+    "id": "3e3ef4fa-de58-4bcf-aca1-2317985a1a83",
+    "customer_id": null,
+    "customer_name": "CHETAN SONAWANE",
+    "customer_email": "chetansonawane2006@gmail.com",
+    "customer_phone": "1234567890",
+    "customer_zip": "424311",
+    "model_slug": "the-lake-louise-amish-built-modular-cabin",
+    "model_name": "The Lake Louise Amish Built Modular Cabin (1 bed 1 bath plus loft)",
+    "sqft": 620,
+    "dimensions": null,
+    "options": [
+      {
+        "id": "opt-porch",
+        "name": "Wraparound Covered Timber Porch",
+        "price": 14500,
+        "desc": "Solid 8x8 posts with black structural brackets"
+      },
+      {
+        "id": "opt-insul",
+        "name": "Extreme Climate R-38 Spray Foam Insulation",
+        "price": 9200,
+        "desc": "Superior closed-cell thermal break envelope"
+      }
+    ],
+    "pricing_inputs": {
+      "sizeAdjustedPrice": 199900,
+      "optionsTotal": 23700,
+      "totalEstimate": 223600
+    },
+    "estimated_amount": 93500,
+    "line_items": [
+      {
+        "id": "4ca20e63-dbee-4295-a402-b2f9d78a79ba",
+        "label": "Cabin Precision Base Rate (620 sq ft @ $115/sq ft)",
+        "category": "SQFT_RATE",
+        "amount": 71300,
+        "description": "Dimension rate calculation for 620 sq ft gross floor area."
+      },
+      {
+        "id": "finish-standard",
+        "label": "Standard Interior Drywall & Insulation Package",
+        "category": "FINISH_LEVEL",
+        "amount": 12400,
+        "description": "Standard R-21 wall batts, subfloor underlayment, and pre-hung entry doors."
+      },
+      {
+        "id": "efd91d79-eea3-4ad4-9fa6-586e56ed4256",
+        "label": "State Stamped Engineering Package",
+        "category": "FEE",
+        "amount": 3500,
+        "description": "Wet-stamped architectural, structural, electrical and plumbing plans for local permits"
+      },
+      {
+        "id": "e15e1279-6bbd-4b07-9213-1e4fc6a2af58",
+        "label": "Regional Freight & Logistics",
+        "category": "FEE",
+        "amount": 4800,
+        "description": "Standard flatbed delivery and crane rigging coordinator within 500 miles"
+      },
+      {
+        "id": "def16e3a-749c-40f0-9dd6-48315059c79e",
+        "label": "Municipal Permitting Assistance",
+        "category": "FEE",
+        "amount": 1500,
+        "description": "Dedicated project manager permit submittal facilitation"
+      }
+    ],
+    "inclusions": [
+      "Engineered structural light-gauge steel framing panels",
+      "Factory-assembled exterior wall & roof truss assemblies",
+      "Comprehensive architectural CAD & assembly blueprints",
+      "Manufacturer structural warranty (50-Year Steel Warranty)",
+      "Factory crating and moisture-barrier protective wrapping"
+    ],
+    "exclusions": [
+      "On-Site Foundation & Concrete Slab: Slab or crawlspace poured by local contractor per stamped plans",
+      "Municipal Utility Tap & Trenching: Local septic, sewer, water, and power connection by licensed trade contractors"
+    ],
+    "disclaimer": "Preliminary deterministic estimate generated in accordance with ModularHome.com factory rates (Rule Version v2026.1). Pricing excludes site-specific foundation excavation, local utility hookups, crane offloading, and municipal permit taxes.",
+    "pricing_rule_version": "v2026.1",
+    "timeline": "3-6 months",
+    "requirements": null,
+    "notes": null,
+    "internal_notes": null,
+    "assigned_to": null,
+    "follow_up_date": null,
+    "source": "QUOTE_WIZARD",
+    "status": "PENDING",
+    "created_at": "2026-10-07T16:11:13.193Z",
+    "updated_at": "2026-10-07T16:11:13.194Z"
+  },
+  {
+    "id": "e59781c7-e429-4e4a-abe0-4f6c91d3ba6c",
+    "customer_id": null,
+    "customer_name": "Chetan Admin Check",
+    "customer_email": "chetan.check@example.com",
+    "customer_phone": "+1 812-555-0199",
+    "customer_zip": "90210",
+    "model_slug": "the-cascada-compact",
+    "model_name": "The Cascada Compact",
+    "sqft": 1200,
+    "dimensions": null,
+    "options": [
+      {
+        "id": "opt-insul",
+        "name": "Spray Foam Insulation Package",
+        "price": 4500
+      }
+    ],
+    "pricing_inputs": {
+      "sqft": 1200,
+      "finishLevel": "PREMIUM_TURNKEY"
+    },
+    "estimated_amount": 255800,
+    "line_items": [
+      {
+        "id": "2008971f-f920-4750-8ce8-7e6eccd8db68",
+        "label": "Luxury Modular Residence Rate (1,200 sq ft @ $160/sq ft)",
+        "category": "SQFT_RATE",
+        "amount": 192000,
+        "description": "Dimension rate calculation for 1,200 sq ft gross floor area."
+      },
+      {
+        "id": "finish-premium",
+        "label": "Turnkey Luxury Interior & Fixtures Package",
+        "category": "FINISH_LEVEL",
+        "amount": 54000,
+        "description": "Quartz countertops, luxury vinyl plank flooring, solid core doors, and LED fixtures."
+      },
+      {
+        "id": "efd91d79-eea3-4ad4-9fa6-586e56ed4256",
+        "label": "State Stamped Engineering Package",
+        "category": "FEE",
+        "amount": 3500,
+        "description": "Wet-stamped architectural, structural, electrical and plumbing plans for local permits"
+      },
+      {
+        "id": "e15e1279-6bbd-4b07-9213-1e4fc6a2af58",
+        "label": "Regional Freight & Logistics",
+        "category": "FEE",
+        "amount": 4800,
+        "description": "Standard flatbed delivery and crane rigging coordinator within 500 miles"
+      },
+      {
+        "id": "def16e3a-749c-40f0-9dd6-48315059c79e",
+        "label": "Municipal Permitting Assistance",
+        "category": "FEE",
+        "amount": 1500,
+        "description": "Dedicated project manager permit submittal facilitation"
+      }
+    ],
+    "inclusions": [
+      "Engineered structural light-gauge steel framing panels",
+      "Factory-assembled exterior wall & roof truss assemblies",
+      "Comprehensive architectural CAD & assembly blueprints",
+      "Manufacturer structural warranty (50-Year Steel Warranty)",
+      "Factory crating and moisture-barrier protective wrapping"
+    ],
+    "exclusions": [
+      "On-Site Foundation & Concrete Slab: Slab or crawlspace poured by local contractor per stamped plans",
+      "Municipal Utility Tap & Trenching: Local septic, sewer, water, and power connection by licensed trade contractors"
+    ],
+    "disclaimer": "Preliminary deterministic estimate generated in accordance with ModularHome.com factory rates (Rule Version v2026.1). Pricing excludes site-specific foundation excavation, local utility hookups, crane offloading, and municipal permit taxes.",
+    "pricing_rule_version": "v2026.1",
+    "timeline": "Immediate (1-3 Months)",
+    "requirements": "Please provide full structural blueprints and factory quote",
+    "notes": null,
+    "internal_notes": null,
+    "assigned_to": null,
+    "follow_up_date": null,
+    "source": "QUOTE_WIZARD",
+    "status": "PENDING",
+    "created_at": "2026-10-07T16:03:36.365Z",
+    "updated_at": "2026-10-07T16:03:36.366Z"
+  },
+  {
+    "id": "e59e07a8-42d2-4940-b242-e1b4b321d684",
+    "customer_id": null,
+    "customer_name": "CHETAN SONAWANE",
+    "customer_email": "chetansonawane2006@gmail.com",
+    "customer_phone": "1234567890",
+    "customer_zip": "424311",
+    "model_slug": "the-lake-louise-amish-built-modular-cabin",
+    "model_name": "The Lake Louise Amish Built Modular Cabin (1 bed 1 bath plus loft)",
+    "sqft": 620,
+    "dimensions": null,
+    "options": [
+      {
+        "id": "opt-porch",
+        "name": "Wraparound Covered Timber Porch",
+        "price": 14500,
+        "desc": "Solid 8x8 posts with black structural brackets"
+      },
+      {
+        "id": "opt-insul",
+        "name": "Extreme Climate R-38 Spray Foam Insulation",
+        "price": 9200,
+        "desc": "Superior closed-cell thermal break envelope"
+      }
+    ],
+    "pricing_inputs": {
+      "sizeAdjustedPrice": 199900,
+      "optionsTotal": 23700,
+      "totalEstimate": 223600
+    },
+    "estimated_amount": 93500,
+    "line_items": [
+      {
+        "id": "4ca20e63-dbee-4295-a402-b2f9d78a79ba",
+        "label": "Cabin Precision Base Rate (620 sq ft @ $115/sq ft)",
+        "category": "SQFT_RATE",
+        "amount": 71300,
+        "description": "Dimension rate calculation for 620 sq ft gross floor area."
+      },
+      {
+        "id": "finish-standard",
+        "label": "Standard Interior Drywall & Insulation Package",
+        "category": "FINISH_LEVEL",
+        "amount": 12400,
+        "description": "Standard R-21 wall batts, subfloor underlayment, and pre-hung entry doors."
+      },
+      {
+        "id": "efd91d79-eea3-4ad4-9fa6-586e56ed4256",
+        "label": "State Stamped Engineering Package",
+        "category": "FEE",
+        "amount": 3500,
+        "description": "Wet-stamped architectural, structural, electrical and plumbing plans for local permits"
+      },
+      {
+        "id": "e15e1279-6bbd-4b07-9213-1e4fc6a2af58",
+        "label": "Regional Freight & Logistics",
+        "category": "FEE",
+        "amount": 4800,
+        "description": "Standard flatbed delivery and crane rigging coordinator within 500 miles"
+      },
+      {
+        "id": "def16e3a-749c-40f0-9dd6-48315059c79e",
+        "label": "Municipal Permitting Assistance",
+        "category": "FEE",
+        "amount": 1500,
+        "description": "Dedicated project manager permit submittal facilitation"
+      }
+    ],
+    "inclusions": [
+      "Engineered structural light-gauge steel framing panels",
+      "Factory-assembled exterior wall & roof truss assemblies",
+      "Comprehensive architectural CAD & assembly blueprints",
+      "Manufacturer structural warranty (50-Year Steel Warranty)",
+      "Factory crating and moisture-barrier protective wrapping"
+    ],
+    "exclusions": [
+      "On-Site Foundation & Concrete Slab: Slab or crawlspace poured by local contractor per stamped plans",
+      "Municipal Utility Tap & Trenching: Local septic, sewer, water, and power connection by licensed trade contractors"
+    ],
+    "disclaimer": "Preliminary deterministic estimate generated in accordance with ModularHome.com factory rates (Rule Version v2026.1). Pricing excludes site-specific foundation excavation, local utility hookups, crane offloading, and municipal permit taxes.",
+    "pricing_rule_version": "v2026.1",
+    "timeline": "3-6 months",
+    "requirements": null,
+    "notes": null,
+    "internal_notes": null,
+    "assigned_to": null,
+    "follow_up_date": null,
+    "source": "QUOTE_WIZARD",
+    "status": "REVIEWED",
+    "created_at": "2026-10-07T16:03:08.984Z",
+    "updated_at": "2026-10-07T16:03:46.026Z"
+  }
+]

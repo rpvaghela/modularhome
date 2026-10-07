@@ -176,6 +176,28 @@ export default function AdminCustomerDetailPage() {
 
       {/* Customer Hero Card */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-xs space-y-6">
+        {!customer.email_verified && (
+          <div className="p-4 bg-amber-50/90 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
+            <div className="flex items-start sm:items-center gap-2.5 text-xs text-amber-900">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5 sm:mt-0" />
+              <div>
+                <span className="font-bold">Email Verification Pending: </span>
+                <span>
+                  This user has not clicked the email link. You can verify their account directly to sync with the main website.
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => executeAction("manual-verify")}
+              disabled={actionLoading === "manual-verify"}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-4 py-2 rounded-xl transition-all shadow-xs shrink-0 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>{actionLoading === "manual-verify" ? "Verifying..." : "Verify & Activate Now"}</span>
+            </button>
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -247,14 +269,26 @@ export default function AdminCustomerDetailPage() {
           </button>
 
           {!customer.email_verified && (
-            <button
-              onClick={() => executeAction("resend-verification")}
-              disabled={actionLoading === "resend-verification"}
-              className="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold px-3.5 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-            >
-              <Send className="w-3.5 h-3.5 text-amber-600" />
-              <span>Resend Verification Email</span>
-            </button>
+            <>
+              <button
+                onClick={() => executeAction("manual-verify")}
+                disabled={actionLoading === "manual-verify"}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-3.5 py-2 rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                title="Manually verify this customer account and sync verification status with main website"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{actionLoading === "manual-verify" ? "Verifying..." : "Verify Account (Admin Sync)"}</span>
+              </button>
+
+              <button
+                onClick={() => executeAction("resend-verification")}
+                disabled={actionLoading === "resend-verification"}
+                className="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold px-3.5 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                <Send className="w-3.5 h-3.5 text-amber-600" />
+                <span>Resend Verification Email</span>
+              </button>
+            </>
           )}
 
           <button

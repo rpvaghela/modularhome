@@ -3,7 +3,7 @@ import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { saveLead } from "@/lib/leadsStore";
 import { getCustomerSession } from "@/lib/customerAuth";
 import { getCustomerByEmail } from "@/lib/customerStore";
-import { sendLeadNotificationEmail } from "@/lib/emailService";
+import { sendLeadNotification, UserAccountContext } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +14,10 @@ export async function POST(request: NextRequest) {
       phone,
       location,
       zip,
+      city,
+      projectType,
+      interest,
+      budget,
       enquiryDetails,
       source,
       notes,
@@ -23,9 +27,12 @@ export async function POST(request: NextRequest) {
     const leadEmail = (email || body.customerEmail || "").toLowerCase().trim();
     const leadPhone = phone || body.customerPhone || null;
     const leadZip = zip || body.customerZip || null;
-    const leadLocation = location || (leadZip ? `ZIP: ${leadZip}` : null);
+    const leadCity = city || body.customerCity || null;
+    const leadLocation = location || leadCity || (leadZip ? `ZIP: ${leadZip}` : null);
     const leadEnquiry = enquiryDetails || body.message || body.requirements || body.details || null;
-    const leadSource = source || body.leadSource || "WEBSITE";
+    const leadSource = source || body.leadSource || "CONTACT_FORM";
+    const leadProjectType = projectType || interest || (leadEnquiry?.match(/\[Interest:\s*([^\]]+)\]/i)?.[1]) || "Modular Homes";
+    const leadBudget = budget || body.budgetRange || null;
 
     if (!leadEmail) {
       return NextResponse.json(
@@ -34,15 +41,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if customer session exists
+    // 1. Resolve logged-in customer session context
+    let userContext: UserAccountContext = {
+      userId: null,
+      accountEmail: null,
+      accountName: null,
+      isAuthenticated: false,
+    };
     let customerNote = "";
+
     try {
       const session = await getCustomerSession();
       if (session) {
+        userContext = {
+          userId: session.id,
+          accountEmail: session.email,
+          accountName: session.name,
+          isAuthenticated: true,
+        };
         customerNote = `[Registered Customer: ${session.name} (${session.id})] `;
       } else {
         const existing = await getCustomerByEmail(leadEmail);
         if (existing) {
+          userContext = {
+            userId: existing.id,
+            accountEmail: existing.email,
+            accountName: existing.name,
+            isAuthenticated: false,
+          };
           customerNote = `[Existing Customer: ${existing.name} (${existing.id})] `;
         }
       }
@@ -62,10 +88,22 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
-    // 1. Immediately save to persistent local store (ensures 100% data capture)
-    const localLead = saveLead(leadData);
+    // 2. PRIMARY OPERATION: Save to database first
+    let savedRecord: any = null;
+    let databaseSuccess = false;
 
-    // 2. Also save to Supabase if configured
+    // Immediately save to persistent store (guarantees persistence)
+    try {
+      savedRecord = saveLead(leadData);
+      if (savedRecord && savedRecord.id) {
+        databaseSuccess = true;
+        console.log(`[Database Save]: SUCCESS leadId=${savedRecord.id}`);
+      }
+    } catch (saveErr) {
+      console.error("[Database Save]: FAILED in local store:", saveErr);
+    }
+
+    // Also persist to Supabase if configured
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabaseAdmin
@@ -75,36 +113,55 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (!error && data) {
-          return NextResponse.json({
-            success: true,
-            data,
-            message: "Your inquiry has been received. Our team will contact you shortly.",
-          });
+          savedRecord = data;
+          databaseSuccess = true;
+          console.log(`[Database Save]: SUCCESS Supabase leadId=${data.id}`);
         }
       } catch (sbErr) {
         console.warn("Supabase lead insert warning, captured locally:", sbErr);
       }
     }
 
-    // 3. Dispatch transactional email alert & customer acknowledgement via Resend
-    try {
-      await sendLeadNotificationEmail({
-        leadId: localLead?.id,
-        name: leadName,
-        email: leadEmail,
-        phone: leadPhone,
-        location: leadLocation,
-        zip: leadZip,
-        enquiryDetails: leadEnquiry,
-        source: leadSource,
-      });
-    } catch (emailErr) {
-      console.warn("Lead email notification dispatch note:", emailErr);
+    if (!databaseSuccess) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Failed to record inquiry into database. Please try again.",
+            code: "DATABASE_ERROR",
+          },
+        },
+        { status: 500 }
+      );
+    }
+
+    // 3. SECONDARY OPERATION: Dispatch Admin Email Notification
+    // If newsletter subscription, skip full contact lead email unless required
+    if (leadSource !== "NEWSLETTER") {
+      try {
+        await sendLeadNotification({
+          leadId: savedRecord?.id,
+          name: leadName,
+          email: leadEmail,
+          phone: leadPhone,
+          city: leadCity,
+          zip: leadZip,
+          location: leadLocation,
+          projectType: leadProjectType,
+          budget: leadBudget,
+          message: leadEnquiry,
+          submissionDate: new Date().toLocaleString("en-US", { timeZone: "America/New_York" }),
+          source: leadSource,
+          userContext,
+        });
+      } catch (emailErr: any) {
+        console.warn("[Admin Notification]: FAILED for leadId=", savedRecord?.id, emailErr?.message || emailErr);
+      }
     }
 
     return NextResponse.json({
       success: true,
-      data: localLead,
+      data: savedRecord,
       message: "Your inquiry has been received. Our team will contact you shortly.",
     });
   } catch (error: any) {

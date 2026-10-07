@@ -9,6 +9,7 @@ import {
 import { generateSecureToken } from "@/lib/customerAuth";
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/emailService";
 import { logActivity } from "@/lib/activityLog";
+import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 
 export async function POST(
   request: NextRequest,
@@ -28,10 +29,69 @@ export async function POST(
       );
     }
 
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const { action, reason } = body;
 
     switch (action) {
+      case "manual-verify":
+      case "verify-user":
+      case "verify-email": {
+        const updatedCustomer = await saveCustomer({
+          ...customer,
+          email_verified: true,
+          verification_token: null,
+          verification_token_expires_at: null,
+          updated_at: new Date().toISOString(),
+        });
+
+        // Sync with Supabase Auth if linked
+        if (customer.auth_user_id && isSupabaseConfigured()) {
+          try {
+            await supabaseAdmin.auth.admin.updateUserById(customer.auth_user_id, {
+              email_confirm: true,
+            });
+          } catch (authErr) {
+            console.warn("Supabase auth user confirmation sync note:", authErr);
+          }
+        }
+
+        await logCustomerEvent({
+          customer_id: customer.id,
+          event_type: "EMAIL_VERIFIED_BY_ADMIN",
+          actor_type: "ADMIN",
+          actor_name: authResult.name,
+          details: {
+            previousVerified: customer.email_verified,
+            newVerified: true,
+            email: customer.email,
+            reason: reason || "Manual admin verification override",
+          },
+        });
+
+        await logActivity({
+          user_id: authResult.id,
+          user_name: authResult.name,
+          user_role: authResult.role,
+          action: "ADMIN_MANUAL_VERIFY_USER",
+          entity_type: "customers",
+          entity_id: customer.id,
+          description: `Admin manually verified account for ${customer.name} (${customer.email})`,
+          details: { email: customer.email, reason },
+        });
+
+        return NextResponse.json({
+          success: true,
+          customer: {
+            id: updatedCustomer.id,
+            email: updatedCustomer.email,
+            name: updatedCustomer.name,
+            email_verified: true,
+            status: updatedCustomer.status,
+          },
+          message: `Customer account (${customer.email}) is now verified and active across the website.`,
+        });
+      }
+
       case "resend-verification": {
         const token = generateSecureToken();
         const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();

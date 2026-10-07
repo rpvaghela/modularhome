@@ -1,5 +1,12 @@
 [
   {
+    "id": "csess-1791389332747-m3dkw",
+    "session_token": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImN1c3QtMTc5MDUxNTk1MzI2NS0wYjg1YjdiNiIsImVtYWlsIjoiY2hldGFuc29uYXdhbmUyMDA2QGdtYWlsLmNvbSIsIm5hbWUiOiJDSEVUQU4gU09OQVdBTkUiLCJwaG9uZSI6IjEyMzQ1Njc4OTAiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwic3RhdHVzIjoiQUNUSVZFIiwiaWF0IjoxNzkxMzg5MzMyLCJleHAiOjE3OTM5ODEzMzJ9.MFF9Hgnt7YZMwoYsz9ghqhbr78z-pFITDr_juhCPhCA",
+    "customer_id": "cust-1790515953265-0b85b7b6",
+    "expires_at": 1793981332742,
+    "created_at": "2026-10-07T16:08:52.747Z"
+  },
+  {
     "id": "csess-1791013143075-du3ym",
     "session_token": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImN1c3QtMTc5MTAxMzE0Mjg3Ni0yZjYwYzViZiIsImVtYWlsIjoidGVzdC5jbGllbnQuMTc5MTAxMzE0MjY3M0BleGFtcGxlLmNvbSIsIm5hbWUiOiJTYXJhaCBKZW5raW5zIiwicGhvbmUiOiIrMSAoODEyKSA1NTUtMDE5OSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJzdGF0dXMiOiJBQ1RJVkUiLCJpYXQiOjE3OTEwMTMxNDMsImV4cCI6MTc5MzYwNTE0M30.KV9aNHqSnkXn4Hyse9H2yhwj6mdVOkIqnK-LU2TXz94",
     "customer_id": "cust-1791013142876-2f60c5bf",

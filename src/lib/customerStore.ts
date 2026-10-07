@@ -130,7 +130,7 @@ export async function getCustomerByEmail(email: string): Promise<Customer | null
     }
   }
   const locals = readLocalCustomers();
-  return locals.find((c) => c.email.toLowerCase() === cleanEmail) || null;
+  return locals.find((c) => (c.email || "").toLowerCase() === cleanEmail) || null;
 }
 
 export async function getCustomerById(id: string): Promise<Customer | null> {

@@ -24,11 +24,11 @@ export function isResendSandbox(): boolean {
 }
 
 export function getDefaultFromEmail(): string {
-  if (process.env.RESEND_FROM_EMAIL?.trim()) {
-    return process.env.RESEND_FROM_EMAIL.trim();
-  }
   if (process.env.EMAIL_FROM?.trim()) {
     return process.env.EMAIL_FROM.trim();
+  }
+  if (process.env.RESEND_FROM_EMAIL?.trim()) {
+    return process.env.RESEND_FROM_EMAIL.trim();
   }
   const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || "ModularHome";
   // Resend default sandbox sender for unverified domains

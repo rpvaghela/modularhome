@@ -1,17 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
-import { calculateQuotation } from "@/lib/pricingEngine";
-
-interface ChatMessage {
-  role: "user" | "assistant" | "system";
-  content: string;
-}
+import { getCustomerSession } from "@/lib/customerAuth";
+import { getCustomerByEmail } from "@/lib/customerStore";
+import { sendAIChatLeadNotification, UserAccountContext } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { messages, userContext } = body;
+    const { messages, userContext: clientUserContext } = body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
@@ -28,24 +25,55 @@ export async function POST(request: NextRequest) {
     const phoneMatch = conversationHistory.match(/(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
     const budgetMatch = conversationHistory.match(/\$?\s*(\d{2,3}(?:,\d{3})+|\d{2,6})\s*(?:k|thousand|budget|dollars)?/i);
 
-    let extractedEmail = emailMatch ? emailMatch[1] : null;
-    let extractedPhone = phoneMatch ? phoneMatch[0] : null;
+    let extractedEmail = emailMatch ? emailMatch[1].toLowerCase().trim() : null;
+    let extractedPhone = phoneMatch ? phoneMatch[0].trim() : null;
+
+    // Check customer session context
+    let userContext: UserAccountContext = {
+      userId: null,
+      accountEmail: null,
+      accountName: null,
+      isAuthenticated: false,
+    };
+
+    try {
+      const session = await getCustomerSession();
+      if (session) {
+        userContext = {
+          userId: session.id,
+          accountEmail: session.email,
+          accountName: session.name,
+          isAuthenticated: true,
+        };
+        if (!extractedEmail) extractedEmail = session.email;
+      } else if (extractedEmail) {
+        const existing = await getCustomerByEmail(extractedEmail);
+        if (existing) {
+          userContext = {
+            userId: existing.id,
+            accountEmail: existing.email,
+            accountName: existing.name,
+            isAuthenticated: false,
+          };
+        }
+      }
+    } catch {}
 
     // Check if this message provides lead qualification info
     let leadCreated = false;
     let createdLeadId: string | null = null;
+    const projectType = lastUserMessage.toLowerCase().includes("barndo")
+      ? "Barndominiums"
+      : lastUserMessage.toLowerCase().includes("cabin")
+      ? "Cabins & A-Frames"
+      : lastUserMessage.toLowerCase().includes("adu")
+      ? "ADUs & Tiny Suites"
+      : "Modular & Prefab Homes";
 
     if (extractedEmail) {
       try {
         const leadId = `lead_chat_${Date.now()}`;
-        const leadName = userContext?.name || "AI Chat Prospect";
-        const projectType = lastUserMessage.toLowerCase().includes("barndo")
-          ? "Barndominiums"
-          : lastUserMessage.toLowerCase().includes("cabin")
-          ? "Cabins & A-Frames"
-          : lastUserMessage.toLowerCase().includes("adu")
-          ? "ADUs & Tiny Suites"
-          : "Modular & Prefab Homes";
+        const leadName = clientUserContext?.name || userContext.accountName || "AI Chat Prospect";
 
         const insertSql = `
           INSERT INTO leads (
@@ -63,12 +91,12 @@ export async function POST(request: NextRequest) {
           leadName,
           extractedEmail,
           extractedPhone,
-          userContext?.location || null,
+          clientUserContext?.location || null,
           projectType,
           budgetMatch ? budgetMatch[0] : null,
           lastUserMessage,
-          `Qualified via AI Chatbot: ${lastUserMessage}`,
-          "WEBSITE_CHAT",
+          `Qualified via AI Housing Advisor: ${lastUserMessage}`,
+          "AI_BUILD_ASSISTANT",
           "QUALIFIED",
           `Conversation Transcript Summary:\n${conversationHistory.slice(-500)}`,
         ]);
@@ -76,6 +104,7 @@ export async function POST(request: NextRequest) {
         if (pgRes && pgRes.rows.length > 0) {
           leadCreated = true;
           createdLeadId = pgRes.rows[0].id;
+          console.log(`[Database Save]: SUCCESS AI chat leadId=${createdLeadId}`);
         } else if (isSupabaseConfigured()) {
           const { data } = await supabaseAdmin.from("leads").insert({
             id: leadId,
@@ -83,8 +112,8 @@ export async function POST(request: NextRequest) {
             email: extractedEmail,
             phone: extractedPhone,
             project_type: projectType,
-            enquiry_details: `Qualified via AI Chatbot: ${lastUserMessage}`,
-            source: "WEBSITE_CHAT",
+            enquiry_details: `Qualified via AI Housing Advisor: ${lastUserMessage}`,
+            source: "AI_BUILD_ASSISTANT",
             status: "QUALIFIED",
             notes: `Conversation Transcript Summary:\n${conversationHistory.slice(-500)}`,
           }).select("id").single();
@@ -92,6 +121,28 @@ export async function POST(request: NextRequest) {
           if (data) {
             leadCreated = true;
             createdLeadId = data.id;
+            console.log(`[Database Save]: SUCCESS Supabase AI chat leadId=${createdLeadId}`);
+          }
+        }
+
+        // Dispatch admin email notification for qualified chat lead
+        if (leadCreated) {
+          try {
+            await sendAIChatLeadNotification({
+              leadId: createdLeadId || leadId,
+              name: leadName,
+              email: extractedEmail,
+              phone: extractedPhone,
+              projectPreferences: projectType,
+              budget: budgetMatch ? budgetMatch[0] : null,
+              dimensions: null,
+              aiRecommendations: `Housing Advisor suggested ${projectType} options`,
+              conversationTranscript: conversationHistory.slice(-800),
+              submissionDate: new Date().toLocaleString("en-US", { timeZone: "America/New_York" }),
+              userContext,
+            });
+          } catch (emailErr: any) {
+            console.warn("[Admin Notification]: FAILED for AI chat leadId=", createdLeadId, emailErr?.message || emailErr);
           }
         }
       } catch (leadSaveErr) {
@@ -157,7 +208,7 @@ Provide concise, elegant, structured responses with markdown formatting.`;
     let actionButtons: any[] = [];
 
     if (leadCreated) {
-      reply = `Thank you! I have qualified and registered your project specifications with our architectural team. A dedicated modular housing specialist will reach out to **${extractedEmail}** with custom blueprints and pricing.`;
+      reply = `Thank you! I have registered your project specifications with our architectural engineering team. A dedicated modular housing specialist will reach out to **${extractedEmail}** with custom blueprints and pricing.`;
       actionButtons = [
         { label: "Calculate Instant Quote", href: "/quote" },
         { label: "Browse 3D Catalog", href: "/buildings" },

@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import {
+  readQuotationsFromStore,
+  updateQuotationInStore,
+  deleteQuotationFromStore,
+} from "@/lib/quotationsStore";
 
 export async function GET(
   request: NextRequest,
@@ -11,27 +16,34 @@ export async function GET(
 
   try {
     const { id } = await params;
-    if (!isSupabaseConfigured()) {
-      return NextResponse.json({
-        success: true,
-        data: null,
-      });
+
+    if (isSupabaseConfigured()) {
+      try {
+        const { data: quotation, error } = await supabaseAdmin
+          .from("quotations")
+          .select("*")
+          .eq("id", id)
+          .maybeSingle();
+
+        if (!error && quotation) {
+          return NextResponse.json({ success: true, data: quotation });
+        }
+      } catch (dbErr) {
+        console.warn("Supabase fetch single quotation note:", dbErr);
+      }
     }
 
-    const { data: quotation, error } = await supabaseAdmin
-      .from("quotations")
-      .select("*")
-      .eq("id", id)
-      .single();
+    const localList = readQuotationsFromStore();
+    const local = localList.find((q) => q.id === id);
 
-    if (error || !quotation) {
-      return NextResponse.json(
-        { success: false, error: { message: "Quotation not found.", code: "NOT_FOUND" } },
-        { status: 404 }
-      );
+    if (local) {
+      return NextResponse.json({ success: true, data: local });
     }
 
-    return NextResponse.json({ success: true, data: quotation });
+    return NextResponse.json(
+      { success: false, error: { message: "Quotation not found.", code: "NOT_FOUND" } },
+      { status: 404 }
+    );
   } catch (error: any) {
     console.error("Error fetching quotation:", error);
     return NextResponse.json(
@@ -65,27 +77,35 @@ export async function PATCH(
     if (body.followUpDate !== undefined) updatePayload.follow_up_date = body.followUpDate;
     if (body.quoteHistory !== undefined) updatePayload.quote_history = body.quoteHistory;
 
+    // 1. Update local store
+    const localUpdated = updateQuotationInStore(id, updatePayload);
+
+    // 2. Update Supabase
     if (isSupabaseConfigured()) {
-      const { data, error } = await supabaseAdmin
-        .from("quotations")
-        .update(updatePayload)
-        .eq("id", id)
-        .select()
-        .single();
+      try {
+        const { data, error } = await supabaseAdmin
+          .from("quotations")
+          .update(updatePayload)
+          .eq("id", id)
+          .select()
+          .maybeSingle();
 
-      if (error) throw error;
-
-      return NextResponse.json({
-        success: true,
-        data,
-        message: "Quotation status updated.",
-      });
+        if (!error && data) {
+          return NextResponse.json({
+            success: true,
+            data,
+            message: "Quotation status updated.",
+          });
+        }
+      } catch (sbErr) {
+        console.warn("Supabase quotation update note:", sbErr);
+      }
     }
 
     return NextResponse.json({
       success: true,
-      data: { id, ...updatePayload },
-      message: "Quotation updated (offline fallback).",
+      data: localUpdated || { id, ...updatePayload },
+      message: "Quotation updated.",
     });
   } catch (error: any) {
     console.error("Error updating quotation:", error);
@@ -106,13 +126,16 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    if (isSupabaseConfigured()) {
-      const { error } = await supabaseAdmin
-        .from("quotations")
-        .delete()
-        .eq("id", id);
+    // 1. Delete from local store
+    deleteQuotationFromStore(id);
 
-      if (error) throw error;
+    // 2. Delete from Supabase
+    if (isSupabaseConfigured()) {
+      try {
+        await supabaseAdmin.from("quotations").delete().eq("id", id);
+      } catch (sbErr) {
+        console.warn("Supabase delete quotation note:", sbErr);
+      }
     }
 
     return NextResponse.json({

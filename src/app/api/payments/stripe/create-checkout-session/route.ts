@@ -3,6 +3,7 @@ import { stripe, isStripeConfigured } from "@/lib/stripe";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { getCustomerSession } from "@/lib/customerAuth";
 import { getCustomerByEmail } from "@/lib/customerStore";
+import { sendCheckoutNotification, UserAccountContext } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,6 +16,7 @@ export async function POST(request: NextRequest) {
       customerPhone,
       customerZip,
       attribution,
+      inquiryNote,
     } = body;
 
     const email = (customerEmail || "").toLowerCase().trim();
@@ -110,20 +112,43 @@ export async function POST(request: NextRequest) {
       process.env.NEXT_PUBLIC_SITE_URL ||
       "http://localhost:3000";
 
-    // Check if customer is authenticated or exists
+    // 2. Resolve authenticated customer session context
+    let userContext: UserAccountContext = {
+      userId: null,
+      accountEmail: null,
+      accountName: null,
+      isAuthenticated: false,
+    };
     let customerId: string | null = null;
-    const session = await getCustomerSession();
-    if (session && session.email.toLowerCase() === email) {
-      customerId = session.id;
-    } else {
-      const existingCust = await getCustomerByEmail(email);
-      if (existingCust) customerId = existingCust.id;
-    }
+
+    try {
+      const session = await getCustomerSession();
+      if (session) {
+        customerId = session.id;
+        userContext = {
+          userId: session.id,
+          accountEmail: session.email,
+          accountName: session.name,
+          isAuthenticated: true,
+        };
+      } else {
+        const existingCust = await getCustomerByEmail(email);
+        if (existingCust) {
+          customerId = existingCust.id;
+          userContext = {
+            userId: existingCust.id,
+            accountEmail: existingCust.email,
+            accountName: existingCust.name,
+            isAuthenticated: false,
+          };
+        }
+      }
+    } catch {}
 
     let stripeSessionId = `cs_test_mock_${Date.now()}`;
     let checkoutUrl: string | null = null;
 
-    // 2. Create Live Stripe Checkout Session
+    // 3. Create Live Stripe Checkout Session
     if (isStripeConfigured()) {
       try {
         const stripeLineItems = validatedLineItems.map((v) => ({
@@ -167,7 +192,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 3. Persist Order in Supabase
+    // 4. PRIMARY OPERATION: Persist Order in Database
     let createdOrderId = `ord_${Date.now()}`;
 
     if (isSupabaseConfigured()) {
@@ -195,6 +220,7 @@ export async function POST(request: NextRequest) {
 
         if (!orderErr && dbOrder) {
           createdOrderId = dbOrder.id;
+          console.log(`[Database Save]: SUCCESS orderId=${createdOrderId}, orderNumber=${orderNumber}`);
 
           // Insert order items
           const itemsToInsert = validatedLineItems.map((v) => ({
@@ -210,6 +236,32 @@ export async function POST(request: NextRequest) {
       } catch (dbErr: any) {
         console.warn("Supabase order creation note:", dbErr.message);
       }
+    }
+
+    // 5. SECONDARY OPERATION: Dispatch Admin Notification for new order checkout
+    try {
+      await sendCheckoutNotification({
+        orderId: createdOrderId,
+        orderNumber,
+        customerName: name,
+        customerEmail: email,
+        customerPhone: customerPhone || null,
+        customerZip: customerZip || null,
+        items: validatedLineItems.map((v) => ({
+          title: v.floorPlan.title,
+          id: v.floorPlan.id,
+          quantity: v.quantity,
+          price: v.unitPrice,
+        })),
+        totalAmount: totalOrderAmount,
+        paymentOption: checkoutUrl ? "Stripe Hosted Checkout" : "Card Payment (Direct)",
+        paymentStatus: "PENDING / INITIATED",
+        inquiryNote: inquiryNote || null,
+        submissionDate: new Date().toLocaleString("en-US", { timeZone: "America/New_York" }),
+        userContext,
+      });
+    } catch (emailErr: any) {
+      console.warn("[Admin Notification]: FAILED for orderNumber=", orderNumber, emailErr?.message || emailErr);
     }
 
     return NextResponse.json({

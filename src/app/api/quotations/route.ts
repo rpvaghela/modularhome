@@ -3,8 +3,15 @@ import { query } from "@/lib/db";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { getCustomerSession } from "@/lib/customerAuth";
 import { getCustomerByEmail } from "@/lib/customerStore";
-import { sendQuoteNotificationEmail } from "@/lib/emailService";
+import { saveQuotationToStore } from "@/lib/quotationsStore";
+import { saveLead } from "@/lib/leadsStore";
 import { calculateQuotation } from "@/lib/pricingEngine";
+import {
+  sendQuoteNotification,
+  sendEstimateNotification,
+  sendFloorPlanNotification,
+  UserAccountContext,
+} from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,6 +37,7 @@ export async function POST(request: NextRequest) {
     const email = (customerEmail || body.email || body.customer_email || "").toLowerCase().trim();
     const phone = customerPhone || body.phone || body.customer_phone || null;
     const zip = customerZip || body.zip || body.customer_zip || null;
+    const submissionSource = source || body.source || "QUOTE_WIZARD";
 
     if (!name || !email) {
       return NextResponse.json(
@@ -38,15 +46,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Determine customer ID from active session or email lookup
+    // 1. Resolve logged-in customer session context
+    let userContext: UserAccountContext = {
+      userId: null,
+      accountEmail: null,
+      accountName: null,
+      isAuthenticated: false,
+    };
     let customerId: string | null = null;
+
     try {
       const session = await getCustomerSession();
-      if (session && session.email.toLowerCase() === email) {
+      if (session) {
         customerId = session.id;
+        userContext = {
+          userId: session.id,
+          accountEmail: session.email,
+          accountName: session.name,
+          isAuthenticated: true,
+        };
       } else {
         const existingCust = await getCustomerByEmail(email);
-        if (existingCust) customerId = existingCust.id;
+        if (existingCust) {
+          customerId = existingCust.id;
+          userContext = {
+            userId: existingCust.id,
+            accountEmail: existingCust.email,
+            accountName: existingCust.name,
+            isAuthenticated: false,
+          };
+        }
       }
     } catch {}
 
@@ -65,10 +94,12 @@ export async function POST(request: NextRequest) {
       zip: zip || undefined,
     });
 
-    const quoteId = `quote_${Date.now()}`;
+    const quoteId = crypto.randomUUID();
+    const validCustomerId = (customerId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(customerId)) ? customerId : null;
+
     const quoteData = {
       id: quoteId,
-      customer_id: customerId,
+      customer_id: validCustomerId,
       customer_name: name,
       customer_email: email,
       customer_phone: phone,
@@ -87,138 +118,153 @@ export async function POST(request: NextRequest) {
       pricing_rule_version: quoteCalc.pricingRuleVersion,
       timeline: timeline || body.timeline || null,
       requirements: requirements || body.notes || body.description || body.enquiry_details || null,
-      source: source || body.source || "QUOTE_WIZARD",
-      status: "PENDING",
+      source: submissionSource,
+      status: "PENDING" as const,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
 
-    // 1. Direct Postgres insertion
-    let persisted = false;
+    // 2. PRIMARY OPERATION: Save to Database & Local Stores
+
+    // A. Local Quotations Store (Guaranteed persistence)
     try {
-      const insertSql = `
-        INSERT INTO quotations (
-          id, customer_id, customer_name, customer_email, customer_phone, customer_zip,
-          model_slug, model_name, sqft, dimensions, options, pricing_inputs,
-          estimated_amount, line_items, inclusions, exclusions, disclaimer, pricing_rule_version,
-          timeline, requirements, source, status, created_at, updated_at
-        ) VALUES (
-          $1, $2, $3, $4, $5, $6,
-          $7, $8, $9, $10, $11, $12,
-          $13, $14, $15, $16, $17, $18,
-          $19, $20, $21, $22, NOW(), NOW()
-        )
-        RETURNING *
-      `;
-
-      const pgRes = await query(insertSql, [
-        quoteId,
-        quoteData.customer_id,
-        quoteData.customer_name,
-        quoteData.customer_email,
-        quoteData.customer_phone,
-        quoteData.customer_zip,
-        quoteData.model_slug,
-        quoteData.model_name,
-        quoteData.sqft,
-        quoteData.dimensions,
-        JSON.stringify(quoteData.options),
-        JSON.stringify(quoteData.pricing_inputs),
-        quoteData.estimated_amount,
-        JSON.stringify(quoteData.line_items),
-        JSON.stringify(quoteData.inclusions),
-        JSON.stringify(quoteData.exclusions),
-        quoteData.disclaimer,
-        quoteData.pricing_rule_version,
-        quoteData.timeline,
-        quoteData.requirements,
-        quoteData.source,
-        quoteData.status,
-      ]);
-
-      if (pgRes && pgRes.rows[0]) {
-        persisted = true;
-      }
-    } catch (pgErr) {
-      console.warn("Direct Postgres quote insert fallback:", pgErr);
+      saveQuotationToStore(quoteData);
+    } catch (storeErr) {
+      console.warn("Quotation local store notice:", storeErr);
     }
 
-    if (!persisted && isSupabaseConfigured()) {
-      const { error: spError } = await supabaseAdmin.from("quotations").insert({
-        id: quoteId,
-        customer_id: quoteData.customer_id,
-        customer_name: quoteData.customer_name,
-        customer_email: quoteData.customer_email,
-        customer_phone: quoteData.customer_phone,
-        customer_zip: quoteData.customer_zip,
-        model_slug: quoteData.model_slug,
-        model_name: quoteData.model_name,
-        sqft: quoteData.sqft,
-        dimensions: quoteData.dimensions,
-        options: quoteData.options,
-        pricing_inputs: quoteData.pricing_inputs,
-        estimated_amount: quoteData.estimated_amount,
-        timeline: quoteData.timeline,
-        requirements: quoteData.requirements,
-        source: quoteData.source,
-        status: "PENDING",
-      });
-      if (spError) {
-        console.error("Supabase quotations insert error:", spError);
-      } else {
-        persisted = true;
+    // B. Supabase Quotations Table
+    if (isSupabaseConfigured()) {
+      try {
+        const { error: spError } = await supabaseAdmin.from("quotations").insert({
+          id: quoteId,
+          customer_id: validCustomerId,
+          customer_name: quoteData.customer_name,
+          customer_email: quoteData.customer_email,
+          customer_phone: quoteData.customer_phone,
+          customer_zip: quoteData.customer_zip,
+          model_slug: quoteData.model_slug,
+          model_name: quoteData.model_name,
+          sqft: quoteData.sqft,
+          dimensions: quoteData.dimensions,
+          options: quoteData.options,
+          pricing_inputs: quoteData.pricing_inputs,
+          estimated_amount: quoteData.estimated_amount,
+          line_items: quoteData.line_items,
+          exclusions: quoteData.exclusions,
+          pricing_rule_version: quoteData.pricing_rule_version,
+          timeline: quoteData.timeline,
+          requirements: quoteData.requirements,
+          source: quoteData.source,
+          status: "PENDING",
+        });
+
+        if (spError) {
+          console.error("[Database Save]: Supabase quotation insert error:", spError);
+          throw new Error(spError.message || "Failed to persist quotation into Supabase.");
+        } else {
+          console.log(`[Database Save]: SUCCESS Supabase quotation id=${quoteId}`);
+        }
+      } catch (sbErr: any) {
+        console.error("[Database Save]: Supabase quotation insert exception:", sbErr?.message || sbErr);
       }
     }
 
-    // 2. Also register / mirror as a qualified CRM lead
+    // C. Mirror quotation into CRM leads store and Supabase leads table
     try {
-      const leadId = `lead_${Date.now()}`;
-      const leadInsertSql = `
-        INSERT INTO leads (
-          id, name, email, phone, zip, location, project_type, approximate_size, budget, timeline,
-          requirements, enquiry_details, source, status, notes, created_at, updated_at
-        ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-          $11, $12, $13, $14, $15, NOW(), NOW()
-        )
-      `;
-      await query(leadInsertSql, [
-        leadId,
+      const leadPayload = {
         name,
         email,
         phone,
+        location: zip ? `ZIP: ${zip}` : null,
         zip,
-        zip ? `ZIP: ${zip}` : null,
-        quoteData.model_name,
-        quoteData.sqft ? `${quoteData.sqft} sq ft` : null,
-        `$${quoteData.estimated_amount?.toLocaleString()}`,
-        quoteData.timeline,
-        quoteData.requirements,
-        `Quote Request: ${quoteData.model_name} (${quoteData.sqft ? `${quoteData.sqft} sq ft` : "Standard Sizing"}) - Est: $${quoteData.estimated_amount?.toLocaleString()}`,
-        quoteData.source,
-        "NEW",
-        `Generated from Quote Wizard (Quote ID: ${quoteId}) with ${quoteData.line_items.length} itemized lines.`,
-      ]);
+        enquiry_details: `Quote Request: ${quoteData.model_name} (${quoteData.sqft ? `${quoteData.sqft} sq ft` : "Standard Sizing"}) - Est: $${quoteData.estimated_amount?.toLocaleString()}`,
+        source: quoteData.source,
+        status: "NEW" as const,
+        notes: `Auto-generated from quotation (${quoteId}). Timeline: ${quoteData.timeline || "Not specified"}. Details: ${quoteData.requirements || "None"}`,
+      };
+
+      saveLead(leadPayload);
+
+      if (isSupabaseConfigured()) {
+        try {
+          await supabaseAdmin.from("leads").insert(leadPayload);
+        } catch {}
+      }
     } catch (leadErr) {
-      console.warn("Mirror quotation into leads table notice:", leadErr);
+      console.warn("Mirror quotation into leads store notice:", leadErr);
     }
 
-    // 3. Dispatch transactional email alert to admin and quote summary to customer
+    // 3. SECONDARY OPERATION: Dispatch Admin Email Notification
+    const submissionDate = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+
     try {
-      await sendQuoteNotificationEmail({
-        quoteId,
-        customerName: name,
-        customerEmail: email,
-        customerPhone: phone,
-        customerZip: zip,
-        modelName: quoteData.model_name,
-        sqft: quoteData.sqft,
-        estimatedAmount: quoteData.estimated_amount,
-        timeline: quoteData.timeline,
-        requirements: quoteData.requirements,
-      });
-    } catch (quoteEmailErr) {
-      console.warn("Quote notification email dispatch note:", quoteEmailErr);
+      if (submissionSource === "FLOOR_PLAN_UPLOAD") {
+        // Form 4: Custom Floor Plan Uploader
+        const fileMatch = quoteData.requirements?.match(/Blueprint Document:\s*([^|(]+)(?:\s*\(([^)]+)\))?/i);
+        const fileName = fileMatch ? fileMatch[1].trim() : body.fileName || null;
+        const fileSize = fileMatch && fileMatch[2] ? fileMatch[2].trim() : null;
+
+        await sendFloorPlanNotification({
+          quoteId,
+          customerName: name,
+          customerEmail: email,
+          customerPhone: phone,
+          customerZip: zip,
+          plotDimensions: quoteData.dimensions,
+          approximateSqFt: quoteData.sqft,
+          requirements: quoteData.requirements,
+          fileName,
+          fileSize,
+          submissionDate,
+          source: "FLOOR_PLAN_UPLOAD",
+          userContext,
+        });
+      } else if (submissionSource === "HOMEPAGE_QUOTE") {
+        // Form 3: Quick Estimate (QuoteAndStepsSection)
+        const stateMatch = quoteData.requirements?.match(/State:\s*([^|]+)/i);
+        const homeTypeMatch = quoteData.requirements?.match(/Home Type:\s*([^|]+)/i);
+        const budgetMatch = quoteData.requirements?.match(/Budget:\s*([^|]+)/i);
+        const fileMatch = quoteData.requirements?.match(/Attached File:\s*([^|]+)/i);
+
+        await sendEstimateNotification({
+          quoteId,
+          name,
+          email,
+          phone,
+          state: stateMatch ? stateMatch[1].trim() : body.state || null,
+          homeType: homeTypeMatch ? homeTypeMatch[1].trim() : quoteData.model_name,
+          budget: budgetMatch ? budgetMatch[1].trim() : body.budget || null,
+          details: quoteData.requirements,
+          fileName: fileMatch ? fileMatch[1].trim() : body.fileName || null,
+          submissionDate,
+          source: "HOMEPAGE_QUOTE",
+          userContext,
+        });
+      } else {
+        // Form 2: Quote Wizard (Default)
+        await sendQuoteNotification({
+          quoteId,
+          customerName: name,
+          customerEmail: email,
+          customerPhone: phone,
+          customerZip: zip,
+          builtUpArea: quoteData.sqft,
+          structureType: "Precision Cold-Formed Steel Structure",
+          finishQuality: finishLevel || "Standard Turnkey",
+          selectedAddons: parsedOptions,
+          estimatedPrice: quoteData.estimated_amount,
+          modelName: quoteData.model_name,
+          modelSlug: quoteData.model_slug,
+          timeline: quoteData.timeline,
+          requirements: quoteData.requirements,
+          submissionDate,
+          source: "QUOTE_WIZARD",
+          userContext,
+        });
+      }
+    } catch (emailErr: any) {
+      console.warn("[Admin Notification]: FAILED for quoteId=", quoteId, emailErr?.message || emailErr);
     }
 
     return NextResponse.json({

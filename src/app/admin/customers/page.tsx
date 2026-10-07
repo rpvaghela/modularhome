@@ -26,6 +26,8 @@ export default function AdminCustomersPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [verifiedFilter, setVerifiedFilter] = useState("ALL");
+  const [quickVerifyingId, setQuickVerifyingId] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{ text: string; isError?: boolean } | null>(null);
 
   const fetchCustomers = async () => {
     setIsLoading(true);
@@ -56,8 +58,52 @@ export default function AdminCustomersPage() {
     fetchCustomers();
   };
 
+  const handleQuickVerify = async (customerId: string, email: string) => {
+    setQuickVerifyingId(customerId);
+    setNotification(null);
+    try {
+      const res = await fetch(`/api/admin/customers/${customerId}/actions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "manual-verify" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setNotification({ text: `Account for ${email} has been verified and synced successfully.` });
+        fetchCustomers();
+      } else {
+        throw new Error(data.error?.message || "Failed to verify account.");
+      }
+    } catch (err: any) {
+      setNotification({ text: err.message || "Failed to verify user.", isError: true });
+    } finally {
+      setQuickVerifyingId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {notification && (
+        <div
+          className={`p-3.5 rounded-xl border text-xs font-bold flex items-center justify-between gap-2 animate-in fade-in ${
+            notification.isError
+              ? "bg-red-50 border-red-200 text-red-700"
+              : "bg-emerald-50 border-emerald-200 text-emerald-800"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {notification.isError ? <AlertCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+            <span>{notification.text}</span>
+          </div>
+          <button
+            onClick={() => setNotification(null)}
+            className="text-gray-400 hover:text-gray-600 text-xs font-bold px-1"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -232,13 +278,26 @@ export default function AdminCustomersPage() {
                       {new Date(c.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-5 py-4 text-right">
-                      <Link
-                        href={`/admin/customers/${c.id}`}
-                        className="inline-flex items-center gap-1 font-black text-xs text-[#d97706] hover:text-[#b45309] hover:underline"
-                      >
-                        <span>Manage</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        {!c.email_verified && (
+                          <button
+                            onClick={() => handleQuickVerify(c.id, c.email)}
+                            disabled={quickVerifyingId === c.id}
+                            title="Verify customer email and sync status with main website"
+                            className="inline-flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors disabled:opacity-50"
+                          >
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                            <span>{quickVerifyingId === c.id ? "Verifying..." : "Verify"}</span>
+                          </button>
+                        )}
+                        <Link
+                          href={`/admin/customers/${c.id}`}
+                          className="inline-flex items-center gap-1 font-black text-xs text-[#d97706] hover:text-[#b45309] hover:underline"
+                        >
+                          <span>Manage</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -20,7 +20,7 @@ export interface PricingEngineInput {
   modelSlug?: string;
   modelName?: string;
   sqft: number;
-  selectedUpgrades?: string[];
+  selectedUpgrades?: Array<string | { id?: string; code?: string; name?: string; label?: string; price?: number } | any>;
   finishLevel?: "KIT_SHELL" | "STANDARD" | "PREMIUM_TURNKEY" | string;
   deliveryRegion?: string;
   zip?: string;
@@ -220,15 +220,26 @@ export async function calculateQuotation(input: PricingEngineInput): Promise<Det
   const upgradeRules = rules.filter((r) => r.category === "UPGRADE");
 
   for (const upRule of upgradeRules) {
-    const isSelected =
-      selectedUpgrades.includes(upRule.code) ||
-      selectedUpgrades.includes(upRule.id) ||
-      selectedUpgrades.some(
-        (u) =>
-          u.toLowerCase() === upRule.label.toLowerCase() ||
-          u.toLowerCase() === upRule.code.toLowerCase() ||
-          upRule.code.toLowerCase().includes(u.toLowerCase())
+    const isSelected = selectedUpgrades.some((u: any) => {
+      if (!u) return false;
+      const strVal = typeof u === "string" ? u : (u.id || u.code || u.name || u.label || "");
+      if (typeof strVal !== "string" || !strVal.trim()) return false;
+      
+      const valLower = strVal.toLowerCase().trim();
+      const codeLower = (upRule.code || "").toLowerCase().trim();
+      const labelLower = (upRule.label || "").toLowerCase().trim();
+      const idLower = (upRule.id || "").toLowerCase().trim();
+
+      return (
+        valLower === codeLower ||
+        valLower === labelLower ||
+        valLower === idLower ||
+        (codeLower.length > 3 && valLower.includes(codeLower)) ||
+        (labelLower.length > 3 && valLower.includes(labelLower)) ||
+        (codeLower.length > 3 && codeLower.includes(valLower)) ||
+        (labelLower.length > 3 && labelLower.includes(valLower))
       );
+    });
 
     if (isSelected) {
       const upgradePrice = upRule.base_rate + Math.round(sqft * (upRule.multiplier || 0));

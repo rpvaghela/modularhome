@@ -1,5 +1,156 @@
 [
   {
+    "id": "eml-1791389649494-ifr3n",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_QUOTE_REQUEST",
+    "subject": "New Quote Request — Marcus Aurelius",
+    "status": "SENT",
+    "metadata": {
+      "quote_id": "bbcba62d-4f44-4c66-b83f-af4cd5037a38",
+      "customer_name": "Marcus Aurelius",
+      "customer_email": "marcus.aurelius@example.com",
+      "reply_to": "marcus.aurelius@example.com",
+      "model": "The Ridgeline Barndominium Kit",
+      "amount": 381800,
+      "resend_id": "01a11724-d312-7468-8234-7f95c5cebc23"
+    },
+    "created_at": "2026-10-07T16:14:09.494Z"
+  },
+  {
+    "id": "eml-1791389474424-4ef66",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_QUOTE_REQUEST",
+    "subject": "New Quote Request — CHETAN SONAWANE",
+    "status": "SENT",
+    "metadata": {
+      "quote_id": "3e3ef4fa-de58-4bcf-aca1-2317985a1a83",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "model": "The Lake Louise Amish Built Modular Cabin (1 bed 1 bath plus loft)",
+      "amount": 93500,
+      "resend_id": "01a11722-273b-7e64-b1aa-919a643c3b8b"
+    },
+    "created_at": "2026-10-07T16:11:14.424Z"
+  },
+  {
+    "id": "eml-1791389269517-ecimd",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_CONTACT_LEAD",
+    "subject": "New Contact Lead — Sarah Connor",
+    "status": "SENT",
+    "metadata": {
+      "lead_id": "a1449b45-1dc0-4ef1-bdcb-dcc0b47c95be",
+      "customer_name": "Sarah Connor",
+      "customer_email": "sarah.connor@example.com",
+      "reply_to": "sarah.connor@example.com",
+      "resend_id": "01a1171f-06b0-76d1-a329-838e1336fd48"
+    },
+    "created_at": "2026-10-07T16:07:49.517Z"
+  },
+  {
+    "id": "eml-1791389017514-oer0r",
+    "recipient": "chetansonawane1260@gmail.com",
+    "template_type": "ADMIN_QUOTE_REQUEST",
+    "subject": "New Quote Request — Chetan Admin Check",
+    "status": "FAILED",
+    "metadata": {
+      "quote_id": "e59781c7-e429-4e4a-abe0-4f6c91d3ba6c",
+      "customer_name": "Chetan Admin Check",
+      "customer_email": "chetan.check@example.com",
+      "reply_to": "chetan.check@example.com",
+      "model": "The Cascada Compact",
+      "amount": 255800,
+      "error": "You can only send testing emails to your own email address (modularhome.admin@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain."
+    },
+    "created_at": "2026-10-07T16:03:37.514Z"
+  },
+  {
+    "id": "eml-1791388990320-3x4kq",
+    "recipient": "chetansonawane1260@gmail.com",
+    "template_type": "ADMIN_QUOTE_REQUEST",
+    "subject": "New Quote Request — CHETAN SONAWANE",
+    "status": "FAILED",
+    "metadata": {
+      "quote_id": "e59e07a8-42d2-4940-b242-e1b4b321d684",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "model": "The Lake Louise Amish Built Modular Cabin (1 bed 1 bath plus loft)",
+      "amount": 93500,
+      "error": "You can only send testing emails to your own email address (modularhome.admin@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain."
+    },
+    "created_at": "2026-10-07T16:03:10.320Z"
+  },
+  {
+    "id": "eml-1791388775280-e2wyc",
+    "recipient": "chetansonawane1260@gmail.com",
+    "template_type": "ADMIN_QUOTE_REQUEST",
+    "subject": "New Quote Request — CHETAN SONAWANE",
+    "status": "FAILED",
+    "metadata": {
+      "quote_id": "quote_1791388774430",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "model": "The Farmhouse Charm (NEW MODEL)",
+      "amount": 38600,
+      "error": "You can only send testing emails to your own email address (modularhome.admin@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain."
+    },
+    "created_at": "2026-10-07T15:59:35.280Z"
+  },
+  {
+    "id": "eml-1791388710906-7igzn",
+    "recipient": "chetansonawane1260@gmail.com",
+    "template_type": "ADMIN_QUOTE_REQUEST",
+    "subject": "New Quote Request — Test User",
+    "status": "FAILED",
+    "metadata": {
+      "quote_id": "quote_1791388710086",
+      "customer_name": "Test User",
+      "customer_email": "test@example.com",
+      "reply_to": "test@example.com",
+      "model": "The Cascada Compact",
+      "amount": 162800,
+      "error": "You can only send testing emails to your own email address (modularhome.admin@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain."
+    },
+    "created_at": "2026-10-07T15:58:30.906Z"
+  },
+  {
+    "id": "eml-1791388648047-meips",
+    "recipient": "chetansonawane1260@gmail.com",
+    "template_type": "ADMIN_QUOTE_REQUEST",
+    "subject": "New Quote Request — CHETAN SONAWANE",
+    "status": "FAILED",
+    "metadata": {
+      "quote_id": "quote_1791388647130",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "model": "The Ridgeline Barndominium Kit",
+      "amount": 48550,
+      "error": "You can only send testing emails to your own email address (modularhome.admin@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain."
+    },
+    "created_at": "2026-10-07T15:57:28.047Z"
+  },
+  {
+    "id": "eml-1791388492795-35irt",
+    "recipient": "chetansonawane1260@gmail.com",
+    "template_type": "ADMIN_QUOTE_REQUEST",
+    "subject": "New Quote Request — CHETAN SONAWANE",
+    "status": "FAILED",
+    "metadata": {
+      "quote_id": "quote_1791388491894",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "model": "The Lake Louise Amish Built Modular Cabin (1 bed 1 bath plus loft)",
+      "amount": 93500,
+      "error": "You can only send testing emails to your own email address (modularhome.admin@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain."
+    },
+    "created_at": "2026-10-07T15:54:52.795Z"
+  },
+  {
     "id": "eml-1791013143050-m56rh",
     "recipient": "test.client.1791013142673@example.com",
     "template_type": "EMAIL_VERIFICATION",

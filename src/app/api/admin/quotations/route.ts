@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { readQuotationsFromStore, saveQuotationToStore } from "@/lib/quotationsStore";
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdminAuth();
@@ -9,35 +10,64 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
-    const search = searchParams.get("search");
+    const search = searchParams.get("search")?.toLowerCase().trim();
 
-    if (!isSupabaseConfigured()) {
-      return NextResponse.json({
-        success: true,
-        data: [],
-      });
+    let dbQuotes: any[] = [];
+
+    if (isSupabaseConfigured()) {
+      try {
+        let query = supabaseAdmin
+          .from("quotations")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (status && status !== "ALL") {
+          query = query.eq("status", status);
+        }
+
+        const { data, error } = await query;
+        if (!error && data) {
+          dbQuotes = data;
+        }
+      } catch (dbErr) {
+        console.warn("Supabase fetch quotations warning:", dbErr);
+      }
     }
 
-    let query = supabaseAdmin
-      .from("quotations")
-      .select("*")
-      .order("created_at", { ascending: false });
+    // Merge with local persistent store
+    const localQuotes = readQuotationsFromStore();
+    const existingIds = new Set(dbQuotes.map((q) => q.id));
+    const merged: any[] = [...dbQuotes];
 
-    if (status && status !== "ALL") {
-      query = query.eq("status", status);
+    for (const lq of localQuotes) {
+      if (!existingIds.has(lq.id)) {
+        if (!status || status === "ALL" || lq.status === status) {
+          merged.push(lq);
+          existingIds.add(lq.id);
+        }
+      }
     }
 
-    if (search && search.trim()) {
-      const s = search.trim();
-      query = query.or(`customer_name.ilike.%${s}%,customer_email.ilike.%${s}%,model_name.ilike.%${s}%,customer_phone.ilike.%${s}%`);
+    // Apply search filter if present
+    let filtered = merged;
+    if (search) {
+      filtered = filtered.filter(
+        (q) =>
+          q.customer_name?.toLowerCase().includes(search) ||
+          q.customer_email?.toLowerCase().includes(search) ||
+          q.customer_phone?.toLowerCase().includes(search) ||
+          q.model_name?.toLowerCase().includes(search) ||
+          q.customer_zip?.toLowerCase().includes(search) ||
+          q.requirements?.toLowerCase().includes(search)
+      );
     }
 
-    const { data: quotations, error } = await query;
-    if (error) throw error;
+    // Sort newest first
+    filtered.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
 
     return NextResponse.json({
       success: true,
-      data: quotations || [],
+      data: filtered,
     });
   } catch (error: any) {
     console.error("Error fetching quotations:", error);
@@ -81,13 +111,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const quoteId = crypto.randomUUID();
     const quoteData = {
+      id: quoteId,
       customer_name: name,
       customer_email: email.toLowerCase().trim(),
       customer_phone: customerPhone || body.phone || null,
       customer_zip: customerZip || body.zip || null,
       model_slug: modelSlug || body.model_slug || null,
-      model_name: modelName || body.model_name || null,
+      model_name: modelName || body.model_name || "Custom Configuration",
       sqft: sqft ? Number(sqft) : null,
       dimensions: dimensions || null,
       options: typeof options === "string" ? JSON.parse(options) : options || [],
@@ -95,32 +127,40 @@ export async function POST(request: NextRequest) {
       estimated_amount: estimatedAmount ? Number(estimatedAmount) : null,
       timeline: timeline || null,
       requirements: requirements || body.notes || null,
-      source: source || "QUOTE_WIZARD",
-      status: body.status || "PENDING",
+      source: source || "ADMIN_MANUAL",
+      status: (body.status as any) || "PENDING",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
 
+    // 1. Save to local store
+    const localSaved = saveQuotationToStore(quoteData);
+
+    // 2. Save to Supabase if configured
     if (isSupabaseConfigured()) {
-      const { data, error } = await supabaseAdmin
-        .from("quotations")
-        .insert(quoteData)
-        .select()
-        .single();
+      try {
+        const { data, error } = await supabaseAdmin
+          .from("quotations")
+          .insert(quoteData)
+          .select()
+          .single();
 
-      if (error) throw error;
-
-      return NextResponse.json({
-        success: true,
-        data,
-        message: "Quotation recorded successfully.",
-      });
+        if (!error && data) {
+          return NextResponse.json({
+            success: true,
+            data,
+            message: "Quotation recorded successfully.",
+          });
+        }
+      } catch (sbErr) {
+        console.warn("Supabase quotation manual insert note:", sbErr);
+      }
     }
 
     return NextResponse.json({
       success: true,
-      data: { id: `mock-${Date.now()}`, ...quoteData },
-      message: "Quotation recorded successfully (offline fallback).",
+      data: localSaved,
+      message: "Quotation recorded successfully.",
     });
   } catch (error: any) {
     console.error("Error creating quotation:", error);
