@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCustomerSession } from "@/lib/customerAuth";
 import { getCustomerById, saveCustomer, logCustomerEvent } from "@/lib/customerStore";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { getOrdersByCustomer } from "@/lib/orderStore";
 
 export async function GET() {
   try {
@@ -16,32 +17,66 @@ export async function GET() {
     }
 
     // Fetch stats (orders count, total spend, downloads)
-    let orderCount = 0;
-    let totalSpend = 0;
-    let downloadsCount = 0;
+    const localById = getOrdersByCustomer(customer.id);
+    const localByEmail = getOrdersByCustomer(customer.email);
+    const allLocal = Array.from(new Set([...localById, ...localByEmail]));
+
+    let dbOrders: any[] = [];
+    let dbDownloadsCount = 0;
 
     if (isSupabaseConfigured()) {
       try {
         const { data: orders } = await supabaseAdmin
           .from("orders")
-          .select("id, total_amount, payment_status")
-          .or(`customer_id.eq.${customer.id},customer_email.eq.${customer.email}`);
+          .select("id, total_amount, payment_status, order_number")
+          .or(`customer_id.eq.${customer.id},customer_email.ilike.${customer.email},customer_email.eq.${customer.email}`);
         
         if (orders) {
-          orderCount = orders.length;
-          totalSpend = orders
-            .filter((o) => o.payment_status === "PAID")
-            .reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+          dbOrders = orders;
         }
 
         const { count } = await supabaseAdmin
           .from("download_access")
           .select("*", { count: "exact", head: true })
-          .eq("customer_email", customer.email);
+          .ilike("customer_email", customer.email);
         
-        if (typeof count === "number") downloadsCount = count;
+        if (typeof count === "number") dbDownloadsCount = count;
       } catch {}
     }
+
+    // Merge unique orders
+    const seenOrderKeys = new Set<string>();
+    const mergedOrders: any[] = [];
+
+    for (const ord of allLocal) {
+      const key = (ord.order_number || ord.id || "").toLowerCase().trim();
+      if (!seenOrderKeys.has(key)) {
+        seenOrderKeys.add(key);
+        mergedOrders.push(ord);
+      }
+    }
+
+    for (const ord of dbOrders) {
+      const key = (ord.order_number || ord.id || "").toLowerCase().trim();
+      if (!seenOrderKeys.has(key)) {
+        seenOrderKeys.add(key);
+        mergedOrders.push(ord);
+      }
+    }
+
+    const orderCount = mergedOrders.length;
+    const totalSpend = mergedOrders
+      .filter((o) => o.payment_status === "PAID")
+      .reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+
+    let localDownloadsCount = 0;
+    allLocal.forEach((o) => {
+      if (o.payment_status === "PAID" && Array.isArray(o.download_access)) {
+        localDownloadsCount += o.download_access.length;
+      }
+    });
+
+    const downloadsCount = Math.max(dbDownloadsCount, localDownloadsCount);
 
     return NextResponse.json({
       success: true,
