@@ -63,7 +63,7 @@ export default function VideosClient({ pageData }: VideosClientProps) {
   const heroDesc = pageData?.content || "See real home designs, floor plans, interiors, construction details, and building ideas to help inspire your next home.";
 
   return (
-    <div className="min-h-screen bg-white pt-28 pb-28 text-[var(--ink)]">
+    <div className="min-h-screen bg-white pt-6 pb-24 text-[var(--ink)]">
       <div className="wrap">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-10">

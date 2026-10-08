@@ -700,12 +700,12 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
   const parsedPageContent = parseContentData(page.content);
 
   return (
-    <div className="min-h-screen bg-white text-[#101114] pt-24 pb-20">
+    <div className="min-h-screen bg-white text-[#101114] pt-0 pb-20">
       {/* 1. Header Banner / Hero */}
-      <section className="relative py-12 sm:py-16 bg-gradient-to-b from-[#f8f9fa] to-white border-b border-[#e7e9ee]">
+      <section className="relative py-6 sm:py-8 bg-gradient-to-b from-[#f8f9fa] to-white border-b border-[#e7e9ee]">
         <div className="wrap">
           {/* Breadcrumbs */}
-          <nav className="flex items-center gap-2 text-xs text-[#6b7280] mb-6 flex-wrap" aria-label="Breadcrumb">
+          <nav className="flex items-center gap-2 text-xs text-[#6b7280] mb-4 flex-wrap" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-[#101114] flex items-center gap-1 transition-colors">
               <Home className="w-3.5 h-3.5" />
               <span>Home</span>

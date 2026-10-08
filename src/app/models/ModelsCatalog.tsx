@@ -277,10 +277,10 @@ export default function ModelsCatalog() {
     locationFilter !== "";
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-20 text-[#101114]">
+    <div className="min-h-screen bg-white pt-4 pb-20 text-[#101114]">
       <div className="wrap">
         {/* Page Header */}
-        <div className="py-8 border-b border-[#e7e9ee]">
+        <div className="py-4 border-b border-[#e7e9ee]">
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] mb-2">
             <span className="w-2 h-2 rounded-full bg-[#fcb907]"></span>
             <span>Floor Plans & Architectural Catalog</span>

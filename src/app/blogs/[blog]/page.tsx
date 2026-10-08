@@ -158,7 +158,7 @@ export default async function BlogCategoryPage({ params }: BlogCategoryPageProps
   };
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-20 text-[#101114]">
+    <div className="min-h-screen bg-white pt-3 pb-16 text-[#101114]">
       {/* Schema.org CollectionPage Injection */}
       <script
         type="application/ld+json"
@@ -167,7 +167,7 @@ export default async function BlogCategoryPage({ params }: BlogCategoryPageProps
 
       <div className="wrap">
         {/* Breadcrumb Navigation */}
-        <div className="py-4 text-xs text-[#6b7280] flex items-center gap-2 border-b border-[#e7e9ee] mb-8">
+        <div className="py-2.5 text-xs text-[#6b7280] flex items-center gap-2 border-b border-[#e7e9ee] mb-4">
           <Link href="/" className="hover:text-[#101114] transition-colors">
             Home
           </Link>
@@ -182,7 +182,7 @@ export default async function BlogCategoryPage({ params }: BlogCategoryPageProps
         </div>
 
         {/* Header */}
-        <div className="py-8 border-b border-[#e7e9ee] mb-10">
+        <div className="py-4 border-b border-[#e7e9ee] mb-8">
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] mb-2">
             <BookOpen className="w-4 h-4 text-[#fcb907]" />
             <span>Category Hub</span>

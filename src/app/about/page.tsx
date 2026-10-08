@@ -79,9 +79,9 @@ export default async function AboutPage() {
   const heroImage = page?.featuredImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80";
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-20 text-[#101114]">
+    <div className="min-h-screen bg-white pt-0 pb-20 text-[#101114]">
       {/* 1. HERO */}
-      <section className="relative py-16 sm:py-20 overflow-hidden bg-gradient-to-b from-[#f6f7f9] to-white">
+      <section className="relative py-8 sm:py-12 overflow-hidden bg-gradient-to-b from-[#f6f7f9] to-white">
         <div className="wrap">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] mb-3">

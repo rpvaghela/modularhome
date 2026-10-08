@@ -41,7 +41,7 @@ export default async function QuotePage() {
   const heroDesc = page?.content || "Configure your home type, fine-tune square footage, and select energy packages. Transparent pricing in under 2 minutes.";
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-20 text-[#101114]">
+    <div className="min-h-screen bg-white pt-6 pb-20 text-[#101114]">
       <div className="wrap">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-10">

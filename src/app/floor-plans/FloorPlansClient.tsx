@@ -120,7 +120,7 @@ export default function FloorPlansClient({ pageData }: FloorPlansClientProps) {
   return (
     <div className="min-h-screen bg-[#FAF8F5] text-stone-900 pb-20">
       {/* Hero Header */}
-      <section className="relative bg-stone-900 text-white pt-24 pb-16 overflow-hidden">
+      <section className="relative bg-stone-900 text-white pt-6 pb-8 overflow-hidden">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#E06322_1px,transparent_1px)] [background-size:16px_16px]" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold tracking-wide uppercase">

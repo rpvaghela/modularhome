@@ -36,7 +36,7 @@ export default async function UploadFloorPlanPage() {
   const heroDesc = page?.content || "Upload your floor plan and let our team provide a detailed custom quote. We accept hand sketches, architect PDFs, and CAD files.";
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-20 text-[#101114]">
+    <div className="min-h-screen bg-white pt-6 pb-20 text-[#101114]">
       <div className="wrap">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-10">

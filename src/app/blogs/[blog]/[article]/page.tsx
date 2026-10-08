@@ -155,7 +155,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
   const formattedBlogName = blog.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-28 text-[#101114]">
+    <div className="min-h-screen bg-white pt-3 pb-24 text-[#101114]">
       {/* Schema.org Injection */}
       <script
         type="application/ld+json"
@@ -164,7 +164,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
 
       <div className="wrap max-w-5xl">
         {/* Breadcrumb Navigation */}
-        <div className="py-4 text-xs text-[#6b7280] flex items-center gap-2 border-b border-[#e7e9ee] mb-8">
+        <div className="py-2.5 text-xs text-[#6b7280] flex items-center gap-2 border-b border-[#e7e9ee] mb-4">
           <Link href="/" className="hover:text-[#101114] transition-colors">
             Home
           </Link>

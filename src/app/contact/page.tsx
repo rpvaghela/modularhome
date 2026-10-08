@@ -168,7 +168,7 @@ export default async function ContactPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="min-h-screen bg-[#fafbfc] pt-24 pb-20 text-[#101114]">
+      <div className="min-h-screen bg-[#fafbfc] pt-6 pb-20 text-[#101114]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Top Hero Breadcrumb & Header */}

@@ -102,7 +102,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
   };
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-20 text-[#101114]">
+    <div className="min-h-screen bg-white pt-3 pb-16 text-[#101114]">
       {/* Schema.org Injection */}
       <script
         type="application/ld+json"
@@ -111,7 +111,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
 
       <div className="wrap">
         {/* Breadcrumb Navigation & Share */}
-        <div className="py-4 text-xs text-[#6b7280] flex items-center justify-between border-b border-[#e7e9ee] mb-8 gap-4">
+        <div className="py-2.5 text-xs text-[#6b7280] flex items-center justify-between border-b border-[#e7e9ee] mb-4 gap-4">
           <div className="flex items-center gap-2 overflow-hidden truncate">
             <Link href="/" className="hover:text-[#101114] transition-colors">
               Home

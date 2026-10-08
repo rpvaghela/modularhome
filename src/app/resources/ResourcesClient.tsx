@@ -30,7 +30,7 @@ export default function ResourcesClient({ initialArticles, pageData }: Resources
   const headerDesc = pageData?.content || "Everything you need to know about factory modular housing, costs, timelines, financing, land preparation, and floor plan customization.";
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-28 text-[#101114]">
+    <div className="min-h-screen bg-white pt-6 pb-24 text-[#101114]">
       <div className="wrap">
         {/* Header Banner */}
         <div className="text-center max-w-3xl mx-auto mb-12">

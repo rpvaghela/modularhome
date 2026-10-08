@@ -154,9 +154,9 @@ export default function ModelDetailClient({
   };
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-28 text-[#101114]">
+    <div className="min-h-screen bg-white pt-3 pb-24 text-[#101114]">
       {/* Top Breadcrumb & Share Actions */}
-      <div className="wrap py-4 text-xs text-[#6b7280]">
+      <div className="wrap py-2.5 text-xs text-[#6b7280]">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
             <Link href="/" className="hover:text-[#101114] transition-colors">Home</Link>
