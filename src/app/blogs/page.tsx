@@ -45,7 +45,7 @@ export default async function BlogsIndexPage() {
   const canonical = getCanonicalUrl("/blogs");
 
   const blogCategories = [
-    { name: "Modular Homes & Prefab Homes", slug: "modular-homes-prefab-homes", count: 151 },
+    { name: "Modular Homes & Prefab Homes", slug: "modular-homes-prefab-homes", count: 150 },
     { name: "Modular Construction", slug: "modular-construction", count: 31 },
     { name: "Modular Cabins", slug: "modular-cabins", count: 8 },
   ];

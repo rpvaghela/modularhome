@@ -206,20 +206,33 @@ async function run() {
     });
   }
 
-  console.log(`Generated ${finalBlogs.length} processed blogs.`);
+  // Deduplicate articles by normalized title and content
+  const seenKeys = new Set<string>();
+  const uniqueBlogs: any[] = [];
+  for (const b of finalBlogs) {
+    const normTitle = (b.title || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (seenKeys.has(normTitle)) {
+      console.log(`Removed duplicate blog: "${b.title}" (${b.slug})`);
+      continue;
+    }
+    seenKeys.add(normTitle);
+    uniqueBlogs.push(b);
+  }
+
+  console.log(`Generated ${uniqueBlogs.length} unique processed blogs (removed ${finalBlogs.length - uniqueBlogs.length} duplicates).`);
 
   // Write to src/data/migrated_articles.json
-  fs.writeFileSync(migratedArticlesPath, JSON.stringify(finalBlogs, null, 2), "utf8");
+  fs.writeFileSync(migratedArticlesPath, JSON.stringify(uniqueBlogs, null, 2), "utf8");
   console.log(`Updated ${migratedArticlesPath}`);
 
   // Write to src/data/custom_blogs.json
   const customBlogsPath = path.join(process.cwd(), "src", "data", "custom_blogs.json");
-  fs.writeFileSync(customBlogsPath, JSON.stringify(finalBlogs, null, 2), "utf8");
+  fs.writeFileSync(customBlogsPath, JSON.stringify(uniqueBlogs, null, 2), "utf8");
   console.log(`Updated ${customBlogsPath}`);
 
   // Update src/data/resources.ts
   const categoriesSet = new Set<string>(["All"]);
-  finalBlogs.forEach(b => categoriesSet.add(b.category));
+  uniqueBlogs.forEach(b => categoriesSet.add(b.category));
   const categoriesArr = Array.from(categoriesSet);
 
   const resourcesTsPath = path.join(process.cwd(), "src", "data", "resources.ts");
