@@ -370,15 +370,6 @@ export default function AdminNewProductPage() {
               helperText="High-resolution hero photo for catalog cards and detail pages."
             />
 
-            <ImageUpload
-              label="Floor Plan Architecture Preview"
-              value={form.floorPlanImage}
-              onChange={(url) => setForm({ ...form, floorPlanImage: url })}
-              folder="products/floor-plans"
-              aspectRatio="4/3"
-              helperText="Blueprint layout preview image displayed in specs tab."
-            />
-
             <GalleryUpload
               label="Model Photo Gallery"
               values={form.gallery || []}
