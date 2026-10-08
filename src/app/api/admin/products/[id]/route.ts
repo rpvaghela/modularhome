@@ -217,10 +217,31 @@ export async function PUT(
         if (body.tagline !== undefined) updatePayload.tagline = body.tagline;
         if (body.primaryImage !== undefined) updatePayload.primary_image_url = body.primaryImage;
 
-        await supabaseAdmin
+        const { data: updatedProd } = await supabaseAdmin
           .from("products")
           .update(updatePayload)
-          .or(`id.eq.${id},handle.eq.${cleanSlug || id}`);
+          .or(`id.eq.${id},handle.eq.${cleanSlug || id}`)
+          .select("id")
+          .maybeSingle();
+
+        const prodId = updatedProd?.id || id;
+        if (prodId && (body.primaryImage || (Array.isArray(body.gallery) && body.gallery.length > 0))) {
+          try {
+            const allMediaUrls = Array.from(
+              new Set([body.primaryImage, ...(Array.isArray(body.gallery) ? body.gallery : [])].filter(Boolean))
+            );
+            if (allMediaUrls.length > 0) {
+              await supabaseAdmin.from("product_media").delete().eq("product_id", prodId);
+              const mediaRows = allMediaUrls.map((url, idx) => ({
+                product_id: prodId,
+                source_url: url,
+                alt_text: body.name || body.title || "Model Angle",
+                position: idx + 1,
+              }));
+              await supabaseAdmin.from("product_media").insert(mediaRows);
+            }
+          } catch {}
+        }
       } catch (sbErr) {
         console.warn("Supabase product update warning:", sbErr);
       }

@@ -595,12 +595,20 @@ export async function getPublicProducts(params?: {
         } catch {}
       }
 
-      // Merge Supabase products with local products
+      // Merge custom admin products, Supabase products, and local catalog items
       const merged: BuildingModel[] = [];
       const seenSlugs = new Set<string>();
 
-      // 1. Database products take highest priority (admin created/edited)
-      for (const p of dbProducts) {
+      // 1. Custom Admin Products Store takes absolute first priority (instant real-time updates)
+      let customStored: any[] = [];
+      try {
+        customStored = readProductsFromStore();
+      } catch {}
+
+      for (const raw of customStored) {
+        if (!raw || (!raw.slug && !raw.handle)) continue;
+        if (raw.status === "draft" || raw.isPublished === false) continue;
+        const p = formatProduct(raw);
         if (p && p.slug) {
           const clean = p.slug.toLowerCase().trim();
           if (!seenSlugs.has(clean)) {
@@ -612,7 +620,30 @@ export async function getPublicProducts(params?: {
         }
       }
 
-      // 2. Local catalog items for any not already overridden
+      // 2. Supabase products next (merge gallery if already seen from custom store)
+      for (const p of dbProducts) {
+        if (p && p.slug) {
+          const clean = p.slug.toLowerCase().trim();
+          if (!seenSlugs.has(clean)) {
+            seenSlugs.add(clean);
+            merged.push(p);
+            SLUG_TO_PRODUCT_INDEX.set(clean, p);
+            if (p.id) SLUG_TO_PRODUCT_INDEX.set(String(p.id).toLowerCase(), p);
+          } else {
+            // Merge additional gallery photos from database into existing item if missing
+            const existingIdx = merged.findIndex((m) => m.slug.toLowerCase().trim() === clean);
+            if (existingIdx !== -1 && p.gallery && Array.isArray(p.gallery)) {
+              const combinedGal = Array.from(
+                new Set([...merged[existingIdx].gallery, ...p.gallery].filter(Boolean))
+              );
+              merged[existingIdx].gallery = combinedGal;
+              SLUG_TO_PRODUCT_INDEX.set(clean, merged[existingIdx]);
+            }
+          }
+        }
+      }
+
+      // 3. Local catalog items for any not already overridden
       for (const p of localProducts) {
         if (p && p.slug) {
           const clean = p.slug.toLowerCase().trim();

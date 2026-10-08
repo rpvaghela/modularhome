@@ -292,16 +292,20 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (prod?.id) {
-          if (body.primaryImage) {
-            try {
-              await supabaseAdmin.from("product_media").insert({
+          try {
+            const allMediaUrls = Array.from(
+              new Set([body.primaryImage, ...(Array.isArray(body.gallery) ? body.gallery : [])].filter(Boolean))
+            );
+            if (allMediaUrls.length > 0) {
+              const mediaRows = allMediaUrls.map((url, idx) => ({
                 product_id: prod.id,
-                source_url: body.primaryImage,
+                source_url: url,
                 alt_text: name,
-                position: 1,
-              });
-            } catch {}
-          }
+                position: idx + 1,
+              }));
+              await supabaseAdmin.from("product_media").insert(mediaRows);
+            }
+          } catch {}
 
           if (body.startingPrice) {
             try {
