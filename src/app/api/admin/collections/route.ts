@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
-import { clearPublicDataCache } from "@/lib/publicData";
+import { clearPublicDataCache, getCategoryFallbackImage, normalizeImageUrl } from "@/lib/publicData";
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdminAuth();
@@ -50,6 +50,10 @@ export async function GET(request: NextRequest) {
       const pIds = col.product_collections ? col.product_collections.map((pc: any) => pc.product_id) : [];
       const title = col.title || col.name || "";
       const handle = col.handle || col.slug || "";
+      const fallbackImg = getCategoryFallbackImage(title, title, handle);
+      const img = normalizeImageUrl(col.image || col.banner_image || col.featured_image, fallbackImg);
+      const bannerImg = normalizeImageUrl(col.banner_image || col.image, fallbackImg);
+
       return {
         id: col.id,
         name: title,
@@ -63,8 +67,9 @@ export async function GET(request: NextRequest) {
         source_id: col.source_id,
         published: col.published !== false,
         status: col.published !== false ? "PUBLISHED" : "DRAFT",
-        is_featured: false,
-        image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+        is_featured: Boolean(col.is_featured),
+        image: img,
+        bannerImage: bannerImg,
         productIds: pIds,
         productCount: pIds.length,
         created_at: col.created_at,
@@ -99,6 +104,8 @@ export async function POST(request: NextRequest) {
     const published = body.published !== undefined ? Boolean(body.published) : body.status !== "DRAFT";
     const sourceId = body.source_id || body.sourceId || null;
     const productIds = body.productIds;
+    const image = body.image || null;
+    const bannerImage = body.bannerImage || body.banner_image || null;
 
     if (!name || !slug) {
       return NextResponse.json(
@@ -109,12 +116,14 @@ export async function POST(request: NextRequest) {
 
     const cleanSlug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-");
 
-    const newCollection = {
+    const newCollection: Record<string, any> = {
       handle: cleanSlug,
       title: name,
       description_html: description || null,
       seo_title: seoTitle || `${name} | ModularHome`,
       seo_description: seoDescription || (description ? description.replace(/<[^>]*>?/gm, "").slice(0, 160) : null),
+      image,
+      banner_image: bannerImage,
       source_id: sourceId,
       published,
       updated_at: new Date().toISOString(),

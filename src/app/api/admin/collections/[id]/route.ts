@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
-import { clearPublicDataCache } from "@/lib/publicData";
+import { clearPublicDataCache, getCategoryFallbackImage, normalizeImageUrl } from "@/lib/publicData";
 
 export async function GET(
   request: NextRequest,
@@ -42,14 +42,20 @@ export async function GET(
       ? collection.product_collections.map((pc: any) => pc.product_id)
       : [];
 
+    const title = collection.title || collection.name || "";
+    const handle = collection.handle || collection.slug || "";
+    const fallbackImg = getCategoryFallbackImage(title, title, handle);
+
     const formatted = {
       ...collection,
-      name: collection.title || collection.name,
-      title: collection.title || collection.name,
-      slug: collection.handle || collection.slug,
-      handle: collection.handle || collection.slug,
+      name: title,
+      title: title,
+      slug: handle,
+      handle: handle,
       description: collection.description_html || collection.description || "",
       description_html: collection.description_html || collection.description || "",
+      image: normalizeImageUrl(collection.image || collection.banner_image, fallbackImg),
+      bannerImage: normalizeImageUrl(collection.banner_image || collection.image, fallbackImg),
       status: collection.published !== false ? "PUBLISHED" : "DRAFT",
       published: collection.published !== false,
       productIds: pIds,
@@ -105,6 +111,12 @@ export async function PUT(
       updates.published = Boolean(body.published);
     } else if (body.status !== undefined) {
       updates.published = body.status === "PUBLISHED";
+    }
+    if (body.image !== undefined) {
+      updates.image = body.image;
+    }
+    if (body.bannerImage !== undefined || body.banner_image !== undefined) {
+      updates.banner_image = body.bannerImage || body.banner_image;
     }
 
     if (isSupabaseConfigured()) {
