@@ -93,31 +93,64 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
     .replace(/[^a-z0-9]+/g, "-");
   const canonical = getCanonicalUrl(`/blogs/${canonicalCategory}/${article.slug}`);
 
-  // Schema.org Article JSON-LD
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: article.title,
-    description: article.excerpt || article.metaDescription,
-    image: [article.image || "https://modularhome.com/newmodularlogo.png"],
-    datePublished: article.date,
-    author: {
-      "@type": "Person",
-      name: article.author || "ModularHome Engineering Team",
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "ModularHome.com",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://modularhome.com/newmodularlogo.png",
+  // Schema.org Article + Breadcrumb JSON-LD
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: article.title,
+      description: article.metaDescription || article.excerpt,
+      image: [article.image || "https://modularhome.com/newmodularlogo.png"],
+      datePublished: article.published_at || article.date,
+      dateModified: article.published_at || article.date,
+      author: {
+        "@type": "Person",
+        name: article.author || "ModularHome Engineering Team",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "ModularHome.com",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://modularhome.com/newmodularlogo.png",
+        },
+      },
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": canonical,
       },
     },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": canonical,
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://modularhome.com",
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blogs",
+          "item": "https://modularhome.com/blogs",
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": article.category || blog,
+          "item": `https://modularhome.com/blogs/${canonicalCategory}`,
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": article.title,
+          "item": canonical,
+        },
+      ],
     },
-  };
+  ];
 
   const formattedBlogName = blog.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
@@ -351,12 +384,18 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {relatedArticles.map((rel: any) => (
-                <Link
-                  key={rel.id}
-                  href={`/blogs/${blog}/${rel.slug}`}
-                  className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between bg-white rounded-[18px] border border-[#e7e9ee]"
-                >
+              {relatedArticles.map((rel: any) => {
+                const relCat = (
+                  rel.category_slug ||
+                  (rel.category || "modular-construction").toLowerCase().replace(/[^a-z0-9]+/g, "-")
+                ).replace(/^blogs-/, "");
+
+                return (
+                  <Link
+                    key={rel.id || rel.slug}
+                    href={`/blogs/${relCat}/${rel.slug}`}
+                    className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between bg-white rounded-[18px] border border-[#e7e9ee]"
+                  >
                   <div>
                     <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
                       <Image
@@ -394,7 +433,8 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
                     </span>
                   </div>
                 </Link>
-              ))}
+              );
+            })}
             </div>
           </section>
         )}

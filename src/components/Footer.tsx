@@ -136,7 +136,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
     { label: "Find Homes by State", href: "/buildings" },
     { label: "Delivery & Installation", href: "/delivery" },
     { label: "How It Works", href: "/how-it-works" },
-    { label: "Buying & Permits Guide", href: "/resources" },
+    { label: "Buying & Permits Guide", href: "/blogs" },
     { label: "FAQs", href: "/faqs" },
   ];
 
@@ -144,7 +144,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
   const companyLinks = [
     { label: "About ModularHome", href: "/about" },
     { label: "Contact Us", href: "/contact" },
-    { label: "Blog & Articles", href: "/resources" },
+    { label: "Blog & Articles", href: "/blogs" },
     { label: "Home Tours & Videos", href: "/videos" },
     { label: "Customer Support", href: "/contact#support" },
     { label: "Warranty Information", href: "/warranty" },
@@ -351,11 +351,11 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
 
               {/* Social Icons (Facebook, Instagram, YouTube, TikTok) */}
               <div className="pt-1">
-                <div className="text-[11px] font-bold text-[#374151] uppercase tracking-wider mb-2">
+                {/* <div className="text-[11px] font-bold text-[#374151] uppercase tracking-wider mb-2">
                   Follow Us
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* Facebook */}
+                 
                   {socialLinks.facebook !== "" && (
                     <a
                       href={socialLinks.facebook || "https://facebook.com/modularhome"}
@@ -370,7 +370,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
                     </a>
                   )}
 
-                  {/* Instagram */}
+                  
                   {socialLinks.instagram !== "" && (
                     <a
                       href={socialLinks.instagram || "https://instagram.com/modularhome"}
@@ -385,7 +385,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
                     </a>
                   )}
 
-                  {/* YouTube */}
+                 
                   {socialLinks.youtube !== "" && (
                     <a
                       href={socialLinks.youtube || "https://youtube.com/@modularhome"}
@@ -400,7 +400,6 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
                     </a>
                   )}
 
-                  {/* TikTok */}
                   {socialLinks.tiktok !== "" && (
                     <a
                       href={socialLinks.tiktok || "https://tiktok.com/@modularhome"}
@@ -415,7 +414,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
                     </a>
                   )}
 
-                  {/* X / Twitter (Optional) */}
+                 
                   {(socialLinks.twitter || socialLinks.x) && (
                     <a
                       href={socialLinks.twitter || socialLinks.x}
@@ -429,7 +428,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
                       </svg>
                     </a>
                   )}
-                </div>
+                </div> */}
               </div>
 
               {/* Newsletter Signup Form */}

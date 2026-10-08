@@ -3,38 +3,37 @@ import MIGRATED_ARTICLES from "./migrated_articles.json";
 export interface ResourceArticle {
   id: string;
   slug: string;
+  handle?: string;
   title: string;
   category: string;
+  category_slug?: string;
   readTime: string;
   excerpt: string;
   content: string[];
+  body_html?: string;
   image: string;
   date: string;
   author?: string;
   published_at?: string;
+  created_at?: string;
   status?: string;
   tags?: string[];
   keyTakeaways?: string[];
   embeddedVideoUrl?: string;
   seoTitle?: string;
   metaDescription?: string;
+  seo_title?: string;
+  seo_description?: string;
+  canonical_url?: string;
+  old_shopify_url?: string;
+  new_nextjs_url?: string;
 }
 
 export const RESOURCE_CATEGORIES = [
   "All",
-  "Modular Basics",
-  "Comparison",
-  "Pricing & Budget",
-  "Timeline & Process",
-  "Design & Customization",
-  "Home Styles",
-  "Financing",
-  "Floor Plans",
-  "Land Preparation",
-  "Delivery & Setup",
-  "Building Guides",
   "Modular Cabins",
-  "Modular Homes",
+  "Modular Construction",
+  "Modular Homes & Prefab Homes"
 ] as const;
 
-export const RESOURCE_ARTICLES: ResourceArticle[] = MIGRATED_ARTICLES as ResourceArticle[];
+export const RESOURCE_ARTICLES: ResourceArticle[] = MIGRATED_ARTICLES as unknown as ResourceArticle[];

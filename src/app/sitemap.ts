@@ -66,10 +66,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/blogs`,
       lastModified: now,
       changeFrequency: "daily",
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/blogs/modular-cabins`,
+      lastModified: now,
+      changeFrequency: "daily",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/resources`,
+      url: `${baseUrl}/blogs/modular-construction`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blogs/modular-homes-prefab-homes`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.8,
@@ -131,9 +143,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     MIGRATED_ARTICLES.forEach((art: any) => {
       const slug = art.handle || art.slug;
       if (slug) {
-        const cat = (art.blog_title || art.category || "modular-construction")
+        const cat = (art.category_slug || art.blog_title || art.category || "modular-construction")
           .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-");
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^blogs-/, "");
         const fullUrl = `${baseUrl}/blogs/${cat}/${slug}`;
         if (!seenUrls.has(fullUrl)) {
           seenUrls.add(fullUrl);
