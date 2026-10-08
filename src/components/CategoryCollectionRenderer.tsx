@@ -104,49 +104,20 @@ export default function CategoryCollectionRenderer({
           />
         </div>
 
-        {/* Hero Banner */}
-        <div className="relative rounded-[24px] overflow-hidden bg-[#101114] text-white mb-12 shadow-xl border border-white/10">
-          <div className="absolute inset-0 z-0 opacity-30">
-            <Image
-              src={heroImage}
-              alt={title}
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
+        {/* Clean Page Title Header */}
+        <div className="pb-6 border-b border-[#e7e9ee] mb-6">
+          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] mb-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#fcb907]"></span>
+            <span>{defaultTagline}</span>
           </div>
-
-          <div className="relative z-10 p-8 sm:p-12 md:p-16 max-w-3xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#fcb907] text-[#101114] rounded-full text-[11px] font-black uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{defaultTagline}</span>
-            </div>
-
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-[-1.5px] leading-tight font-display text-white">
-              {title}
-            </h1>
-
-            <p className="text-sm sm:text-base text-white/80 leading-relaxed font-body">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-[-1.5px] text-[#101114]">
+            {title}
+          </h1>
+          {defaultDescription && (
+            <p className="text-xs sm:text-sm text-[#6b7280] mt-1.5 max-w-3xl leading-relaxed">
               {defaultDescription.replace(/<[^>]*>?/gm, "")}
             </p>
-
-            <div className="flex flex-wrap items-center gap-6 pt-4 text-xs font-semibold text-white/90">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#fcb907]" />
-                <span>{products.length} Available Models</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#fcb907]" />
-                <span>Code-Compliant & Turnkey</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Compass className="w-4 h-4 text-[#fcb907]" />
-                <span>Nationwide Delivery</span>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Filter Bar & Models Grid */}
