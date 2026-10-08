@@ -39,6 +39,8 @@ export function matchProductCategory(
     collections?: string[];
     description?: string;
     architecturalStyle?: string;
+    sqft?: number;
+    bedrooms?: number;
   },
   selectedCat: string
 ): boolean {
@@ -52,18 +54,17 @@ export function matchProductCategory(
   const mName = (model.name || model.title || "").toLowerCase();
   const mSlug = (model.slug || model.handle || "").toLowerCase();
   const mCat = normalizeCategory(model.category || model.product_type || model.series || "");
-  const tagsStr = Array.isArray(model.tags)
-    ? model.tags.join(" ").toLowerCase()
-    : (model.tags || "").toLowerCase();
-  const colsStr = Array.isArray(model.collections)
-    ? model.collections.join(" ").toLowerCase()
-    : (model.collections || "").toLowerCase();
-
-  const meta = `${mName} ${mSlug} ${mCat} ${tagsStr}`;
+  const sqft = model.sqft || 0;
+  const beds = model.bedrooms || 0;
 
   // 1. Barndominiums
   if (clean.includes("barndo")) {
-    return mCat === "barndominiums" || meta.includes("barndo") || meta.includes("barndominium") || colsStr.includes("barndominium");
+    return (
+      mCat === "barndominiums" ||
+      mCat.includes("barndo") ||
+      mName.includes("barndo") ||
+      mSlug.includes("barndo")
+    );
   }
 
   // 2. A-Frames
@@ -71,9 +72,10 @@ export function matchProductCategory(
     return (
       mCat.includes("a frame") ||
       mCat.includes("aframe") ||
-      meta.includes("a-frame") ||
-      meta.includes("aframe") ||
-      colsStr.includes("a-frame")
+      mName.includes("a-frame") ||
+      mSlug.includes("a-frame") ||
+      mName.includes("aframe") ||
+      mSlug.includes("aframe")
     );
   }
 
@@ -81,10 +83,10 @@ export function matchProductCategory(
   if (clean.includes("park model")) {
     return (
       mCat.includes("park model") ||
-      meta.includes("park model") ||
-      meta.includes("park-model") ||
-      meta.includes("park_model") ||
-      colsStr.includes("park-model")
+      mName.includes("park model") ||
+      mSlug.includes("park-model") ||
+      mSlug.includes("park_model") ||
+      (sqft > 0 && sqft <= 400 && mName.includes("rv"))
     );
   }
 
@@ -93,54 +95,43 @@ export function matchProductCategory(
     return (
       mCat.includes("adu") ||
       mCat.includes("granny") ||
-      meta.includes("adu") ||
-      meta.includes("granny pod") ||
-      meta.includes("backyard") ||
-      meta.includes("secondary dwelling") ||
-      colsStr.includes("adu")
+      mName.includes("adu") ||
+      mSlug.includes("adu") ||
+      mName.includes("granny") ||
+      (sqft > 0 && sqft <= 750 && beds <= 2 && (mName.includes("suite") || mName.includes("pod") || mName.includes("studio") || mName.includes("backyard")))
     );
   }
 
   // 5. Tiny Homes
-  if (clean.includes("tiny home")) {
+  if (clean.includes("tiny home") || clean.includes("tiny")) {
     return (
       mCat === "tiny homes" ||
-      meta.includes("tiny home") ||
-      meta.includes("tiny house") ||
-      meta.includes("tiny cabin") ||
-      meta.includes("cube link") ||
-      meta.includes("micro home") ||
-      colsStr.includes("tiny-home")
+      mName.includes("tiny") ||
+      mSlug.includes("tiny") ||
+      mName.includes("micro") ||
+      (sqft > 0 && sqft <= 450)
     );
   }
 
   // 6. House Kits
-  if (clean.includes("house kit")) {
-    if (meta.includes("barndo")) return false;
+  if (clean.includes("house kit") || clean.includes("home kit")) {
     return (
       mCat === "house kits" ||
-      meta.includes("house kit") ||
-      meta.includes("home kit") ||
-      meta.includes("sip panel") ||
-      meta.includes("panelized") ||
-      colsStr.includes("house-kits")
+      mName.includes("kit") ||
+      mSlug.includes("kit") ||
+      mName.includes("sip") ||
+      mName.includes("panelized")
     );
   }
 
   // 7. Cabins
   if (clean === "cabins" || clean.includes("cabin")) {
-    if (meta.includes("barndo") || meta.includes("park model") || meta.includes("a-frame") || meta.includes("aframe")) {
-      return false;
-    }
     return (
       mCat === "cabins" ||
-      meta.includes("cabin") ||
-      meta.includes("lodge") ||
-      meta.includes("muchacho") ||
-      meta.includes("bertha") ||
-      meta.includes("sparrow") ||
-      meta.includes("cub") ||
-      colsStr.includes("cabin")
+      mName.includes("cabin") ||
+      mSlug.includes("cabin") ||
+      mName.includes("lodge") ||
+      mName.includes("log")
     );
   }
 
@@ -153,11 +144,12 @@ export function matchProductCategory(
   if (clean.includes("commercial")) {
     return (
       mCat.includes("commercial") ||
-      meta.includes("commercial") ||
-      meta.includes("office") ||
-      meta.includes("warehouse") ||
-      meta.includes("steel building") ||
-      colsStr.includes("commercial")
+      mName.includes("commercial") ||
+      mSlug.includes("commercial") ||
+      mName.includes("office") ||
+      mName.includes("retail") ||
+      mName.includes("warehouse") ||
+      (sqft >= 3500)
     );
   }
 
@@ -165,23 +157,21 @@ export function matchProductCategory(
   if (clean.includes("custom")) {
     return (
       mCat.includes("custom") ||
-      meta.includes("custom") ||
-      meta.includes("bespoke") ||
-      meta.includes("architectural") ||
-      colsStr.includes("custom")
+      mName.includes("custom") ||
+      mSlug.includes("custom") ||
+      mName.includes("bespoke") ||
+      mName.includes("architectural")
     );
   }
 
   // 11. Modular Homes (Default & Dedicated Modular Homes)
   if (clean === "modular homes" || clean === "modular home" || clean === "modular") {
-    if (meta.includes("barndo") || meta.includes("park model")) return false;
     return (
       mCat === "modular homes" ||
-      meta.includes("modular") ||
-      colsStr.includes("modular-homes") ||
-      colsStr.includes("house-plans") ||
-      colsStr.includes("home-plans") ||
-      (!meta.includes("cabin") && !meta.includes("barndo"))
+      mCat === "house kits" ||
+      mName.includes("modular") ||
+      mSlug.includes("modular") ||
+      (!mName.includes("cabin") && !mName.includes("barndo"))
     );
   }
 
