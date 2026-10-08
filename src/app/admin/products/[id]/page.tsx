@@ -15,6 +15,7 @@ import {
   Video,
 } from "lucide-react";
 import ImageUpload, { GalleryUpload } from "@/components/admin/ImageUpload";
+import { getProductUrl } from "@/utils/productUrls";
 
 function normalizeToCanonicalCategory(cat?: string | null): string {
   if (!cat) return "Modular Homes";
@@ -142,7 +143,7 @@ export default function AdminEditProductPage() {
               Edit Model: {product.name}
             </h1>
             <p className="text-xs text-[#6b7280] font-mono mt-0.5">
-              Slug: /buildings/{product.slug}
+              Live URL: {getProductUrl(product)}
             </p>
           </div>
         </div>

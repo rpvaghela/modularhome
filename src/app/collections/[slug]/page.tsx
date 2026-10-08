@@ -18,6 +18,7 @@ import ShareButton from "@/components/ShareButton";
 import { getPublicCollectionBySlug, getPublicCollections, getPublicProducts, PublicCollection } from "@/lib/publicData";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import { matchProductCategory } from "@/utils/categoryMatching";
+import { getProductUrl } from "@/utils/productUrls";
 
 export const dynamic = "force-dynamic";
 
@@ -172,7 +173,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
       itemListElement: matchedProducts.slice(0, 30).map((p, idx) => ({
         "@type": "ListItem",
         position: idx + 1,
-        url: getCanonicalUrl(`/products/${p.slug}`),
+        url: getCanonicalUrl(getProductUrl(p)),
         name: p.name,
       })),
     },

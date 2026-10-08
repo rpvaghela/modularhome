@@ -7,6 +7,7 @@ import { MapPin, Truck, ArrowRight, CheckCircle2, Search, Building2 } from "luci
 import SectionHeading from "@/components/SectionHeading";
 import { BuildingModel } from "@/data/models";
 import { formatPrice } from "@/utils/currency";
+import { getProductUrl } from "@/utils/productUrls";
 
 const STATES_DATA = [
   { state: "Indiana", code: "IN", leadTime: "3–4 Weeks", permitRating: "Fast Approval", shippingMultiplier: 1.0 },
@@ -179,7 +180,7 @@ export default function LocationAvailability() {
                         <div className="text-xs font-extrabold text-[var(--r)] pt-1">Starting at {formatPrice(adjustedPrice)}</div>
                       </div>
                       <div className="p-4 pt-0">
-                        <Link href={`/buildings/${home.slug}`} className="block w-full text-center text-[11px] font-bold uppercase py-2 bg-white border border-[var(--line)] hover:bg-[var(--r)] hover:text-white rounded-[10px] transition-colors">
+                        <Link href={getProductUrl(home)} className="block w-full text-center text-[11px] font-bold uppercase py-2 bg-white border border-[var(--line)] hover:bg-[var(--r)] hover:text-white rounded-[10px] transition-colors">
                           View Details
                         </Link>
                       </div>

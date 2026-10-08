@@ -13,7 +13,7 @@ const LEGACY_REDIRECTS: Record<string, string> = {
   "/models": "/buildings",
 };
 
-// Imported Matrixify Shopify redirects (472 mapped paths)
+// Imported Matrixify Shopify & Product category redirects (2,748 mapped paths)
 const SHOPIFY_REDIRECTS: Record<string, string> = SHOPIFY_REDIRECTS_DATA as Record<string, string>;
 
 const JWT_SECRET = new TextEncoder().encode(
@@ -23,23 +23,103 @@ const JWT_SECRET = new TextEncoder().encode(
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
+  // 1. Host and Protocol Normalization (www to non-www and http to https)
+  const rawHost =
+    request.headers.get("x-forwarded-host") ||
+    request.headers.get("host") ||
+    request.nextUrl.host ||
+    "";
+  const proto =
+    request.headers.get("x-forwarded-proto") ||
+    request.nextUrl.protocol.replace(":", "") ||
+    "https";
+
+  const hostWithoutPort = rawHost.split(":")[0].toLowerCase();
+  const isWww = hostWithoutPort.startsWith("www.");
+  const isProdHost =
+    hostWithoutPort === "modularhome.com" ||
+    hostWithoutPort === "www.modularhome.com";
+  const isHttpUpgradeNeeded = isProdHost && proto === "http";
+
+  // Determine canonical hostname
+  let canonicalHost = hostWithoutPort;
+  let domainNeedsRedirect = false;
+
+  if (isWww) {
+    canonicalHost = hostWithoutPort.slice(4); // strip "www."
+    domainNeedsRedirect = true;
+  }
+
+  if (isHttpUpgradeNeeded) {
+    domainNeedsRedirect = true;
+  }
+
   // Normalize path (strip trailing slash if length > 1)
-  const normalizedPath = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const normalizedPath =
+    pathname.length > 1 && pathname.endsWith("/")
+      ? pathname.slice(0, -1)
+      : pathname;
   const lowerPath = normalizedPath.toLowerCase();
 
-  // 1. Check exact match 301 Shopify & Legacy Redirects
-  const directTarget =
+  // 2. Resolve destination path (Check exact match 301 Shopify & Legacy Redirects)
+  let destinationPath =
     SHOPIFY_REDIRECTS[lowerPath] ||
     SHOPIFY_REDIRECTS[normalizedPath] ||
     LEGACY_REDIRECTS[lowerPath] ||
-    LEGACY_REDIRECTS[normalizedPath];
+    LEGACY_REDIRECTS[normalizedPath] ||
+    normalizedPath;
 
-  if (directTarget && directTarget !== pathname && directTarget !== normalizedPath && directTarget !== lowerPath) {
-    const targetUrl = new URL(directTarget + (search || ""), request.url);
-    return NextResponse.redirect(targetUrl, { status: 301 });
+  // 2b. Dynamic category redirect for any remaining /buildings/, /models/, or /products/ paths
+  if (
+    destinationPath === normalizedPath &&
+    (lowerPath.startsWith("/buildings/") ||
+      lowerPath.startsWith("/models/") ||
+      lowerPath.startsWith("/products/"))
+  ) {
+    const slug = lowerPath
+      .replace(/^\/(?:buildings|models|products)\//i, "")
+      .replace(/\/+$/, "");
+
+    if (slug && !slug.includes("/")) {
+      let cat = "modular-homes";
+      if (slug.includes("barndo")) cat = "barndominiums";
+      else if (
+        slug.includes("cabin") ||
+        slug.includes("muchacho") ||
+        slug.includes("sparrow") ||
+        slug.includes("bertha") ||
+        slug.includes("lodge") ||
+        slug.includes("gatlinburg") ||
+        slug.includes("appalachian")
+      )
+        cat = "cabins";
+      else if (slug.includes("tiny")) cat = "tiny-homes";
+      else if (slug.includes("park-model") || slug.includes("rv"))
+        cat = "park-models";
+      else if (slug.includes("adu") || slug.includes("granny")) cat = "adus";
+      else if (slug.includes("a-frame") || slug.includes("aframe"))
+        cat = "a-frame-homes";
+      else if (slug.includes("house-kit") || slug.includes("sip-panel"))
+        cat = "house-kits";
+
+      destinationPath = `/${cat}/${slug}`;
+    }
   }
 
-  // 2. Handle /admin/login page
+  // 3. Execute Single-Hop 301 Permanent Redirect (Consolidates WWW, HTTP, and Path Changes)
+  const pathNeedsRedirect = destinationPath !== pathname;
+
+  if (domainNeedsRedirect || pathNeedsRedirect) {
+    // Retain port for local test environments (e.g. www.localhost:3000 -> localhost:3000)
+    const port = rawHost.includes(":") ? `:${rawHost.split(":")[1]}` : "";
+    const targetProtocol = isProdHost ? "https" : proto;
+    const targetOrigin = `${targetProtocol}://${canonicalHost}${port}`;
+    const targetUrl = `${targetOrigin}${destinationPath}${search || ""}`;
+
+    return NextResponse.redirect(new URL(targetUrl), { status: 301 });
+  }
+
+  // 4. Handle /admin/login page
   if (pathname === "/admin/login") {
     const reason = request.nextUrl.searchParams.get("reason");
     if (reason) {
@@ -69,7 +149,7 @@ export async function middleware(request: NextRequest) {
     return res;
   }
 
-  // 3. Protect /admin UI routes (except /admin/login)
+  // 5. Protect /admin UI routes (except /admin/login)
   if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
     const sessionCookie = request.cookies.get("admin_session");
 
@@ -97,7 +177,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 4. Protect /api/admin API routes (except login and logout)
+  // 6. Protect /api/admin API routes (except login and logout)
   if (
     pathname.startsWith("/api/admin") &&
     !pathname.startsWith("/api/admin/auth/login") &&

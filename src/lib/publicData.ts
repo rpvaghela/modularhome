@@ -5,6 +5,7 @@ import ALL_PRODUCTS_CATALOG from "@/data/all_products_catalog.json";
 import { ResourceArticle, RESOURCE_ARTICLES } from "@/data/resources";
 import { getPublicGlobalSettings } from "./settings";
 import { matchProductCategory } from "@/utils/categoryMatching";
+import { getProductUrl } from "@/utils/productUrls";
 
 interface CacheEntry<T> {
   data: T;
@@ -1595,7 +1596,7 @@ export async function getMegaMenuCatalog(): Promise<MegaMenuCatalog> {
         id: p.id,
         name: p.name,
         slug: p.slug,
-        href: `/buildings/${p.slug}`,
+        href: getProductUrl(p),
         startingPrice: p.startingPrice,
         sqft: p.sqft,
         bedrooms: p.bedrooms,
@@ -1610,7 +1611,7 @@ export async function getMegaMenuCatalog(): Promise<MegaMenuCatalog> {
         id: featuredModel.id,
         name: featuredModel.name,
         slug: featuredModel.slug,
-        href: `/buildings/${featuredModel.slug}`,
+        href: getProductUrl(featuredModel),
         startingPrice: featuredModel.startingPrice,
         sqft: featuredModel.sqft,
         bedrooms: featuredModel.bedrooms,

@@ -38,7 +38,10 @@ export async function generateMetadata({
     article.excerpt ||
     `Read complete guide on ${article.title} by ModularHome.com.`;
 
-  const canonical = getCanonicalUrl(`/blogs/${blog}/${article.slug}`);
+  const canonicalCategory = (article.category || blog || "modular-construction")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-");
+  const canonical = getCanonicalUrl(`/blogs/${canonicalCategory}/${article.slug}`);
 
   return {
     title,
@@ -85,7 +88,10 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
     ? resolveVideoEmbedUrl({ embedUrl: article.embeddedVideoUrl, videoUrl: article.embeddedVideoUrl })
     : null;
 
-  const canonical = getCanonicalUrl(`/blogs/${blog}/${article.slug}`);
+  const canonicalCategory = (article.category || blog || "modular-construction")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-");
+  const canonical = getCanonicalUrl(`/blogs/${canonicalCategory}/${article.slug}`);
 
   // Schema.org Article JSON-LD
   const jsonLd = {

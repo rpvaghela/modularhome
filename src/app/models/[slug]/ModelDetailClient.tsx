@@ -28,6 +28,7 @@ import { VideoItem } from "@/data/videos";
 import { formatPrice } from "@/utils/currency";
 import RichHtmlContent from "@/components/RichHtmlContent";
 import { getCategoryFallbackImage } from "@/lib/publicData";
+import { getProductUrl, getProductCategorySlug, getCategoryDisplayName } from "@/utils/productUrls";
 
 interface ModelDetailClientProps {
   model: BuildingModel;
@@ -134,9 +135,13 @@ export default function ModelDetailClient({
     });
   };
 
+  const canonicalCat = getProductCategorySlug(model);
+  const categoryDisplay = getCategoryDisplayName(canonicalCat);
+  const canonicalProductUrl = getProductUrl(model);
+
   const modelShareData = {
     title: model?.name || "Modular Building Model",
-    url: `/buildings/${model?.slug}`,
+    url: canonicalProductUrl,
     description: `${model?.name} - ${model?.tagline || ""}. ${model?.sqft ? `${model.sqft} SQ FT` : ""} precision modular home. Starting at ${formattedBasePrice}.`,
     image: primaryImg,
     category: model?.series || model?.category,
@@ -151,19 +156,10 @@ export default function ModelDetailClient({
           <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
             <Link href="/" className="hover:text-[#101114] transition-colors">Home</Link>
             <span>/</span>
-            <Link href="/buildings" className="hover:text-[#101114] transition-colors">Buildings</Link>
+            <Link href={`/collections/${canonicalCat}`} className="hover:text-[#101114] transition-colors">
+              {categoryDisplay}
+            </Link>
             <span>/</span>
-            {model?.category && (
-              <>
-                <Link 
-                  href={`/buildings?category=${encodeURIComponent(model.category)}`}
-                  className="hover:text-[#101114] transition-colors hidden sm:inline"
-                >
-                  {model.category}
-                </Link>
-                <span className="hidden sm:inline">/</span>
-              </>
-            )}
             <span className="text-[#d97706] font-bold uppercase truncate">{model?.name}</span>
           </div>
 

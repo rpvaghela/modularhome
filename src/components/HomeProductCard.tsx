@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import ShareButton from "@/components/ShareButton";
+import { getProductUrl } from "@/utils/productUrls";
 
 export interface ProductItem {
   id: string;
@@ -15,6 +16,7 @@ export interface ProductItem {
   sqft?: number;
   meta?: string;
   price: string | number;
+  category?: string;
 }
 
 interface HomeProductCardProps {
@@ -32,7 +34,7 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
       : `${product.bedrooms} Bed | ${product.bathrooms} Bath`
   );
 
-  const href = product.slug ? `/buildings/${product.slug}` : `/buildings`;
+  const href = product.slug ? getProductUrl(product) : `/buildings`;
 
   return (
     <div className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between relative bg-white">

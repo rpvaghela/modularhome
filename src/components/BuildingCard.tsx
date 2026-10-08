@@ -6,6 +6,7 @@ import { BuildingModel } from "@/data/models";
 import { formatPrice } from "@/utils/currency";
 import ShareButton from "@/components/ShareButton";
 import { getCategoryFallbackImage } from "@/lib/publicData";
+import { getProductUrl } from "@/utils/productUrls";
 
 interface BuildingCardProps {
   model: BuildingModel;
@@ -33,7 +34,7 @@ export default function BuildingCard({ model, priority = false }: BuildingCardPr
   }
 
   const specsText = specsList.length > 0 ? specsList.join(" | ") : "Precision Modular Construction";
-  const modelUrl = `/buildings/${model.slug}`;
+  const modelUrl = getProductUrl(model);
 
   const fallbackImg = getCategoryFallbackImage(model.category || model.series, model.name, model.slug);
   const rawImage = model.primaryImage || model.image;

@@ -15,6 +15,7 @@ import {
   RefreshCw,
   SlidersHorizontal,
 } from "lucide-react";
+import { getProductUrl } from "@/utils/productUrls";
 
 function normalizeToCanonicalCategory(cat?: string | null): string {
   if (!cat) return "Modular Homes";
@@ -264,7 +265,7 @@ export default function AdminProductsPage() {
                           </div>
                           <div>
                             <div className="font-bold text-[#101114] text-sm font-sans line-clamp-1">{prod.name || prod.title}</div>
-                            <div className="text-[11px] font-mono text-[#6b7280]">/buildings/{prod.slug || prod.handle}</div>
+                            <div className="text-[11px] font-mono text-[#6b7280]">{getProductUrl(prod)}</div>
                           </div>
                         </div>
                       </td>
