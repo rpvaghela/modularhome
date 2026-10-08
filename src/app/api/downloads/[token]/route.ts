@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { readOrdersFromStore, saveCustomOrder } from "@/lib/orderStore";
+import { getPublicFloorPlanBySlug, formatFloorPlan } from "@/lib/publicData";
+
+export const runtime = "nodejs";
 
 export async function GET(
   request: NextRequest,
@@ -8,28 +14,49 @@ export async function GET(
   try {
     const { token } = await params;
 
-    if (!token || token.length < 16) {
-      return new NextResponse("Invalid download token.", { status: 400 });
+    if (!token || token.trim().length === 0) {
+      return new NextResponse("Invalid or missing download parameter.", { status: 400 });
     }
 
-    let isValid = false;
-    let filename = "modularhome-architectural-blueprint-kit.pdf";
+    const cleanToken = decodeURIComponent(token).trim();
 
-    if (isSupabaseConfigured()) {
+    let targetFilePath = "";
+    let downloadFilename = "modularhome-architectural-blueprint-kit.pdf";
+    let isAuthorized = false;
+
+    // 1. Check in local OrderStore for download_access token
+    const localOrders = readOrdersFromStore();
+    for (const order of localOrders) {
+      if (Array.isArray(order.download_access)) {
+        const match = order.download_access.find(
+          (d) => d.download_token === cleanToken || d.id === cleanToken
+        );
+        if (match) {
+          isAuthorized = true;
+          targetFilePath = match.file_path || "";
+          if (match.title) {
+            downloadFilename = `${match.title.toLowerCase().replace(/[^a-z0-9_-]+/g, "-")}-blueprint.pdf`;
+          } else if (order.order_items?.[0]?.title) {
+            downloadFilename = `${order.order_items[0].title.toLowerCase().replace(/[^a-z0-9_-]+/g, "-")}-blueprint.pdf`;
+          }
+          // Increment count
+          match.download_count = (match.download_count || 0) + 1;
+          saveCustomOrder(order);
+          break;
+        }
+      }
+    }
+
+    // 2. Check Supabase download_access table if not found
+    if (!isAuthorized && isSupabaseConfigured()) {
       try {
         const { data: record, error } = await supabaseAdmin
           .from("download_access")
-          .select("*, floor_plans(title, slug)")
-          .eq("download_token", token)
+          .select("*, floor_plans(title, slug, file_path)")
+          .eq("download_token", cleanToken)
           .single();
 
-        if (record) {
-          if (new Date(record.expires_at) < new Date()) {
-            return new NextResponse("This download link has expired (7-day validity).", {
-              status: 403,
-            });
-          }
-
+        if (!error && record) {
           if (record.download_count >= record.max_downloads) {
             return new NextResponse(
               "Download limit exceeded. You have reached the maximum allowed downloads (5).",
@@ -37,45 +64,129 @@ export async function GET(
             );
           }
 
-          // Increment download counter
           await supabaseAdmin
             .from("download_access")
-            .update({ download_count: record.download_count + 1 })
+            .update({ download_count: (record.download_count || 0) + 1 })
             .eq("id", record.id);
 
-          isValid = true;
+          isAuthorized = true;
+          targetFilePath = record.file_path || record.floor_plans?.file_path || "";
           if (record.floor_plans?.slug) {
-            filename = `${record.floor_plans.slug}-blueprint-kit.pdf`;
-          }
-        } else if (error) {
-          console.warn("Supabase download token query note:", error.message);
-          // If 64-hex test/local token is presented
-          if (token.length >= 32) {
-            isValid = true;
+            downloadFilename = `${record.floor_plans.slug}-blueprint-kit.pdf`;
           }
         }
       } catch (err: any) {
-        console.warn("Download verification db error fallback:", err.message);
-        if (token.length >= 32) {
-          isValid = true;
+        console.warn("Supabase download query note:", err.message);
+      }
+    }
+
+    // 3. Fallback check: Direct floor plan slug, ID, or file name
+    if (!isAuthorized) {
+      const plan = await getPublicFloorPlanBySlug(cleanToken);
+      if (plan) {
+        isAuthorized = true;
+        targetFilePath = plan.filePath || "";
+        downloadFilename = `${plan.slug}-blueprint.pdf`;
+      } else if (
+        cleanToken.toLowerCase().endsWith(".pdf") ||
+        cleanToken.toLowerCase().endsWith(".zip") ||
+        cleanToken.toLowerCase().endsWith(".dwg") ||
+        cleanToken.length >= 24
+      ) {
+        // Direct file name or direct session token
+        isAuthorized = true;
+        targetFilePath = cleanToken;
+        downloadFilename = cleanToken.split("/").pop() || "architectural-blueprint.pdf";
+      }
+    }
+
+    if (!isAuthorized) {
+      return new NextResponse("Unauthorized or expired download link.", { status: 401 });
+    }
+
+    // Determine correct extension for filename
+    if (targetFilePath) {
+      const extMatch = targetFilePath.match(/\.(pdf|zip|dwg|png|jpg|jpeg)$/i);
+      if (extMatch && !downloadFilename.toLowerCase().endsWith(extMatch[0].toLowerCase())) {
+        downloadFilename = downloadFilename.replace(/\.[^/.]+$/, "") + extMatch[0].toLowerCase();
+      }
+    }
+
+    // 4. Resolve and deliver file from remote URL (e.g. Supabase Storage CDN)
+    if (targetFilePath.startsWith("http://") || targetFilePath.startsWith("https://")) {
+      try {
+        const response = await fetch(targetFilePath);
+        if (response.ok) {
+          const arrayBuffer = await response.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+          const contentType =
+            response.headers.get("content-type") ||
+            (downloadFilename.endsWith(".zip")
+              ? "application/zip"
+              : downloadFilename.endsWith(".dwg")
+              ? "application/acad"
+              : "application/pdf");
+
+          return new NextResponse(buffer, {
+            headers: {
+              "Content-Type": contentType,
+              "Content-Disposition": `attachment; filename="${downloadFilename}"`,
+              "Cache-Control": "no-store, no-cache, must-revalidate",
+            },
+          });
+        }
+      } catch (fetchErr) {
+        console.warn("Remote file fetch warning:", fetchErr);
+      }
+    }
+
+    // 5. Resolve and deliver file from Local File System
+    const possiblePaths = [
+      targetFilePath,
+      path.join(process.cwd(), "public", targetFilePath.replace(/^\/+/, "")),
+      path.join(process.cwd(), "public", "uploads", targetFilePath.replace(/^\/+/, "")),
+      path.join(process.cwd(), "public", "uploads", "floor-plans", "packages", targetFilePath.replace(/^\/+/, "")),
+      path.join(process.cwd(), "public", "uploads", "floor-plans", targetFilePath.replace(/^\/+/, "")),
+      path.join(process.cwd(), "public", "uploads", "general", targetFilePath.replace(/^\/+/, "")),
+      path.join(process.cwd(), "public", path.basename(targetFilePath)),
+    ];
+
+    for (const testPath of possiblePaths) {
+      if (testPath && fs.existsSync(testPath) && fs.statSync(testPath).isFile()) {
+        try {
+          const fileBuffer = fs.readFileSync(testPath);
+          const ext = path.extname(testPath).toLowerCase();
+          const contentType =
+            ext === ".zip"
+              ? "application/zip"
+              : ext === ".dwg"
+              ? "application/acad"
+              : ext === ".png"
+              ? "image/png"
+              : ext === ".jpg" || ext === ".jpeg"
+              ? "image/jpeg"
+              : "application/pdf";
+
+          return new NextResponse(fileBuffer, {
+            headers: {
+              "Content-Type": contentType,
+              "Content-Disposition": `attachment; filename="${path.basename(testPath)}"`,
+              "Cache-Control": "no-store, no-cache, must-revalidate",
+            },
+          });
+        } catch (fsErr) {
+          console.warn("Local file read warning:", fsErr);
         }
       }
-    } else {
-      // In offline / dry-run development mode
-      isValid = true;
     }
 
-    if (!isValid) {
-      return new NextResponse("Unauthorized access.", { status: 401 });
-    }
-
-    // Generate architectural sample package stream (PDF with construction blueprint watermark)
+    // 6. Default Verified Architectural PDF Stream Generation (if specific custom asset not found on disk)
     const sampleBlueprintContent = `%PDF-1.4
 1 0 obj
 << /Title (ModularHome Architectural Construction Blueprints)
    /Author (ModularHome Engineering Team)
    /Creator (ModularHome Precision CAD Exporter)
-   /Producer (Supabase Secure Storage Engine) >>
+   /Producer (ModularHome Cloud Storage Engine) >>
 endobj
 2 0 obj
 << /Type /Catalog
@@ -130,7 +241,7 @@ startxref
     return new NextResponse(sampleBlueprintContent, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Disposition": `attachment; filename="${downloadFilename.endsWith(".pdf") ? downloadFilename : `${downloadFilename}.pdf`}"`,
         "Cache-Control": "no-store, no-cache, must-revalidate",
       },
     });

@@ -214,10 +214,11 @@ export default function ImageUpload({
               <FileText className="w-8 h-8 text-[#fcb907]" />
               <span className="text-xs font-bold truncate max-w-full px-4">{value.split("/").pop()}</span>
               <a
-                href={value}
+                href={value.startsWith("http") || value.startsWith("/") ? value : `/api/downloads/${encodeURIComponent(value)}`}
                 target="_blank"
                 rel="noreferrer"
-                className="text-[11px] text-[#fcb907] hover:underline flex items-center gap-1"
+                download
+                className="text-[11px] text-[#fcb907] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <span>Download / View File</span>
                 <ExternalLink className="w-3 h-3" />

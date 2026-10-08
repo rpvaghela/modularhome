@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { stripe, isStripeConfigured } from "@/lib/stripe";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { getOrderByIdOrNumber, saveCustomOrder } from "@/lib/orderStore";
+import { getPublicFloorPlanBySlug } from "@/lib/publicData";
 
 export async function GET(request: NextRequest) {
   try {
@@ -78,9 +79,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 2. Generate secure token
+    // 2. Generate secure token & resolve floor plan package file path
     const downloadToken = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    let resolvedFilePath = `blueprints/${planSlug}.pdf`;
+    try {
+      const plan = await getPublicFloorPlanBySlug(planSlug);
+      if (plan) {
+        if (plan.title) planTitle = plan.title;
+        if (plan.filePath) resolvedFilePath = plan.filePath;
+      }
+    } catch {}
 
     // 3. Update Order in Local Order Store
     let resolvedOrderId = `ord_${Date.now()}`;
@@ -106,7 +116,7 @@ export async function GET(request: NextRequest) {
               expires_at: expiresAt,
               download_count: 0,
               max_downloads: 5,
-              file_path: `blueprints/${planSlug}.pdf`,
+              file_path: resolvedFilePath,
               file_format: "CAD DWG + PDF",
               title: planTitle,
             },
@@ -137,7 +147,7 @@ export async function GET(request: NextRequest) {
               expires_at: expiresAt,
               download_count: 0,
               max_downloads: 5,
-              file_path: `blueprints/${planSlug}.pdf`,
+              file_path: resolvedFilePath,
               file_format: "CAD DWG + PDF",
               title: planTitle,
             },
