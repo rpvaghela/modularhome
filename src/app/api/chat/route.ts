@@ -6,6 +6,7 @@ import { getCustomerByEmail } from "@/lib/customerStore";
 import { saveLead } from "@/lib/leadsStore";
 import { sendAIChatLeadNotification, UserAccountContext } from "@/lib/email";
 import { getPublicProducts, getPublicFloorPlans } from "@/lib/publicData";
+import { calculateQuotation } from "@/lib/pricingEngine";
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,21 +73,101 @@ export async function POST(request: NextRequest) {
       ? "Commercial Buildings"
       : "Modular & Prefab Homes";
 
-    // 1. Fetch live catalog products and floor plans for AI knowledge injection
+    // 1. Fetch live catalog products and floor plans for verified grounding
     const [allProducts, allFloorPlans] = await Promise.all([
       getPublicProducts(),
       getPublicFloorPlans(),
     ]);
 
-    const topModelsSummary = allProducts.slice(0, 15).map((p) => {
-      const priceStr = p.startingPrice ? `$${p.startingPrice.toLocaleString()}` : "Custom Quote";
-      return `- **${p.name}** (${p.category}): ${p.sqft} sqft • ${p.bedrooms} Bed/${p.bathrooms} Bath • Starting: ${priceStr} • URL: /buildings/${p.slug}`;
-    }).join("\n");
+    // 2. Extract structured customer requirements
+    const lowerHistory = conversationHistory.toLowerCase();
+    const sqftMatch = lastUserMessage.match(/(\d{3,4})\s*(?:sqft|sq\s*ft|square\s*feet)?/i) || conversationHistory.match(/(\d{3,4})\s*(?:sqft|sq\s*ft|square\s*feet)?/i);
+    const bedMatch = lastUserMessage.match(/(\d)\s*(?:bed|bedroom|br)/i) || conversationHistory.match(/(\d)\s*(?:bed|bedroom|br)/i);
+    const bathMatch = lastUserMessage.match(/(\d(?:\.5)?)\s*(?:bath|bathroom|ba)/i) || conversationHistory.match(/(\d(?:\.5)?)\s*(?:bath|bathroom|ba)/i);
 
-    const topFloorPlansSummary = allFloorPlans.slice(0, 10).map((fp) => {
-      const pStr = fp.salePrice ? `$${fp.salePrice}` : `$${fp.price}`;
-      return `- **${fp.title}** (${fp.category}): ${fp.squareFeet} sqft • ${fp.bedrooms} Bed/${fp.bathrooms} Bath • Blueprint Kit: ${pStr} • URL: /floor-plans/${fp.slug}`;
-    }).join("\n");
+    const targetSqft = sqftMatch ? Math.min(8000, Math.max(300, parseInt(sqftMatch[1], 10))) : null;
+    const targetBedrooms = bedMatch ? parseInt(bedMatch[1], 10) : null;
+    const targetBathrooms = bathMatch ? parseFloat(bathMatch[1]) : null;
+
+    // Detect target category
+    const targetCategory = lowerHistory.includes("barndo") || lowerHistory.includes("barndominium")
+      ? "Barndominiums"
+      : lowerHistory.includes("cabin") || lowerHistory.includes("a-frame")
+      ? "Cabins"
+      : lowerHistory.includes("adu") || lowerHistory.includes("tiny") || lowerHistory.includes("pod")
+      ? "ADUs & Tiny Homes"
+      : lowerHistory.includes("commercial") || lowerHistory.includes("shop") || lowerHistory.includes("warehouse")
+      ? "Commercial"
+      : "Modular Homes";
+
+    // Detect selected upgrades
+    const detectedUpgrades: string[] = [];
+    if (lowerHistory.includes("deck") || lowerHistory.includes("porch")) detectedUpgrades.push("timber deck");
+    if (lowerHistory.includes("insulation") || lowerHistory.includes("thermal") || lowerHistory.includes("r-38")) detectedUpgrades.push("closed-cell insulation");
+    if (lowerHistory.includes("glass") || lowerHistory.includes("panoramic") || lowerHistory.includes("sliding")) detectedUpgrades.push("panoramic glass wall");
+    if (lowerHistory.includes("solar")) detectedUpgrades.push("solar ready");
+    if (lowerHistory.includes("window") || lowerHistory.includes("triple pane")) detectedUpgrades.push("triple-pane windows");
+
+    // 3. Product Matching Algorithm (Grounding in verified catalog only)
+    const scoredProducts = allProducts.map((p) => {
+      let score = 0;
+      const pNameLower = p.name.toLowerCase();
+      const pCatLower = (p.category || "").toLowerCase();
+
+      // Direct name match
+      if (lowerHistory.includes(pNameLower) || (p.slug && lowerHistory.includes(p.slug.toLowerCase()))) {
+        score += 100;
+      }
+
+      // Category match
+      if (pCatLower.includes(targetCategory.toLowerCase()) || targetCategory.toLowerCase().includes(pCatLower)) {
+        score += 25;
+      }
+
+      // Sqft proximity
+      if (targetSqft && p.sqft) {
+        const diff = Math.abs(p.sqft - targetSqft);
+        if (diff <= 150) score += 30;
+        else if (diff <= 400) score += 20;
+        else if (diff <= 800) score += 10;
+      }
+
+      // Bedrooms match
+      if (targetBedrooms && p.bedrooms) {
+        if (p.bedrooms === targetBedrooms) score += 20;
+        else if (Math.abs(p.bedrooms - targetBedrooms) === 1) score += 5;
+      }
+
+      // Bathrooms match
+      if (targetBathrooms && p.bathrooms) {
+        if (p.bathrooms === targetBathrooms) score += 10;
+      }
+
+      return { product: p, score };
+    });
+
+    scoredProducts.sort((a, b) => b.score - a.score);
+    const matchedProducts = scoredProducts.slice(0, 4).map((sp) => sp.product);
+
+    // Matching Floor Plans
+    const matchedFloorPlans = allFloorPlans
+      .filter((fp) => {
+        if (targetSqft && fp.squareFeet) {
+          return Math.abs(fp.squareFeet - targetSqft) < 600;
+        }
+        return true;
+      })
+      .slice(0, 3);
+
+    // 4. Server-Side Pricing Engine Execution
+    const calculationSqft = targetSqft || (matchedProducts[0]?.sqft ? Number(matchedProducts[0].sqft) : 1400);
+    const quoteCalculation = await calculateQuotation({
+      sqft: calculationSqft,
+      modelType: targetCategory,
+      modelName: matchedProducts[0]?.name || "Modular Home Package",
+      selectedUpgrades: detectedUpgrades,
+      finishLevel: lowerHistory.includes("turnkey") || lowerHistory.includes("finished") ? "PREMIUM_TURNKEY" : "STANDARD",
+    });
 
     // Check if this message provides lead qualification info
     let leadCreated = false;
@@ -104,7 +185,7 @@ export async function POST(request: NextRequest) {
             name: leadName,
             email: extractedEmail,
             phone: extractedPhone || undefined,
-            project_type: projectType,
+            project_type: targetCategory,
             budget: budgetMatch ? budgetMatch[0] : undefined,
             requirements: lastUserMessage,
             enquiry_details: `Qualified via AI Housing Advisor: ${lastUserMessage}`,
@@ -123,7 +204,7 @@ export async function POST(request: NextRequest) {
               name: leadName,
               email: extractedEmail,
               phone: extractedPhone,
-              project_type: projectType,
+              project_type: targetCategory,
               enquiry_details: `Qualified via AI Housing Advisor: ${lastUserMessage}`,
               source: "AI_BUILD_ASSISTANT",
               status: "QUALIFIED",
@@ -145,10 +226,10 @@ export async function POST(request: NextRequest) {
               name: leadName,
               email: extractedEmail,
               phone: extractedPhone,
-              projectPreferences: projectType,
+              projectPreferences: targetCategory,
               budget: budgetMatch ? budgetMatch[0] : null,
-              dimensions: null,
-              aiRecommendations: `Housing Advisor suggested ${projectType} options and estimate`,
+              dimensions: `${calculationSqft} sq ft`,
+              aiRecommendations: `Suggested: ${matchedProducts.map(p => p.name).join(", ")} | Estimated Total: $${quoteCalculation.estimatedTotal.toLocaleString()}`,
               conversationTranscript: conversationHistory.slice(-800),
               submissionDate: new Date().toLocaleString("en-US", { timeZone: "America/New_York" }),
               userContext,
@@ -162,38 +243,48 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 2. If OpenAI API key is configured, use GPT-4o-mini with real-time catalog & quotation engine
+    // 5. OpenAI API Call with Strict Catalog & Pricing Engine Grounding
     if (process.env.OPENAI_API_KEY) {
       try {
-        const systemPrompt = `You are the expert Architectural Housing Advisor & Quotation Estimator for ModularHome.com.
-You assist prospective homebuyers and builders by answering questions, solving technical queries, suggesting appropriate home models, and calculating accurate project quotations.
+        const verifiedCatalogContext = matchedProducts.map((p) => {
+          const price = p.startingPrice ? `$${p.startingPrice.toLocaleString()}` : "Custom Quote";
+          return `- **${p.name}** (${p.category}): ${p.sqft} sqft, ${p.bedrooms || 0} Bed / ${p.bathrooms || 0} Bath. Starting Price: ${price}. Link: [/buildings/${p.slug}](/buildings/${p.slug})`;
+        }).join("\n");
 
-### Live Building Models Catalog:
-${topModelsSummary}
+        const verifiedFloorPlansContext = matchedFloorPlans.map((fp) => {
+          const pStr = fp.salePrice ? `$${fp.salePrice}` : `$${fp.price}`;
+          return `- **${fp.title}** (${fp.category}): ${fp.squareFeet} sqft. Architectural CAD+PDF Kit: ${pStr}. Link: [/floor-plans/${fp.slug}](/floor-plans/${fp.slug})`;
+        }).join("\n");
 
-### Live Floor Plan Blueprints Store:
-${topFloorPlansSummary}
+        const pricingEngineSummary = `
+- Calculation Area: ${quoteCalculation.sqft} sq ft (${quoteCalculation.modelType})
+- Base Framing / Component Package: $${quoteCalculation.basePrice.toLocaleString()}
+- SqFt Construction Rate: $${quoteCalculation.sqftRateAmount.toLocaleString()}
+- Selected Upgrades Total: $${quoteCalculation.upgradesTotal.toLocaleString()}
+- Engineering & Logistics Allocation: $${quoteCalculation.feesTotal.toLocaleString()}
+- **Authoritative Estimated Total**: $${quoteCalculation.estimatedTotal.toLocaleString()}
+- Disclaimer: ${quoteCalculation.disclaimer}`;
 
-### Quotation Estimation Rules & Pricing Engine:
-1. **Base Steel Framing Component Package**:
-   - Small cabins/ADUs (up to 800 sqft): ~$28,000 – $48,000
-   - Mid-size homes & Barndominiums (1,000 – 2,200 sqft): ~$55,000 – $95,000
-   - Large custom estates (2,400 – 4,000+ sqft): ~$110,000 – $185,000
-   - Average component rate: ~$85 / sqft living area.
-2. **Turnkey Finished Construction Estimate**:
-   - Turnkey installed average: ~$140 to $220 / sqft (inclusive of slab foundation, factory framing, plumbing, electrical MEP, interior finishes, and standing seam roof).
-3. **Popular Structural Upgrades**:
-   - Covered Wrap-Around Timber Deck: +$12,500
-   - R-38 Closed-Cell High Thermal Insulation: +$6,800
-   - 16ft Multi-Slide Panoramic Glass Wall: +$9,400
-4. **Architectural Blueprints**:
-   - Complete CAD (DWG) + Stamped PDF construction drawing sets are available for instant purchase at $495 – $795 at /floor-plans.
+        const systemPrompt = `You are the expert Architectural Housing Advisor & Quotation Consultant for ModularHome.com.
+You assist homebuyers and developers by answering questions, recommending real models from our catalog, and presenting accurate project quotations.
 
-### Guidance Rules:
-- When the user asks for a quotation, cost estimate, or budget recommendation, ALWAYS provide an itemized estimated breakdown table (Base Framing, Estimated Turnkey, Recommended Options) and suggest matching catalog models with markdown links (e.g. [The Lancaster](/buildings/the-lancaster) or [The Alpine Sanctuary](/floor-plans/alpine-sanctuary-900)).
-- Address technical questions accurately: 100% commercial-grade galvanized light gauge steel, 50-year structural warranty, 150+ MPH wind rating, 50 PSF snow load, pre-drilled MEP, fast on-site modular assembly.
-- Always recommend they configure exact pricing at [/quote](/quote) or upload custom plans at [/upload-floor-plan](/upload-floor-plan).
-- Keep formatting clean, elegant, and professional using markdown bullet points and bold text.`;
+### MANDATORY DATA GROUNDING RULES:
+1. **AUTHORITATIVE SOURCE OF TRUTH**: The Verified Products and Pricing Engine results below are authoritative. NEVER invent product names, prices, square footages, warranties, or options.
+2. **VERIFIED PRODUCTS IN CATALOG**:
+${verifiedCatalogContext || "- Please explore our full catalog at /buildings."}
+
+3. **VERIFIED ARCHITECTURAL BLUEPRINTS**:
+${verifiedFloorPlansContext || "- Complete CAD and PDF drawing sets available at /floor-plans."}
+
+4. **CALCULATED SERVER-SIDE QUOTATION**:
+${pricingEngineSummary}
+
+5. **PRICING DISCLOSURE & GUIDELINES**:
+- If the customer asks for a quote, cost estimate, or budget recommendation, ALWAYS present the exact numbers from the Server-Side Pricing Engine above.
+- Clearly label quotations as "Estimated Quote" with the note: "${quoteCalculation.disclaimer}".
+- If a customer asks for an unknown model or unsupported feature with no verified price, say: "I don't have verified pricing for that option yet, but our architectural engineering team can provide a custom quote."
+- Suggest next steps such as launching the interactive Quote Wizard at [/quote](/quote) or uploading plans at [/upload-floor-plan](/upload-floor-plan).
+- Use clean, professional markdown formatting with bullet points and bold headers.`;
 
         const openAiRes = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
@@ -207,7 +298,7 @@ ${topFloorPlansSummary}
               { role: "system", content: systemPrompt },
               ...messages.map((m: any) => ({ role: m.role, content: m.content })),
             ],
-            temperature: 0.7,
+            temperature: 0.6,
             max_tokens: 650,
           }),
         });
@@ -216,11 +307,10 @@ ${topFloorPlansSummary}
           const aiJson = await openAiRes.json();
           const replyText = aiJson.choices[0]?.message?.content || "";
 
-          // Suggest dynamic action buttons based on conversation
           const actionButtons = [
-            { label: "Launch Instant Quote Wizard →", href: "/quote" },
+            { label: "Launch Instant Quote Wizard →", href: `/quote?sqft=${calculationSqft}` },
             { label: "Explore Floor Plans", href: "/floor-plans" },
-            { label: "Upload Custom CAD Plans", href: "/upload-floor-plan" },
+            { label: "Upload Custom Floor Plan", href: "/upload-floor-plan" },
           ];
 
           return NextResponse.json({
@@ -232,65 +322,54 @@ ${topFloorPlansSummary}
           });
         }
       } catch (aiErr) {
-        console.warn("OpenAI chat error, falling back to knowledge engine:", aiErr);
+        console.warn("OpenAI API call note, falling back to deterministic engine:", aiErr);
       }
     }
 
-    // 3. Fallback Smart Quotation & Knowledge Engine
+    // 6. Deterministic Fallback Engine (Runs when OpenAI is not configured or fails)
     const q = lastUserMessage.toLowerCase();
     let reply = "";
     let actionButtons: any[] = [];
 
-    // Check if query is asking for price or quote estimation
-    if (q.includes("cost") || q.includes("price") || q.includes("quote") || q.includes("estimate") || q.includes("rate") || q.includes("sqft") || q.includes("sq ft")) {
-      const sqftMatch = q.match(/(\d{3,4})\s*(?:sqft|sq\s*ft|square\s*feet)?/i);
-      const estSqft = sqftMatch ? Math.min(6000, Math.max(400, Number(sqftMatch[1]))) : 1200;
-      const baseFraming = Math.round(estSqft * 85);
-      const turnkeyLow = Math.round(estSqft * 145);
-      const turnkeyHigh = Math.round(estSqft * 210);
+    const isQuoteQuery = q.includes("cost") || q.includes("price") || q.includes("quote") || q.includes("estimate") || q.includes("rate") || q.includes("sqft") || q.includes("sq ft") || q.includes("how much");
 
-      reply = `### Estimated Project Quotation (${estSqft.toLocaleString()} Sq Ft):\n\n` +
-        `Here is an estimated price breakdown based on our factory-direct precision steel framing and modular building system:\n\n` +
-        `* **Precision Steel Framing Component Kit**: ~$${baseFraming.toLocaleString()} USD ($85/sq ft)\n` +
-        `* **Estimated Full Turnkey Construction**: ~$${turnkeyLow.toLocaleString()} – $${turnkeyHigh.toLocaleString()} USD ($145–$210/sq ft installed)\n` +
-        `* **Single-Build Verified Architectural Blueprints (CAD + PDF)**: $495 – $795\n\n` +
-        `> **Engineering Highlights:** 50-year structural warranty, up to 150 MPH wind rating, 50 PSF snow load, non-combustible steel framing.\n\n` +
-        `To configure exact itemized line-items, foundation types, and delivery freight for your ZIP code, launch our interactive Quote Wizard:`;
+    if (isQuoteQuery) {
+      const topProd = matchedProducts[0];
+      const modelHeading = topProd ? `### Estimated Quotation: ${topProd.name} (${calculationSqft.toLocaleString()} Sq Ft)` : `### Estimated Project Quotation (${calculationSqft.toLocaleString()} Sq Ft)`;
+
+      reply = `${modelHeading}\n\n` +
+        `Here is an estimated price breakdown generated by our server-side pricing engine for **${quoteCalculation.modelType}**:\n\n` +
+        `* **Base Precision Steel Component Package**: $${quoteCalculation.basePrice.toLocaleString()} USD\n` +
+        `* **Living Area Construction & Framing**: $${quoteCalculation.sqftRateAmount.toLocaleString()} USD\n` +
+        (quoteCalculation.upgradesTotal > 0 ? `* **Selected Upgrades / Thermal Enhancements**: $${quoteCalculation.upgradesTotal.toLocaleString()} USD\n` : "") +
+        `* **Engineering & Logistical Allocation**: $${quoteCalculation.feesTotal.toLocaleString()} USD\n` +
+        `* **Estimated Total**: **$${quoteCalculation.estimatedTotal.toLocaleString()} USD**\n\n` +
+        `> **Engineering Standards:** 50-year structural warranty, up to 150 MPH wind rating, 50 PSF snow load, commercial-grade galvanized steel framing.\n\n` +
+        `*Note: ${quoteCalculation.disclaimer}*`;
 
       actionButtons = [
-        { label: `Calculate Exact ${estSqft} Sq Ft Quote →`, href: `/quote?sqft=${estSqft}` },
-        { label: "Browse Floor Plans & Blueprints", href: "/floor-plans" },
+        { label: `Customize Exact ${calculationSqft} Sq Ft Quote →`, href: `/quote?sqft=${calculationSqft}` },
+        { label: "Explore Floor Plans & Blueprints", href: "/floor-plans" },
         { label: "Upload Custom Floor Plan", href: "/upload-floor-plan" },
       ];
-    } else if (q.includes("cabin") || q.includes("tiny") || q.includes("retreat")) {
-      reply =
-        "### Factory-Engineered Cabins & A-Frames\n\n" +
-        "Our modular cabin kits feature heavy-duty steel framing panels, high-efficiency thermal envelopes, and timber deck packages. Popular models include:\n\n" +
-        "* **The Homestead Cabin** (1,200 sq ft • 2 Bed / 2 Bath) — Starting from $49,900\n" +
-        "* **The Retreat Tiny Home** (650 sq ft • 1 Bed / 1 Bath) — Starting from $39,900\n" +
-        "* **The Alpine Sanctuary 900** (900 sq ft Blueprint Kit) — Complete DWG + PDF for $495";
+    } else if (matchedProducts.length > 0) {
+      const productLines = matchedProducts.map((p) => {
+        const priceStr = p.startingPrice ? `Starting at $${p.startingPrice.toLocaleString()}` : "Custom Quote";
+        return `* **[${p.name}](/buildings/${p.slug})** (${p.category}) — ${p.sqft} sq ft • ${p.bedrooms || 0} Bed / ${p.bathrooms || 0} Bath • ${priceStr}`;
+      }).join("\n");
+
+      reply = `### Matching Models in the ModularHome Catalog\n\n` +
+        `Based on your project requirements, here are our recommended factory-built steel models:\n\n` +
+        `${productLines}\n\n` +
+        `Would you like me to prepare an estimated quotation or help you explore blueprints for one of these?`;
 
       actionButtons = [
-        { label: "Explore Cabins & Kits", href: "/buildings?category=Cabins" },
-        { label: "Cabin Floor Plans", href: "/floor-plans?category=Cabins" },
-        { label: "Get a Quote", href: "/quote" },
-      ];
-    } else if (q.includes("barndo") || q.includes("barndominium")) {
-      reply =
-        "### Residential Steel Barndominiums\n\n" +
-        "Our residential Barndominiums blend industrial clear-span framing with luxury open-concept living. Highlights include:\n\n" +
-        "* **The Haven Barndominium 2400** (2,400 sq ft • 4 Bed / 3 Bath • Integrated Shop)\n" +
-        "* **The Lancaster 2200** (2,200 sq ft • Vaulted Great Room)\n" +
-        "* **The Hawthorne 2400** (2,400 sq ft • Wrap-Around Porch)\n\n" +
-        "All models include precision-engineered galvanized steel framing, 50-year structural warranty, and single-build permit-ready drawings.";
-
-      actionButtons = [
-        { label: "Explore Barndominiums", href: "/buildings?category=Barndominiums" },
-        { label: "Barndo Blueprints", href: "/floor-plans?category=Barndominiums" },
-        { label: "Calculate Quote", href: "/quote" },
+        { label: "Launch Instant Quote Wizard", href: "/quote" },
+        { label: "Browse All Models", href: "/buildings" },
+        { label: "Explore Floor Plans", href: "/floor-plans" },
       ];
     } else if (leadCreated) {
-      reply = `Thank you! I have registered your project specifications with our architectural engineering team. A dedicated modular housing specialist will reach out to **${extractedEmail}** with custom blueprints and pricing.`;
+      reply = `Thank you! I have registered your project requirements with our architectural engineering team. A dedicated housing specialist will reach out to **${extractedEmail}** with custom blueprints and pricing.`;
       actionButtons = [
         { label: "Calculate Instant Quote", href: "/quote" },
         { label: "Browse 3D Catalog", href: "/buildings" },
