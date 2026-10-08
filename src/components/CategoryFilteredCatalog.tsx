@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { 
   Search, 
   X, 
@@ -9,6 +9,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import BuildingCard from "@/components/BuildingCard";
 import { BuildingModel } from "@/data/models";
 import { matchProductCategory } from "@/utils/categoryMatching";
@@ -19,6 +20,21 @@ interface CategoryFilteredCatalogProps {
   categoryName: string;
   categoryKey?: string;
 }
+
+export const CATEGORY_ROUTE_MAP: Record<string, string> = {
+  "All": "/collections/all",
+  "Modular Homes": "/modular-homes",
+  "Prefab Homes": "/prefab-homes",
+  "Barndominiums": "/barndominiums",
+  "House Kits": "/house-kits",
+  "Tiny Homes": "/tiny-homes",
+  "Park Models": "/park-models",
+  "Cabins": "/cabins",
+  "ADUs & Granny Pods": "/adus",
+  "A-Frame Homes": "/a-frame-homes",
+  "Commercial Buildings": "/commercial-buildings",
+  "Custom Homes": "/custom-homes",
+};
 
 const DEFAULT_CATEGORY_TABS = [
   "All",
@@ -54,6 +70,8 @@ export default function CategoryFilteredCatalog({
   categoryName,
   categoryKey,
 }: CategoryFilteredCatalogProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const isAllPage = categoryName === "All" || categoryName === "All Models" || categoryKey === "all";
   
   const [selectedCategory, setSelectedCategory] = useState<string>(
@@ -66,6 +84,19 @@ export default function CategoryFilteredCatalog({
   const [storiesFilter, setStoriesFilter] = useState<string>("all");
   const [budgetFilter, setBudgetFilter] = useState<string>("all");
   const [minSqft, setMinSqft] = useState<number>(0);
+
+  // Sync category state when route or category props change
+  useEffect(() => {
+    setSelectedCategory(isAllPage ? "All" : categoryName);
+  }, [categoryName, isAllPage]);
+
+  const handleCategoryChange = (newCat: string) => {
+    setSelectedCategory(newCat);
+    const targetRoute = CATEGORY_ROUTE_MAP[newCat];
+    if (targetRoute && pathname !== targetRoute) {
+      router.push(targetRoute);
+    }
+  };
 
   // Pool of products to filter from
   const catalogPool = allProducts && allProducts.length > 0 ? allProducts : initialProducts;
@@ -237,7 +268,7 @@ export default function CategoryFilteredCatalog({
             <span className="text-[10px] text-[#6b7280] uppercase font-bold">Category</span>
             <select
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              onChange={(e) => handleCategoryChange(e.target.value)}
               className="bg-transparent text-xs text-[#101114] focus:outline-none font-bold cursor-pointer pt-0.5 truncate"
             >
               <option value="All">All Categories</option>
