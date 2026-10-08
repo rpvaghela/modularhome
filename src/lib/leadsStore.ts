@@ -10,13 +10,18 @@ export interface LeadItem {
   email: string;
   phone?: string | null;
   location?: string | null;
+  city?: string | null;
   zip?: string | null;
+  project_type?: string | null;
+  budget?: string | null;
+  requirements?: string | null;
   enquiry_details?: string | null;
   source: string;
   status: "NEW" | "CONTACTED" | "QUALIFIED" | "QUOTE_SENT" | "FOLLOW_UP" | "WON" | "LOST";
   notes?: string | null;
   created_at: string;
   updated_at: string;
+  [key: string]: any;
 }
 
 const SEED_LEADS: LeadItem[] = [];

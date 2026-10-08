@@ -182,6 +182,80 @@ export default function AIBuildAssistant() {
     }
   };
 
+  const formatChatMessage = (content: string) => {
+    if (!content) return null;
+    const lines = content.split("\n");
+    return lines.map((line, lineIdx) => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        return <div key={lineIdx} className="h-1.5" />;
+      }
+
+      // Check header
+      if (trimmed.startsWith("### ")) {
+        return (
+          <h4 key={lineIdx} className="font-bold text-[13px] text-stone-900 mt-1 mb-1 font-serif">
+            {trimmed.replace(/^###\s+/, "")}
+          </h4>
+        );
+      }
+
+      // Check blockquote
+      if (trimmed.startsWith("> ")) {
+        return (
+          <div
+            key={lineIdx}
+            className="p-2 my-1 bg-amber-50 border-l-2 border-[#fcb907] rounded-r-lg text-[11px] text-stone-700 italic font-medium"
+          >
+            {trimmed.replace(/^>\s+/, "")}
+          </div>
+        );
+      }
+
+      // Check bullet list item
+      if (trimmed.startsWith("* ") || trimmed.startsWith("- ")) {
+        const itemText = trimmed.replace(/^[\*\-]\s+/, "");
+        return (
+          <div key={lineIdx} className="flex items-start gap-1.5 my-0.5 pl-1">
+            <span className="text-[#fcb907] font-black text-xs leading-none mt-1">•</span>
+            <span className="flex-1">{renderInlineMarkdown(itemText)}</span>
+          </div>
+        );
+      }
+
+      return (
+        <p key={lineIdx} className="my-0.5 leading-relaxed">
+          {renderInlineMarkdown(line)}
+        </p>
+      );
+    });
+  };
+
+  const renderInlineMarkdown = (text: string) => {
+    // Replace **bold** and [links](url)
+    const parts = text.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g);
+    return parts.map((part, pIdx) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return <strong key={pIdx} className="font-extrabold text-stone-950">{part.slice(2, -2)}</strong>;
+      }
+      const linkMatch = part.match(/^\[(.*?)\]\((.*?)\)$/);
+      if (linkMatch) {
+        return (
+          <Link
+            key={pIdx}
+            href={linkMatch[2]}
+            onClick={() => setIsOpen(false)}
+            className="text-[#d97706] font-bold hover:underline inline-flex items-center gap-0.5"
+          >
+            <span>{linkMatch[1]}</span>
+            <ArrowRight className="w-2.5 h-2.5" />
+          </Link>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
     <aside aria-label="AI Build Assistant Widget">
       {/* Floating Trigger Button */}
@@ -191,7 +265,7 @@ export default function AIBuildAssistant() {
         className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 p-3 sm:p-4 rounded-full shadow-2xl transition-all duration-300 flex items-center gap-2 cursor-pointer ${
           isOpen
             ? "bg-[#101114] text-[#fcb907] rotate-90"
-            : "bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] hover:scale-105"
+            : "bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] hover:scale-105 shadow-orange-500/20"
         }`}
       >
         {isOpen ? (
@@ -208,9 +282,9 @@ export default function AIBuildAssistant() {
 
       {/* Slide-over Drawer / Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-16 right-3 left-3 sm:left-auto sm:right-6 z-40 sm:w-[400px] w-auto h-[500px] sm:h-[540px] max-h-[80vh] bg-white border border-[var(--line)] rounded-[20px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="fixed bottom-16 right-3 left-3 sm:left-auto sm:right-6 z-40 sm:w-[420px] w-auto h-[520px] sm:h-[560px] max-h-[82vh] bg-white border border-stone-200 rounded-[24px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
-          <div className="bg-[var(--ink)] text-white px-4 sm:px-5 py-3.5 sm:py-4 border-b border-white/10 flex items-center justify-between shadow-xs">
+          <div className="bg-[#101114] text-white px-4 sm:px-5 py-3.5 sm:py-4 border-b border-white/10 flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-3">
               <div className="h-8 px-2.5 rounded-[8px] bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
                 <Image
@@ -222,11 +296,11 @@ export default function AIBuildAssistant() {
                 />
               </div>
               <div>
-                <div className="text-xs font-bold uppercase tracking-wider">
+                <div className="text-xs font-bold uppercase tracking-wider text-white">
                   Housing Advisor
                 </div>
-                <div className="text-[10px] text-white/70 flex items-center gap-1.5 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--r)] animate-pulse"></span>
+                <div className="text-[10px] text-stone-300 flex items-center gap-1.5 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                   Online • AI Building Advisor
                 </div>
               </div>
@@ -240,20 +314,20 @@ export default function AIBuildAssistant() {
           </div>
 
           {/* Messages Feed */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[var(--soft)]/50">
+          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#FAF8F5]/80">
             {messages.map((msg) => (
               <div
                 key={msg.id}
                 className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-[16px] px-4 py-3 text-xs leading-relaxed shadow-xs ${
+                  className={`max-w-[88%] rounded-[18px] px-4 py-3 text-xs leading-relaxed shadow-sm ${
                     msg.sender === "user"
-                      ? "bg-[var(--r)] text-white"
-                      : "bg-white border border-[var(--line)] text-[var(--ink)]"
+                      ? "bg-[#101114] text-white font-medium"
+                      : "bg-white border border-stone-200 text-stone-800"
                   }`}
                 >
-                  {msg.text}
+                  {msg.sender === "bot" ? formatChatMessage(msg.text) : msg.text}
                 </div>
 
                 {/* Render quick Action Buttons if provided by the bot */}
