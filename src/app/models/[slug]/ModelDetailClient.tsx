@@ -35,12 +35,14 @@ interface ModelDetailClientProps {
   relatedModels: BuildingModel[];
   phone?: string;
   companyName?: string;
+  currentCategory?: string;
 }
 
 export default function ModelDetailClient({
   model,
   relatedModels = [],
   phone = "+1 (812) 595-4033",
+  currentCategory,
 }: ModelDetailClientProps) {
   const fallbackImg = getCategoryFallbackImage(model?.category || model?.series, model?.name, model?.slug);
   const rawPrimary = model?.primaryImage || model?.image || (model?.gallery && model.gallery[0]) || "";
@@ -136,8 +138,11 @@ export default function ModelDetailClient({
   };
 
   const canonicalCat = getProductCategorySlug(model);
-  const categoryDisplay = getCategoryDisplayName(canonicalCat);
-  const canonicalProductUrl = getProductUrl(model);
+  const effectiveCat = currentCategory && currentCategory !== "models" && currentCategory !== "buildings"
+    ? currentCategory.toLowerCase().trim()
+    : canonicalCat;
+  const categoryDisplay = getCategoryDisplayName(effectiveCat);
+  const canonicalProductUrl = `/${effectiveCat}/${model?.slug}`;
 
   const modelShareData = {
     title: model?.name || "Modular Building Model",
@@ -156,7 +161,7 @@ export default function ModelDetailClient({
           <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
             <Link href="/" className="hover:text-[#101114] transition-colors">Home</Link>
             <span>/</span>
-            <Link href={`/collections/${canonicalCat}`} className="hover:text-[#101114] transition-colors">
+            <Link href={`/${effectiveCat}`} className="hover:text-[#101114] transition-colors">
               {categoryDisplay}
             </Link>
             <span>/</span>

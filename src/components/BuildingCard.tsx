@@ -11,9 +11,10 @@ import { getProductUrl } from "@/utils/productUrls";
 interface BuildingCardProps {
   model: BuildingModel;
   priority?: boolean;
+  categorySlug?: string;
 }
 
-export default function BuildingCard({ model, priority = false }: BuildingCardProps) {
+export default function BuildingCard({ model, priority = false, categorySlug }: BuildingCardProps) {
   const formattedPrice = model.startingPrice && model.startingPrice > 0 
     ? formatPrice(model.startingPrice) 
     : "Custom Quote";
@@ -34,7 +35,11 @@ export default function BuildingCard({ model, priority = false }: BuildingCardPr
   }
 
   const specsText = specsList.length > 0 ? specsList.join(" | ") : "Precision Modular Construction";
-  const modelUrl = getProductUrl(model);
+  
+  const cleanCatSlug = categorySlug ? categorySlug.toLowerCase().trim().replace(/^\/+|\/+$/g, "") : "";
+  const modelUrl = cleanCatSlug && cleanCatSlug !== "all" && cleanCatSlug !== "buildings"
+    ? `/${cleanCatSlug}/${model.slug}`
+    : getProductUrl(model);
 
   const fallbackImg = getCategoryFallbackImage(model.category || model.series, model.name, model.slug);
   const rawImage = model.primaryImage || model.image;

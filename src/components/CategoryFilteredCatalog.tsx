@@ -367,9 +367,18 @@ export default function CategoryFilteredCatalog({
       {/* Product Catalog Grid */}
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 pt-2">
-          {filteredProducts.map((model) => (
-            <BuildingCard key={model.id} model={model} />
-          ))}
+          {filteredProducts.map((model) => {
+            const activeCatSlug = selectedCategory !== "All" 
+              ? selectedCategory.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+              : categoryKey;
+            return (
+              <BuildingCard
+                key={model.id}
+                model={model}
+                categorySlug={activeCatSlug}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-16 bg-[#f6f7f9] border border-[#e7e9ee] rounded-[18px] p-8 space-y-3">

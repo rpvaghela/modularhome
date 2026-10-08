@@ -110,13 +110,9 @@ export default async function CategoryProductPage({ params }: CategoryProductPag
     notFound();
   }
 
-  // Enforce canonical category path with 301 permanent redirect if accessed via alias or wrong category
-  const canonicalCatSlug = getProductCategorySlug(model);
   const cleanCat = category.toLowerCase().trim();
-
-  if (cleanCat !== canonicalCatSlug && isCategorySlug(cleanCat)) {
-    redirect(`/${canonicalCatSlug}/${model.slug}`);
-  }
+  const canonicalCatSlug = getProductCategorySlug(model);
+  const effectiveCat = isCategorySlug(cleanCat) ? cleanCat : canonicalCatSlug;
 
   const [allProducts, settings] = await Promise.all([
     getPublicProducts(),
@@ -129,8 +125,8 @@ export default async function CategoryProductPage({ params }: CategoryProductPag
     )
     .slice(0, 3);
 
-  const categoryName = getCategoryDisplayName(canonicalCatSlug);
-  const canonicalUrl = getCanonicalUrl(`/${canonicalCatSlug}/${model.slug}`);
+  const categoryName = getCategoryDisplayName(effectiveCat);
+  const canonicalUrl = getCanonicalUrl(`/${effectiveCat}/${model.slug}`);
 
   // Schema.org Product structured data
   const productJsonLd = {
@@ -172,7 +168,7 @@ export default async function CategoryProductPage({ params }: CategoryProductPag
         "@type": "ListItem",
         position: 2,
         name: categoryName,
-        item: `https://modularhome.com/collections/${canonicalCatSlug}`,
+        item: `https://modularhome.com/${effectiveCat}`,
       },
       {
         "@type": "ListItem",
@@ -198,6 +194,7 @@ export default async function CategoryProductPage({ params }: CategoryProductPag
         relatedModels={relatedModels}
         phone={settings.phone}
         companyName={settings.companyName}
+        currentCategory={effectiveCat}
       />
     </>
   );
