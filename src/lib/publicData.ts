@@ -7,6 +7,7 @@ import { getPublicGlobalSettings } from "./settings";
 import { matchProductCategory } from "@/utils/categoryMatching";
 import { getProductUrl } from "@/utils/productUrls";
 import { readProductsFromStore } from "./productStore";
+import { readFloorPlansFromStore, getCustomFloorPlanByIdOrSlug } from "./floorPlanStore";
 
 interface CacheEntry<T> {
   data: T;
@@ -387,6 +388,12 @@ export async function getPublicFloorPlans(params?: {
     let formattedAll = getCached<FloorPlan[]>(cacheKey);
 
     if (!formattedAll) {
+      // 1. Custom Admin Store Floor Plans (top priority)
+      let customStored: any[] = [];
+      try {
+        customStored = readFloorPlansFromStore();
+      } catch {}
+
       let dbPlans: FloorPlan[] = [];
       if (isSupabaseConfigured()) {
         try {
@@ -408,7 +415,21 @@ export async function getPublicFloorPlans(params?: {
       const merged: FloorPlan[] = [];
       const seenSlugs = new Set<string>();
 
-      // 1. Database plans take highest priority (admin created/edited)
+      // 1. Custom local admin floor plans take top priority
+      for (const raw of customStored) {
+        if (!raw || (!raw.slug && !raw.id)) continue;
+        if (raw.status === "DRAFT") continue;
+        const p = formatFloorPlan(raw);
+        if (p && p.slug) {
+          const clean = p.slug.toLowerCase().trim();
+          if (!seenSlugs.has(clean)) {
+            seenSlugs.add(clean);
+            merged.push(p);
+          }
+        }
+      }
+
+      // 2. Database plans from Supabase
       for (const p of dbPlans) {
         if (p && p.slug) {
           const clean = p.slug.toLowerCase().trim();
@@ -419,7 +440,7 @@ export async function getPublicFloorPlans(params?: {
         }
       }
 
-      // 2. Initial fallback plans for any not overridden
+      // 3. Initial fallback plans for any not overridden
       for (const p of INITIAL_FLOOR_PLANS) {
         if (p && p.slug) {
           const clean = p.slug.toLowerCase().trim();
@@ -463,6 +484,13 @@ export async function getPublicFloorPlans(params?: {
 export async function getPublicFloorPlanBySlug(slug: string): Promise<FloorPlan | null> {
   try {
     const cleanSlug = slug.toLowerCase().trim();
+
+    // Check custom floor plan store first
+    const customMatch = getCustomFloorPlanByIdOrSlug(cleanSlug);
+    if (customMatch) {
+      return formatFloorPlan(customMatch);
+    }
+
     const allPlans = await getPublicFloorPlans();
     const match = allPlans.find((p) => p.slug.toLowerCase() === cleanSlug || p.id.toLowerCase() === cleanSlug);
     if (match) return match;
