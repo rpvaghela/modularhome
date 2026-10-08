@@ -53,7 +53,7 @@ export async function generateMetadata({
   // 1. Check CMS Pages
   const page = await getPublicPageBySlug(cleanSlug);
   if (page && page.status !== "DRAFT" && page.status !== "ARCHIVED") {
-    const title = page.seoTitle || `${page.title} | ModularHome.com`;
+    const title = page.seoTitle || page.title;
     const description = page.metaDescription || page.subtitle || `Explore ${page.title} on ModularHome.com`;
     const ogTitle = page.ogTitle || title;
     const ogDescription = page.ogDescription || description;
