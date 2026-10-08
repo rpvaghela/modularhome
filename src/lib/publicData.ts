@@ -174,19 +174,28 @@ export function formatProduct(p: any): BuildingModel {
 
   const primaryImg = normalizeImageUrl(rawPrimary, fallbackImg);
 
-  const rawGallery =
-    p.product_media && Array.isArray(p.product_media) && p.product_media.length > 0
-      ? [...p.product_media]
-          .sort((a: any, b: any) => (a.position || 0) - (b.position || 0))
-          .map((m: any) => m.source_url)
-          .filter(Boolean)
-      : Array.isArray(p.images) && p.images.length > 0
-      ? p.images
-      : Array.isArray(p.gallery) && p.gallery.length > 0
-      ? p.gallery
-      : [primaryImg];
+  const mediaList: string[] = [];
+  if (p.product_media && Array.isArray(p.product_media)) {
+    [...p.product_media]
+      .sort((a: any, b: any) => (a.position || 0) - (b.position || 0))
+      .forEach((m: any) => {
+        if (m?.source_url) mediaList.push(m.source_url);
+      });
+  }
 
-  const galleryImgs = rawGallery
+  const customGallery: string[] = Array.isArray(p.gallery)
+    ? p.gallery
+    : typeof p.gallery === "string"
+    ? [p.gallery]
+    : Array.isArray(p.images)
+    ? p.images
+    : [];
+
+  const rawGalleryCombined = Array.from(
+    new Set([primaryImg, ...mediaList, ...customGallery].filter(Boolean))
+  );
+
+  const galleryImgs = rawGalleryCombined
     .map((g: any) => normalizeImageUrl(g, fallbackImg))
     .filter((g: string) => g && !g.includes("newmodularlogo") && !g.includes("finallogo"));
 

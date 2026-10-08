@@ -65,7 +65,7 @@ export default function ModelDetailClient({
 
   const rawGallery = Array.isArray(model?.gallery) && model.gallery.length > 0 ? model.gallery : [primaryImg];
   const filteredGallery = rawGallery.filter((g) => g && !g.includes("newmodularlogo") && !g.includes("finallogo"));
-  const galleryList = filteredGallery.length > 0 ? filteredGallery : [primaryImg];
+  const galleryList = Array.from(new Set([primaryImg, ...filteredGallery].filter(Boolean)));
 
   const featuresList = Array.isArray(model?.features) ? model.features : [];
   const specsList = Array.isArray(model?.specs) ? model.specs : [];
@@ -214,27 +214,30 @@ export default function ModelDetailClient({
             </div>
 
             {/* Thumbnail Navigation Bar */}
-            <div className="grid grid-cols-4 gap-3">
-              {galleryList.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveImage(img)}
-                  className={`relative aspect-[16/10] rounded-[9px] overflow-hidden border transition-all cursor-pointer ${
-                    activeImage === img
-                      ? "border-[#fcb907] ring-2 ring-[#fcb907]/40 scale-[1.02]"
-                      : "border-[#e7e9ee] opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  <Image
-                    src={img}
-                    alt={`${model?.name || "Model"} angle ${idx + 1}`}
-                    fill
-                    sizes="20vw"
-                    className="object-cover"
-                  />
-                </button>
-              ))}
-            </div>
+            {galleryList.length > 1 && (
+              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2.5">
+                {galleryList.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveImage(img)}
+                    className={`relative aspect-[16/10] rounded-[9px] overflow-hidden border transition-all cursor-pointer ${
+                      activeImage === img
+                        ? "border-[#fcb907] ring-2 ring-[#fcb907]/40 scale-[1.02]"
+                        : "border-[#e7e9ee] opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <Image
+                      src={img}
+                      alt={`${model?.name || "Model"} angle ${idx + 1}`}
+                      fill
+                      sizes="20vw"
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Model Information & Sticky Pricing Panel (5 cols) */}

@@ -59,8 +59,14 @@ export default function AdminEditProductPage() {
             p.collectionIds ||
             p.collections?.map((c: any) => c._id || c.collectionId || c.collection?.id || c.id) ||
             [];
+          const galleryImgs = Array.isArray(p.gallery) && p.gallery.length > 0
+            ? p.gallery
+            : Array.isArray(p.product_media) && p.product_media.length > 0
+            ? p.product_media.map((m: any) => m.source_url).filter(Boolean)
+            : [];
           setProduct({
             ...p,
+            gallery: galleryImgs,
             category: normalizeToCanonicalCategory(p.category || p.product_type),
             collectionIds: assignedIds,
           });
