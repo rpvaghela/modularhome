@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { clearPublicDataCache } from "@/lib/publicData";
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdminAuth();
@@ -163,7 +164,7 @@ export async function POST(request: NextRequest) {
 
     const cleanSlug = rawSlug.toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-");
 
-    const newProduct = {
+    const newProduct: Record<string, any> = {
       handle: cleanSlug,
       title: name,
       description_html: body.description || body.description_html || null,
@@ -177,43 +178,101 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
-    if (isSupabaseConfigured()) {
-      const { data: prod, error } = await supabaseAdmin
-        .from("products")
-        .insert(newProduct)
-        .select()
-        .single();
+    if (body.sqft !== undefined) newProduct.sqft = Number(body.sqft);
+    if (body.bedrooms !== undefined) newProduct.bedrooms = Number(body.bedrooms);
+    if (body.bathrooms !== undefined) newProduct.bathrooms = Number(body.bathrooms);
+    if (body.stories !== undefined) newProduct.stories = Number(body.stories);
+    if (body.dimensions !== undefined) newProduct.dimensions = body.dimensions;
+    if (body.startingPrice !== undefined) newProduct.starting_price = Number(body.startingPrice);
+    if (body.series !== undefined) newProduct.series = body.series;
+    if (body.architecturalStyle !== undefined) newProduct.architectural_style = body.architecturalStyle;
+    if (body.tagline !== undefined) newProduct.tagline = body.tagline;
+    if (body.primaryImage !== undefined) newProduct.primary_image_url = body.primaryImage;
 
-      if (error) throw error;
+    if (isSupabaseConfigured()) {
+      let prod: any = null;
+      try {
+        const { data, error } = await supabaseAdmin
+          .from("products")
+          .insert(newProduct)
+          .select()
+          .single();
+
+        if (error) throw error;
+        prod = data;
+      } catch (insertErr: any) {
+        // Fallback with core columns if optional column doesn't exist
+        const coreProduct = {
+          handle: cleanSlug,
+          title: name,
+          description_html: body.description || body.description_html || null,
+          vendor: body.vendor || "ModularHome",
+          product_type: body.category || body.product_type || "Modular Homes",
+          status: body.isPublished === false || body.status === "draft" ? "draft" : "active",
+          seo_title: body.seoTitle || body.seo_title || `${name} | ModularHome`,
+          seo_description: body.metaDescription || body.seo_description || null,
+          published_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        const { data, error } = await supabaseAdmin
+          .from("products")
+          .insert(coreProduct)
+          .select()
+          .single();
+        if (error) throw error;
+        prod = data;
+      }
 
       // Insert primary media if provided
-      if (body.primaryImage) {
-        await supabaseAdmin.from("product_media").insert({
-          product_id: prod.id,
-          source_url: body.primaryImage,
-          alt_text: name,
-          position: 1,
-        });
+      if (body.primaryImage && prod?.id) {
+        try {
+          await supabaseAdmin.from("product_media").insert({
+            product_id: prod.id,
+            source_url: body.primaryImage,
+            alt_text: name,
+            position: 1,
+          });
+        } catch {}
+      }
+
+      // Insert gallery media
+      if (Array.isArray(body.gallery) && body.gallery.length > 0 && prod?.id) {
+        try {
+          const galleryEntries = body.gallery.map((url: string, index: number) => ({
+            product_id: prod.id,
+            source_url: url,
+            alt_text: `${name} Photo ${index + 1}`,
+            position: index + 2,
+          }));
+          await supabaseAdmin.from("product_media").insert(galleryEntries);
+        } catch {}
       }
 
       // Insert primary variant if price provided
-      if (body.startingPrice) {
-        await supabaseAdmin.from("product_variants").insert({
-          product_id: prod.id,
-          title: "Standard Package",
-          price: Number(body.startingPrice) || 89000,
-          position: 1,
-        });
+      if (body.startingPrice && prod?.id) {
+        try {
+          await supabaseAdmin.from("product_variants").insert({
+            product_id: prod.id,
+            title: "Standard Package",
+            price: Number(body.startingPrice) || 89000,
+            position: 1,
+          });
+        } catch {}
       }
 
       // Link collections
-      if (Array.isArray(body.collectionIds) && body.collectionIds.length > 0) {
-        const mappings = body.collectionIds.map((colId: string) => ({
-          product_id: prod.id,
-          collection_id: colId,
-        }));
-        await supabaseAdmin.from("product_collections").insert(mappings);
+      if (Array.isArray(body.collectionIds) && body.collectionIds.length > 0 && prod?.id) {
+        try {
+          const mappings = body.collectionIds.map((colId: string) => ({
+            product_id: prod.id,
+            collection_id: colId,
+          }));
+          await supabaseAdmin.from("product_collections").insert(mappings);
+        } catch {}
       }
+
+      // Invalidate public catalog cache
+      clearPublicDataCache();
 
       return NextResponse.json({
         success: true,
@@ -228,6 +287,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    clearPublicDataCache();
+
     return NextResponse.json({
       success: true,
       data: { id: "mock-id", ...newProduct },
@@ -241,3 +302,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

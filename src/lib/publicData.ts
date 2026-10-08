@@ -42,6 +42,8 @@ export function setCached<T>(key: string, data: T, ttlMs = 60000): void {
 
 export function clearPublicDataCache(): void {
   MEMORY_CACHE.clear();
+  LOCAL_PRODUCTS_CACHE = null;
+  SLUG_TO_PRODUCT_INDEX.clear();
 }
 
 /**
@@ -493,7 +495,28 @@ export function getLocalProducts(): BuildingModel[] {
 }
 
 /**
- * Fetches all published home models / products instantly
+ * Fetches all active products from Supabase
+ */
+export async function fetchSupabaseProducts(): Promise<BuildingModel[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const { data: dbProducts, error } = await supabaseAdmin
+      .from("products")
+      .select("*, product_variants(*), product_media(*), product_collections(collection_id, collections(id, handle, title))")
+      .or("status.eq.active,status.is.null,status.neq.draft")
+      .order("created_at", { ascending: false });
+
+    if (error || !dbProducts) return [];
+
+    return dbProducts.map(formatProduct);
+  } catch (err) {
+    console.error("Error fetching Supabase products:", err);
+    return [];
+  }
+}
+
+/**
+ * Fetches all published home models / products instantly, merging database and catalog
  */
 export async function getPublicProducts(params?: {
   category?: string;
@@ -505,7 +528,46 @@ export async function getPublicProducts(params?: {
     let formattedAll = getCached<BuildingModel[]>(cacheKey);
 
     if (!formattedAll) {
-      formattedAll = getLocalProducts();
+      const localProducts = getLocalProducts();
+      let dbProducts: BuildingModel[] = [];
+      if (isSupabaseConfigured()) {
+        try {
+          dbProducts = await withDbTimeout(fetchSupabaseProducts(), 1500);
+        } catch {}
+      }
+
+      // Merge Supabase products with local products
+      const merged: BuildingModel[] = [];
+      const seenSlugs = new Set<string>();
+
+      // 1. Database products take highest priority (admin created/edited)
+      for (const p of dbProducts) {
+        if (p && p.slug) {
+          const clean = p.slug.toLowerCase().trim();
+          if (!seenSlugs.has(clean)) {
+            seenSlugs.add(clean);
+            merged.push(p);
+            SLUG_TO_PRODUCT_INDEX.set(clean, p);
+            if (p.id) SLUG_TO_PRODUCT_INDEX.set(String(p.id).toLowerCase(), p);
+          }
+        }
+      }
+
+      // 2. Local catalog items for any not already overridden
+      for (const p of localProducts) {
+        if (p && p.slug) {
+          const clean = p.slug.toLowerCase().trim();
+          if (!seenSlugs.has(clean)) {
+            seenSlugs.add(clean);
+            merged.push(p);
+            if (!SLUG_TO_PRODUCT_INDEX.has(clean)) {
+              SLUG_TO_PRODUCT_INDEX.set(clean, p);
+            }
+          }
+        }
+      }
+
+      formattedAll = merged.length > 0 ? merged : localProducts;
       setCached(cacheKey, formattedAll, 60000);
     }
 
