@@ -1,0 +1,40 @@
+[
+  {
+    "id": "3336a47e-132f-41d3-aee6-8b83344949c1",
+    "handle": "myhome",
+    "slug": "myhome",
+    "name": "MyHome",
+    "title": "MyHome",
+    "category": "Modular Homes",
+    "product_type": "Modular Homes",
+    "series": "Essential Series",
+    "architecturalStyle": "Modern Homes",
+    "tagline": "Engineered MyHome",
+    "description": "sdfgsdfgdfg",
+    "description_html": "sdfgsdfgdfg",
+    "startingPrice": 125000,
+    "starting_price": 125000,
+    "sqft": 0,
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "stories": 1,
+    "dimensions": "",
+    "primaryImage": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+    "primary_image_url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+    "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [],
+    "specs": [],
+    "tags": [],
+    "status": "active",
+    "isPublished": true,
+    "published_at": "2026-10-08T18:04:49.435Z",
+    "createdAt": "2026-10-08T18:04:49.435Z",
+    "created_at": "2026-10-08T18:04:49.435Z",
+    "updatedAt": "2026-10-08T18:04:49.435Z",
+    "updated_at": "2026-10-08T18:04:49.435Z",
+    "collectionIds": []
+  }
+]

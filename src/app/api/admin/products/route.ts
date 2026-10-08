@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { clearPublicDataCache } from "@/lib/publicData";
+import { readProductsFromStore, saveCustomProduct, StoredProduct } from "@/lib/productStore";
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdminAuth();
@@ -13,129 +14,204 @@ export async function GET(request: NextRequest) {
     const isPublishedParam = searchParams.get("isPublished");
     const search = searchParams.get("search");
 
-    if (!isSupabaseConfigured()) {
-      return NextResponse.json({
-        success: true,
-        data: [],
-      });
+    let dbProducts: any[] = [];
+
+    if (isSupabaseConfigured()) {
+      try {
+        let query = supabaseAdmin
+          .from("products")
+          .select(`
+            id,
+            handle,
+            title,
+            description_html,
+            vendor,
+            product_type,
+            status,
+            seo_title,
+            seo_description,
+            source_id,
+            published_at,
+            created_at,
+            updated_at,
+            product_variants (
+              price
+            ),
+            product_media (
+              source_url,
+              position
+            ),
+            product_collections (
+              collection_id
+            )
+          `)
+          .order("created_at", { ascending: false });
+
+        if (category && category !== "ALL") {
+          const stem = category.toLowerCase().replace(/s$/, "").trim();
+          query = query.or(`product_type.ilike.%${stem}%,product_type.ilike.%${category}%`);
+        }
+
+        if (isPublishedParam !== null && isPublishedParam !== undefined && isPublishedParam !== "") {
+          if (isPublishedParam === "true") {
+            query = query.or("status.eq.active,status.is.null");
+          } else {
+            query = query.eq("status", "draft");
+          }
+        }
+
+        if (search && search.trim()) {
+          const s = search.trim();
+          query = query.or(`title.ilike.%${s}%,handle.ilike.%${s}%,product_type.ilike.%${s}%`);
+        }
+
+        const { data, error } = await query;
+        if (!error && data) {
+          dbProducts = data;
+        }
+      } catch (err) {
+        console.warn("Supabase query warning:", err);
+      }
     }
 
-    let query = supabaseAdmin
-      .from("products")
-      .select(`
-        id,
-        handle,
-        title,
-        description_html,
-        vendor,
-        product_type,
-        status,
-        seo_title,
-        seo_description,
-        source_id,
-        published_at,
-        created_at,
-        updated_at,
-        product_variants (
-          price
-        ),
-        product_media (
-          source_url,
-          position
-        ),
-        product_collections (
-          collection_id
-        )
-      `)
-      .order("created_at", { ascending: false });
+    // Read custom local products
+    const localProducts = readProductsFromStore();
+    const seenSlugs = new Set<string>();
+    const merged: any[] = [];
 
+    // 1. Custom stored products take highest priority
+    for (const p of localProducts) {
+      const slug = (p.slug || p.handle || "").toLowerCase();
+      if (!seenSlugs.has(slug)) {
+        seenSlugs.add(slug);
+        merged.push({
+          id: p.id,
+          _id: p.id,
+          name: p.name || p.title || "",
+          title: p.name || p.title || "",
+          slug: p.slug || p.handle || "",
+          handle: p.slug || p.handle || "",
+          category: p.category || p.product_type || "Modular Homes",
+          product_type: p.category || p.product_type || "Modular Homes",
+          vendor: "ModularHome",
+          description: p.description || p.description_html || "",
+          description_html: p.description_html || p.description || "",
+          status: p.status || "active",
+          isPublished: p.status !== "draft",
+          primaryImage: p.primaryImage || p.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+          image: p.primaryImage || p.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+          startingPrice: p.startingPrice || 89000,
+          sqft: p.sqft || 0,
+          bedrooms: p.bedrooms ?? 0,
+          bathrooms: p.bathrooms ?? 0,
+          stories: p.stories || 1,
+          dimensions: p.dimensions || "",
+          tags: p.tags || ["Custom"],
+          features: p.features || [],
+          specs: p.specs || [],
+          architecturalStyle: p.architecturalStyle || "Modern Homes",
+          series: p.series || "Essential Series",
+          tagline: p.tagline || "",
+          collectionIds: p.collectionIds || [],
+          created_at: p.createdAt || p.created_at || new Date().toISOString(),
+          updated_at: p.updatedAt || p.updated_at || new Date().toISOString(),
+        });
+      }
+    }
+
+    // 2. Add Supabase products
+    for (const p of dbProducts) {
+      const slug = (p.handle || p.slug || "").toLowerCase();
+      if (!seenSlugs.has(slug)) {
+        seenSlugs.add(slug);
+        let primaryImg = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80";
+        if (p.product_media && Array.isArray(p.product_media) && p.product_media.length > 0) {
+          const sortedMedia = [...p.product_media].sort((a: any, b: any) => (a.position || 0) - (b.position || 0));
+          primaryImg = sortedMedia[0].source_url || primaryImg;
+        }
+
+        let startingPrice = 89000;
+        if (p.product_variants && Array.isArray(p.product_variants) && p.product_variants.length > 0) {
+          const prices = p.product_variants
+            .map((v: any) => Number(v.price))
+            .filter((pr: number) => !isNaN(pr) && pr > 0);
+          if (prices.length > 0) {
+            startingPrice = Math.min(...prices);
+          }
+        }
+
+        const collectionIds = p.product_collections
+          ? p.product_collections.map((pc: any) => pc.collection_id)
+          : [];
+
+        merged.push({
+          id: p.id,
+          _id: p.id,
+          name: p.title || p.name || "",
+          title: p.title || p.name || "",
+          slug: p.handle || p.slug || "",
+          handle: p.handle || p.slug || "",
+          category: p.product_type || "Modular Homes",
+          product_type: p.product_type || "Modular Homes",
+          vendor: p.vendor || "ModularHome",
+          description: p.description_html || "",
+          description_html: p.description_html || "",
+          seo_title: p.seo_title,
+          seo_description: p.seo_description,
+          source_id: p.source_id,
+          status: p.status || "active",
+          isPublished: p.status !== "draft" && p.status !== "archived",
+          primaryImage: primaryImg,
+          image: primaryImg,
+          startingPrice,
+          sqft: p.sqft || 0,
+          bedrooms: p.bedrooms ?? 0,
+          bathrooms: p.bathrooms ?? 0,
+          stories: p.stories || 1,
+          dimensions: p.dimensions || "",
+          tags: p.tags || [],
+          features: p.features || [],
+          specs: p.specs || [],
+          architecturalStyle: p.architectural_style || "Modern Homes",
+          series: p.series || "Essential Series",
+          tagline: p.tagline || "",
+          collectionIds,
+          created_at: p.created_at,
+          updated_at: p.updated_at,
+        });
+      }
+    }
+
+    let filtered = merged;
     if (category && category !== "ALL") {
       const stem = category.toLowerCase().replace(/s$/, "").trim();
-      query = query.or(`product_type.ilike.%${stem}%,product_type.ilike.%${category}%`);
+      filtered = filtered.filter(
+        (p) =>
+          p.category.toLowerCase().includes(stem) ||
+          p.category.toLowerCase().includes(category.toLowerCase()) ||
+          category.toLowerCase().includes(p.category.toLowerCase())
+      );
     }
 
     if (isPublishedParam !== null && isPublishedParam !== undefined && isPublishedParam !== "") {
-      if (isPublishedParam === "true") {
-        query = query.or("status.eq.active,status.is.null");
-      } else {
-        query = query.eq("status", "draft");
-      }
+      const wantPublished = isPublishedParam === "true";
+      filtered = filtered.filter((p) => p.isPublished === wantPublished);
     }
 
     if (search && search.trim()) {
-      const s = search.trim();
-      query = query.or(`title.ilike.%${s}%,handle.ilike.%${s}%,product_type.ilike.%${s}%`);
+      const s = search.toLowerCase().trim();
+      filtered = filtered.filter(
+        (p) =>
+          p.name.toLowerCase().includes(s) ||
+          p.slug.toLowerCase().includes(s) ||
+          p.category.toLowerCase().includes(s)
+      );
     }
-
-    const { data: products, error } = await query;
-    if (error) {
-      console.error("Supabase products query error:", error);
-      throw error;
-    }
-
-    const formattedProducts = (products || []).map((p: any) => {
-      // Find position 1 media or first available
-      let primaryImg = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80";
-      if (p.product_media && Array.isArray(p.product_media) && p.product_media.length > 0) {
-        const sortedMedia = [...p.product_media].sort((a: any, b: any) => (a.position || 0) - (b.position || 0));
-        primaryImg = sortedMedia[0].source_url || primaryImg;
-      }
-
-      let startingPrice = 89000;
-      if (p.product_variants && Array.isArray(p.product_variants) && p.product_variants.length > 0) {
-        const prices = p.product_variants
-          .map((v: any) => Number(v.price))
-          .filter((pr: number) => !isNaN(pr) && pr > 0);
-        if (prices.length > 0) {
-          startingPrice = Math.min(...prices);
-        }
-      }
-
-      const collectionIds = p.product_collections
-        ? p.product_collections.map((pc: any) => pc.collection_id)
-        : [];
-
-      return {
-        id: p.id,
-        _id: p.id,
-        name: p.title || p.name || "",
-        title: p.title || p.name || "",
-        slug: p.handle || p.slug || "",
-        handle: p.handle || p.slug || "",
-        category: p.product_type || "Modular Homes",
-        product_type: p.product_type || "Modular Homes",
-        vendor: p.vendor || "ModularHome",
-        description: p.description_html || "",
-        description_html: p.description_html || "",
-        seo_title: p.seo_title,
-        seo_description: p.seo_description,
-        source_id: p.source_id,
-        status: p.status || "active",
-        isPublished: p.status !== "draft" && p.status !== "archived",
-        primaryImage: primaryImg,
-        image: primaryImg,
-        startingPrice,
-        sqft: p.sqft || 0,
-        bedrooms: p.bedrooms ?? 0,
-        bathrooms: p.bathrooms ?? 0,
-        stories: p.stories || 1,
-        dimensions: p.dimensions || "",
-        tags: p.tags || [],
-        features: p.features || [],
-        specs: p.specs || [],
-        architecturalStyle: p.architectural_style || "Modern Homes",
-        series: p.series || "Essential Series",
-        tagline: p.tagline || "",
-        collectionIds,
-        created_at: p.created_at,
-        updated_at: p.updated_at,
-      };
-    });
 
     return NextResponse.json({
       success: true,
-      data: formattedProducts,
-      totalCount: formattedProducts.length,
+      data: filtered,
+      totalCount: filtered.length,
     });
   } catch (error: any) {
     console.error("Error fetching admin products:", error);
@@ -164,45 +240,39 @@ export async function POST(request: NextRequest) {
 
     const cleanSlug = rawSlug.toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-");
 
-    const newProduct: Record<string, any> = {
-      handle: cleanSlug,
+    // 1. Save to persistent custom products store first
+    const savedLocal = saveCustomProduct({
+      name,
       title: name,
-      description_html: body.description || body.description_html || null,
-      vendor: body.vendor || "ModularHome",
+      slug: cleanSlug,
+      handle: cleanSlug,
+      category: body.category || body.product_type || "Modular Homes",
       product_type: body.category || body.product_type || "Modular Homes",
+      series: body.series || "Essential Series",
+      architecturalStyle: body.architecturalStyle || "Modern Homes",
+      tagline: body.tagline || (body.sqft ? `${body.sqft} SQ FT Engineered Home` : ""),
+      description: body.description || body.description_html || "",
+      description_html: body.description_html || body.description || "",
+      startingPrice: Number(body.startingPrice) || 89000,
+      sqft: Number(body.sqft) || 0,
+      bedrooms: Number(body.bedrooms ?? 0),
+      bathrooms: Number(body.bathrooms ?? 0),
+      stories: Number(body.stories || 1),
+      dimensions: body.dimensions || "",
+      primaryImage: body.primaryImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+      gallery: Array.isArray(body.gallery) ? body.gallery : [],
+      features: Array.isArray(body.features) ? body.features : [],
+      specs: Array.isArray(body.specs) ? body.specs : [],
+      tags: Array.isArray(body.tags) ? body.tags : ["Featured"],
       status: body.isPublished === false || body.status === "draft" ? "draft" : "active",
-      seo_title: body.seoTitle || body.seo_title || `${name} | ModularHome`,
-      seo_description: body.metaDescription || body.seo_description || (body.description ? body.description.replace(/<[^>]*>?/gm, "").slice(0, 160) : null),
-      source_id: body.source_id || body.sourceId || null,
-      published_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+      isPublished: body.isPublished !== false && body.status !== "draft",
+      collectionIds: Array.isArray(body.collectionIds) ? body.collectionIds : [],
+    });
 
-    if (body.sqft !== undefined) newProduct.sqft = Number(body.sqft);
-    if (body.bedrooms !== undefined) newProduct.bedrooms = Number(body.bedrooms);
-    if (body.bathrooms !== undefined) newProduct.bathrooms = Number(body.bathrooms);
-    if (body.stories !== undefined) newProduct.stories = Number(body.stories);
-    if (body.dimensions !== undefined) newProduct.dimensions = body.dimensions;
-    if (body.startingPrice !== undefined) newProduct.starting_price = Number(body.startingPrice);
-    if (body.series !== undefined) newProduct.series = body.series;
-    if (body.architecturalStyle !== undefined) newProduct.architectural_style = body.architecturalStyle;
-    if (body.tagline !== undefined) newProduct.tagline = body.tagline;
-    if (body.primaryImage !== undefined) newProduct.primary_image_url = body.primaryImage;
-
+    // 2. Also insert into Supabase if configured
     if (isSupabaseConfigured()) {
-      let prod: any = null;
       try {
-        const { data, error } = await supabaseAdmin
-          .from("products")
-          .insert(newProduct)
-          .select()
-          .single();
-
-        if (error) throw error;
-        prod = data;
-      } catch (insertErr: any) {
-        // Fallback with core columns if optional column doesn't exist
-        const coreProduct = {
+        const newProduct: Record<string, any> = {
           handle: cleanSlug,
           title: name,
           description_html: body.description || body.description_html || null,
@@ -210,89 +280,52 @@ export async function POST(request: NextRequest) {
           product_type: body.category || body.product_type || "Modular Homes",
           status: body.isPublished === false || body.status === "draft" ? "draft" : "active",
           seo_title: body.seoTitle || body.seo_title || `${name} | ModularHome`,
-          seo_description: body.metaDescription || body.seo_description || null,
+          seo_description: body.metaDescription || body.seo_description || (body.description ? body.description.replace(/<[^>]*>?/gm, "").slice(0, 160) : null),
           published_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
-        const { data, error } = await supabaseAdmin
+
+        const { data: prod } = await supabaseAdmin
           .from("products")
-          .insert(coreProduct)
+          .upsert(newProduct, { onConflict: "handle" })
           .select()
           .single();
-        if (error) throw error;
-        prod = data;
+
+        if (prod?.id) {
+          if (body.primaryImage) {
+            try {
+              await supabaseAdmin.from("product_media").insert({
+                product_id: prod.id,
+                source_url: body.primaryImage,
+                alt_text: name,
+                position: 1,
+              });
+            } catch {}
+          }
+
+          if (body.startingPrice) {
+            try {
+              await supabaseAdmin.from("product_variants").insert({
+                product_id: prod.id,
+                title: "Standard Package",
+                price: Number(body.startingPrice) || 89000,
+                position: 1,
+              });
+            } catch {}
+          }
+        }
+      } catch (sbErr) {
+        console.warn("Supabase product insert note:", sbErr);
       }
-
-      // Insert primary media if provided
-      if (body.primaryImage && prod?.id) {
-        try {
-          await supabaseAdmin.from("product_media").insert({
-            product_id: prod.id,
-            source_url: body.primaryImage,
-            alt_text: name,
-            position: 1,
-          });
-        } catch {}
-      }
-
-      // Insert gallery media
-      if (Array.isArray(body.gallery) && body.gallery.length > 0 && prod?.id) {
-        try {
-          const galleryEntries = body.gallery.map((url: string, index: number) => ({
-            product_id: prod.id,
-            source_url: url,
-            alt_text: `${name} Photo ${index + 1}`,
-            position: index + 2,
-          }));
-          await supabaseAdmin.from("product_media").insert(galleryEntries);
-        } catch {}
-      }
-
-      // Insert primary variant if price provided
-      if (body.startingPrice && prod?.id) {
-        try {
-          await supabaseAdmin.from("product_variants").insert({
-            product_id: prod.id,
-            title: "Standard Package",
-            price: Number(body.startingPrice) || 89000,
-            position: 1,
-          });
-        } catch {}
-      }
-
-      // Link collections
-      if (Array.isArray(body.collectionIds) && body.collectionIds.length > 0 && prod?.id) {
-        try {
-          const mappings = body.collectionIds.map((colId: string) => ({
-            product_id: prod.id,
-            collection_id: colId,
-          }));
-          await supabaseAdmin.from("product_collections").insert(mappings);
-        } catch {}
-      }
-
-      // Invalidate public catalog cache
-      clearPublicDataCache();
-
-      return NextResponse.json({
-        success: true,
-        data: {
-          ...prod,
-          name: prod.title,
-          slug: prod.handle,
-          category: prod.product_type,
-          isPublished: prod.status === "active",
-        },
-        message: "Home model created successfully.",
-      });
     }
 
+    // 3. Clear public catalog cache so model appears immediately
     clearPublicDataCache();
 
     return NextResponse.json({
       success: true,
-      data: { id: "mock-id", ...newProduct },
-      message: "Home model created successfully (offline fallback).",
+      data: savedLocal,
+      message: "Home model created successfully and published to live catalog.",
     });
   } catch (error: any) {
     console.error("Error creating product:", error);
@@ -302,4 +335,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

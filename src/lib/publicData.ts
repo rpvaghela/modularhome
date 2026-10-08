@@ -6,6 +6,7 @@ import { ResourceArticle, RESOURCE_ARTICLES } from "@/data/resources";
 import { getPublicGlobalSettings } from "./settings";
 import { matchProductCategory } from "@/utils/categoryMatching";
 import { getProductUrl } from "@/utils/productUrls";
+import { readProductsFromStore } from "./productStore";
 
 interface CacheEntry<T> {
   data: T;
@@ -484,7 +485,28 @@ export function getLocalProducts(): BuildingModel[] {
   const merged: BuildingModel[] = [];
   const seenSlugs = new Set<string>();
 
-  // 1. Curated verified models first
+  // 1. Custom admin-created products take highest priority
+  try {
+    const customStored = readProductsFromStore();
+    for (const raw of customStored) {
+      if (!raw || (!raw.slug && !raw.handle)) continue;
+      if (raw.status === "draft" || raw.isPublished === false) continue;
+      const p = formatProduct(raw);
+      if (p && p.slug) {
+        const clean = p.slug.toLowerCase().trim();
+        if (!seenSlugs.has(clean)) {
+          seenSlugs.add(clean);
+          merged.push(p);
+          SLUG_TO_PRODUCT_INDEX.set(clean, p);
+          if (p.id) SLUG_TO_PRODUCT_INDEX.set(String(p.id).toLowerCase(), p);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Error loading custom products store:", err);
+  }
+
+  // 2. Curated verified models next
   for (const m of BUILDING_MODELS) {
     if (m && m.slug) {
       const clean = m.slug.toLowerCase().trim();
@@ -497,7 +519,7 @@ export function getLocalProducts(): BuildingModel[] {
     }
   }
 
-  // 2. All catalog items
+  // 3. All catalog items
   if (Array.isArray(ALL_PRODUCTS_CATALOG)) {
     for (const rawItem of ALL_PRODUCTS_CATALOG) {
       const raw = rawItem as any;
