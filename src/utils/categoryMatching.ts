@@ -144,16 +144,9 @@ export function matchProductCategory(
     );
   }
 
-  // 8. Prefab Homes
+  // 8. Prefab Homes (All factory-engineered prefab & modular models)
   if (clean.includes("prefab")) {
-    if (meta.includes("barndo") || meta.includes("cabin")) return false;
-    return (
-      mCat.includes("prefab") ||
-      meta.includes("prefab") ||
-      meta.includes("pre-fabricated") ||
-      meta.includes("panelized") ||
-      colsStr.includes("prefab")
-    );
+    return true;
   }
 
   // 9. Commercial Buildings

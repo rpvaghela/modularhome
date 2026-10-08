@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import BuildingCard from "@/components/BuildingCard";
 import ShareButton from "@/components/ShareButton";
+import CategoryFilteredCatalog from "@/components/CategoryFilteredCatalog";
 import { getPublicCollections, getPublicProducts } from "@/lib/publicData";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 
@@ -186,53 +187,13 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
           </div>
         </div>
 
-        {/* Product Catalog Grid */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between border-b border-[#e7e9ee] pb-4">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black text-[#101114] font-display">
-                Complete Architectural Catalog
-              </h2>
-              <p className="text-xs text-[#6b7280] mt-0.5">
-                Showing {matchedProducts.length} precision models
-              </p>
-            </div>
-            <Link
-              href="/buildings"
-              className="text-xs font-bold text-[#d97706] hover:underline flex items-center gap-1"
-            >
-              <span>View Building Series</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          {matchedProducts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 pt-2">
-              {matchedProducts.map((model) => (
-                <BuildingCard key={model.id} model={model} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 bg-[#f6f7f9] border border-[#e7e9ee] rounded-[18px] p-8 space-y-3">
-              <Building2 className="w-12 h-12 text-[#6b7280] mx-auto" />
-              <h3 className="text-lg font-black uppercase text-[#101114]">
-                No Models Currently In This Collection
-              </h3>
-              <p className="text-xs text-[#6b7280] max-w-md mx-auto">
-                Explore our main floor plans catalog to view all available modular and prefab home designs.
-              </p>
-              <div className="pt-2">
-                <Link
-                  href="/buildings"
-                  className="btn-primary py-2.5 px-6 text-xs font-bold rounded-[9px] inline-flex items-center gap-2"
-                >
-                  <span>Browse Full Home Catalog</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Filter Bar & Models Grid */}
+        <CategoryFilteredCatalog
+          initialProducts={matchedProducts}
+          allProducts={allProducts}
+          categoryName="All"
+          categoryKey="all"
+        />
 
         {/* Related Collections Section */}
         {allCollections.length > 0 && (

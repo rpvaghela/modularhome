@@ -195,6 +195,7 @@ export default async function DynamicSlugPage({ params }: DynamicSlugPageProps) 
         image={image}
         canonicalPath={`/${cleanSlug}`}
         products={matchedProducts}
+        allProducts={allProducts}
         allCollections={allCollections}
         categoryKey={cleanSlug}
       />
