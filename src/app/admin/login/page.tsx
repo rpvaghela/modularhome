@@ -15,7 +15,6 @@ import {
   Eye, 
   EyeOff, 
   Building2, 
-  Layers, 
   Cpu, 
   ArrowLeft,
   CheckCircle2,
@@ -108,79 +107,79 @@ function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-6">
+    <div className="w-full max-w-md mx-auto space-y-3">
       {/* Session Expired / Status Alerts */}
       {(reason === "session_expired" || reason === "expired" || reason === "timeout") && !error && (
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3 text-amber-200 text-xs animate-in fade-in backdrop-blur-md">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#fcb907]" />
+        <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2.5 text-amber-900 text-xs animate-in fade-in">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#d97706]" />
           <div>
-            <span className="font-bold block text-[#fcb907]">Session Expired</span>
-            <span>Your 1-hour secure admin session has expired. Please sign in again to continue.</span>
+            <span className="font-bold block text-amber-950">Session Expired</span>
+            <span>Your 1-hour secure admin session expired. Please sign in again.</span>
           </div>
         </div>
       )}
 
       {reason === "session_reset" && !error && (
-        <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-3 text-blue-200 text-xs animate-in fade-in backdrop-blur-md">
-          <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-blue-400" />
+        <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200 flex items-start gap-2.5 text-blue-900 text-xs animate-in fade-in">
+          <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-blue-600" />
           <div>
-            <span className="font-bold block text-blue-300">All Sessions Terminated</span>
-            <span>All active sessions across devices have been reset. Please sign in with your credentials.</span>
+            <span className="font-bold block text-blue-950">Sessions Terminated</span>
+            <span>All active sessions have been reset. Please enter your credentials.</span>
           </div>
         </div>
       )}
 
       {reason === "unauthorized" && !error && (
-        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-start gap-3 text-red-200 text-xs animate-in fade-in backdrop-blur-md">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
+        <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-red-900 text-xs animate-in fade-in">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
           <div>
-            <span className="font-bold block text-red-300">Authentication Required</span>
-            <span>You must sign in with an executive administrator account to access this management area.</span>
+            <span className="font-bold block text-red-950">Authentication Required</span>
+            <span>Please sign in to access the protected admin console.</span>
           </div>
         </div>
       )}
 
       {error && (
-        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-start gap-3 text-red-200 text-xs animate-in fade-in backdrop-blur-md">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
+        <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-red-900 text-xs animate-in fade-in">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
           <span className="font-medium leading-relaxed">{error}</span>
         </div>
       )}
 
       {/* Main Authentication Card */}
-      <div className="bg-[#12161f]/90 border border-[#232a3b] p-6 sm:p-8 rounded-[24px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl relative overflow-hidden">
-        {/* Subtle Ambient Top Border Highlight */}
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#fcb907] to-transparent opacity-80" />
+      <div className="bg-white border border-gray-200 p-5 sm:p-7 rounded-[22px] shadow-[0_15px_40px_rgba(0,0,0,0.06)] relative overflow-hidden">
+        {/* Top Gold Accent Stripe */}
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#fcb907] via-[#f59e0b] to-[#fcb907]" />
 
-        <div className="mb-6 space-y-1.5">
+        <div className="mb-4 space-y-1">
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#fcb907]/15 border border-[#fcb907]/30 text-[#fcb907] text-[10px] font-extrabold uppercase tracking-widest">
-              <LockKeyhole className="w-3 h-3 text-[#fcb907]" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[#b45309] text-[10px] font-extrabold uppercase tracking-widest">
+              <LockKeyhole className="w-3 h-3 text-[#d97706]" />
               <span>Admin Console</span>
             </span>
-            <span className="text-[11px] text-gray-400 font-mono flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>256-bit AES</span>
+            <span className="text-[11px] text-gray-500 font-mono flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>256-bit SSL</span>
             </span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight pt-1 font-display">
+          <h2 className="text-xl sm:text-2xl font-black text-[#101114] tracking-tight pt-1 font-display">
             Executive Sign In
           </h2>
-          <p className="text-xs text-gray-400">
-            Enter your credentials to access the master management database.
+          <p className="text-xs text-gray-500">
+            Enter administrator credentials to manage models, pricing, and orders.
           </p>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-3.5" onSubmit={handleSubmit}>
           {!require2FA ? (
             <>
               {/* Email Input */}
-              <div className="space-y-1.5">
-                <label className="block text-[11px] font-bold text-gray-300 uppercase tracking-wider">
+              <div className="space-y-1">
+                <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider">
                   Administrator Email
                 </label>
                 <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#fcb907] transition-colors">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#d97706] transition-colors">
                     <Mail className="h-4 w-4" />
                   </div>
                   <input
@@ -189,21 +188,21 @@ function LoginForm() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="modularhome.admin@gmail.com"
-                    className="block w-full pl-10 pr-4 py-3 bg-[#0a0d14] border border-[#232a3b] rounded-xl text-white text-xs sm:text-sm placeholder-gray-500 focus:outline-none focus:border-[#fcb907] focus:ring-2 focus:ring-[#fcb907]/20 transition-all font-medium"
+                    className="block w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] hover:bg-[#f1f3f6] focus:bg-white border border-gray-200 rounded-xl text-[#101114] text-xs sm:text-sm placeholder-gray-400 focus:outline-none focus:border-[#fcb907] focus:ring-2 focus:ring-[#fcb907]/20 transition-all font-medium"
                   />
                 </div>
               </div>
 
               {/* Password Input */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="block text-[11px] font-bold text-gray-300 uppercase tracking-wider">
+                  <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider">
                     Master Password
                   </label>
-                  <span className="text-[10.5px] text-gray-400 font-mono">1-Hour Session</span>
+                  <span className="text-[10px] text-gray-400 font-mono">1-Hour Session</span>
                 </div>
                 <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#fcb907] transition-colors">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#d97706] transition-colors">
                     <Lock className="h-4 w-4" />
                   </div>
                   <input
@@ -212,36 +211,36 @@ function LoginForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="block w-full pl-10 pr-11 py-3 bg-[#0a0d14] border border-[#232a3b] rounded-xl text-white text-xs sm:text-sm placeholder-gray-500 focus:outline-none focus:border-[#fcb907] focus:ring-2 focus:ring-[#fcb907]/20 transition-all font-medium"
+                    className="block w-full pl-10 pr-10 py-2.5 bg-[#f8f9fa] hover:bg-[#f1f3f6] focus:bg-white border border-gray-200 rounded-xl text-[#101114] text-xs sm:text-sm placeholder-gray-400 focus:outline-none focus:border-[#fcb907] focus:ring-2 focus:ring-[#fcb907]/20 transition-all font-medium"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-white transition-colors cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-[#101114] transition-colors cursor-pointer"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400 hover:text-white" />
+                      <EyeOff className="h-4 w-4 text-gray-500 hover:text-[#101114]" />
                     ) : (
-                      <Eye className="h-4 w-4 text-gray-400 hover:text-white" />
+                      <Eye className="h-4 w-4 text-gray-500 hover:text-[#101114]" />
                     )}
                   </button>
                 </div>
               </div>
             </>
           ) : (
-            <div className="space-y-4 animate-in fade-in">
-              <div className="p-4 bg-amber-500/10 rounded-xl border border-amber-500/20 text-amber-200 text-xs">
-                <span className="font-bold flex items-center gap-1.5 mb-1 text-[#fcb907]">
+            <div className="space-y-3 animate-in fade-in">
+              <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 text-xs">
+                <span className="font-bold flex items-center gap-1.5 mb-1 text-[#b45309]">
                   <KeyRound className="w-4 h-4" />
-                  <span>Two-Factor Authentication Required</span>
+                  <span>Two-Factor Authentication</span>
                 </span>
-                <span>Open your authenticator app (Google Authenticator, Authy, Apple) and enter your 6-digit verification code.</span>
+                <span>Enter the 6-digit code from your authenticator app.</span>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="block text-[11px] font-bold text-gray-300 uppercase tracking-wider">
-                  6-Digit TOTP / Backup Code
+              <div className="space-y-1">
+                <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider">
+                  6-Digit TOTP Code
                 </label>
                 <input
                   type="text"
@@ -251,23 +250,23 @@ function LoginForm() {
                   value={totpCode}
                   onChange={(e) => setTotpCode(e.target.value)}
                   placeholder="e.g. 482910"
-                  className="block w-full px-4 py-3 bg-[#0a0d14] border border-[#232a3b] rounded-xl text-white text-lg font-mono font-black text-center tracking-[0.25em] focus:outline-none focus:border-[#fcb907] focus:ring-2 focus:ring-[#fcb907]/20 transition-all"
+                  className="block w-full px-4 py-2.5 bg-[#f8f9fa] border border-gray-200 rounded-xl text-[#101114] text-base font-mono font-black text-center tracking-[0.25em] focus:outline-none focus:border-[#fcb907] focus:ring-2 focus:ring-[#fcb907]/20 transition-all"
                 />
               </div>
             </div>
           )}
 
           {/* Submit Button */}
-          <div className="pt-2">
+          <div className="pt-1">
             <button
               type="submit"
               disabled={isLoading || (require2FA && !totpCode)}
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl shadow-lg text-sm font-black text-[#101114] bg-gradient-to-r from-[#fcb907] to-[#f59e0b] hover:from-[#f59e0b] hover:to-[#d97706] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#12161f] focus:ring-[#fcb907] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 cursor-pointer group"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl shadow-sm text-xs sm:text-sm font-black text-[#101114] bg-[#fcb907] hover:bg-[#e5a706] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#fcb907] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 cursor-pointer group"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-[#101114]" />
-                  <span>Authenticating Secure Token...</span>
+                  <span>Authenticating...</span>
                 </>
               ) : require2FA ? (
                 <>
@@ -289,7 +288,7 @@ function LoginForm() {
                   setRequire2FA(false);
                   setTotpCode("");
                 }}
-                className="w-full mt-2 py-2 text-xs font-bold text-gray-400 hover:text-white transition-colors"
+                className="w-full mt-2 py-1.5 text-xs font-bold text-gray-500 hover:text-[#101114] transition-colors"
               >
                 ← Back to credentials
               </button>
@@ -298,26 +297,26 @@ function LoginForm() {
         </form>
 
         {/* Quick Demo Pre-fill Pill */}
-        <div className="mt-6 pt-4 border-t border-[#232a3b] flex items-center justify-between gap-2">
+        <div className="mt-4 pt-3.5 border-t border-gray-100 flex items-center justify-between gap-2">
           <div className="text-[11px] text-gray-400 font-mono truncate">
             modularhome.admin@gmail.com
           </div>
           <button
             type="button"
             onClick={handleFillDemo}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#fcb907]/10 hover:bg-[#fcb907]/20 border border-[#fcb907]/20 text-[11px] font-bold text-[#fcb907] transition-colors cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-[11px] font-bold text-[#b45309] transition-colors cursor-pointer shrink-0"
           >
-            <KeyRound className="w-3 h-3" />
+            <KeyRound className="w-3 h-3 text-[#d97706]" />
             <span>Auto-fill Demo</span>
           </button>
         </div>
       </div>
 
       {/* Return to Public Website */}
-      <div className="text-center pt-1">
+      <div className="text-center pt-0.5">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-[#fcb907] transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-[#d97706] transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Return to ModularHome.com</span>
@@ -329,84 +328,82 @@ function LoginForm() {
 
 export default function AdminLoginPage() {
   return (
-    <div className="min-h-screen bg-[#07090d] text-white flex flex-col justify-between relative overflow-hidden selection:bg-[#fcb907] selection:text-[#101114]">
-      {/* Background Architectural Blueprint Grid and Radial Lighting */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+    <div className="h-screen max-h-screen overflow-hidden bg-[#fafbfc] text-[#101114] flex flex-col justify-between relative selection:bg-[#fcb907] selection:text-[#101114]">
+      {/* Background Architectural Blueprint Grid and Subtle Golden Glow */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none" />
       
-      {/* Glowing Ambient Lights */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#fcb907]/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-amber-600/10 rounded-full blur-[160px] pointer-events-none" />
+      {/* Soft Ambient Golden Radial Glows */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#fcb907]/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-amber-400/10 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Top Gold Accent Bar */}
-      <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#fcb907] to-transparent opacity-90 relative z-20" />
+      <div className="h-1 w-full bg-gradient-to-r from-[#fcb907] via-[#f59e0b] to-[#fcb907] relative z-20 shrink-0" />
 
-      {/* Navigation Brand Header */}
-      <header className="relative z-20 wrap py-6 flex items-center justify-between">
+      {/* Header Bar */}
+      <header className="relative z-20 wrap py-3 sm:py-4 flex items-center justify-between shrink-0">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="bg-white/95 border border-white/20 px-3.5 py-1.5 rounded-xl shadow-lg group-hover:bg-white transition-all">
-            <Image
-              src="/newmodularlogo.png"
-              alt="ModularHome Logo"
-              width={200}
-              height={45}
-              className="h-7 sm:h-8 w-auto object-contain"
-              priority
-            />
-          </div>
+          <Image
+            src="/newmodularlogo.png"
+            alt="ModularHome Logo"
+            width={200}
+            height={45}
+            className="h-7 sm:h-8 md:h-9 w-auto object-contain hover:opacity-90 transition-opacity"
+            priority
+          />
         </Link>
 
-        <div className="hidden sm:flex items-center gap-4 text-xs font-mono text-gray-400">
+        <div className="hidden sm:flex items-center gap-3 text-xs font-mono text-gray-500">
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span>Production Database Live</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span className="font-semibold text-gray-700">Production Live</span>
           </span>
-          <span className="text-gray-700">•</span>
-          <span className="text-gray-400">v2.4.0</span>
+          <span className="text-gray-300">•</span>
+          <span className="text-gray-500 font-bold">v2.4.0</span>
         </div>
       </header>
 
-      {/* Main Dual-Column / Centered Executive Portal Content */}
-      <main className="relative z-20 wrap flex-1 flex items-center justify-center py-8 sm:py-12">
-        <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      {/* Main Content Area - Perfectly Centered, Non-Scrollable */}
+      <main className="relative z-20 wrap flex-1 flex items-center justify-center py-2 px-4">
+        <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
           
-          {/* Left Hero & Architecture Overview (Desktop) */}
-          <div className="lg:col-span-6 space-y-6 hidden lg:block pr-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[#fcb907] text-xs font-bold font-mono">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#fcb907]" />
+          {/* Left Hero & System Overview (Desktop) */}
+          <div className="lg:col-span-6 space-y-4 hidden lg:block pr-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200/80 text-[#b45309] text-xs font-bold font-mono">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#d97706]" />
               <span>Modular Systems Executive Engine</span>
             </div>
 
-            <h1 className="text-3xl xl:text-4xl font-black text-white tracking-tight leading-tight font-display">
+            <h1 className="text-2xl xl:text-3xl font-black text-[#101114] tracking-tight leading-snug font-display">
               Enterprise Control & Precision Modeling CMS
             </h1>
 
-            <p className="text-sm text-gray-400 leading-relaxed max-w-md">
-              Centralized administrative gateway for steel-engineered modular floor plans, real-time pricing configurations, 3D CAD blueprints, and automated customer quotes.
+            <p className="text-xs text-gray-600 leading-relaxed max-w-sm">
+              Centralized administrative gateway for steel-engineered modular floor plans, real-time pricing configurations, and automated CAD distribution.
             </p>
 
             {/* Feature Highlights Grid */}
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              <div className="p-3.5 rounded-xl bg-[#12161f]/60 border border-[#232a3b] space-y-1">
-                <div className="flex items-center gap-2 text-[#fcb907] text-xs font-extrabold">
-                  <Building2 className="w-4 h-4" />
+            <div className="grid grid-cols-2 gap-2.5 pt-1">
+              <div className="p-3 rounded-xl bg-white border border-gray-200/90 shadow-2xs space-y-1">
+                <div className="flex items-center gap-1.5 text-[#b45309] text-xs font-extrabold">
+                  <Building2 className="w-4 h-4 text-[#d97706]" />
                   <span>756 Factory Models</span>
                 </div>
-                <p className="text-[11px] text-gray-400">Real-time catalog sync across 10 architectural categories.</p>
+                <p className="text-[11px] text-gray-500">Real-time catalog sync across 10 categories.</p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-[#12161f]/60 border border-[#232a3b] space-y-1">
-                <div className="flex items-center gap-2 text-amber-400 text-xs font-extrabold">
-                  <Cpu className="w-4 h-4" />
+              <div className="p-3 rounded-xl bg-white border border-gray-200/90 shadow-2xs space-y-1">
+                <div className="flex items-center gap-1.5 text-[#b45309] text-xs font-extrabold">
+                  <Cpu className="w-4 h-4 text-[#d97706]" />
                   <span>Smart Pricing Matrix</span>
                 </div>
-                <p className="text-[11px] text-gray-400">Instant price calculator & automated blueprint downloads.</p>
+                <p className="text-[11px] text-gray-500">Instant price calculator & automated quotes.</p>
               </div>
             </div>
 
             {/* Security Guarantee */}
-            <div className="flex items-center gap-3 pt-2 text-xs text-gray-400">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Multi-tier role authorization with cryptographic session signatures.</span>
+            <div className="flex items-center gap-2 pt-1 text-xs text-gray-600">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Role authorization with cryptographic session signatures.</span>
             </div>
           </div>
 
@@ -414,9 +411,9 @@ export default function AdminLoginPage() {
           <div className="lg:col-span-6 w-full">
             <Suspense
               fallback={
-                <div className="bg-[#12161f] p-8 rounded-2xl text-white text-center font-medium border border-[#232a3b]">
-                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#fcb907] mb-2" />
-                  <span>Loading security portal...</span>
+                <div className="bg-white p-6 rounded-2xl text-[#101114] text-center font-medium border border-gray-200 shadow-sm">
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto text-[#fcb907] mb-2" />
+                  <span className="text-xs">Loading security portal...</span>
                 </div>
               }
             >
@@ -427,18 +424,18 @@ export default function AdminLoginPage() {
         </div>
       </main>
 
-      {/* Footer Security Ribbon */}
-      <footer className="relative z-20 border-t border-white/5 py-4 bg-[#05070a]/90 backdrop-blur-md">
-        <div className="wrap flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-gray-500">
+      {/* Footer Ribbon - Fixed at bottom without scrolling */}
+      <footer className="relative z-20 border-t border-gray-200/80 py-2.5 bg-white/90 backdrop-blur-xs shrink-0">
+        <div className="wrap flex flex-col sm:flex-row items-center justify-between gap-1 text-[11px] text-gray-500">
           <div>
             © {new Date().getFullYear()} ModularHome.com Inc. All rights reserved. Executive Management System.
           </div>
-          <div className="flex items-center gap-4">
-            <span className="hover:text-gray-400 transition-colors">SSL 256-Bit</span>
+          <div className="flex items-center gap-3">
+            <span className="hover:text-gray-700 transition-colors">SSL 256-Bit</span>
             <span>•</span>
-            <span className="hover:text-gray-400 transition-colors">Zero Trust Architecture</span>
+            <span className="hover:text-gray-700 transition-colors">Zero Trust Architecture</span>
             <span>•</span>
-            <span className="hover:text-gray-400 transition-colors">ISO 27001</span>
+            <span className="hover:text-gray-700 transition-colors">ISO 27001</span>
           </div>
         </div>
       </footer>
