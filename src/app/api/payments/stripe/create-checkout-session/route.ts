@@ -4,6 +4,8 @@ import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { getCustomerSession } from "@/lib/customerAuth";
 import { getCustomerByEmail } from "@/lib/customerStore";
 import { sendCheckoutNotification, UserAccountContext } from "@/lib/email";
+import { getPublicFloorPlanBySlug, formatFloorPlan } from "@/lib/publicData";
+import { saveCustomOrder } from "@/lib/orderStore";
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,16 +67,16 @@ export async function POST(request: NextRequest) {
     let totalOrderAmount = 0;
 
     for (const item of requestedItems) {
-      let plan: any = null;
+      let plan: any = await getPublicFloorPlanBySlug(item.floorPlanId);
 
-      if (isSupabaseConfigured()) {
+      if (!plan && isSupabaseConfigured()) {
         try {
           const { data } = await supabaseAdmin
             .from("floor_plans")
             .select("*")
             .or(`id.eq.${item.floorPlanId},slug.eq.${item.floorPlanId}`)
             .maybeSingle();
-          plan = data;
+          if (data) plan = formatFloorPlan(data);
         } catch {}
       }
 
@@ -91,8 +93,8 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Authoritative unit price from database, never trusted from client
-      const unitPrice = Number(plan.sale_price || plan.salePrice || plan.price || 495);
+      // Authoritative unit price from database/catalog, never trusted from client
+      const unitPrice = Number(plan.salePrice || plan.sale_price || plan.price || 495);
       const amountInCents = Math.round(unitPrice * 100);
 
       totalOrderAmount += unitPrice * item.quantity;
@@ -156,8 +158,8 @@ export async function POST(request: NextRequest) {
             currency: "usd",
             product_data: {
               name: `Architectural Blueprint Package: ${v.floorPlan.title}`,
-              description: `Single-build license • ${v.floorPlan.square_feet || v.floorPlan.squareFeet || 800} sqft • ${v.floorPlan.dimensions || "CAD DWG + PDF"}`,
-              images: v.floorPlan.preview_image || v.floorPlan.previewImage ? [v.floorPlan.preview_image || v.floorPlan.previewImage] : [],
+              description: `Single-build license • ${v.floorPlan.squareFeet || v.floorPlan.square_feet || 800} sqft • ${v.floorPlan.dimensions || "CAD DWG + PDF"}`,
+              images: v.floorPlan.previewImage || v.floorPlan.preview_image ? [v.floorPlan.previewImage || v.floorPlan.preview_image] : [],
             },
             unit_amount: v.amountInCents,
           },
@@ -192,8 +194,36 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4. PRIMARY OPERATION: Persist Order in Database
+    // 4. PRIMARY OPERATION: Persist Order in Local Store and Database
     let createdOrderId = `ord_${Date.now()}`;
+
+    // Save to local custom order store first for guaranteed offline/dev persistence
+    try {
+      saveCustomOrder({
+        id: createdOrderId,
+        order_number: orderNumber,
+        customer_id: customerId || undefined,
+        customer_name: name,
+        customer_email: email,
+        customer_phone: customerPhone || undefined,
+        total_amount: totalOrderAmount,
+        currency: "USD",
+        payment_status: "PENDING",
+        order_status: "PROCESSING",
+        order_items: validatedLineItems.map((v) => ({
+          id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          title: v.floorPlan.title,
+          price: v.unitPrice,
+          quantity: v.quantity,
+          floor_plan_id: v.floorPlan.id,
+          preview_image: v.floorPlan.previewImage || v.floorPlan.preview_image,
+        })),
+        download_access: [],
+      });
+      console.log(`[OrderStore Save]: SUCCESS orderId=${createdOrderId}, orderNumber=${orderNumber}`);
+    } catch (storeErr: any) {
+      console.warn("OrderStore save note:", storeErr?.message || storeErr);
+    }
 
     if (isSupabaseConfigured()) {
       try {

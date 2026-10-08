@@ -1,5 +1,16 @@
 [
   {
+    "id": "evt-1791486439568-qvd24",
+    "customer_id": "cust-1790515953265-0b85b7b6",
+    "event_type": "LOGGED_IN",
+    "actor_type": "CUSTOMER",
+    "actor_name": "CHETAN SONAWANE",
+    "details": {
+      "email": "chetansonawane2006@gmail.com"
+    },
+    "created_at": "2026-10-08T19:07:19.568Z"
+  },
+  {
     "id": "evt-1791389333030-nene9",
     "customer_id": "cust-1790515953265-0b85b7b6",
     "event_type": "LOGGED_IN",

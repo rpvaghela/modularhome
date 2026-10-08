@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { getOrderByIdOrNumber, saveCustomOrder } from "@/lib/orderStore";
 
 export async function GET(
   request: NextRequest,
@@ -12,7 +13,13 @@ export async function GET(
   try {
     const { id } = await params;
 
+    // Check local store first
+    const local = getOrderByIdOrNumber(id);
+
     if (!isSupabaseConfigured()) {
+      if (local) {
+        return NextResponse.json({ success: true, data: local });
+      }
       return NextResponse.json({
         success: true,
         data: {
@@ -34,6 +41,9 @@ export async function GET(
       .single();
 
     if (error || !order) {
+      if (local) {
+        return NextResponse.json({ success: true, data: local });
+      }
       return NextResponse.json(
         { success: false, error: { message: "Order not found.", code: "NOT_FOUND" } },
         { status: 404 }
@@ -70,6 +80,15 @@ export async function PATCH(
     if (body.paymentStatus !== undefined) updatePayload.payment_status = body.paymentStatus;
     if (body.payment_status !== undefined) updatePayload.payment_status = body.payment_status;
     if (body.notes !== undefined) updatePayload.notes = body.notes;
+
+    // Update local order store
+    const local = getOrderByIdOrNumber(id);
+    if (local) {
+      saveCustomOrder({
+        ...local,
+        ...updatePayload,
+      });
+    }
 
     if (isSupabaseConfigured()) {
       const { data, error } = await supabaseAdmin

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { stripe, isStripeConfigured } from "@/lib/stripe";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { getOrderByIdOrNumber, saveCustomOrder } from "@/lib/orderStore";
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
           isPaid = true;
           customerEmail = session.customer_details?.email || session.customer_email || customerEmail;
           orderNumber = session.metadata?.orderNumber || session.client_reference_id || orderNumber;
-          planSlug = session.metadata?.planSlug || session.metadata?.floorPlanId || planSlug;
+          planSlug = session.metadata?.planSlug || session.metadata?.primaryPlanSlug || session.metadata?.floorPlanId || planSlug;
           amountPaid = (session.amount_total || 49500) / 100;
 
           if (session.payment_intent && typeof session.payment_intent === "object") {
@@ -81,7 +82,73 @@ export async function GET(request: NextRequest) {
     const downloadToken = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    // 3. Update Supabase Order & Download Access
+    // 3. Update Order in Local Order Store
+    let resolvedOrderId = `ord_${Date.now()}`;
+    try {
+      const existingLocal = getOrderByIdOrNumber(orderNumber);
+      if (existingLocal) {
+        resolvedOrderId = existingLocal.id;
+        customerEmail = existingLocal.customer_email || customerEmail;
+        orderNumber = existingLocal.order_number || orderNumber;
+        if (existingLocal.order_items?.[0]?.title) {
+          planTitle = existingLocal.order_items[0].title;
+        }
+
+        saveCustomOrder({
+          ...existingLocal,
+          payment_status: "PAID",
+          order_status: "COMPLETED",
+          download_access: [
+            ...(existingLocal.download_access || []).filter((d) => d.download_token !== downloadToken),
+            {
+              id: `dl_${Date.now()}`,
+              download_token: downloadToken,
+              expires_at: expiresAt,
+              download_count: 0,
+              max_downloads: 5,
+              file_path: `blueprints/${planSlug}.pdf`,
+              file_format: "CAD DWG + PDF",
+              title: planTitle,
+            },
+          ],
+        });
+      } else {
+        saveCustomOrder({
+          id: resolvedOrderId,
+          order_number: orderNumber,
+          customer_email: customerEmail,
+          total_amount: amountPaid,
+          currency: "USD",
+          payment_status: "PAID",
+          order_status: "COMPLETED",
+          order_items: [
+            {
+              id: `item_${Date.now()}`,
+              title: planTitle,
+              price: amountPaid,
+              quantity: 1,
+              floor_plan_id: planSlug,
+            },
+          ],
+          download_access: [
+            {
+              id: `dl_${Date.now()}`,
+              download_token: downloadToken,
+              expires_at: expiresAt,
+              download_count: 0,
+              max_downloads: 5,
+              file_path: `blueprints/${planSlug}.pdf`,
+              file_format: "CAD DWG + PDF",
+              title: planTitle,
+            },
+          ],
+        });
+      }
+    } catch (storeErr) {
+      console.warn("OrderStore verification note:", storeErr);
+    }
+
+    // 4. Update Supabase Order & Download Access
     if (isSupabaseConfigured()) {
       try {
         const { data: order } = await supabaseAdmin
@@ -90,7 +157,7 @@ export async function GET(request: NextRequest) {
           .or(`payment_id.eq.${sessionId},order_number.eq.${orderNumber}`)
           .single();
 
-        const resolvedOrderId = order?.id || `ord_${Date.now()}`;
+        if (order?.id) resolvedOrderId = order.id;
         if (order?.order_number) orderNumber = order.order_number;
         if (order?.customer_email) customerEmail = order.customer_email;
 

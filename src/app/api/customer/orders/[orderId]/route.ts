@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCustomerSession } from "@/lib/customerAuth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { getOrderByIdOrNumber } from "@/lib/orderStore";
 
 export async function GET(
   request: NextRequest,
@@ -23,10 +24,37 @@ export async function GET(
       );
     }
 
+    // 1. Check local order store first
+    const localOrder = getOrderByIdOrNumber(orderId);
+    if (localOrder) {
+      const isOwner =
+        (localOrder.customer_id && localOrder.customer_id.toLowerCase() === session.id.toLowerCase()) ||
+        (localOrder.customer_email && localOrder.customer_email.toLowerCase() === session.email.toLowerCase());
+
+      if (isOwner) {
+        return NextResponse.json({
+          success: true,
+          order: localOrder,
+        });
+      }
+    }
+
     if (!isSupabaseConfigured()) {
+      if (localOrder) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              message: "Forbidden. You do not have permission to access this order.",
+              code: "FORBIDDEN",
+            },
+          },
+          { status: 403 }
+        );
+      }
       return NextResponse.json(
-        { success: false, error: { message: "Database not configured", code: "DB_UNAVAILABLE" } },
-        { status: 503 }
+        { success: false, error: { message: "Order not found", code: "NOT_FOUND" } },
+        { status: 404 }
       );
     }
 

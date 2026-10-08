@@ -1,5 +1,22 @@
 [
   {
+    "id": "eml-1791486485906-qu78n",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_CHECKOUT_NOTIFICATION",
+    "subject": "New Floor Plan Checkout — CHETAN SONAWANE",
+    "status": "SENT",
+    "metadata": {
+      "order_number": "MH-ORD-484962-656",
+      "order_id": "ord_1791486484973",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "total_amount": 495,
+      "resend_id": "01a11cea-64c7-7536-b010-2e049c892c66"
+    },
+    "created_at": "2026-10-08T19:08:05.906Z"
+  },
+  {
     "id": "eml-1791483926661-d0uzc",
     "recipient": "modularhome.admin@gmail.com",
     "template_type": "ADMIN_CHECKOUT_NOTIFICATION",
