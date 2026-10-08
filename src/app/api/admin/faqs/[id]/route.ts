@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdminRole } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { logAdminActivity } from "@/lib/activityLog";
+import { clearPublicDataCache } from "@/lib/publicData";
 
 export async function PUT(
   request: NextRequest,
@@ -43,12 +44,16 @@ export async function PUT(
         `Updated FAQ: "${data?.question?.slice(0, 40)}..."`
       );
 
+      clearPublicDataCache();
+
       return NextResponse.json({
         success: true,
         data,
         message: "FAQ updated successfully.",
       });
     }
+
+    clearPublicDataCache();
 
     return NextResponse.json({
       success: true,
@@ -85,6 +90,8 @@ export async function DELETE(
       id,
       `Deleted FAQ ID: ${id}`
     );
+
+    clearPublicDataCache();
 
     return NextResponse.json({
       success: true,

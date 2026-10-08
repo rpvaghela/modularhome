@@ -9,7 +9,7 @@ import {
   readPagesFromStore,
   getPageSectionCounts,
 } from "@/lib/pageStore";
-import { formatCmsPage, getPageUrl } from "@/lib/publicData";
+import { formatCmsPage, getPageUrl, clearPublicDataCache } from "@/lib/publicData";
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdminAuth();
@@ -337,11 +337,12 @@ export async function POST(request: NextRequest) {
       publishedAt: insertPayload.published_at || now,
     });
 
-    // 3. Revalidate Next.js cache
+    // 3. Revalidate Next.js cache and public data cache
     try {
       revalidatePath(`/${cleanSlug}`);
       revalidatePath(`/pages/${cleanSlug}`);
       revalidatePath(`/admin/pages`);
+      clearPublicDataCache();
     } catch {}
 
     // 4. Audit log

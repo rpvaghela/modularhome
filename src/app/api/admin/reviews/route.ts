@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdminRole } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { logAdminActivity } from "@/lib/activityLog";
+import { clearPublicDataCache } from "@/lib/publicData";
 
 // In-memory fallback
 let memoryReviews: any[] = [
@@ -114,6 +115,8 @@ export async function POST(request: NextRequest) {
         `Created testimonial from ${customerName}`
       );
 
+      clearPublicDataCache();
+
       return NextResponse.json({
         success: true,
         data,
@@ -123,6 +126,8 @@ export async function POST(request: NextRequest) {
 
     const mock = { id: `rev_${Date.now()}`, ...newReview, created_at: new Date().toISOString() };
     memoryReviews.unshift(mock);
+
+    clearPublicDataCache();
 
     return NextResponse.json({
       success: true,

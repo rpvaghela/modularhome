@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdminRole } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { logAdminActivity } from "@/lib/activityLog";
+import { clearPublicDataCache } from "@/lib/publicData";
 
 export async function PUT(
   request: NextRequest,
@@ -46,12 +47,16 @@ export async function PUT(
         `Updated testimonial for ${data?.customer_name || id}`
       );
 
+      clearPublicDataCache();
+
       return NextResponse.json({
         success: true,
         data,
         message: "Review updated successfully.",
       });
     }
+
+    clearPublicDataCache();
 
     return NextResponse.json({
       success: true,
@@ -88,6 +93,8 @@ export async function DELETE(
       id,
       `Deleted review ${id}`
     );
+
+    clearPublicDataCache();
 
     return NextResponse.json({
       success: true,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdminRole } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { logAdminActivity } from "@/lib/activityLog";
+import { clearPublicDataCache } from "@/lib/publicData";
 
 let memoryFaqs: any[] = [
   {
@@ -111,6 +112,8 @@ export async function POST(request: NextRequest) {
         `Created FAQ: "${question.slice(0, 40)}..."`
       );
 
+      clearPublicDataCache();
+
       return NextResponse.json({
         success: true,
         data,
@@ -120,6 +123,8 @@ export async function POST(request: NextRequest) {
 
     const mock = { id: `faq_${Date.now()}`, ...newFaq, created_at: new Date().toISOString() };
     memoryFaqs.push(mock);
+
+    clearPublicDataCache();
 
     return NextResponse.json({
       success: true,

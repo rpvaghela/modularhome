@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { clearPublicDataCache } from "@/lib/publicData";
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdminAuth();
@@ -136,6 +137,8 @@ export async function POST(request: NextRequest) {
         await supabaseAdmin.from("product_collections").insert(mappings);
       }
 
+      clearPublicDataCache();
+
       return NextResponse.json({
         success: true,
         data: {
@@ -149,6 +152,8 @@ export async function POST(request: NextRequest) {
         message: "Collection created successfully.",
       });
     }
+
+    clearPublicDataCache();
 
     return NextResponse.json({
       success: true,

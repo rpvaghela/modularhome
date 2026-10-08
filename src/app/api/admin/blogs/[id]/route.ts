@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { getCustomBlogByIdOrSlug, saveCustomBlog, deleteCustomBlog } from "@/lib/blogStore";
+import { clearPublicDataCache } from "@/lib/publicData";
 
 export async function GET(
   request: NextRequest,
@@ -146,6 +147,8 @@ export async function PUT(
       }
     }
 
+    clearPublicDataCache();
+
     return NextResponse.json({
       success: true,
       data: savedLocal,
@@ -183,6 +186,8 @@ export async function DELETE(
         console.warn("Supabase delete warning:", dbErr);
       }
     }
+
+    clearPublicDataCache();
 
     return NextResponse.json({
       success: true,

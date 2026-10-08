@@ -1,5 +1,5 @@
 import { supabaseAdmin, isSupabaseConfigured } from "./supabase";
-import { FloorPlan } from "@/data/floorPlans";
+import { FloorPlan, INITIAL_FLOOR_PLANS } from "@/data/floorPlans";
 import { BuildingModel, BUILDING_MODELS, CATEGORIES } from "@/data/models";
 import ALL_PRODUCTS_CATALOG from "@/data/all_products_catalog.json";
 import { ResourceArticle, RESOURCE_ARTICLES } from "@/data/resources";
@@ -373,33 +373,60 @@ export async function getPublicFloorPlans(params?: {
   search?: string;
 }): Promise<FloorPlan[]> {
   try {
-    if (!isSupabaseConfigured()) {
-      return [];
-    }
-
     const cacheKey = "all_floor_plans_raw";
     let formattedAll = getCached<FloorPlan[]>(cacheKey);
 
     if (!formattedAll) {
-      let query = supabaseAdmin
-        .from("floor_plans")
-        .select("*")
-        .eq("status", "PUBLISHED")
-        .order("display_order", { ascending: true })
-        .order("created_at", { ascending: false });
+      let dbPlans: FloorPlan[] = [];
+      if (isSupabaseConfigured()) {
+        try {
+          const { data, error } = await supabaseAdmin
+            .from("floor_plans")
+            .select("*")
+            .eq("status", "PUBLISHED")
+            .order("display_order", { ascending: true })
+            .order("created_at", { ascending: false });
 
-      const { data: dbPlans, error } = await query;
-      if (error || !dbPlans || dbPlans.length === 0) {
-        return [];
+          if (!error && data && data.length > 0) {
+            dbPlans = data.map(formatFloorPlan);
+          }
+        } catch (dbErr) {
+          console.warn("Supabase floor plans fetch warning:", dbErr);
+        }
       }
 
-      formattedAll = dbPlans.map(formatFloorPlan);
+      const merged: FloorPlan[] = [];
+      const seenSlugs = new Set<string>();
+
+      // 1. Database plans take highest priority (admin created/edited)
+      for (const p of dbPlans) {
+        if (p && p.slug) {
+          const clean = p.slug.toLowerCase().trim();
+          if (!seenSlugs.has(clean)) {
+            seenSlugs.add(clean);
+            merged.push(p);
+          }
+        }
+      }
+
+      // 2. Initial fallback plans for any not overridden
+      for (const p of INITIAL_FLOOR_PLANS) {
+        if (p && p.slug) {
+          const clean = p.slug.toLowerCase().trim();
+          if (!seenSlugs.has(clean)) {
+            seenSlugs.add(clean);
+            merged.push(p);
+          }
+        }
+      }
+
+      formattedAll = merged.length > 0 ? merged : INITIAL_FLOOR_PLANS;
       setCached(cacheKey, formattedAll, 60000);
     }
 
     let formatted = [...formattedAll];
 
-    if (params?.category && params.category !== "ALL") {
+    if (params?.category && params.category !== "ALL" && params.category !== "All") {
       formatted = formatted.filter((p) => (p.category || "").toLowerCase() === params.category!.toLowerCase());
     }
 
@@ -416,7 +443,7 @@ export async function getPublicFloorPlans(params?: {
     return formatted;
   } catch (error) {
     console.error("Error fetching public floor plans:", error);
-    return [];
+    return INITIAL_FLOOR_PLANS;
   }
 }
 
@@ -425,15 +452,16 @@ export async function getPublicFloorPlans(params?: {
  */
 export async function getPublicFloorPlanBySlug(slug: string): Promise<FloorPlan | null> {
   try {
-    if (isSupabaseConfigured()) {
-      const allPlans = await getPublicFloorPlans();
-      const match = allPlans.find((p) => p.slug === slug || p.id === slug);
-      if (match) return match;
+    const cleanSlug = slug.toLowerCase().trim();
+    const allPlans = await getPublicFloorPlans();
+    const match = allPlans.find((p) => p.slug.toLowerCase() === cleanSlug || p.id.toLowerCase() === cleanSlug);
+    if (match) return match;
 
+    if (isSupabaseConfigured()) {
       const { data: plan, error } = await supabaseAdmin
         .from("floor_plans")
         .select("*")
-        .eq("slug", slug)
+        .or(`slug.eq.${cleanSlug},id.eq.${cleanSlug}`)
         .maybeSingle();
 
       if (!error && plan) {

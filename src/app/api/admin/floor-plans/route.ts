@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { clearPublicDataCache } from "@/lib/publicData";
 
 export async function GET(request: NextRequest) {
   try {
@@ -149,12 +150,16 @@ export async function POST(request: NextRequest) {
 
       if (error) throw error;
 
+      clearPublicDataCache();
+
       return NextResponse.json({
         success: true,
         data,
         message: "Floor plan blueprint created successfully.",
       });
     }
+
+    clearPublicDataCache();
 
     return NextResponse.json({
       success: true,

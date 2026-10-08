@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { readBlogsFromStore, saveCustomBlog } from "@/lib/blogStore";
+import { clearPublicDataCache } from "@/lib/publicData";
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdminAuth();
@@ -205,6 +206,8 @@ export async function POST(request: NextRequest) {
         console.warn("Supabase upsert warning:", dbErr);
       }
     }
+
+    clearPublicDataCache();
 
     return NextResponse.json({
       success: true,

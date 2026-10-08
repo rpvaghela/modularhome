@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { clearPublicDataCache } from "@/lib/publicData";
 
 export async function GET(
   request: NextRequest,
@@ -127,6 +128,8 @@ export async function PUT(
         }
       }
 
+      clearPublicDataCache();
+
       return NextResponse.json({
         success: true,
         data: {
@@ -140,6 +143,8 @@ export async function PUT(
         message: "Collection updated successfully.",
       });
     }
+
+    clearPublicDataCache();
 
     return NextResponse.json({
       success: true,
@@ -169,6 +174,8 @@ export async function DELETE(
       const { error } = await supabaseAdmin.from("collections").delete().eq("id", id);
       if (error) throw error;
     }
+
+    clearPublicDataCache();
 
     return NextResponse.json({
       success: true,

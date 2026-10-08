@@ -11,7 +11,7 @@ import {
   getPageSections,
   isUuidString,
 } from "@/lib/pageStore";
-import { formatCmsPage, getPageUrl } from "@/lib/publicData";
+import { formatCmsPage, getPageUrl, clearPublicDataCache } from "@/lib/publicData";
 
 export async function GET(
   request: NextRequest,
@@ -349,7 +349,7 @@ export async function PUT(
       }
     }
 
-    // 5. Next.js Path Revalidation
+    // 5. Next.js Path Revalidation & Public Cache Invalidation
     try {
       revalidatePath(`/${cleanSlug}`);
       revalidatePath(`/pages/${cleanSlug}`);
@@ -359,6 +359,7 @@ export async function PUT(
       }
       revalidatePath(`/admin/pages`);
       revalidatePath(`/admin/pages/${cleanId}`);
+      clearPublicDataCache();
     } catch {}
 
     // 5. Audit log
@@ -427,6 +428,7 @@ export async function DELETE(
       revalidatePath(`/${cleanId}`);
       revalidatePath(`/pages/${cleanId}`);
       revalidatePath("/admin/pages");
+      clearPublicDataCache();
     } catch {}
 
     await logActivity(
