@@ -262,14 +262,14 @@ export default function AIBuildAssistant() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Open AI Housing Assistant"
-        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 p-3 sm:p-4 rounded-full shadow-2xl transition-all duration-300 flex items-center gap-2 cursor-pointer ${
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[999] p-3.5 sm:p-4 rounded-full shadow-2xl transition-all duration-300 flex items-center gap-2 cursor-pointer ${
           isOpen
-            ? "bg-[#101114] text-[#fcb907] rotate-90"
-            : "bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] hover:scale-105 shadow-orange-500/20"
+            ? "bg-[#111317] text-[#fcb907] ring-2 ring-[#fcb907]/40 shadow-black/40"
+            : "bg-[#fcb907] hover:bg-[#e5a706] text-[#111317] hover:scale-105 shadow-amber-500/30"
         }`}
       >
         {isOpen ? (
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5 transition-transform duration-200" />
         ) : (
           <>
             <MessageSquare className="w-5 h-5" />
@@ -282,117 +282,125 @@ export default function AIBuildAssistant() {
 
       {/* Slide-over Drawer / Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-16 right-3 left-3 sm:left-auto sm:right-6 z-40 sm:w-[420px] w-auto h-[520px] sm:h-[560px] max-h-[82vh] bg-white border border-stone-200 rounded-[24px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="fixed bottom-[74px] sm:bottom-22 right-3 sm:right-6 z-[999] w-[calc(100vw-24px)] sm:w-[410px] md:w-[430px] h-[520px] sm:h-[560px] max-h-[calc(100dvh-95px)] bg-white border border-stone-200/90 rounded-2xl sm:rounded-[22px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
           {/* Header */}
-          <div className="bg-[#101114] text-white px-4 sm:px-5 py-3.5 sm:py-4 border-b border-white/10 flex items-center justify-between shadow-xs">
+          <div className="bg-[#111317] text-white px-4 sm:px-5 py-3.5 border-b border-white/10 flex items-center justify-between shadow-xs shrink-0">
             <div className="flex items-center gap-3">
-              <div className="h-8 px-2.5 rounded-[8px] bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
+              <div className="h-8 px-2 rounded-lg bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
                 <Image
                   src="/newmodularlogo.png"
                   alt="ModularHome.com"
-                  width={85}
-                  height={24}
-                  className="h-5 w-auto object-contain"
+                  width={80}
+                  height={22}
+                  className="h-4.5 w-auto object-contain"
                 />
               </div>
               <div>
-                <div className="text-xs font-bold uppercase tracking-wider text-white">
+                <div className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
                   Housing Advisor
+                  <span className="text-[10px] px-1.5 py-0.2 bg-[#fcb907] text-[#111317] font-extrabold rounded-full">AI</span>
                 </div>
                 <div className="text-[10px] text-stone-300 flex items-center gap-1.5 font-medium">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Online • AI Building Advisor
+                  Online • Live Project Quotation
                 </div>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+              aria-label="Close Chat"
+              className="p-1.5 text-stone-400 hover:text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Messages Feed */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#FAF8F5]/80">
+          <div className="flex-1 p-3.5 sm:p-4 overflow-y-auto space-y-3.5 bg-[#F9F9FB]">
             {messages.map((msg) => (
               <div
                 key={msg.id}
                 className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}
               >
                 <div
-                  className={`max-w-[88%] rounded-[18px] px-4 py-3 text-xs leading-relaxed shadow-sm ${
+                  className={`max-w-[90%] rounded-2xl px-4 py-3 text-xs leading-relaxed shadow-xs ${
                     msg.sender === "user"
-                      ? "bg-[#101114] text-white font-medium"
-                      : "bg-white border border-stone-200 text-stone-800"
+                      ? "bg-[#111317] text-white font-medium rounded-br-xs"
+                      : "bg-white border border-stone-200/80 text-stone-800 rounded-bl-xs"
                   }`}
                 >
                   {msg.sender === "bot" ? formatChatMessage(msg.text) : msg.text}
                 </div>
 
                 {/* Render quick Action Buttons if provided by the bot */}
-                {msg.actionButtons && (
-                  <div className="mt-2.5 flex flex-wrap gap-1.5 max-w-[90%]">
-                    {msg.actionButtons.map((btn, idx) => (
+                {msg.actionButtons && msg.actionButtons.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5 max-w-[92%]">
+                    {msg.actionButtons.map((btn, idx) =>
                       btn.href ? (
                         <Link
                           key={idx}
                           href={btn.href}
                           onClick={() => setIsOpen(false)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 text-[11px] font-semibold bg-white hover:bg-[var(--r)] text-[var(--ink)] hover:text-white border border-[var(--line)] rounded-full transition-colors shadow-2xs"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold bg-amber-50 hover:bg-[#fcb907] text-[#111317] border border-amber-200/90 rounded-full transition-all shadow-2xs hover:shadow-xs"
                         >
                           <span>{btn.label}</span>
-                          <ArrowRight className="w-3 h-3" />
+                          <ArrowRight className="w-3 h-3 text-[#111317]" />
                         </Link>
                       ) : (
                         <button
                           key={idx}
                           onClick={() => handleSend(btn.query || btn.label)}
-                          className="px-3 py-1.5 text-[11px] font-semibold bg-white hover:bg-[var(--soft)] text-[var(--ink)] border border-[var(--line)] rounded-full transition-colors text-left shadow-2xs cursor-pointer"
+                          className="px-3 py-1.5 text-[11px] font-semibold bg-white hover:bg-stone-100 text-stone-800 border border-stone-200 rounded-full transition-colors text-left shadow-2xs cursor-pointer"
                         >
                           {btn.label}
                         </button>
                       )
-                    ))}
+                    )}
                   </div>
                 )}
 
-                <span className="text-[9px] text-[var(--muted)] mt-1 px-1">
+                <span className="text-[9px] text-stone-400 mt-1 px-1">
                   {msg.timestamp}
                 </span>
               </div>
             ))}
 
             {isTyping && (
-              <div className="flex items-center gap-1.5 p-3 bg-white border border-[var(--line)] rounded-[14px] w-fit shadow-xs">
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--r)] animate-bounce"></div>
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--r)] animate-bounce [animation-delay:0.2s]"></div>
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--r)] animate-bounce [animation-delay:0.4s]"></div>
+              <div className="flex items-center gap-1.5 p-2.5 px-3 bg-white border border-stone-200 rounded-2xl w-fit shadow-2xs">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#fcb907] animate-bounce"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#fcb907] animate-bounce [animation-delay:0.2s]"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#fcb907] animate-bounce [animation-delay:0.4s]"></div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
           {/* Quick suggestions strip */}
-          <div className="px-3 py-2 bg-white border-t border-[var(--line)] flex items-center gap-1.5 overflow-x-auto text-[10px] text-[var(--muted)] no-scrollbar">
-            <span className="shrink-0 font-bold text-[var(--ink)]">Ask:</span>
+          <div className="px-3 py-2 bg-white border-t border-stone-200 flex items-center gap-1.5 overflow-x-auto text-[10px] text-stone-500 no-scrollbar shrink-0">
+            <span className="shrink-0 font-bold text-stone-900">Ask:</span>
             <button
-              onClick={() => handleSend("Tell me about cabins")}
-              className="px-2.5 py-1 rounded-full bg-[var(--soft)] border border-[var(--line)] hover:text-[var(--ink)] shrink-0 transition-colors cursor-pointer"
+              onClick={() => handleSend("Estimate 1,500 sq ft build quotation")}
+              className="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-stone-900 border border-stone-200/80 shrink-0 transition-colors cursor-pointer font-medium"
+            >
+              1,500 Sq Ft Quote?
+            </button>
+            <button
+              onClick={() => handleSend("Tell me about cabins and ADUs")}
+              className="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-stone-900 border border-stone-200/80 shrink-0 transition-colors cursor-pointer font-medium"
             >
               Cabins?
             </button>
             <button
-              onClick={() => handleSend("Why steel over wood framing?")}
-              className="px-2.5 py-1 rounded-full bg-[var(--soft)] border border-[var(--line)] hover:text-[var(--ink)] shrink-0 transition-colors cursor-pointer"
+              onClick={() => handleSend("Why steel framing over wood?")}
+              className="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-stone-900 border border-stone-200/80 shrink-0 transition-colors cursor-pointer font-medium"
             >
               Steel vs Wood
             </button>
             <button
-              onClick={() => handleSend("What does a cabin cost?")}
-              className="px-2.5 py-1 rounded-full bg-[var(--soft)] border border-[var(--line)] hover:text-[var(--ink)] shrink-0 transition-colors cursor-pointer"
+              onClick={() => handleSend("What barndominium models do you have?")}
+              className="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-stone-900 border border-stone-200/80 shrink-0 transition-colors cursor-pointer font-medium"
             >
-              Cabin Pricing?
+              Barndos
             </button>
           </div>
 
@@ -402,20 +410,20 @@ export default function AIBuildAssistant() {
               e.preventDefault();
               handleSend();
             }}
-            className="p-3 bg-white border-t border-[var(--line)] flex items-center gap-2"
+            className="p-3 bg-white border-t border-stone-200 flex items-center gap-2 shrink-0"
           >
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Ask about cabins, models, pricing..."
-              className="flex-1 bg-[var(--soft)] border border-[var(--line)] px-3.5 py-2.5 text-xs text-[var(--ink)] placeholder-[var(--muted)] focus:outline-none focus:border-[var(--r)] rounded-full"
+              placeholder="Ask about models, pricing, blueprints..."
+              className="flex-1 bg-stone-100/80 border border-stone-200 px-3.5 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#fcb907] focus:bg-white rounded-full transition-colors"
             />
             <button
               type="submit"
               disabled={!inputValue.trim()}
               aria-label="Send message"
-              className="p-2.5 bg-[var(--r)] hover:bg-[var(--r-dark)] disabled:opacity-40 text-white rounded-full transition-all cursor-pointer"
+              className="p-2.5 bg-[#fcb907] hover:bg-[#e5a706] disabled:opacity-40 text-stone-950 rounded-full transition-all cursor-pointer font-bold shadow-2xs"
             >
               <Send className="w-3.5 h-3.5" />
             </button>
