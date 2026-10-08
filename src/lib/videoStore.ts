@@ -179,20 +179,62 @@ export function getAllVideos(params?: { category?: string; search?: string }): V
   );
 }
 
+export function getVideoSlug(video: VideoItem, allVideos?: VideoItem[]): string {
+  if (!video) return "";
+  const list = allVideos || readVideosFromStore();
+  const rawTitle = (video.title || "video")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+  const baseSlug = rawTitle || `video-${video.youtubeVideoId || video.id}`;
+
+  const duplicates = list.filter((v) => {
+    const s = (v.title || "video")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    return (s || `video-${v.youtubeVideoId || v.id}`) === baseSlug;
+  });
+
+  if (duplicates.length > 1) {
+    const ytId = (video.youtubeVideoId || video.id || "").toLowerCase();
+    return `${baseSlug}-${ytId}`;
+  }
+
+  return baseSlug;
+}
+
 export function getVideoByIdOrSlug(idOrSlug: string): VideoItem | null {
   if (!idOrSlug) return null;
   const videos = readVideosFromStore();
   const lower = decodeURIComponent(idOrSlug).toLowerCase().trim().replace(/^vid-/, "");
 
+  // 1. Direct ID / YouTube ID match
+  const directMatch = videos.find(
+    (v) =>
+      v.id.toLowerCase() === `vid-${lower}` ||
+      v.id.toLowerCase() === lower ||
+      v.youtubeVideoId.toLowerCase() === lower ||
+      (v.modelSlug && v.modelSlug.toLowerCase() === lower)
+  );
+  if (directMatch) return directMatch;
+
+  // 2. Match by computed video slug
+  for (const v of videos) {
+    if (getVideoSlug(v, videos) === lower) {
+      return v;
+    }
+  }
+
+  // 3. Fallback normalized title match
   return (
-    videos.find(
-      (v) =>
-        v.id.toLowerCase() === `vid-${lower}` ||
-        v.id.toLowerCase() === lower ||
-        v.youtubeVideoId.toLowerCase() === lower ||
-        (v.modelSlug && v.modelSlug.toLowerCase() === lower) ||
-        (v.title && v.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") === lower)
-    ) || null
+    videos.find((v) => {
+      const titleSlug = (v.title || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      return titleSlug === lower || lower.startsWith(titleSlug);
+    }) || null
   );
 }
 

@@ -35,7 +35,7 @@
   "navLinks": [
     {
       "label": "Modular Homes",
-      "href": "/buildings?category=Modular+Homes",
+      "href": "/modular-homes",
       "order": 1,
       "isVisible": true
     },
@@ -47,13 +47,13 @@
     },
     {
       "label": "Barndominiums",
-      "href": "/buildings?category=Barndominiums",
+      "href": "/barndominiums",
       "order": 3,
       "isVisible": true
     },
     {
       "label": "Cabins",
-      "href": "/buildings?category=Cabins",
+      "href": "/cabins",
       "order": 4,
       "isVisible": true
     },

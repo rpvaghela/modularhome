@@ -55,3 +55,15 @@ export function resolveVideoEmbedUrl(
 
   return rawUrl;
 }
+
+/**
+ * Generates an SEO-optimized slug from video title
+ */
+export function getVideoSlug(video?: Partial<VideoItem> | null): string {
+  if (!video) return "";
+  const rawTitle = (video.title || "video")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+  return rawTitle || `video-${video.youtubeVideoId || video.id || "tour"}`;
+}

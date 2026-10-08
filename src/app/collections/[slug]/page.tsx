@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
@@ -6,19 +6,15 @@ import Image from "next/image";
 import { 
   Building2, 
   ArrowRight, 
-  Layers, 
   Sparkles, 
   CheckCircle2, 
   ShieldCheck, 
-  Compass, 
-  Search 
+  Compass
 } from "lucide-react";
 import BuildingCard from "@/components/BuildingCard";
 import ShareButton from "@/components/ShareButton";
-import { getPublicCollectionBySlug, getPublicCollections, getPublicProducts, PublicCollection } from "@/lib/publicData";
+import { getPublicCollections, getPublicProducts } from "@/lib/publicData";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
-import { matchProductCategory } from "@/utils/categoryMatching";
-import { getProductUrl } from "@/utils/productUrls";
 
 export const dynamic = "force-dynamic";
 
@@ -58,59 +54,9 @@ export async function generateMetadata({
     };
   }
 
-  const collection = await getPublicCollectionBySlug(slug);
-  if (!collection) {
-    // Check if any products match this category slug
-    const allProducts = await getPublicProducts();
-    const matched = allProducts.filter((p) => matchProductCategory(p, slug));
-    if (matched.length === 0) {
-      return { title: "Collection Not Found | ModularHome.com" };
-    }
-    const formattedTitle = slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-    const title = `${formattedTitle} Collection | ModularHome.com`;
-    const description = `Explore our curated selection of ${formattedTitle.toLowerCase()} models and precision floor plans on ModularHome.com.`;
-    const canonical = getCanonicalUrl(`/collections/${slug}`);
-    return {
-      title,
-      description,
-      robots,
-      alternates: { canonical },
-    };
-  }
-
-  const title = collection.seoTitle || `${collection.name} | ModularHome.com`;
-  const description =
-    collection.metaDescription ||
-    collection.description ||
-    `Explore ${collection.name} models, floor plans, and turnkey prefab housing solutions.`;
-  const canonical = getCanonicalUrl(`/collections/${collection.slug}`);
-
+  const canonical = getCanonicalUrl(`/${slug}`);
   return {
-    title,
-    description,
-    robots,
-    alternates: {
-      canonical,
-    },
-    openGraph: {
-      title,
-      description,
-      url: canonical,
-      siteName: "ModularHome.com",
-      images: [
-        {
-          url: collection.bannerImage || collection.image || "/newmodularlogo.png",
-          alt: collection.name,
-        },
-      ],
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [collection.bannerImage || collection.image || "/newmodularlogo.png"],
-    },
+    alternates: { canonical },
   };
 }
 
@@ -120,48 +66,23 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
     notFound();
   }
 
+  // 301 Permanent Redirect specific collection URLs to top-level canonical category URLs
+  if (slug !== "all") {
+    permanentRedirect(`/${slug}`);
+  }
+
   const allProducts = await getPublicProducts();
   const allCollections = await getPublicCollections();
 
-  let collectionTitle = "";
-  let collectionDescription = "";
-  let collectionTagline = "";
-  let collectionImage = "";
-  let matchedProducts: typeof allProducts = [];
-
-  if (slug === "all") {
-    collectionTitle = "All Modular Home Models";
-    collectionTagline = "Complete Architectural Catalog";
-    collectionDescription =
-      "Explore our comprehensive selection of precision light-gauge steel modular homes, turnkey prefab residences, rustic solid log cabins, energy-efficient SIP panel kits, and accessory dwelling units (ADUs). Every model is engineered for rapid assembly and lifetime structural performance.";
-    collectionImage = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80";
-    matchedProducts = allProducts;
-  } else {
-    const col = await getPublicCollectionBySlug(slug);
-    if (col) {
-      collectionTitle = col.name;
-      collectionTagline = col.tagline || `Engineered ${col.name}`;
-      collectionDescription = col.description || `Explore our curated selection of high-performance ${col.name} models. Built to rigorous architectural standards with nationwide delivery options.`;
-      collectionImage = col.bannerImage || col.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80";
-      matchedProducts = col.products && col.products.length > 0
-        ? col.products
-        : allProducts.filter((p) => matchProductCategory(p, col.slug) || matchProductCategory(p, col.name));
-    } else {
-      // Fallback matching by category slug
-      const matched = allProducts.filter((p) => matchProductCategory(p, slug));
-      if (matched.length === 0) {
-        notFound();
-      }
-      collectionTitle = slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-      collectionTagline = `${collectionTitle} Models & Plans`;
-      collectionDescription = `Explore our engineered ${collectionTitle.toLowerCase()} designs with customizable floor plans, modern energy efficiency, and turnkey delivery.`;
-      collectionImage = matched[0]?.primaryImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80";
-      matchedProducts = matched;
-    }
-  }
+  const collectionTitle = "All Modular Home Models";
+  const collectionTagline = "Complete Architectural Catalog";
+  const collectionDescription =
+    "Explore our comprehensive selection of precision light-gauge steel modular homes, turnkey prefab residences, rustic solid log cabins, energy-efficient SIP panel kits, and accessory dwelling units (ADUs). Every model is engineered for rapid assembly and lifetime structural performance.";
+  const collectionImage = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80";
+  const matchedProducts = allProducts;
 
   // Schema.org CollectionPage and ItemList JSON-LD
-  const canonical = getCanonicalUrl(`/collections/${slug}`);
+  const canonical = getCanonicalUrl("/collections/all");
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -173,7 +94,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
       itemListElement: matchedProducts.slice(0, 30).map((p, idx) => ({
         "@type": "ListItem",
         position: idx + 1,
-        url: getCanonicalUrl(getProductUrl(p)),
+        url: getCanonicalUrl(`/${p.category || "modular-homes"}/${p.slug}`),
         name: p.name,
       })),
     },
@@ -188,7 +109,6 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
       />
 
       <div className="wrap">
-        {/* Breadcrumb Navigation */}
         {/* Breadcrumb Navigation & Share */}
         <div className="py-4 text-xs text-[#6b7280] flex items-center justify-between border-b border-[#e7e9ee] mb-8 gap-4">
           <div className="flex items-center gap-2 overflow-hidden truncate">
@@ -201,7 +121,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
             </Link>
             <span>/</span>
             <span className="text-[#d97706] font-bold truncate">
-              {collectionTitle}
+              All Models
             </span>
           </div>
 
@@ -210,8 +130,8 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
             label="Share Collection"
             item={{
               title: `${collectionTitle} - Modular Home Collection`,
-              url: `/collections/${slug}`,
-              description: collectionTagline || `Browse ${collectionTitle} on ModularHome.com`,
+              url: "/collections/all",
+              description: collectionTagline,
               image: collectionImage,
               category: "Collection",
             }}
@@ -271,7 +191,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
           <div className="flex items-center justify-between border-b border-[#e7e9ee] pb-4">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-[#101114] font-display">
-                Models in this Collection
+                Complete Architectural Catalog
               </h2>
               <p className="text-xs text-[#6b7280] mt-0.5">
                 Showing {matchedProducts.length} precision models
@@ -281,7 +201,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
               href="/buildings"
               className="text-xs font-bold text-[#d97706] hover:underline flex items-center gap-1"
             >
-              <span>View All Categories</span>
+              <span>View Building Series</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -315,29 +235,26 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
         </div>
 
         {/* Related Collections Section */}
-        {allCollections.length > 1 && (
+        {allCollections.length > 0 && (
           <section className="mt-20 pt-12 border-t border-[#e7e9ee]">
             <h3 className="text-xl sm:text-2xl font-black text-[#101114] font-display mb-6">
-              Explore Other Collections
+              Explore Architectural Categories
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-              {allCollections
-                .filter((c) => c.slug !== slug)
-                .slice(0, 6)
-                .map((col) => (
-                  <Link
-                    key={col.id}
-                    href={`/collections/${col.slug}`}
-                    className="p-4 bg-[#f8f9fa] hover:bg-[#fcb907]/15 border border-[#e7e9ee] rounded-[14px] transition-all group text-center space-y-2"
-                  >
-                    <div className="text-xs font-black text-[#101114] group-hover:text-[#d97706] transition-colors leading-snug">
-                      {col.name}
-                    </div>
-                    <div className="text-[11px] text-[#6b7280]">
-                      {col.productCount || 0} Models
-                    </div>
-                  </Link>
-                ))}
+              {allCollections.slice(0, 6).map((col) => (
+                <Link
+                  key={col.id}
+                  href={`/${col.slug}`}
+                  className="p-4 bg-[#f8f9fa] hover:bg-[#fcb907]/15 border border-[#e7e9ee] rounded-[14px] transition-all group text-center space-y-2"
+                >
+                  <div className="text-xs font-black text-[#101114] group-hover:text-[#d97706] transition-colors leading-snug">
+                    {col.name}
+                  </div>
+                  <div className="text-[11px] text-[#6b7280]">
+                    {col.productCount || 0} Models
+                  </div>
+                </Link>
+              ))}
             </div>
           </section>
         )}

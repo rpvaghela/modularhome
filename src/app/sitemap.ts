@@ -109,22 +109,47 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const dynamicRoutes: MetadataRoute.Sitemap = [];
   const seenUrls = new Set<string>(staticRoutes.map((r) => r.url));
 
-  // 2. Canonical Category Landing Pages
+  // 2. Canonical Category Landing Pages (e.g. /barndominiums, /cabins, /modular-homes)
   CATEGORIES.forEach((cat) => {
-    const slug = cat.id.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    const colUrl = `${baseUrl}/collections/${slug}`;
-    if (!seenUrls.has(colUrl)) {
-      seenUrls.add(colUrl);
+    const slug = cat.href ? cat.href.replace(/^\//, "") : cat.id.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const catUrl = `${baseUrl}/${slug}`;
+    if (!seenUrls.has(catUrl)) {
+      seenUrls.add(catUrl);
       dynamicRoutes.push({
-        url: colUrl,
+        url: catUrl,
         lastModified: now,
         changeFrequency: "daily",
-        priority: 0.85,
+        priority: 0.9,
       });
     }
   });
 
-  // 3. Products with Canonical SEO Category Paths (e.g. /cabins/el-chapo-muchacho)
+  // 3. Published Video Tours with Descriptive SEO URLs (/videos/[title-slug])
+  try {
+    const { getPublishedVideos, getVideoSlug } = require("@/lib/videoStore");
+    const publishedVideos = getPublishedVideos();
+    if (Array.isArray(publishedVideos)) {
+      publishedVideos.forEach((v: any) => {
+        const vSlug = getVideoSlug(v, publishedVideos);
+        if (vSlug) {
+          const videoUrl = `${baseUrl}/videos/${vSlug}`;
+          if (!seenUrls.has(videoUrl)) {
+            seenUrls.add(videoUrl);
+            dynamicRoutes.push({
+              url: videoUrl,
+              lastModified: v.publishedAt ? new Date(v.publishedAt) : now,
+              changeFrequency: "weekly",
+              priority: 0.75,
+            });
+          }
+        }
+      });
+    }
+  } catch (e) {
+    // Fallback if videoStore not available
+  }
+
+  // 4. Products with Canonical SEO Category Paths (e.g. /cabins/el-chapo-muchacho)
   if (Array.isArray(ALL_PRODUCTS_CATALOG)) {
     ALL_PRODUCTS_CATALOG.forEach((p: any) => {
       const slug = p.slug || p.handle;

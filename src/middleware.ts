@@ -69,7 +69,38 @@ export async function middleware(request: NextRequest) {
     LEGACY_REDIRECTS[normalizedPath] ||
     normalizedPath;
 
-  // 2b. Dynamic category redirect for any remaining /buildings/, /models/, or /products/ paths
+  let preserveSearch = search || "";
+
+  // 2a. Category Query Redirect: /buildings?category=Barndominiums -> /barndominiums (301)
+  const categoryParam = request.nextUrl.searchParams.get("category");
+  if (categoryParam && (lowerPath === "/buildings" || lowerPath === "/models" || lowerPath === "/floor-plans")) {
+    const cleanCat = categoryParam.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    let targetCat = cleanCat;
+    if (cleanCat.includes("barndo")) targetCat = "barndominiums";
+    else if (cleanCat.includes("cabin")) targetCat = "cabins";
+    else if (cleanCat.includes("modular")) targetCat = "modular-homes";
+    else if (cleanCat.includes("prefab")) targetCat = "prefab-homes";
+    else if (cleanCat.includes("tiny")) targetCat = "tiny-homes";
+    else if (cleanCat.includes("park-model") || cleanCat.includes("parkmodel")) targetCat = "park-models";
+    else if (cleanCat.includes("adu") || cleanCat.includes("granny")) targetCat = "adus";
+    else if (cleanCat.includes("a-frame") || cleanCat.includes("aframe")) targetCat = "a-frame-homes";
+    else if (cleanCat.includes("kit") || cleanCat.includes("sip")) targetCat = "house-kits";
+    else if (cleanCat.includes("commercial")) targetCat = "commercial-buildings";
+    else if (cleanCat.includes("custom")) targetCat = "custom-homes";
+
+    destinationPath = `/${targetCat}`;
+    preserveSearch = ""; // strip query parameter for clean canonical URL
+  }
+
+  // 2b. Collections Category Redirect: /collections/barndominiums -> /barndominiums (301)
+  if (lowerPath.startsWith("/collections/") && lowerPath !== "/collections/all") {
+    const colSlug = lowerPath.replace(/^\/collections\//, "").replace(/\/+$/, "");
+    if (colSlug && !colSlug.includes("/")) {
+      destinationPath = `/${colSlug}`;
+    }
+  }
+
+  // 2c. Dynamic category redirect for any remaining /buildings/, /models/, or /products/ paths
   if (
     destinationPath === normalizedPath &&
     (lowerPath.startsWith("/buildings/") ||
@@ -107,14 +138,14 @@ export async function middleware(request: NextRequest) {
   }
 
   // 3. Execute Single-Hop 301 Permanent Redirect (Consolidates WWW, HTTP, and Path Changes)
-  const pathNeedsRedirect = destinationPath !== pathname;
+  const pathNeedsRedirect = destinationPath !== pathname || (categoryParam && preserveSearch !== search);
 
   if (domainNeedsRedirect || pathNeedsRedirect) {
     // Retain port for local test environments (e.g. www.localhost:3000 -> localhost:3000)
     const port = rawHost.includes(":") ? `:${rawHost.split(":")[1]}` : "";
     const targetProtocol = isProdHost ? "https" : proto;
     const targetOrigin = `${targetProtocol}://${canonicalHost}${port}`;
-    const targetUrl = `${targetOrigin}${destinationPath}${search || ""}`;
+    const targetUrl = `${targetOrigin}${destinationPath}${preserveSearch}`;
 
     return NextResponse.redirect(new URL(targetUrl), { status: 301 });
   }

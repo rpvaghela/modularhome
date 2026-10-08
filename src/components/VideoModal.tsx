@@ -10,8 +10,8 @@ interface VideoModalProps {
   onClose: () => void;
 }
 
-import { extractYouTubeId, resolveVideoEmbedUrl } from "@/lib/videoUtils";
-export { extractYouTubeId, resolveVideoEmbedUrl };
+import { extractYouTubeId, resolveVideoEmbedUrl, getVideoSlug } from "@/lib/videoUtils";
+export { extractYouTubeId, resolveVideoEmbedUrl, getVideoSlug };
 
 export default function VideoModal({ video, onClose }: VideoModalProps) {
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function VideoModal({ video, onClose }: VideoModalProps) {
   const embedSrc = resolveVideoEmbedUrl(video);
   const isDirectVideo = embedSrc.endsWith(".mp4") || embedSrc.endsWith(".webm") || embedSrc.endsWith(".mov");
   const watchUrl = video.youtubeUrl || (video.youtubeVideoId ? `https://www.youtube.com/watch?v=${video.youtubeVideoId}` : "");
-  const detailSlug = video.youtubeVideoId || video.id;
+  const detailSlug = getVideoSlug(video);
 
   return (
     <div

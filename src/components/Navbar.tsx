@@ -40,16 +40,16 @@ interface CategoryNavOption {
 }
 
 const PRIMARY_MENU_OPTIONS: CategoryNavOption[] = [
-  { label: "Modular Homes", href: "/buildings?category=Modular+Homes", categoryQuery: "Modular Homes" },
-  { label: "Prefab Homes", href: "/buildings?category=Prefab+Homes", categoryQuery: "Prefab Homes" },
-  { label: "Barndominiums", href: "/buildings?category=Barndominiums", categoryQuery: "Barndominiums" },
-  { label: "House Kits", href: "/buildings?category=House+Kits", categoryQuery: "House Kits" },
-  { label: "Tiny Homes", href: "/buildings?category=Tiny+Homes", categoryQuery: "Tiny Homes" },
-  { label: "Park Models", href: "/buildings?category=Park+Models", categoryQuery: "Park Models" },
-  { label: "Cabins", href: "/buildings?category=Cabins", categoryQuery: "Cabins" },
-  { label: "ADUs & Granny Pods", href: "/buildings?category=ADUs+%26+Granny+Pods", categoryQuery: "ADUs & Granny Pods" },
-  { label: "A-Frames", href: "/buildings?category=A-Frame+Homes", categoryQuery: "A-Frame Homes" },
-  { label: "Commercial", href: "/buildings?category=Commercial+Buildings", categoryQuery: "Commercial Buildings" },
+  { label: "Modular Homes", href: "/modular-homes", categoryQuery: "Modular Homes" },
+  { label: "Prefab Homes", href: "/prefab-homes", categoryQuery: "Prefab Homes" },
+  { label: "Barndominiums", href: "/barndominiums", categoryQuery: "Barndominiums" },
+  { label: "House Kits", href: "/house-kits", categoryQuery: "House Kits" },
+  { label: "Tiny Homes", href: "/tiny-homes", categoryQuery: "Tiny Homes" },
+  { label: "Park Models", href: "/park-models", categoryQuery: "Park Models" },
+  { label: "Cabins", href: "/cabins", categoryQuery: "Cabins" },
+  { label: "ADUs & Granny Pods", href: "/adus", categoryQuery: "ADUs & Granny Pods" },
+  { label: "A-Frames", href: "/a-frame-homes", categoryQuery: "A-Frame Homes" },
+  { label: "Commercial", href: "/commercial-buildings", categoryQuery: "Commercial Buildings" },
 ];
 
 const CORE_MORE_OPTIONS = [
@@ -61,7 +61,7 @@ const CORE_MORE_OPTIONS = [
   },
   { 
     label: "Custom Homes", 
-    href: "/buildings?category=Custom+Homes", 
+    href: "/custom-homes", 
     desc: "Bespoke engineered modular floor plans",
     icon: Sparkles 
   },

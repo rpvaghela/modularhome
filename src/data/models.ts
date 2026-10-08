@@ -63,7 +63,7 @@ export const CATEGORIES = [
     description: "Modern construction, customizable layouts, and efficient building processes.",
     image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
     count: 0,
-    href: "/buildings?category=Modular+Homes",
+    href: "/modular-homes",
     cta: "View Modular Homes",
   },
   {
@@ -73,7 +73,7 @@ export const CATEGORIES = [
     description: "Engineered in climate-controlled facilities for precision quality and rapid site assembly.",
     image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
     count: 0,
-    href: "/buildings?category=Prefab+Homes",
+    href: "/prefab-homes",
     cta: "View Prefab Homes",
   },
   {
@@ -83,7 +83,7 @@ export const CATEGORIES = [
     description: "Combining residential comfort with massive open floor plans and rigid steel structure options.",
     image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
     count: 0,
-    href: "/buildings?category=Barndominiums",
+    href: "/barndominiums",
     cta: "View Barndominiums",
   },
   {
@@ -93,7 +93,7 @@ export const CATEGORIES = [
     description: "Pre-engineered structural components and detailed blueprints for efficient home building.",
     image: "https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?auto=format&fit=crop&w=1200&q=80",
     count: 0,
-    href: "/buildings?category=House+Kits",
+    href: "/house-kits",
     cta: "View House Kits",
   },
   {
@@ -103,7 +103,7 @@ export const CATEGORIES = [
     description: "Smart floor plans maximizing space, energy efficiency, and modern comfort.",
     image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80",
     count: 0,
-    href: "/buildings?category=Tiny+Homes",
+    href: "/tiny-homes",
     cta: "View Tiny Homes",
   },
   {
@@ -113,7 +113,7 @@ export const CATEGORIES = [
     description: "Architectural park model homes designed for seasonal, recreational, or resort living communities.",
     image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80",
     count: 0,
-    href: "/buildings?category=Park+Models",
+    href: "/park-models",
     cta: "View Park Models",
   },
   {
@@ -123,7 +123,7 @@ export const CATEGORIES = [
     description: "Handcrafted timber and cabin structures suitable for residential, vacation, or retreat use.",
     image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80",
     count: 0,
-    href: "/buildings?category=Cabins",
+    href: "/cabins",
     cta: "View Cabins",
   },
   {
@@ -133,7 +133,7 @@ export const CATEGORIES = [
     description: "Independent living units perfect for guest suites, rental income, offices, or private living.",
     image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80",
     count: 0,
-    href: "/buildings?category=ADUs+%26+Granny+Pods",
+    href: "/adus",
     cta: "View ADUs",
   },
   {
@@ -143,7 +143,7 @@ export const CATEGORIES = [
     description: "High-performance A-frame structural packages engineered for heavy snow loads and mountain views.",
     image: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=1200&q=80",
     count: 0,
-    href: "/buildings?category=A-Frame+Homes",
+    href: "/a-frame-homes",
     cta: "View A-Frames",
   },
   {
@@ -153,7 +153,7 @@ export const CATEGORIES = [
     description: "Durable modular structures for offices, retail, hospitality, community spaces, and business use.",
     image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
     count: 0,
-    href: "/buildings?category=Commercial+Buildings",
+    href: "/commercial-buildings",
     cta: "View Commercial",
   },
   {
@@ -163,7 +163,7 @@ export const CATEGORIES = [
     description: "Custom-designed modular solutions engineered based on customer requirements, land, and budget.",
     image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
     count: 0,
-    href: "/buildings?category=Custom+Homes",
+    href: "/custom-homes",
     cta: "Explore Custom Homes",
   },
 ];

@@ -113,17 +113,17 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
 
   // Column 1: Explore Homes (11 Collections)
   const exploreLinks = [
-    { label: "Modular Homes", href: "/buildings?category=Modular+Homes" },
-    { label: "Prefab Homes", href: "/buildings?category=Prefab+Homes" },
-    { label: "Barndominiums", href: "/buildings?category=Barndominiums" },
-    { label: "House Kits", href: "/buildings?category=House+Kits" },
-    { label: "Tiny Homes", href: "/buildings?category=Tiny+Homes" },
-    { label: "Park Models", href: "/buildings?category=Park+Models" },
-    { label: "Cabins", href: "/buildings?category=Cabins" },
-    { label: "ADUs & Granny Pods", href: "/buildings?category=ADUs+%26+Granny+Pods" },
-    { label: "A-Frame Homes", href: "/buildings?category=A-Frame+Homes" },
-    { label: "Commercial Buildings", href: "/buildings?category=Commercial+Buildings" },
-    { label: "Custom Homes", href: "/buildings?category=Custom+Homes" },
+    { label: "Modular Homes", href: "/modular-homes" },
+    { label: "Prefab Homes", href: "/prefab-homes" },
+    { label: "Barndominiums", href: "/barndominiums" },
+    { label: "House Kits", href: "/house-kits" },
+    { label: "Tiny Homes", href: "/tiny-homes" },
+    { label: "Park Models", href: "/park-models" },
+    { label: "Cabins", href: "/cabins" },
+    { label: "ADUs & Granny Pods", href: "/adus" },
+    { label: "A-Frame Homes", href: "/a-frame-homes" },
+    { label: "Commercial Buildings", href: "/commercial-buildings" },
+    { label: "Custom Homes", href: "/custom-homes" },
   ];
 
   // Column 2: Plan Your Home (10 Destinations)

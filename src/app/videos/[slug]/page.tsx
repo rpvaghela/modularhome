@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ArrowRight, Calendar, Clock, Play, ShieldCheck, Tag, Eye } from "lucide-react";
-import { getVideoByIdOrSlug, getPublishedVideos } from "@/lib/videoStore";
+import { getVideoByIdOrSlug, getPublishedVideos, getVideoSlug } from "@/lib/videoStore";
+import { getCanonicalUrl } from "@/lib/seo";
 
 interface VideoDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -21,13 +22,29 @@ export async function generateMetadata({ params }: VideoDetailPageProps) {
     };
   }
 
+  const allVideos = getPublishedVideos();
+  const canonicalSlug = getVideoSlug(video, allVideos);
+  const canonical = getCanonicalUrl(`/videos/${canonicalSlug}`);
+
   return {
     title: `${video.title} | ModularHome.com Video Tour`,
     description: video.description || `Watch official video tour of ${video.title} by ModularHome.com.`,
+    alternates: {
+      canonical,
+    },
     openGraph: {
       title: video.title,
       description: video.description,
+      url: canonical,
+      siteName: "ModularHome.com",
       images: [{ url: video.thumbnail }],
+      type: "video.other",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: video.title,
+      description: video.description,
+      images: [video.thumbnail],
     },
   };
 }
@@ -35,7 +52,7 @@ export async function generateMetadata({ params }: VideoDetailPageProps) {
 export async function generateStaticParams() {
   const videos = getPublishedVideos();
   return videos.map((v) => ({
-    slug: v.youtubeVideoId,
+    slug: getVideoSlug(v, videos),
   }));
 }
 
@@ -48,9 +65,18 @@ export default async function VideoDetailPage({ params }: VideoDetailPageProps) 
   }
 
   const allPublished = getPublishedVideos();
+  const canonicalSlug = getVideoSlug(video, allPublished);
+
+  // 301 Permanent Redirect if accessed via legacy YouTube ID or non-canonical URL
+  if (slug.toLowerCase() !== canonicalSlug.toLowerCase()) {
+    permanentRedirect(`/videos/${canonicalSlug}`);
+  }
+
   const relatedVideos = allPublished
     .filter((v) => v.id !== video.id && v.youtubeVideoId !== video.youtubeVideoId)
     .slice(0, 3);
+
+  const canonicalUrl = getCanonicalUrl(`/videos/${canonicalSlug}`);
 
   // VideoObject JSON-LD Schema for Google SEO
   const jsonLdSchema = {
@@ -63,6 +89,7 @@ export default async function VideoDetailPage({ params }: VideoDetailPageProps) 
     "duration": video.duration ? `PT${video.duration.replace(":", "M")}S` : "PT5M",
     "embedUrl": video.embedUrl,
     "contentUrl": video.youtubeUrl,
+    "url": canonicalUrl,
     "publisher": {
       "@type": "Organization",
       "name": "ModularHome.com",
@@ -166,34 +193,37 @@ export default async function VideoDetailPage({ params }: VideoDetailPageProps) 
                 </h3>
 
                 <div className="space-y-3">
-                  {relatedVideos.map((rel) => (
-                    <Link
-                      key={rel.id}
-                      href={`/videos/${rel.youtubeVideoId}`}
-                      className="group flex gap-3 p-3 bg-[var(--soft)] hover:bg-white border border-[var(--line)] hover:border-[var(--r)] rounded-[16px] transition-all shadow-xs"
-                    >
-                      <div className="relative w-28 aspect-[16/10] rounded-[10px] overflow-hidden shrink-0 border border-[var(--line)]">
-                        <Image
-                          src={rel.thumbnail}
-                          alt={rel.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                          <Play className="w-4 h-4 text-white fill-current" />
+                  {relatedVideos.map((rel) => {
+                    const relSlug = getVideoSlug(rel, allPublished);
+                    return (
+                      <Link
+                        key={rel.id}
+                        href={`/videos/${relSlug}`}
+                        className="group flex gap-3 p-3 bg-[var(--soft)] hover:bg-white border border-[var(--line)] hover:border-[var(--r)] rounded-[16px] transition-all shadow-xs"
+                      >
+                        <div className="relative w-28 aspect-[16/10] rounded-[10px] overflow-hidden shrink-0 border border-[var(--line)]">
+                          <Image
+                            src={rel.thumbnail}
+                            alt={rel.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                            <Play className="w-4 h-4 text-white fill-current" />
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="space-y-1">
-                        <div className="text-xs font-bold text-[var(--ink)] line-clamp-2 group-hover:text-[var(--r)] transition-colors">
-                          {rel.title}
+                        <div className="space-y-1">
+                          <div className="text-xs font-bold text-[var(--ink)] line-clamp-2 group-hover:text-[var(--r)] transition-colors">
+                            {rel.title}
+                          </div>
+                          <div className="text-[10px] text-[var(--muted)]">
+                            {rel.duration} • {rel.category}
+                          </div>
                         </div>
-                        <div className="text-[10px] text-[var(--muted)]">
-                          {rel.duration} • {rel.category}
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             )}
