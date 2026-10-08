@@ -614,7 +614,11 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                 {menuItems.map((item) => {
                   const hasMegaMenu = Boolean(megaMenuCatalog && megaMenuCatalog[item.label]);
                   const isMegaOpen = openMegaCategory === item.label;
-                  const activeRoute = currentCategory === item.categoryQuery || (pathname === item.href && !currentCategory);
+                  const activeRoute = Boolean(
+                    currentCategory === item.categoryQuery ||
+                    pathname === item.href ||
+                    (item.href !== "/" && pathname?.startsWith(`${item.href}/`))
+                  );
                   
                   if (hasMegaMenu) {
                     return (

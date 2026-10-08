@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, ChangeEvent } from "react";
 import { 
   Search, 
   X, 
   RotateCcw, 
   Building2, 
-  ArrowRight
+  ChevronDown 
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import BuildingCard from "@/components/BuildingCard";
 import { BuildingModel } from "@/data/models";
@@ -31,37 +30,42 @@ export const CATEGORY_ROUTE_MAP: Record<string, string> = {
   "Park Models": "/park-models",
   "Cabins": "/cabins",
   "ADUs & Granny Pods": "/adus",
+  "ADUs": "/adus",
   "A-Frame Homes": "/a-frame-homes",
+  "A-Frames": "/a-frame-homes",
   "Commercial Buildings": "/commercial-buildings",
+  "Commercial": "/commercial-buildings",
   "Custom Homes": "/custom-homes",
 };
 
-const DEFAULT_CATEGORY_TABS = [
-  "All",
-  "Modular Homes",
-  "Prefab Homes",
-  "Barndominiums",
-  "House Kits",
-  "Tiny Homes",
-  "Park Models",
-  "Cabins",
-  "ADUs & Granny Pods",
-  "A-Frame Homes",
-  "Commercial Buildings",
-  "Custom Homes",
+const CATEGORY_SELECT_OPTIONS = [
+  { label: "All Categories", value: "All" },
+  { label: "Modular Homes", value: "Modular Homes" },
+  { label: "Prefab Homes", value: "Prefab Homes" },
+  { label: "Barndominiums", value: "Barndominiums" },
+  { label: "House Kits", value: "House Kits" },
+  { label: "Tiny Homes", value: "Tiny Homes" },
+  { label: "Park Models", value: "Park Models" },
+  { label: "Cabins", value: "Cabins" },
+  { label: "ADUs & Granny Pods", value: "ADUs & Granny Pods" },
+  { label: "A-Frames", value: "A-Frames" },
+  { label: "Commercial", value: "Commercial" },
+  { label: "Custom Homes", value: "Custom Homes" },
 ];
 
 const ARCHITECTURAL_STYLES = [
-  "All",
-  "Modern",
-  "Farmhouse",
-  "Ranch",
-  "Cabin",
-  "Contemporary",
-  "Barndominium",
-  "ADU",
-  "Rustic",
-  "Industrial",
+  { label: "All Styles", value: "All" },
+  { label: "Modern", value: "Modern" },
+  { label: "Farmhouse", value: "Farmhouse" },
+  { label: "Ranch", value: "Ranch" },
+  { label: "Cabin", value: "Cabin" },
+  { label: "Contemporary", value: "Contemporary" },
+  { label: "Barndominium", value: "Barndominium" },
+  { label: "ADU", value: "ADU" },
+  { label: "Rustic", value: "Rustic" },
+  { label: "Industrial", value: "Industrial" },
+  { label: "Craftsman", value: "Craftsman" },
+  { label: "Cottage", value: "Cottage" },
 ];
 
 export default function CategoryFilteredCatalog({
@@ -74,9 +78,18 @@ export default function CategoryFilteredCatalog({
   const pathname = usePathname();
   const isAllPage = categoryName === "All" || categoryName === "All Models" || categoryKey === "all";
   
-  const [selectedCategory, setSelectedCategory] = useState<string>(
-    isAllPage ? "All" : categoryName
-  );
+  // Normalize initial category value to match one of our select option values
+  const getInitialCategory = () => {
+    if (isAllPage) return "All";
+    const match = CATEGORY_SELECT_OPTIONS.find(
+      opt => opt.value.toLowerCase() === categoryName.toLowerCase() ||
+             opt.label.toLowerCase() === categoryName.toLowerCase() ||
+             (categoryKey && opt.value.toLowerCase().includes(categoryKey.toLowerCase()))
+    );
+    return match ? match.value : categoryName;
+  };
+
+  const [selectedCategory, setSelectedCategory] = useState<string>(getInitialCategory());
   const [selectedStyle, setSelectedStyle] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [bedroomFilter, setBedroomFilter] = useState<string>("all");
@@ -87,12 +100,13 @@ export default function CategoryFilteredCatalog({
 
   // Sync category state when route or category props change
   useEffect(() => {
-    setSelectedCategory(isAllPage ? "All" : categoryName);
-  }, [categoryName, isAllPage]);
+    setSelectedCategory(getInitialCategory());
+  }, [categoryName, isAllPage, categoryKey]);
 
-  const handleCategoryChange = (newCat: string) => {
+  const handleCategoryChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const newCat = e.target.value;
     setSelectedCategory(newCat);
-    const targetRoute = CATEGORY_ROUTE_MAP[newCat];
+    const targetRoute = CATEGORY_ROUTE_MAP[newCat] || CATEGORY_ROUTE_MAP[newCat.replace(/ Homes?$/, "")];
     if (targetRoute && pathname !== targetRoute) {
       router.push(targetRoute);
     }
@@ -204,7 +218,7 @@ export default function CategoryFilteredCatalog({
   ]);
 
   const isFiltered =
-    selectedCategory !== (isAllPage ? "All" : categoryName) ||
+    selectedCategory !== getInitialCategory() ||
     selectedStyle !== "All" ||
     searchQuery !== "" ||
     bedroomFilter !== "all" ||
@@ -214,7 +228,7 @@ export default function CategoryFilteredCatalog({
     minSqft > 0;
 
   const handleResetFilters = () => {
-    setSelectedCategory(isAllPage ? "All" : categoryName);
+    setSelectedCategory(getInitialCategory());
     setSelectedStyle("All");
     setSearchQuery("");
     setBedroomFilter("all");
@@ -225,163 +239,185 @@ export default function CategoryFilteredCatalog({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Search & Advanced Filters Bar */}
-      <div className="py-5 border border-[#e7e9ee] bg-[#f6f7f9] px-4 sm:px-6 rounded-[14px] shadow-xs space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-4">
+      {/* Search & Advanced Filters Container */}
+      <div className="p-4 sm:p-5 border border-gray-200 bg-[#f8f9fa] rounded-2xl shadow-xs space-y-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Search Input */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 text-[#6b7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <div className="relative flex-1 max-w-xl">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search floor plans by name, style, or type..."
-              className="w-full bg-white border border-[#dfe2e7] pl-10 pr-4 py-2.5 text-xs text-[#101114] placeholder-[#9ca3af] focus:outline-none focus:border-[#fcb907] rounded-[9px]"
+              className="w-full bg-white border border-gray-200 pl-10 pr-8 py-2.5 text-xs sm:text-[13px] text-[#101114] placeholder-gray-400 focus:outline-none focus:border-[#fcb907] focus:ring-2 focus:ring-[#fcb907]/20 rounded-xl transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6b7280] hover:text-[#101114]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          {/* Quick Reset Filter Button */}
-          {isFiltered && (
-            <button
-              onClick={handleResetFilters}
-              className="btn-outline py-2 px-3 text-xs font-bold rounded-[9px] flex items-center gap-1.5 self-start md:self-auto cursor-pointer bg-white"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-[#d97706]" />
-              <span>Reset All Filters</span>
-            </button>
-          )}
+          {/* Reset Filters Button */}
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-[#101114] hover:text-[#b45309] hover:border-amber-300 transition-all cursor-pointer shadow-2xs self-start sm:self-auto shrink-0"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-[#fcb907]" />
+            <span>Reset All Filters</span>
+          </button>
         </div>
 
-        {/* Grid of 7 Filter Dropdowns */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 pt-2 border-t border-[#e7e9ee]">
+        {/* 7 Filter Select Boxes in a responsive grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 sm:gap-2.5">
           {/* 1. Category */}
-          <div className="flex flex-col bg-white border border-[#dfe2e7] px-3 py-2 rounded-[9px]">
-            <span className="text-[10px] text-[#6b7280] uppercase font-bold">Category</span>
-            <select
-              value={selectedCategory}
-              onChange={(e) => handleCategoryChange(e.target.value)}
-              className="bg-transparent text-xs text-[#101114] focus:outline-none font-bold cursor-pointer pt-0.5 truncate"
-            >
-              <option value="All">All Categories</option>
-              {DEFAULT_CATEGORY_TABS.filter((c) => c !== "All").map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+          <div className="relative flex flex-col bg-white border border-gray-200 px-3 py-1.5 rounded-xl shadow-2xs hover:border-gray-300 transition-colors">
+            <span className="text-[9.5px] text-gray-500 uppercase font-bold tracking-wider pointer-events-none">Category</span>
+            <div className="flex items-center justify-between">
+              <select
+                value={selectedCategory}
+                onChange={handleCategoryChange}
+                className="w-full bg-transparent text-xs font-bold text-[#101114] focus:outline-none cursor-pointer appearance-none pr-4 py-0.5 truncate"
+              >
+                {CATEGORY_SELECT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-3 h-3 text-gray-500 absolute right-2.5 bottom-2.5 pointer-events-none" />
+            </div>
           </div>
 
-          {/* 2. Architectural Style */}
-          <div className="flex flex-col bg-white border border-[#dfe2e7] px-3 py-2 rounded-[9px]">
-            <span className="text-[10px] text-[#6b7280] uppercase font-bold">Style</span>
-            <select
-              value={selectedStyle}
-              onChange={(e) => setSelectedStyle(e.target.value)}
-              className="bg-transparent text-xs text-[#101114] focus:outline-none font-bold cursor-pointer pt-0.5"
-            >
-              {ARCHITECTURAL_STYLES.map((st) => (
-                <option key={st} value={st}>
-                  {st === "All" ? "All Styles" : st}
-                </option>
-              ))}
-            </select>
+          {/* 2. Style */}
+          <div className="relative flex flex-col bg-white border border-gray-200 px-3 py-1.5 rounded-xl shadow-2xs hover:border-gray-300 transition-colors">
+            <span className="text-[9.5px] text-gray-500 uppercase font-bold tracking-wider pointer-events-none">Style</span>
+            <div className="flex items-center justify-between">
+              <select
+                value={selectedStyle}
+                onChange={(e) => setSelectedStyle(e.target.value)}
+                className="w-full bg-transparent text-xs font-bold text-[#101114] focus:outline-none cursor-pointer appearance-none pr-4 py-0.5 truncate"
+              >
+                {ARCHITECTURAL_STYLES.map((st) => (
+                  <option key={st.value} value={st.value}>
+                    {st.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-3 h-3 text-gray-500 absolute right-2.5 bottom-2.5 pointer-events-none" />
+            </div>
           </div>
 
           {/* 3. Bedrooms */}
-          <div className="flex flex-col bg-white border border-[#dfe2e7] px-3 py-2 rounded-[9px]">
-            <span className="text-[10px] text-[#6b7280] uppercase font-bold">Bedrooms</span>
-            <select
-              value={bedroomFilter}
-              onChange={(e) => setBedroomFilter(e.target.value)}
-              className="bg-transparent text-xs text-[#101114] focus:outline-none font-bold cursor-pointer pt-0.5"
-            >
-              <option value="all">Any Beds</option>
-              <option value="1">1 Bedroom</option>
-              <option value="2">2 Bedrooms</option>
-              <option value="3">3 Bedrooms</option>
-              <option value="4">4+ Bedrooms</option>
-            </select>
+          <div className="relative flex flex-col bg-white border border-gray-200 px-3 py-1.5 rounded-xl shadow-2xs hover:border-gray-300 transition-colors">
+            <span className="text-[9.5px] text-gray-500 uppercase font-bold tracking-wider pointer-events-none">Bedrooms</span>
+            <div className="flex items-center justify-between">
+              <select
+                value={bedroomFilter}
+                onChange={(e) => setBedroomFilter(e.target.value)}
+                className="w-full bg-transparent text-xs font-bold text-[#101114] focus:outline-none cursor-pointer appearance-none pr-4 py-0.5 truncate"
+              >
+                <option value="all">Any Beds</option>
+                <option value="1">1 Bed</option>
+                <option value="2">2 Beds</option>
+                <option value="3">3 Beds</option>
+                <option value="4">4+ Beds</option>
+              </select>
+              <ChevronDown className="w-3 h-3 text-gray-500 absolute right-2.5 bottom-2.5 pointer-events-none" />
+            </div>
           </div>
 
           {/* 4. Bathrooms */}
-          <div className="flex flex-col bg-white border border-[#dfe2e7] px-3 py-2 rounded-[9px]">
-            <span className="text-[10px] text-[#6b7280] uppercase font-bold">Bathrooms</span>
-            <select
-              value={bathroomFilter}
-              onChange={(e) => setBathroomFilter(e.target.value)}
-              className="bg-transparent text-xs text-[#101114] focus:outline-none font-bold cursor-pointer pt-0.5"
-            >
-              <option value="all">Any Baths</option>
-              <option value="1">1 Bath</option>
-              <option value="2">2 Baths</option>
-              <option value="3">3+ Baths</option>
-            </select>
+          <div className="relative flex flex-col bg-white border border-gray-200 px-3 py-1.5 rounded-xl shadow-2xs hover:border-gray-300 transition-colors">
+            <span className="text-[9.5px] text-gray-500 uppercase font-bold tracking-wider pointer-events-none">Bathrooms</span>
+            <div className="flex items-center justify-between">
+              <select
+                value={bathroomFilter}
+                onChange={(e) => setBathroomFilter(e.target.value)}
+                className="w-full bg-transparent text-xs font-bold text-[#101114] focus:outline-none cursor-pointer appearance-none pr-4 py-0.5 truncate"
+              >
+                <option value="all">Any Baths</option>
+                <option value="1">1 Bath</option>
+                <option value="2">2 Baths</option>
+                <option value="3">3+ Baths</option>
+              </select>
+              <ChevronDown className="w-3 h-3 text-gray-500 absolute right-2.5 bottom-2.5 pointer-events-none" />
+            </div>
           </div>
 
           {/* 5. Stories */}
-          <div className="flex flex-col bg-white border border-[#dfe2e7] px-3 py-2 rounded-[9px]">
-            <span className="text-[10px] text-[#6b7280] uppercase font-bold">Stories</span>
-            <select
-              value={storiesFilter}
-              onChange={(e) => setStoriesFilter(e.target.value)}
-              className="bg-transparent text-xs text-[#101114] focus:outline-none font-bold cursor-pointer pt-0.5"
-            >
-              <option value="all">Any Levels</option>
-              <option value="1">1 Story</option>
-              <option value="2">2 Stories</option>
-            </select>
+          <div className="relative flex flex-col bg-white border border-gray-200 px-3 py-1.5 rounded-xl shadow-2xs hover:border-gray-300 transition-colors">
+            <span className="text-[9.5px] text-gray-500 uppercase font-bold tracking-wider pointer-events-none">Stories</span>
+            <div className="flex items-center justify-between">
+              <select
+                value={storiesFilter}
+                onChange={(e) => setStoriesFilter(e.target.value)}
+                className="w-full bg-transparent text-xs font-bold text-[#101114] focus:outline-none cursor-pointer appearance-none pr-4 py-0.5 truncate"
+              >
+                <option value="all">Any Levels</option>
+                <option value="1">1 Story</option>
+                <option value="2">2 Stories</option>
+                <option value="3">3 Stories</option>
+              </select>
+              <ChevronDown className="w-3 h-3 text-gray-500 absolute right-2.5 bottom-2.5 pointer-events-none" />
+            </div>
           </div>
 
-          {/* 6. Min SQ FT */}
-          <div className="flex flex-col bg-white border border-[#dfe2e7] px-3 py-2 rounded-[9px]">
-            <span className="text-[10px] text-[#6b7280] uppercase font-bold">Min Sq Ft</span>
-            <select
-              value={minSqft}
-              onChange={(e) => setMinSqft(Number(e.target.value))}
-              className="bg-transparent text-xs text-[#101114] focus:outline-none font-bold cursor-pointer pt-0.5"
-            >
-              <option value={0}>Any Size</option>
-              <option value={500}>500+ sq ft</option>
-              <option value={1000}>1,000+ sq ft</option>
-              <option value={1500}>1,500+ sq ft</option>
-              <option value={2000}>2,000+ sq ft</option>
-            </select>
+          {/* 6. Min Sq Ft */}
+          <div className="relative flex flex-col bg-white border border-gray-200 px-3 py-1.5 rounded-xl shadow-2xs hover:border-gray-300 transition-colors">
+            <span className="text-[9.5px] text-gray-500 uppercase font-bold tracking-wider pointer-events-none">Min Sq Ft</span>
+            <div className="flex items-center justify-between">
+              <select
+                value={minSqft}
+                onChange={(e) => setMinSqft(Number(e.target.value))}
+                className="w-full bg-transparent text-xs font-bold text-[#101114] focus:outline-none cursor-pointer appearance-none pr-4 py-0.5 truncate"
+              >
+                <option value={0}>Any Size</option>
+                <option value={500}>500+ sq ft</option>
+                <option value={1000}>1,000+ sq ft</option>
+                <option value={1500}>1,500+ sq ft</option>
+                <option value={2000}>2,000+ sq ft</option>
+                <option value={2500}>2,500+ sq ft</option>
+              </select>
+              <ChevronDown className="w-3 h-3 text-gray-500 absolute right-2.5 bottom-2.5 pointer-events-none" />
+            </div>
           </div>
 
           {/* 7. Budget */}
-          <div className="flex flex-col bg-white border border-[#dfe2e7] px-3 py-2 rounded-[9px]">
-            <span className="text-[10px] text-[#6b7280] uppercase font-bold">Budget</span>
-            <select
-              value={budgetFilter}
-              onChange={(e) => setBudgetFilter(e.target.value)}
-              className="bg-transparent text-xs text-[#101114] focus:outline-none font-bold cursor-pointer pt-0.5"
-            >
-              <option value="all">All Budgets</option>
-              <option value="under-75k">Under $75K</option>
-              <option value="75k-150k">$75K – $150K</option>
-              <option value="150k-250k">$150K – $250K</option>
-              <option value="250k-plus">$250K+</option>
-              <option value="100000">Under $100k</option>
-              <option value="200000">Under $200k</option>
-              <option value="300000">Under $300k</option>
-            </select>
+          <div className="relative flex flex-col bg-white border border-gray-200 px-3 py-1.5 rounded-xl shadow-2xs hover:border-gray-300 transition-colors">
+            <span className="text-[9.5px] text-gray-500 uppercase font-bold tracking-wider pointer-events-none">Budget</span>
+            <div className="flex items-center justify-between">
+              <select
+                value={budgetFilter}
+                onChange={(e) => setBudgetFilter(e.target.value)}
+                className="w-full bg-transparent text-xs font-bold text-[#101114] focus:outline-none cursor-pointer appearance-none pr-4 py-0.5 truncate"
+              >
+                <option value="all">All Budgets</option>
+                <option value="under-75k">Under $75K</option>
+                <option value="75k-150k">$75K – $150K</option>
+                <option value="150k-250k">$150K – $250K</option>
+                <option value="250k-plus">$250K+</option>
+                <option value="100000">Under $100k</option>
+                <option value="200000">Under $200k</option>
+                <option value="300000">Under $300k</option>
+              </select>
+              <ChevronDown className="w-3 h-3 text-gray-500 absolute right-2.5 bottom-2.5 pointer-events-none" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Results Counter & Active Criteria */}
-      <div className="py-2 flex items-center justify-between text-xs text-[#6b7280] border-b border-[#e7e9ee] pb-4">
+      {/* Results Counter & Active Status Bar */}
+      <div className="py-1 flex items-center justify-between text-xs text-gray-500 border-b border-gray-200/80 pb-3.5">
         <div>
-          Showing <span className="text-[#101114] font-bold">{filteredProducts.length}</span> of {catalogPool.length} models
+          Showing <span className="text-[#101114] font-extrabold">{filteredProducts.length}</span> of {catalogPool.length} models
           {selectedCategory !== "All" && (
             <span className="ml-1 text-[#d97706] font-bold">
               in {selectedCategory}
@@ -389,7 +425,7 @@ export default function CategoryFilteredCatalog({
           )}
         </div>
         {isFiltered && (
-          <span className="text-[#d97706] font-bold">
+          <span className="text-[#d97706] font-bold text-[11px] sm:text-xs">
             Filtered results active
           </span>
         )}
@@ -397,10 +433,10 @@ export default function CategoryFilteredCatalog({
 
       {/* Product Catalog Grid */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 pt-1">
           {filteredProducts.map((model) => {
             const activeCatSlug = selectedCategory !== "All" 
-              ? selectedCategory.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+              ? (CATEGORY_ROUTE_MAP[selectedCategory] || `/${selectedCategory.toLowerCase()}`).replace(/^\//, "")
               : categoryKey;
             return (
               <BuildingCard
@@ -412,18 +448,19 @@ export default function CategoryFilteredCatalog({
           })}
         </div>
       ) : (
-        <div className="text-center py-16 bg-[#f6f7f9] border border-[#e7e9ee] rounded-[18px] p-8 space-y-3">
-          <Building2 className="w-12 h-12 text-[#6b7280] mx-auto" />
+        <div className="text-center py-16 bg-[#f8f9fa] border border-gray-200 rounded-2xl p-8 space-y-3">
+          <Building2 className="w-12 h-12 text-gray-400 mx-auto" />
           <h3 className="text-lg font-black uppercase text-[#101114]">
             No Models Match Your Filter Criteria
           </h3>
-          <p className="text-xs text-[#6b7280] max-w-md mx-auto">
+          <p className="text-xs text-gray-500 max-w-md mx-auto">
             Try adjusting your search query, budget tier, or bedrooms filter to discover matching precision models.
           </p>
           <div className="pt-2">
             <button
+              type="button"
               onClick={handleResetFilters}
-              className="btn-primary py-2.5 px-6 text-xs font-bold rounded-[9px] inline-flex items-center gap-2 cursor-pointer"
+              className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] py-2.5 px-6 text-xs font-extrabold rounded-xl inline-flex items-center gap-2 cursor-pointer shadow-xs transition-all"
             >
               <RotateCcw className="w-4 h-4" />
               <span>Reset All Filters</span>
