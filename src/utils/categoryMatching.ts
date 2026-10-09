@@ -84,9 +84,11 @@ export function matchProductCategory(
     return (
       mCat.includes("park model") ||
       mName.includes("park model") ||
+      mName.includes("park-model") ||
       mSlug.includes("park-model") ||
       mSlug.includes("park_model") ||
-      (sqft > 0 && sqft <= 400 && mName.includes("rv"))
+      mName.includes("rv cottage") ||
+      mName.includes("park model rv")
     );
   }
 
@@ -98,7 +100,8 @@ export function matchProductCategory(
       mName.includes("adu") ||
       mSlug.includes("adu") ||
       mName.includes("granny") ||
-      (sqft > 0 && sqft <= 750 && beds <= 2 && (mName.includes("suite") || mName.includes("pod") || mName.includes("studio") || mName.includes("backyard")))
+      mName.includes("pod") ||
+      (mName.includes("studio") && !mName.includes("house kit"))
     );
   }
 
@@ -106,38 +109,53 @@ export function matchProductCategory(
   if (clean.includes("tiny home") || clean.includes("tiny")) {
     return (
       mCat === "tiny homes" ||
-      mName.includes("tiny") ||
-      mSlug.includes("tiny") ||
+      mCat.includes("tiny") ||
+      mName.includes("tiny home") ||
+      mName.includes("tiny house") ||
       mName.includes("micro") ||
-      (sqft > 0 && sqft <= 450)
+      mSlug.includes("tiny")
     );
   }
 
   // 6. House Kits
   if (clean.includes("house kit") || clean.includes("home kit")) {
     return (
-      mCat === "house kits" ||
-      mName.includes("kit") ||
-      mSlug.includes("kit") ||
-      mName.includes("sip") ||
-      mName.includes("panelized")
+      (mCat === "house kits" ||
+        mName.includes("house kit") ||
+        mName.includes("home kit") ||
+        mName.includes("steel kit") ||
+        mName.includes("sip panel") ||
+        mName.includes("panelized")) &&
+      !mName.includes("barndo") &&
+      !mName.includes("cabin")
     );
   }
 
   // 7. Cabins
   if (clean === "cabins" || clean.includes("cabin")) {
     return (
-      mCat === "cabins" ||
-      mName.includes("cabin") ||
-      mSlug.includes("cabin") ||
-      mName.includes("lodge") ||
-      mName.includes("log")
+      (mCat === "cabins" ||
+        mCat.includes("cabin") ||
+        mName.includes("cabin") ||
+        mSlug.includes("cabin") ||
+        mName.includes("lodge") ||
+        mName.includes("log home")) &&
+      !mName.includes("barndo")
     );
   }
 
-  // 8. Prefab Homes (All factory-engineered prefab & modular models)
+  // 8. Prefab Homes
   if (clean.includes("prefab")) {
-    return true;
+    return (
+      (mCat === "prefab homes" ||
+        mCat.includes("prefab") ||
+        mName.includes("prefab") ||
+        mSlug.includes("prefab") ||
+        mCat === "modular homes" ||
+        (mName.includes("modular") && !mName.includes("cabin") && !mName.includes("kit"))) &&
+      !mName.includes("cabin") &&
+      !mName.includes("barndo")
+    );
   }
 
   // 9. Commercial Buildings
@@ -146,10 +164,11 @@ export function matchProductCategory(
       mCat.includes("commercial") ||
       mName.includes("commercial") ||
       mSlug.includes("commercial") ||
+      mName.includes("duplex") ||
+      mName.includes("multi-family") ||
+      mName.includes("multi family") ||
       mName.includes("office") ||
-      mName.includes("retail") ||
-      mName.includes("warehouse") ||
-      (sqft >= 3500)
+      mName.includes("warehouse")
     );
   }
 
@@ -164,14 +183,19 @@ export function matchProductCategory(
     );
   }
 
-  // 11. Modular Homes (Default & Dedicated Modular Homes)
+  // 11. Modular Homes
   if (clean === "modular homes" || clean === "modular home" || clean === "modular") {
     return (
-      mCat === "modular homes" ||
-      mCat === "house kits" ||
-      mName.includes("modular") ||
-      mSlug.includes("modular") ||
-      (!mName.includes("cabin") && !mName.includes("barndo"))
+      (mCat === "modular homes" ||
+        mName.includes("modular home") ||
+        mName.includes("modular residence") ||
+        (mName.includes("modular") && !mName.includes("cabin") && !mName.includes("kit"))) &&
+      !mName.includes("cabin") &&
+      !mName.includes("barndo") &&
+      !mName.includes("house kit") &&
+      !mName.includes("sip panel") &&
+      !mName.includes("dealer") &&
+      !mName.includes("broker")
     );
   }
 

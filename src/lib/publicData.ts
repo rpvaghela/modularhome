@@ -1891,7 +1891,7 @@ export async function getMegaMenuCatalog(): Promise<MegaMenuCatalog> {
         bedrooms: p.bedrooms,
         bathrooms: p.bathrooms,
         image: p.primaryImage || p.image,
-        tagline: p.tagline || (p.sqft ? `${p.sqft} SQ FT Modular Home` : ""),
+        tagline: `${p.sqft ? `${p.sqft} SQ FT • ` : ""}${p.bedrooms ? `${p.bedrooms} Bed` : `${conf.label}`}`,
         badge: idx === 0 ? "Featured" : idx === 1 ? "Popular" : undefined,
       }));
 
@@ -1906,7 +1906,7 @@ export async function getMegaMenuCatalog(): Promise<MegaMenuCatalog> {
         bedrooms: featuredModel.bedrooms,
         bathrooms: featuredModel.bathrooms,
         image: featuredModel.primaryImage || featuredModel.image,
-        tagline: featuredModel.tagline || `${featuredModel.sqft || ""} SQ FT ${conf.label}`,
+        tagline: `${featuredModel.sqft ? `${featuredModel.sqft} SQ FT • ` : ""}${featuredModel.bedrooms ? `${featuredModel.bedrooms} Bed • ` : ""}${conf.label}`,
         badge: "Popular Model",
       } : undefined;
 
