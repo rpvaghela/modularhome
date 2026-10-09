@@ -29,7 +29,7 @@ function normalizeToCanonicalCategory(cat?: string | null): string {
   if (c.includes("house kit") || c.includes("home kit")) return "House Kits";
   if (c.includes("adu") || c.includes("granny")) return "ADUs & Granny Pods";
   if (c.includes("a-frame") || c.includes("aframe")) return "A-Frames";
-  if (c.includes("commercial")) return "Commercial Modular";
+  if (c.includes("commercial")) return "Commercial Modular Buildings";
   if (c.includes("prefab")) return "Prefab Homes";
   if (c.includes("modular")) return "Modular Homes";
   if (c.includes("residential")) return "Residential";
@@ -54,7 +54,7 @@ export default function AdminProductsPage() {
     "Park Models",
     "ADUs & Granny Pods",
     "A-Frames",
-    "Commercial Modular",
+    "Commercial Modular Buildings",
     "Residential",
     "Furniture & Accessories",
   ];

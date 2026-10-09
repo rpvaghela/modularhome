@@ -201,7 +201,7 @@ export default function AdminNewProductPage() {
                   <option value="Park Models">Park Models</option>
                   <option value="ADUs & Granny Pods">ADUs & Granny Pods</option>
                   <option value="A-Frames">A-Frames</option>
-                  <option value="Commercial Modular">Commercial Modular</option>
+                  <option value="Commercial Modular Buildings">Commercial Modular Buildings</option>
                   <option value="Residential">Residential</option>
                 </select>
               </div>
