@@ -99,16 +99,16 @@ export async function generateMetadata({
 
 function getHeroBackground(category?: string, title?: string): string {
   const text = `${category || ""} ${title || ""}`.toLowerCase();
-  if (text.includes("cabin") || text.includes("lodge") || text.includes("timber") || text.includes("gatlinburg") || text.includes("appalachian") || text.includes("mountain")) {
-    return "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2400&q=85";
+  if (text.includes("cabin") || text.includes("lodge") || text.includes("timber") || text.includes("gatlinburg") || text.includes("appalachian") || text.includes("mountain") || text.includes("amish")) {
+    return "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2400&q=90";
   }
   if (text.includes("barndo") || text.includes("barndominium") || text.includes("farmhouse") || text.includes("ranch")) {
-    return "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2400&q=85";
+    return "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2400&q=90";
   }
   if (text.includes("tiny") || text.includes("adu") || text.includes("pod") || text.includes("backyard")) {
-    return "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2400&q=85";
+    return "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2400&q=90";
   }
-  return "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2400&q=85";
+  return "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2400&q=90";
 }
 
 export default async function BlogArticlePage({ params }: BlogArticlePageProps) {
@@ -158,6 +158,8 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
   const canonical = getCanonicalUrl(`/blogs/${canonicalCategory}/${article.slug}`);
 
   const formattedBlogName = (article.category || blog).replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const heroImage = article.image || getHeroBackground(article.category || blog, article.title);
 
   // Default Key Features list adapted to model specs
   const keyFeaturesList = [
@@ -209,27 +211,27 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
       <ArticleReadingBar />
 
       {/* ========================================================================= */}
-      {/* 1. HERO SECTION (Dark Luxury Backdrop with Scenic Background & Cabin Image)*/}
+      {/* 1. HERO SECTION (Full-Width Cinematic Background Image with Gradient)     */}
       {/* ========================================================================= */}
-      <section className="relative bg-[#0c0d10] text-white overflow-hidden pt-6 pb-12 sm:pb-16 border-b border-[#1c1f26]">
-        {/* Scenic Panoramic Mountain & Forest Background Image */}
+      <section className="relative min-h-[460px] lg:min-h-[520px] flex items-center bg-[#0c0d10] text-white overflow-hidden py-10 lg:py-16 border-b border-[#1c1f26]">
+        {/* Full-bleed article background image */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           <Image
-            src={getHeroBackground(article.category || blog, article.title)}
-            alt="Scenic Mountain Landscape Background"
+            src={heroImage}
+            alt={displayTitle}
             fill
             priority
             sizes="100vw"
-            className="object-cover object-center opacity-45 brightness-75 scale-105"
+            className="object-cover object-center lg:object-right"
           />
-          {/* Multi-layered Gradients for Deep Contrast & Text Legibility */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0c0d10]/95 via-[#0c0d10]/85 to-[#0c0d10]/40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0d10] via-transparent to-[#0c0d10]/80" />
+          {/* Subtle gradient overlay to keep text ultra-readable while keeping image crisp and visible */}
+          <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#0c0d10] via-[#0c0d10]/85 to-black/25 lg:to-transparent" />
+          <div className="absolute inset-0 bg-black/40 lg:bg-transparent" />
         </div>
         
-        <div className="wrap relative z-20">
+        <div className="wrap relative z-10 w-full">
           {/* Breadcrumb Navigation inside Hero */}
-          <nav className="flex items-center gap-2 text-xs text-[#9ca3af] mb-6 overflow-hidden truncate">
+          <nav className="flex items-center gap-2 text-xs text-[#9ca3af] mb-5 sm:mb-6 overflow-hidden truncate">
             <Link href="/" className="hover:text-white transition-colors shrink-0">
               Home
             </Link>
@@ -247,76 +249,59 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
             </span>
           </nav>
 
-          {/* Hero Grid: Left Content & Right Glowing Image */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
-            {/* Left Content */}
-            <div className="lg:col-span-6 space-y-4">
-              {/* Gold Category Pill */}
-              <div className="inline-block">
-                <span className="bg-[#fcb907] text-[#101114] text-[11px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full shadow-md">
-                  {formattedBlogName}
-                </span>
-              </div>
-
-              {/* Main Headline */}
-              <h1 className="text-2xl sm:text-4xl lg:text-[40px] font-black text-white leading-[1.18] tracking-tight font-display">
-                {displayTitle}
-              </h1>
-
-              {/* Subtitle / Excerpt */}
-              {article.excerpt && (
-                <p className="text-xs sm:text-sm text-[#d1d5db] leading-relaxed line-clamp-3">
-                  {article.excerpt}
-                </p>
-              )}
-
-              {/* Meta Bar with 4 Icons */}
-              <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-white/10 text-xs text-[#9ca3af]">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-[#fcb907] shrink-0" />
-                  <div>
-                    <div className="text-[11px] font-bold text-white">{article.date}</div>
-                    <div className="text-[10px] text-[#8c94a0]">Updated</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-[#fcb907] shrink-0" />
-                  <div>
-                    <div className="text-[11px] font-bold text-white">{article.readTime || "8 min read"}</div>
-                    <div className="text-[10px] text-[#8c94a0]">Reading Time</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-[#fcb907] shrink-0" />
-                  <div>
-                    <div className="text-[11px] font-bold text-white">{formattedBlogName}</div>
-                    <div className="text-[10px] text-[#8c94a0]">Category</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-[#fcb907] shrink-0" />
-                  <div>
-                    <div className="text-[11px] font-bold text-white">0</div>
-                    <div className="text-[10px] text-[#8c94a0]">Comments</div>
-                  </div>
-                </div>
-              </div>
+          {/* Left Content Column */}
+          <div className="max-w-3xl space-y-4 sm:space-y-5">
+            {/* Gold Category Pill */}
+            <div>
+              <span className="inline-block bg-[#fcb907] text-[#101114] text-[11px] font-black uppercase tracking-wider px-3.5 py-1 rounded-[4px] shadow-md">
+                {formattedBlogName}
+              </span>
             </div>
 
-            {/* Right Glowing Cabin Photo */}
-            <div className="lg:col-span-6">
-              <div className="relative aspect-[16/11] w-full rounded-[22px] overflow-hidden shadow-2xl border border-white/15 bg-black/60 group">
-                <Image
-                  src={article.image || "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345"}
-                  alt={displayTitle}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover group-hover:scale-[1.02] transition-transform duration-700"
-                />
+            {/* Main Headline */}
+            <h1 className="text-2xl sm:text-4xl lg:text-[42px] font-black text-white leading-[1.18] tracking-tight font-display drop-shadow-md">
+              {displayTitle}
+            </h1>
+
+            {/* Subtitle / Excerpt */}
+            {article.excerpt && (
+              <p className="text-xs sm:text-sm lg:text-[15px] text-[#e5e7eb] leading-relaxed max-w-2xl drop-shadow-sm">
+                {article.excerpt}
+              </p>
+            )}
+
+            {/* Meta Bar with 4 Icons */}
+            <div className="pt-3 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 border-t border-white/20 text-xs text-[#d1d5db] max-w-xl">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[#fcb907] shrink-0" />
+                <div>
+                  <div className="text-[11px] font-bold text-white">{article.date}</div>
+                  <div className="text-[10px] text-[#9ca3af]">Updated</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-[#fcb907] shrink-0" />
+                <div>
+                  <div className="text-[11px] font-bold text-white">{article.readTime || "8 min read"}</div>
+                  <div className="text-[10px] text-[#9ca3af]">Reading Time</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Tag className="w-4 h-4 text-[#fcb907] shrink-0" />
+                <div>
+                  <div className="text-[11px] font-bold text-white">{formattedBlogName}</div>
+                  <div className="text-[10px] text-[#9ca3af]">Category</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-[#fcb907] shrink-0" />
+                <div>
+                  <div className="text-[11px] font-bold text-white">0</div>
+                  <div className="text-[10px] text-[#9ca3af]">Comments</div>
+                </div>
               </div>
             </div>
           </div>
