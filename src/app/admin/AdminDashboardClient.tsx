@@ -134,7 +134,7 @@ export default function AdminDashboardClient() {
       iconBg: "bg-blue-50 text-blue-700 border-blue-200",
     },
     {
-      label: "Articles & Guides",
+      label: "Blogs & Articles",
       value: metrics.publishedBlogs,
       subtext: "Published construction blogs",
       href: "/admin/blogs",

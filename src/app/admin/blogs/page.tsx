@@ -121,7 +121,7 @@ export default function AdminBlogsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#e7e9ee] pb-5">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#101114] font-serif">
-            Articles, Guides & Editorial CMS
+            Blogs &amp; Articles Editorial CMS
           </h1>
           <p className="text-xs sm:text-sm text-[#6b7280] mt-1 font-medium">
             Publish educational articles, housing guides, comparison breakdowns, and construction resources.

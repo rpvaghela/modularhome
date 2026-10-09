@@ -459,7 +459,7 @@ export default function AdminLayout({
             group: "Media & Integrations",
             items: [
               { label: "Media Library", href: "/admin/media", icon: ImageIcon },
-              { label: "Articles & Resources", href: "/admin/blogs", icon: BookOpen },
+              { label: "Blogs & Articles", href: "/admin/blogs", icon: BookOpen },
               { label: "YouTube Auto-Sync", href: "/admin/videos", icon: Video },
               { label: "Shopify Migration", href: "/admin/shopify", icon: RefreshCw },
             ],
