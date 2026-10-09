@@ -22,6 +22,7 @@ import {
   ShieldCheck,
   AlertCircle
 } from "lucide-react";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -36,6 +37,7 @@ export default function AdminOrdersPage() {
   const [copiedLink, setCopiedLink] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const confirm = useConfirm();
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -131,9 +133,14 @@ export default function AdminOrdersPage() {
 
   const handleRefundOrder = async () => {
     if (!selectedOrderId) return;
-    const confirmRefund = window.confirm(
-      `Are you sure you want to process a refund for Order #${orderDetail?.order_number || selectedOrderId}? This will immediately revoke customer download access and issue a credit via Stripe.`
-    );
+    const confirmRefund = await confirm({
+      title: "Process Customer Refund?",
+      message: `Are you sure you want to process a refund for Order #${orderDetail?.order_number || selectedOrderId}? This will immediately revoke customer download access and issue a credit via Stripe.`,
+      confirmText: "Issue Refund",
+      cancelText: "Cancel",
+      type: "danger",
+      icon: "alert",
+    });
     if (!confirmRefund) return;
 
     setIsRefunding(true);

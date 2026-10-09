@@ -4,12 +4,14 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Plus, Edit2, Trash2, Download, Search, Layers, Loader2, ArrowRight } from "lucide-react";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 export default function AdminFloorPlansPage() {
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("ALL");
+  const confirm = useConfirm();
 
   const fetchPlans = async () => {
     setLoading(true);
@@ -31,7 +33,16 @@ export default function AdminFloorPlansPage() {
   }, []);
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete floor plan "${title}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Floor Plan?",
+      message: `Are you sure you want to delete floor plan "${title}"? This action cannot be undone.`,
+      confirmText: "Delete Plan",
+      cancelText: "Cancel",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
+
     try {
       const res = await fetch(`/api/admin/floor-plans/${id}`, { method: "DELETE" });
       const json = await res.json();

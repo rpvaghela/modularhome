@@ -23,6 +23,7 @@ import {
   Send,
   UserCheck
 } from "lucide-react";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 export default function AdminQuotationsPage() {
   const [quotations, setQuotations] = useState<any[]>([]);
@@ -30,6 +31,7 @@ export default function AdminQuotationsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
+  const confirm = useConfirm();
 
   // Quote Drawer Edit States
   const [editPrice, setEditPrice] = useState<string>("");
@@ -167,7 +169,15 @@ export default function AdminQuotationsPage() {
   };
 
   const handleDelete = async (id: string, customerName: string) => {
-    if (!confirm(`Delete quotation from "${customerName}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Quotation?",
+      message: `Are you sure you want to delete the quotation for "${customerName}"? This record cannot be recovered.`,
+      confirmText: "Delete Quote",
+      cancelText: "Keep Quote",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/quotations/${id}`, { method: "DELETE" });

@@ -20,6 +20,7 @@ import {
   Loader2
 } from "lucide-react";
 import { VideoItem, SyncStats } from "@/types/video";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 export default function AdminVideoManager() {
   const [videos, setVideos] = useState<VideoItem[]>([]);
@@ -27,6 +28,7 @@ export default function AdminVideoManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const confirm = useConfirm();
 
   // AI Blog generation state
   const [generatingBlogId, setGeneratingBlogId] = useState<string | null>(null);
@@ -133,9 +135,16 @@ export default function AdminVideoManager() {
   };
 
   const handleDeleteLocal = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete the local website record for "${title}"?\n\nNote: This WILL NOT delete the video from YouTube.`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: "Delete Local Video Record?",
+      message: `Are you sure you want to delete the local website record for "${title}"?\n\nNote: This will not delete the video from YouTube.`,
+      confirmText: "Delete Record",
+      cancelText: "Keep Video",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
+
     try {
       const res = await fetch("/api/admin/videos", {
         method: "POST",

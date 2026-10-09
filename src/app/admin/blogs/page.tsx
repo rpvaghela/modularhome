@@ -17,12 +17,14 @@ import {
   Calendar,
   RefreshCw,
 } from "lucide-react";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 export default function AdminBlogsPage() {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const confirm = useConfirm();
 
   const fetchBlogs = async () => {
     setIsLoading(true);
@@ -72,7 +74,15 @@ export default function AdminBlogsPage() {
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Blog Post?",
+      message: `Are you sure you want to permanently delete "${title}"? This action cannot be reversed.`,
+      confirmText: "Delete Post",
+      cancelText: "Keep Post",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/blogs/${id}`, { method: "DELETE" });

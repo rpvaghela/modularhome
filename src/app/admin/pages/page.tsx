@@ -19,12 +19,14 @@ import {
   Sparkles,
 } from "lucide-react";
 import { getPageUrl } from "@/lib/publicData";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 export default function AdminPagesPage() {
   const [pages, setPages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const confirm = useConfirm();
 
   // Create Modal State
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -137,9 +139,15 @@ export default function AdminPagesPage() {
   };
 
   const handleDeletePage = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete the page "${title}"? This will permanently delete the page and its modular sections from the database.`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: "Delete CMS Page?",
+      message: `Are you sure you want to permanently delete "${title}"? All associated layout blocks, SEO settings, and modular sections will be removed.`,
+      confirmText: "Delete Page",
+      cancelText: "Keep Page",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/pages/${id}`, { method: "DELETE" });

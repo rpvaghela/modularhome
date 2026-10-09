@@ -19,12 +19,14 @@ import {
   Info,
 } from "lucide-react";
 import type { PricingRule, DeterministicQuotationResult } from "@/lib/pricingEngine";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 export default function AdminPricingPage() {
   const [rules, setRules] = useState<PricingRule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const confirm = useConfirm();
 
   // New Rule Modal State
   const [showAddModal, setShowAddModal] = useState(false);
@@ -156,7 +158,16 @@ export default function AdminPricingPage() {
   };
 
   const handleDeleteRule = async (id: string) => {
-    if (!confirm("Are you sure you want to remove this pricing rule?")) return;
+    const ok = await confirm({
+      title: "Remove Pricing Rule?",
+      message: "Are you sure you want to remove this pricing rule? It will immediately affect dynamic quote calculations.",
+      confirmText: "Delete Rule",
+      cancelText: "Cancel",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
+
     try {
       const res = await fetch(`/api/admin/pricing/${id}`, { method: "DELETE" });
       const json = await res.json();

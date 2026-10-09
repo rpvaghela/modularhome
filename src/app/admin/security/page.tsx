@@ -14,10 +14,12 @@ import {
   AlertTriangle,
   RefreshCw,
 } from "lucide-react";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 export default function AdminSecurityPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const confirm = useConfirm();
 
   // 2FA Setup Flow State
   const [setupStep, setSetupStep] = useState<"idle" | "setup" | "verify">("idle");
@@ -141,7 +143,16 @@ export default function AdminSecurityPage() {
   };
 
   const handleLogoutAllSessions = async () => {
-    if (!confirm("Are you sure you want to terminate all active sessions across all devices? You will be logged out.")) return;
+    const ok = await confirm({
+      title: "Terminate All Sessions?",
+      message: "Are you sure you want to terminate all active sessions across all devices? You will be immediately logged out.",
+      confirmText: "Terminate Sessions",
+      cancelText: "Cancel",
+      type: "danger",
+      icon: "alert",
+    });
+    if (!ok) return;
+
     try {
       await fetch("/api/admin/security", {
         method: "POST",

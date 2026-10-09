@@ -21,6 +21,7 @@ import {
   ArrowRight,
   ShieldCheck,
 } from "lucide-react";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 export default function AdminCollectionsPage() {
   const [collections, setCollections] = useState<any[]>([]);
@@ -141,8 +142,18 @@ export default function AdminCollectionsPage() {
     }
   };
 
+  const confirm = useConfirm();
+
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete the collection "${name}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Collection?",
+      message: `Are you sure you want to permanently delete the collection "${name}"? Products in this collection will not be deleted.`,
+      confirmText: "Delete Collection",
+      cancelText: "Keep Collection",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/collections/${id}`, { method: "DELETE" });

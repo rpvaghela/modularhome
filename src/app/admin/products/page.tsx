@@ -16,6 +16,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { getProductUrl } from "@/utils/productUrls";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 function normalizeToCanonicalCategory(cat?: string | null): string {
   if (!cat) return "Modular Homes";
@@ -107,8 +108,18 @@ export default function AdminProductsPage() {
     }
   };
 
+  const confirm = useConfirm();
+
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Home Model?",
+      message: `Are you sure you want to permanently delete "${name}"? This will remove all associated media, pricing, and specs.`,
+      confirmText: "Delete Model",
+      cancelText: "Keep Model",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });

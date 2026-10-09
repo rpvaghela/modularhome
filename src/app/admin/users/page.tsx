@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   ShieldAlert,
 } from "lucide-react";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 interface AdminUserRecord {
   id: string;
@@ -30,6 +31,7 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUserRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const confirm = useConfirm();
   const [editingUser, setEditingUser] = useState<AdminUserRecord | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -118,7 +120,15 @@ export default function AdminUsersPage() {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete user "${name}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Admin User?",
+      message: `Are you sure you want to delete user "${name}"? They will permanently lose access to the admin control panel.`,
+      confirmText: "Delete User",
+      cancelText: "Keep User",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/users/${id}`, { method: "DELETE" });

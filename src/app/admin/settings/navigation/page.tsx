@@ -19,6 +19,7 @@ import {
   EyeOff,
   CornerDownRight,
 } from "lucide-react";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 interface MenuItem {
   id?: string;
@@ -35,6 +36,7 @@ export default function AdminNavigationSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const confirm = useConfirm();
 
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingItem, setEditingItem] = useState<MenuItem>({ label: "", href: "", isVisible: true });
@@ -102,8 +104,16 @@ export default function AdminNavigationSettingsPage() {
     setNavItems(updated);
   };
 
-  const handleDelete = (index: number) => {
-    if (!confirm(`Delete menu item "${navItems[index].label}"?`)) return;
+  const handleDelete = async (index: number) => {
+    const ok = await confirm({
+      title: "Delete Navigation Item?",
+      message: `Are you sure you want to remove "${navItems[index].label}" from the header navigation? (Remember to click Save Changes afterwards).`,
+      confirmText: "Delete Item",
+      cancelText: "Cancel",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
     const updated = navItems.filter((_, idx) => idx !== index);
     setNavItems(updated);
   };

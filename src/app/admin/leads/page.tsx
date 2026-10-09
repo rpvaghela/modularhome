@@ -23,6 +23,7 @@ import {
   Send,
   Plus
 } from "lucide-react";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 export default function AdminLeadsPage() {
   const [leads, setLeads] = useState<any[]>([]);
@@ -30,6 +31,7 @@ export default function AdminLeadsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [sourceFilter, setSourceFilter] = useState("ALL");
+  const confirm = useConfirm();
 
   // Selected Lead Drawer
   const [selectedLead, setSelectedLead] = useState<any | null>(null);
@@ -161,7 +163,15 @@ export default function AdminLeadsPage() {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete lead inquiry from "${name}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Lead Inquiry?",
+      message: `Are you sure you want to delete the lead from "${name}"? This inquiry and its chat history will be removed.`,
+      confirmText: "Delete Lead",
+      cancelText: "Keep Lead",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/leads/${id}`, { method: "DELETE" });

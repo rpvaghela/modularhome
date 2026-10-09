@@ -12,6 +12,7 @@ import {
   Search,
   Filter,
 } from "lucide-react";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 interface Faq {
   id: string;
@@ -27,6 +28,7 @@ export default function AdminFaqsPage() {
   const [faqs, setFaqs] = useState<Faq[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const confirm = useConfirm();
   const [editingFaq, setEditingFaq] = useState<Faq | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("ALL");
@@ -119,7 +121,15 @@ export default function AdminFaqsPage() {
   };
 
   const handleDelete = async (id: string, q: string) => {
-    if (!confirm(`Delete FAQ: "${q.slice(0, 30)}..."?`)) return;
+    const ok = await confirm({
+      title: "Delete FAQ?",
+      message: `Are you sure you want to delete the question: "${q.length > 50 ? q.slice(0, 50) + "..." : q}"?`,
+      confirmText: "Delete FAQ",
+      cancelText: "Keep FAQ",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/faqs/${id}`, { method: "DELETE" });

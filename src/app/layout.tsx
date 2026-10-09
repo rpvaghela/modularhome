@@ -7,6 +7,7 @@ import AIBuildAssistant from "@/components/AIBuildAssistant";
 import CartDrawer from "@/components/CartDrawer";
 import { CartProvider } from "@/context/CartContext";
 import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
+import { ConfirmDialogProvider } from "@/context/ConfirmDialogContext";
 import { getPublicGlobalSettings } from "@/lib/settings";
 import { getPublicPages, getMegaMenuCatalog } from "@/lib/publicData";
 import { getRobotsMetadata, PRODUCTION_CANONICAL_HOST } from "@/lib/seo";
@@ -116,13 +117,15 @@ export default async function RootLayout({
       <body className={`min-h-screen flex flex-col bg-white text-[#101114] antialiased selection:bg-[#fcb907] selection:text-[#101114] ${manrope.className}`}>
         <CustomerAuthProvider>
           <CartProvider>
-            <Navbar initialSettings={settings} customPages={pages} megaMenuCatalog={megaMenuCatalog} />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer initialSettings={settings} customPages={pages} />
-            <CartDrawer />
-            <AIBuildAssistant />
+            <ConfirmDialogProvider>
+              <Navbar initialSettings={settings} customPages={pages} megaMenuCatalog={megaMenuCatalog} />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer initialSettings={settings} customPages={pages} />
+              <CartDrawer />
+              <AIBuildAssistant />
+            </ConfirmDialogProvider>
           </CartProvider>
         </CustomerAuthProvider>
       </body>

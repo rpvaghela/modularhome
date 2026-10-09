@@ -12,6 +12,7 @@ import {
   Check,
   AlertCircle,
 } from "lucide-react";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 interface RedirectRule {
   id: string;
@@ -27,6 +28,7 @@ export default function AdminRedirectsPage() {
   const [redirects, setRedirects] = useState<RedirectRule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const confirm = useConfirm();
   const [editingRedirect, setEditingRedirect] = useState<RedirectRule | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -112,7 +114,15 @@ export default function AdminRedirectsPage() {
   };
 
   const handleDelete = async (id: string, src: string) => {
-    if (!confirm(`Delete redirect rule for "${src}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Redirect Rule?",
+      message: `Are you sure you want to delete the 301/302 redirect for "${src}"? Inbound traffic will no longer be forwarded.`,
+      confirmText: "Delete Rule",
+      cancelText: "Keep Rule",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/redirects/${id}`, { method: "DELETE" });

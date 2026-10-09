@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { getPageUrl } from "@/lib/publicData";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 const SECTION_TYPES = [
   { value: "HERO", label: "Hero Banner", desc: "Top headline with background image and call-to-actions" },
@@ -103,6 +104,7 @@ function SectionsManager() {
   const [sections, setSections] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const confirm = useConfirm();
 
   // Add / Edit Modal State
   const [modalOpen, setModalOpen] = useState(false);
@@ -387,7 +389,16 @@ function SectionsManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this section block from the database?")) return;
+    const ok = await confirm({
+      title: "Delete Section Block?",
+      message: "Are you sure you want to delete this section block from the database? This layout change will immediately reflect on the live page.",
+      confirmText: "Delete Section",
+      cancelText: "Cancel",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
+
     try {
       const res = await fetch(`/api/admin/sections/${encodeURIComponent(id)}`, { method: "DELETE" });
       const json = await res.json();

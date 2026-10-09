@@ -15,6 +15,7 @@ import {
   MapPin,
 } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 interface Review {
   id: string;
@@ -34,6 +35,7 @@ export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const confirm = useConfirm();
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -131,7 +133,15 @@ export default function AdminReviewsPage() {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete testimonial from "${name}"?`)) return;
+    const ok = await confirm({
+      title: "Delete Testimonial?",
+      message: `Are you sure you want to delete the testimonial from "${name}"?`,
+      confirmText: "Delete Review",
+      cancelText: "Keep Review",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/reviews/${id}`, { method: "DELETE" });

@@ -18,6 +18,7 @@ import {
   Plus,
 } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
+import { useConfirm } from "@/context/ConfirmDialogContext";
 
 interface MediaAsset {
   id: string;
@@ -39,6 +40,7 @@ export default function AdminMediaPage() {
   const [selectedFilter, setSelectedFilter] = useState("ALL");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<MediaAsset | null>(null);
+  const confirm = useConfirm();
 
   // Upload modal state
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -77,7 +79,15 @@ export default function AdminMediaPage() {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete "${name}" from media library?`)) return;
+    const ok = await confirm({
+      title: "Delete Media Asset?",
+      message: `Are you sure you want to delete "${name}" from the media library? Any pages referencing this URL will no longer show the image.`,
+      confirmText: "Delete Asset",
+      cancelText: "Keep Asset",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/media?id=${id}`, { method: "DELETE" });
