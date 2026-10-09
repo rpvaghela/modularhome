@@ -11,7 +11,7 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import BuildingCard from "@/components/BuildingCard";
 import { BuildingModel } from "@/data/models";
-import { matchProductCategory } from "@/utils/categoryMatching";
+import { matchProductCategory, getBaseModelName } from "@/utils/categoryMatching";
 
 interface CategoryFilteredCatalogProps {
   initialProducts: BuildingModel[];
@@ -117,7 +117,7 @@ export default function CategoryFilteredCatalog({
 
   // Filter products in real-time
   const filteredProducts = useMemo(() => {
-    return catalogPool.filter((p) => {
+    const matched = catalogPool.filter((p) => {
       // 1. Category Filter
       if (selectedCategory !== "All") {
         if (!matchProductCategory(p, selectedCategory)) {
@@ -205,6 +205,20 @@ export default function CategoryFilteredCatalog({
 
       return true;
     });
+
+    // Deduplicate by base model name so duplicate state pricing records do not repeat
+    const seen = new Set<string>();
+    const deduplicated: BuildingModel[] = [];
+    for (const p of matched) {
+      const base = getBaseModelName(p.name);
+      const key = base.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        deduplicated.push(p);
+      }
+    }
+
+    return deduplicated;
   }, [
     catalogPool,
     selectedCategory,

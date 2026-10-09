@@ -4,7 +4,7 @@ import { BuildingModel, BUILDING_MODELS, CATEGORIES } from "@/data/models";
 import ALL_PRODUCTS_CATALOG from "@/data/all_products_catalog.json";
 import { ResourceArticle, RESOURCE_ARTICLES } from "@/data/resources";
 import { getPublicGlobalSettings } from "./settings";
-import { matchProductCategory } from "@/utils/categoryMatching";
+import { matchProductCategory, getBaseModelName } from "@/utils/categoryMatching";
 import { getProductUrl } from "@/utils/productUrls";
 import { readProductsFromStore } from "./productStore";
 import { readFloorPlansFromStore, getCustomFloorPlanByIdOrSlug } from "./floorPlanStore";
@@ -1881,9 +1881,21 @@ export async function getMegaMenuCatalog(): Promise<MegaMenuCatalog> {
         return (b.startingPrice || 0) - (a.startingPrice || 0);
       });
 
-      const prodItems: MegaMenuItem[] = sorted.slice(0, 6).map((p, idx) => ({
+      // Deduplicate by base model name so duplicate state pricing variants do not flood the menu
+      const seenBaseNames = new Set<string>();
+      const deduplicated: BuildingModel[] = [];
+      for (const p of sorted) {
+        const base = getBaseModelName(p.name);
+        const key = base.toLowerCase();
+        if (!seenBaseNames.has(key)) {
+          seenBaseNames.add(key);
+          deduplicated.push(p);
+        }
+      }
+
+      const prodItems: MegaMenuItem[] = deduplicated.slice(0, 6).map((p, idx) => ({
         id: p.id,
-        name: p.name,
+        name: getBaseModelName(p.name),
         slug: p.slug,
         href: getProductUrl(p),
         startingPrice: p.startingPrice,
@@ -1895,10 +1907,10 @@ export async function getMegaMenuCatalog(): Promise<MegaMenuCatalog> {
         badge: idx === 0 ? "Featured" : idx === 1 ? "Popular" : undefined,
       }));
 
-      const featuredModel = sorted.find((p) => p.primaryImage && !p.primaryImage.includes("logo")) || sorted[0];
+      const featuredModel = deduplicated.find((p) => p.primaryImage && !p.primaryImage.includes("logo")) || deduplicated[0];
       const featured: MegaMenuItem | undefined = featuredModel ? {
         id: featuredModel.id,
-        name: featuredModel.name,
+        name: getBaseModelName(featuredModel.name),
         slug: featuredModel.slug,
         href: getProductUrl(featuredModel),
         startingPrice: featuredModel.startingPrice,
