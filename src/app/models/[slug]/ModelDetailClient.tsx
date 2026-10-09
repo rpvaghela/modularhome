@@ -28,7 +28,7 @@ import { VideoItem } from "@/data/videos";
 import { formatPrice } from "@/utils/currency";
 import RichHtmlContent from "@/components/RichHtmlContent";
 import { getCategoryFallbackImage } from "@/lib/publicData";
-import { getProductUrl, getProductCategorySlug, getCategoryDisplayName } from "@/utils/productUrls";
+import { getProductCategorySlug, getCategoryDisplayName } from "@/utils/productUrls";
 
 interface ModelDetailClientProps {
   model: BuildingModel;
@@ -54,6 +54,21 @@ export default function ModelDetailClient({
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [floorPlanExpanded, setFloorPlanExpanded] = useState(false);
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+
+  // Quote & Customize Modals
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+  const [customizeModalOpen, setCustomizeModalOpen] = useState(false);
+  const [quoteSubmitting, setQuoteSubmitting] = useState(false);
+  const [quoteSuccess, setQuoteSuccess] = useState(false);
+  const [quoteError, setQuoteError] = useState("");
+  const [quoteForm, setQuoteForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    zip: "",
+    timeline: "Immediately (1-3 months)",
+    notes: "",
+  });
 
   // Multi-tier variants handling
   const variants: BuildingModelVariant[] = Array.isArray(model?.variants) ? model.variants : [];
@@ -120,6 +135,46 @@ export default function ModelDetailClient({
     );
   };
 
+  const handleQuoteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setQuoteSubmitting(true);
+    setQuoteError("");
+    try {
+      const selectedOptionNames = selectedOptions
+        .map((id) => optionsList.find((o) => o.id === id)?.name)
+        .filter(Boolean)
+        .join(", ");
+
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: quoteForm.name,
+          email: quoteForm.email,
+          phone: quoteForm.phone,
+          zip: quoteForm.zip,
+          projectType: model?.series || model?.category || "Modular Home",
+          interest: model?.name,
+          source: "MODEL_DETAIL_QUOTE_MODAL",
+          budget: totalCalculatedPrice > 0 ? formatPrice(totalCalculatedPrice) : formattedBasePrice,
+          message: `Inquiry for ${model.name} (${activeVariant ? activeVariant.title : "Standard"}). Estimated: ${formatPrice(totalCalculatedPrice)}. Selected Upgrades: ${selectedOptionNames || "None"}. Timeline: ${quoteForm.timeline}. Notes: ${quoteForm.notes || "None"}`,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error?.message || "Failed to submit quote request.");
+      }
+
+      setQuoteSuccess(true);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Submission failed. Please try again or call us.";
+      setQuoteError(msg);
+    } finally {
+      setQuoteSubmitting(false);
+    }
+  };
+
   const handleOpenVideo = () => {
     const vidUrl = model?.videoUrl || "https://www.youtube-nocookie.com/embed/MHWHDE87Pp4";
     setActiveVideo({
@@ -152,6 +207,10 @@ export default function ModelDetailClient({
     category: model?.series || model?.category,
     price: totalCalculatedPrice > 0 ? formatPrice(totalCalculatedPrice) : formattedBasePrice,
   };
+
+  // Dimensions & Stories fallback calculation
+  const formattedDimensions = model?.dimensions || (model?.sqft ? `Approx. ${Math.round(Math.sqrt(model.sqft * 1.4))}' × ${Math.round(model.sqft / Math.sqrt(model.sqft * 1.4))}'` : "Custom Dimensions Available");
+  const formattedStories = model?.stories ? `${model.stories} ${model.stories === 1 ? "Story" : "Stories"}` : "1 Story";
 
   return (
     <div className="min-h-screen bg-white pt-3 pb-24 text-[#101114]">
@@ -300,27 +359,34 @@ export default function ModelDetailClient({
                 </div>
               )}
 
-              {/* Core Specs Grid */}
-              <div className="grid grid-cols-3 gap-3 p-3.5 bg-white border border-[#e7e9ee] rounded-[11px] text-center">
+              {/* Core Specs Grid (4 Badges) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 bg-white border border-[#e7e9ee] rounded-[11px] text-center">
                 <div className="flex flex-col items-center">
                   <Maximize2 className="w-4 h-4 text-[#d97706] mb-1" />
                   <span className="text-[10px] uppercase text-[#6b7280] font-bold">Area</span>
-                  <span className="font-bold text-xs sm:text-sm text-[#101114]">
+                  <span className="font-bold text-xs text-[#101114]">
                     {model.sqft > 0 ? `${model.sqft.toLocaleString()} SQ FT` : (model.dimensions || "Custom Size")}
                   </span>
                 </div>
-                <div className="flex flex-col items-center border-x border-[#e7e9ee]">
+                <div className="flex flex-col items-center border-l border-[#e7e9ee]">
                   <Bed className="w-4 h-4 text-[#d97706] mb-1" />
                   <span className="text-[10px] uppercase text-[#6b7280] font-bold">Bedrooms</span>
-                  <span className="font-bold text-xs sm:text-sm text-[#101114]">
+                  <span className="font-bold text-xs text-[#101114]">
                     {model.bedrooms > 0 ? `${model.bedrooms} Bed` : (model.sqft > 0 ? "Studio / Open" : "Open Layout")}
                   </span>
                 </div>
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center border-l border-[#e7e9ee]">
                   <Bath className="w-4 h-4 text-[#d97706] mb-1" />
                   <span className="text-[10px] uppercase text-[#6b7280] font-bold">Bathrooms</span>
-                  <span className="font-bold text-xs sm:text-sm text-[#101114]">
+                  <span className="font-bold text-xs text-[#101114]">
                     {model.bathrooms > 0 ? `${model.bathrooms} Bath` : (model.bedrooms > 0 ? "1 Bath" : "Shell / Open")}
+                  </span>
+                </div>
+                <div className="flex flex-col items-center border-l border-[#e7e9ee]">
+                  <Layers className="w-4 h-4 text-[#d97706] mb-1" />
+                  <span className="text-[10px] uppercase text-[#6b7280] font-bold">Stories</span>
+                  <span className="font-bold text-xs text-[#101114]">
+                    {formattedStories}
                   </span>
                 </div>
               </div>
@@ -344,17 +410,35 @@ export default function ModelDetailClient({
                 )}
               </div>
 
-              {/* Call-to-action buttons */}
+              {/* Primary Call-to-action Buttons */}
               <div className="space-y-2.5 pt-1">
-                <Link
-                  href={`/quote?model=${encodeURIComponent(model.slug)}${activeVariant ? `&variant=${encodeURIComponent(activeVariant.id)}` : ""}`}
-                  className="btn-primary w-full py-3.5 text-xs sm:text-sm font-extrabold rounded-[11px] shadow-sm flex items-center justify-center gap-2"
+                {/* Request Quote Button (Opens Modal) */}
+                <button
+                  type="button"
+                  id="request-quote-button"
+                  onClick={() => {
+                    setQuoteSuccess(false);
+                    setQuoteModalOpen(true);
+                  }}
+                  className="btn-primary w-full py-3.5 text-xs sm:text-sm font-extrabold rounded-[11px] shadow-sm flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>Customize & Get Official Quote</span>
+                  <span>Request a Quote</span>
                   <ArrowRight className="w-4 h-4" />
-                </Link>
+                </button>
 
-                <div className="grid grid-cols-2 gap-2.5">
+                {/* Customize Plan Button (Opens Customizer Modal) */}
+                <button
+                  type="button"
+                  id="customize-plan-button"
+                  onClick={() => setCustomizeModalOpen(true)}
+                  className="w-full py-3 text-xs sm:text-sm font-extrabold rounded-[11px] border-2 border-[#d97706] bg-[#fef3c7] hover:bg-[#fde68a] text-[#92400e] flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                >
+                  <Sparkles className="w-4 h-4 text-[#d97706]" />
+                  <span>Customize Plan</span>
+                </button>
+
+                {/* Secondary Actions */}
+                <div className="grid grid-cols-2 gap-2.5 pt-1">
                   <a
                     href={`tel:${phone.replace(/[^0-9+]/g, "")}`}
                     className="btn-outline py-2.5 text-xs font-bold rounded-[9px] flex items-center justify-center gap-1.5"
@@ -368,6 +452,16 @@ export default function ModelDetailClient({
                     className="btn-outline py-2.5 text-xs font-bold rounded-[9px] flex items-center justify-center gap-1.5"
                   >
                     <span>Upload Plan</span>
+                  </Link>
+                </div>
+
+                {/* Link to Full Multi-Step Wizard */}
+                <div className="text-center pt-1">
+                  <Link
+                    href={`/quote?model=${encodeURIComponent(model.slug)}${activeVariant ? `&variant=${encodeURIComponent(activeVariant.id)}` : ""}`}
+                    className="text-[11px] text-[#6b7280] hover:text-[#d97706] font-semibold underline underline-offset-4"
+                  >
+                    Or open full 3D quote configuration wizard →
                   </Link>
                 </div>
 
@@ -441,7 +535,7 @@ export default function ModelDetailClient({
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 pointer-events-none" />
                   <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white">
-                    <span className="font-semibold">{model?.dimensions || "Standard Footprint"}</span>
+                    <span className="font-semibold">{formattedDimensions}</span>
                     <span className="text-[#fcb907] font-bold">Click to view full layout →</span>
                   </div>
                 </div>
@@ -477,7 +571,7 @@ export default function ModelDetailClient({
                       <div className="p-3.5 rounded-[10px] bg-white/5 border border-white/10">
                         <span className="text-[10px] uppercase text-gray-400 font-bold block">Footprint</span>
                         <span className="text-sm font-black text-white">
-                          {model.dimensions || (model.sqft > 0 ? `${model.sqft} SQ FT` : "Custom Dimensions")}
+                          {formattedDimensions}
                         </span>
                       </div>
                       <div className="p-3.5 rounded-[10px] bg-white/5 border border-white/10">
@@ -505,20 +599,25 @@ export default function ModelDetailClient({
                     </p>
 
                     <div className="flex flex-wrap items-center gap-3 pt-2">
-                      <Link
-                        href={`/quote?model=${encodeURIComponent(model.slug)}&request=floorplan`}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[9px] bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider transition-all shadow-md"
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setQuoteSuccess(false);
+                          setQuoteModalOpen(true);
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[9px] bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider transition-all shadow-md cursor-pointer"
                       >
                         <Download className="w-3.5 h-3.5" />
                         <span>Request Official Floor Plan CAD & PDF</span>
-                      </Link>
+                      </button>
 
-                      <Link
-                        href={`/upload-floor-plan?model=${encodeURIComponent(model.slug)}`}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[9px] bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition-all"
+                      <button
+                        type="button"
+                        onClick={() => setCustomizeModalOpen(true)}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[9px] bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition-all cursor-pointer"
                       >
                         <span>Submit Custom Layout Modification</span>
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -539,26 +638,30 @@ export default function ModelDetailClient({
               <div className="card overflow-hidden">
                 <div className="divide-y divide-[#e7e9ee]">
                   <div className="grid grid-cols-2 p-3.5 text-xs">
+                    <span className="text-[#6b7280] uppercase font-bold">Standard Dimensions</span>
+                    <span className="text-[#101114] font-semibold">{formattedDimensions}</span>
+                  </div>
+                  <div className="grid grid-cols-2 p-3.5 text-xs bg-[#f6f7f9]">
+                    <span className="text-[#6b7280] uppercase font-bold">Stories / Levels</span>
+                    <span className="text-[#101114] font-semibold">{formattedStories}</span>
+                  </div>
+                  <div className="grid grid-cols-2 p-3.5 text-xs">
                     <span className="text-[#6b7280] uppercase font-bold">Framing System</span>
                     <span className="text-[#101114] font-semibold">{model?.frameType || "Light Gauge Steel / Amish Timber"}</span>
                   </div>
                   <div className="grid grid-cols-2 p-3.5 text-xs bg-[#f6f7f9]">
-                    <span className="text-[#6b7280] uppercase font-bold">Standard Dimensions</span>
-                    <span className="text-[#101114] font-semibold">{model?.dimensions || "Custom Sizing Available"}</span>
-                  </div>
-                  <div className="grid grid-cols-2 p-3.5 text-xs">
                     <span className="text-[#6b7280] uppercase font-bold">Roof Pitch & Profile</span>
                     <span className="text-[#101114] font-semibold">{model?.roofPitch || "4:12 Standing Seam"}</span>
                   </div>
-                  <div className="grid grid-cols-2 p-3.5 text-xs bg-[#f6f7f9]">
+                  <div className="grid grid-cols-2 p-3.5 text-xs">
                     <span className="text-[#6b7280] uppercase font-bold">Wind Speed Rating</span>
                     <span className="text-[#101114] font-semibold">{model?.windRating || "150 MPH Rated"}</span>
                   </div>
-                  <div className="grid grid-cols-2 p-3.5 text-xs">
+                  <div className="grid grid-cols-2 p-3.5 text-xs bg-[#f6f7f9]">
                     <span className="text-[#6b7280] uppercase font-bold">Ground Snow Load</span>
                     <span className="text-[#101114] font-semibold">{model?.snowLoad || "50 PSF Rated"}</span>
                   </div>
-                  <div className="grid grid-cols-2 p-3.5 text-xs bg-[#f6f7f9]">
+                  <div className="grid grid-cols-2 p-3.5 text-xs">
                     <span className="text-[#6b7280] uppercase font-bold">Structural Warranty</span>
                     <span className="text-[#d97706] font-bold">{model?.warranty || "50-Year Structural"}</span>
                   </div>
@@ -675,15 +778,28 @@ export default function ModelDetailClient({
                   </span>
                 </div>
 
-                {/* Main Action CTAs */}
+                {/* Main Action CTAs in Sidebar */}
                 <div className="space-y-2 pt-2">
-                  <Link
-                    href={`/quote?model=${encodeURIComponent(model.slug)}${activeVariant ? `&variant=${encodeURIComponent(activeVariant.id)}` : ""}`}
-                    className="btn-primary w-full py-3.5 text-xs font-extrabold rounded-[11px] flex items-center justify-center gap-2"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuoteSuccess(false);
+                      setQuoteModalOpen(true);
+                    }}
+                    className="btn-primary w-full py-3.5 text-xs font-extrabold rounded-[11px] flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                   >
                     <span>Request a Detailed Quote</span>
                     <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCustomizeModalOpen(true)}
+                    className="w-full py-2.5 text-xs font-extrabold rounded-[11px] border border-[#d97706] bg-[#fef3c7] hover:bg-[#fde68a] text-[#92400e] flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Customize Plan & Layout</span>
+                  </button>
 
                   <a
                     href={`tel:${phone.replace(/[^0-9+]/g, "")}`}
@@ -730,13 +846,273 @@ export default function ModelDetailClient({
         )}
       </div>
 
+      {/* REQUEST QUOTE MODAL (DEF-05) */}
+      {quoteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative max-w-lg w-full bg-white border border-[#e7e9ee] rounded-[20px] p-6 sm:p-7 shadow-2xl overflow-y-auto max-h-[92vh]">
+            <div className="flex items-center justify-between pb-4 border-b border-[#e7e9ee]">
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#d97706]">Official Pricing Request</span>
+                <h3 className="text-lg sm:text-xl font-black text-[#101114]">{model?.name}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setQuoteModalOpen(false)}
+                className="p-1.5 text-[#6b7280] hover:text-[#101114] rounded-md cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {quoteSuccess ? (
+              <div className="py-8 text-center space-y-4">
+                <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-emerald-600">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <h4 className="text-xl font-black text-[#101114]">Quote Request Received!</h4>
+                <p className="text-xs text-[#6b7280] max-w-md mx-auto leading-relaxed">
+                  Thank you, <strong>{quoteForm.name || "Customer"}</strong>. An engineering advisor is preparing your itemized build estimate for the <strong>{model.name}</strong> and will reach out to you within 24 hours.
+                </p>
+                <div className="p-3 bg-[#f6f7f9] rounded-[11px] text-xs font-bold text-[#101114]">
+                  Estimated Build: <span className="text-[#d97706]">{formatPrice(totalCalculatedPrice)}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setQuoteModalOpen(false)}
+                  className="btn-primary w-full py-3 text-xs font-bold rounded-[10px]"
+                >
+                  Close & Continue Browsing
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleQuoteSubmit} className="space-y-4 mt-4">
+                <div className="p-3 bg-[#f6f7f9] rounded-[11px] flex items-center justify-between text-xs">
+                  <div>
+                    <span className="text-[#6b7280] block text-[10px] uppercase font-bold">Configured Model</span>
+                    <span className="font-bold text-[#101114]">{activeVariant ? `${model.name} (${activeVariant.title})` : model.name}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[#6b7280] block text-[10px] uppercase font-bold">Estimated Total</span>
+                    <span className="font-black text-[#d97706] text-sm">{formatPrice(totalCalculatedPrice)}</span>
+                  </div>
+                </div>
+
+                {quoteError && (
+                  <div className="p-3 rounded-[9px] bg-red-50 border border-red-200 text-xs text-red-700 font-medium">
+                    {quoteError}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#101114] uppercase mb-1">Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={quoteForm.name}
+                      onChange={(e) => setQuoteForm({ ...quoteForm, name: e.target.value })}
+                      placeholder="e.g. John Miller"
+                      className="w-full px-3 py-2 text-xs rounded-[8px] border border-[#e7e9ee] focus:border-[#fcb907] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#101114] uppercase mb-1">Email Address *</label>
+                    <input
+                      type="email"
+                      required
+                      value={quoteForm.email}
+                      onChange={(e) => setQuoteForm({ ...quoteForm, email: e.target.value })}
+                      placeholder="e.g. john@example.com"
+                      className="w-full px-3 py-2 text-xs rounded-[8px] border border-[#e7e9ee] focus:border-[#fcb907] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#101114] uppercase mb-1">Phone Number</label>
+                    <input
+                      type="tel"
+                      value={quoteForm.phone}
+                      onChange={(e) => setQuoteForm({ ...quoteForm, phone: e.target.value })}
+                      placeholder="e.g. (812) 555-0199"
+                      className="w-full px-3 py-2 text-xs rounded-[8px] border border-[#e7e9ee] focus:border-[#fcb907] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#101114] uppercase mb-1">Delivery ZIP Code *</label>
+                    <input
+                      type="text"
+                      required
+                      value={quoteForm.zip}
+                      onChange={(e) => setQuoteForm({ ...quoteForm, zip: e.target.value })}
+                      placeholder="e.g. 47401"
+                      className="w-full px-3 py-2 text-xs rounded-[8px] border border-[#e7e9ee] focus:border-[#fcb907] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-[#101114] uppercase mb-1">Building Timeline</label>
+                  <select
+                    value={quoteForm.timeline}
+                    onChange={(e) => setQuoteForm({ ...quoteForm, timeline: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-[8px] border border-[#e7e9ee] focus:border-[#fcb907] focus:outline-none bg-white"
+                  >
+                    <option value="Immediately (1-3 months)">Immediately (1-3 months)</option>
+                    <option value="Planning for 3-6 months">Planning for 3-6 months</option>
+                    <option value="Exploring for next year">Exploring for next year</option>
+                    <option value="Builder / Developer Inquiry">Builder / Developer Project</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-[#101114] uppercase mb-1">Notes / Custom Modifications</label>
+                  <textarea
+                    rows={2}
+                    value={quoteForm.notes}
+                    onChange={(e) => setQuoteForm({ ...quoteForm, notes: e.target.value })}
+                    placeholder="Specific foundation, porch extensions, or layout alterations..."
+                    className="w-full px-3 py-2 text-xs rounded-[8px] border border-[#e7e9ee] focus:border-[#fcb907] focus:outline-none"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={quoteSubmitting}
+                  className="btn-primary w-full py-3 text-xs font-extrabold rounded-[10px] shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {quoteSubmitting ? "Generating Quote Package..." : "Submit Quote Request"}
+                  {!quoteSubmitting && <ArrowRight className="w-4 h-4" />}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOMIZE PLAN MODAL (DEF-05) */}
+      {customizeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative max-w-2xl w-full bg-white border border-[#e7e9ee] rounded-[20px] p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[92vh]">
+            <div className="flex items-center justify-between pb-4 border-b border-[#e7e9ee]">
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#d97706]">Plan Customizer</span>
+                <h3 className="text-xl font-black text-[#101114]">Customize {model?.name}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCustomizeModalOpen(false)}
+                className="p-1.5 text-[#6b7280] hover:text-[#101114] rounded-md cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-6 mt-4">
+              {/* Build Variant Picker */}
+              {variants.length > 1 && (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[#101114] uppercase">1. Select Package / Size Variant</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {variants.map((v) => {
+                      const isSelected = v.id === (activeVariant?.id || "");
+                      return (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={() => setSelectedVariantId(v.id)}
+                          className={`p-3 rounded-[10px] border text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-amber-50/50 border-[#d97706] ring-1 ring-[#d97706]"
+                              : "bg-white border-[#e7e9ee] hover:border-[#cbd5e1]"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-[#101114]">{v.title}</span>
+                            <span className="text-xs font-extrabold text-[#d97706]">{formatPrice(v.price)}</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Upgrades Toggles */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#101114] uppercase">2. Select Custom Add-ons & Finishes</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {optionsList.map((opt) => {
+                    const isChecked = selectedOptions.includes(opt.id);
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => toggleOption(opt.id)}
+                        className={`p-3 rounded-[10px] border text-left flex items-center justify-between transition-all cursor-pointer ${
+                          isChecked
+                            ? "bg-amber-50/50 border-[#fcb907] ring-1 ring-[#fcb907]"
+                            : "bg-white border-[#e7e9ee] hover:border-[#fcb907]"
+                        }`}
+                      >
+                        <div>
+                          <span className="text-xs font-bold text-[#101114] block">{opt.name}</span>
+                          <span className="text-[10px] text-[#6b7280]">{opt.description}</span>
+                        </div>
+                        <span className="text-xs font-bold text-[#d97706] shrink-0 ml-2">+{formatPrice(opt.price)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Live Price Summary & Action Buttons */}
+              <div className="p-4 bg-[#f6f7f9] rounded-[14px] border border-[#e7e9ee] space-y-3">
+                <div className="flex items-baseline justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-[#6b7280] block">Current Custom Configuration</span>
+                    <span className="text-2xl font-black text-[#d97706]">{formatPrice(totalCalculatedPrice)}</span>
+                  </div>
+                  <span className="text-xs font-semibold text-[#6b7280]">
+                    {selectedOptions.length} upgrades selected
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomizeModalOpen(false);
+                      setQuoteSuccess(false);
+                      setQuoteModalOpen(true);
+                    }}
+                    className="btn-primary py-3 text-xs font-bold rounded-[10px] flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                  >
+                    <span>Request Quote with Custom Specs</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+
+                  <Link
+                    href={`/quote?model=${encodeURIComponent(model.slug)}${activeVariant ? `&variant=${encodeURIComponent(activeVariant.id)}` : ""}`}
+                    className="btn-outline py-3 text-xs font-bold rounded-[10px] flex items-center justify-center gap-2 text-center"
+                  >
+                    <span>Full 3D Visual Configurator →</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Floor Plan Fullscreen Modal */}
       {floorPlanExpanded && hasRealFloorPlan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
           <div className="relative max-w-5xl w-full bg-white border border-[#e7e9ee] rounded-[18px] p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-[#e7e9ee]">
               <h3 className="text-base sm:text-lg font-black text-[#101114]">
-                {model?.name} — Detailed Floor Plan ({model?.dimensions})
+                {model?.name} — Detailed Floor Plan ({formattedDimensions})
               </h3>
               <button
                 onClick={() => setFloorPlanExpanded(false)}

@@ -97,6 +97,24 @@ export default function AdminBlogsPage() {
     }
   };
 
+  const filteredBlogs = (blogs || []).filter((blog) => {
+    if (statusFilter !== "ALL" && (blog.status || "").toUpperCase() !== statusFilter.toUpperCase()) {
+      return false;
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase().trim();
+      const titleMatch = (blog.title || "").toLowerCase().includes(q);
+      const slugMatch = (blog.slug || "").toLowerCase().includes(q);
+      const catMatch = (blog.category || "").toLowerCase().includes(q);
+      const authorMatch = (blog.author || "").toLowerCase().includes(q);
+      const excerptMatch = (blog.excerpt || "").toLowerCase().includes(q);
+      if (!titleMatch && !slugMatch && !catMatch && !authorMatch && !excerptMatch) {
+        return false;
+      }
+    }
+    return true;
+  });
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300 pb-12">
       {/* Header */}
@@ -126,7 +144,7 @@ export default function AdminBlogsPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by title or excerpt..."
+            placeholder="Search by title, category, or keyword..."
             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
           />
           <Search className="w-4 h-4 text-[#6b7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -139,7 +157,7 @@ export default function AdminBlogsPage() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3.5 py-2 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none cursor-pointer"
           >
-            <option value="ALL">All Articles</option>
+            <option value="ALL">All Articles ({blogs.length})</option>
             <option value="PUBLISHED">Published</option>
             <option value="DRAFT">Drafts</option>
             <option value="ARCHIVED">Archived</option>
@@ -154,12 +172,24 @@ export default function AdminBlogsPage() {
             <Loader2 className="w-6 h-6 animate-spin text-[#fcb907]" />
             <span>Loading articles...</span>
           </div>
-        ) : blogs.length === 0 ? (
-          <div className="py-20 text-center text-[#6b7280] text-xs font-medium">
-            No blog articles found. Click &quot;Write New Article&quot; to publish one.
+        ) : filteredBlogs.length === 0 ? (
+          <div className="py-20 text-center text-[#6b7280] text-xs font-medium space-y-2">
+            <div>No articles match your search or filter criteria.</div>
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="text-xs text-[#d97706] font-bold underline cursor-pointer"
+              >
+                Clear Search Query
+              </button>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto">
+            <div className="px-5 py-3 bg-[#fbfbfc] border-b border-[#e7e9ee] text-xs text-[#6b7280] font-medium flex items-center justify-between">
+              <span>Showing <strong>{filteredBlogs.length}</strong> of {blogs.length} articles</span>
+            </div>
             <table className="w-full text-left border-collapse text-xs min-w-[750px]">
               <thead>
                 <tr className="bg-[#f8f9fa] border-b border-[#e7e9ee] text-[#6b7280] font-bold uppercase tracking-wider text-[10px] font-mono">
@@ -171,10 +201,14 @@ export default function AdminBlogsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#e7e9ee]">
-                {blogs.map((blog) => {
-                  const bId = blog.id || blog._id;
+                {filteredBlogs.map((blog) => {
+                  const targetSlug = blog.slug || (blog.id ? String(blog.id).replace(/[^a-zA-Z0-9_-]/g, "-") : "article");
+                  const editUrl = `/admin/blogs/${encodeURIComponent(targetSlug)}`;
+                  const previewUrl = `/resources/${blog.slug || targetSlug}`;
+                  const bId = blog.id || blog.slug;
+
                   return (
-                    <tr key={bId} className="hover:bg-[#f8f9fa]/70 transition-colors">
+                    <tr key={blog.id || blog.slug} className="hover:bg-[#f8f9fa]/70 transition-colors">
                       <td className="py-4 px-5">
                         <div className="flex items-center gap-3.5">
                           <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-[#f8f9fa] shrink-0 border border-[#e7e9ee]">
@@ -228,7 +262,7 @@ export default function AdminBlogsPage() {
                       </td>
                       <td className="py-4 px-5 text-right space-x-1.5">
                         <Link
-                          href={`/resources/${blog.slug}`}
+                          href={previewUrl}
                           target="_blank"
                           className="p-2 rounded-xl text-[#6b7280] hover:text-[#d97706] hover:bg-white hover:border-[#d5d9e0] border border-transparent inline-block transition-all shadow-2xs cursor-pointer"
                           title="View Live Article"
@@ -236,7 +270,7 @@ export default function AdminBlogsPage() {
                           <Eye className="w-4 h-4" />
                         </Link>
                         <Link
-                          href={`/admin/blogs/${bId}`}
+                          href={editUrl}
                           className="p-2 rounded-xl text-[#101114] hover:bg-white hover:border-[#d5d9e0] border border-transparent inline-block transition-all shadow-2xs cursor-pointer"
                           title="Edit Article"
                         >

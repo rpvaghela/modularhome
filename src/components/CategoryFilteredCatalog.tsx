@@ -29,6 +29,7 @@ export const CATEGORY_ROUTE_MAP: Record<string, string> = {
   "Tiny Homes": "/tiny-homes",
   "Park Models": "/park-models",
   "Cabins": "/cabins",
+  "Modular Cabins": "/modular-cabins",
   "ADUs & Granny Pods": "/adus",
   "ADUs": "/adus",
   "A-Frame Homes": "/a-frame-homes",
@@ -48,6 +49,7 @@ const CATEGORY_SELECT_OPTIONS = [
   { label: "Tiny Homes", value: "Tiny Homes" },
   { label: "Park Models", value: "Park Models" },
   { label: "Cabins", value: "Cabins" },
+  { label: "Modular Cabins", value: "Modular Cabins" },
   { label: "ADUs & Granny Pods", value: "ADUs & Granny Pods" },
   { label: "A-Frames", value: "A-Frames" },
   { label: "Commercial", value: "Commercial" },
@@ -126,17 +128,27 @@ export default function CategoryFilteredCatalog({
         }
       }
 
-      // 2. Keyword Search Query
+      // 2. Keyword & Numeric SQ FT Search Query
       if (searchQuery.trim() !== "") {
-        const q = searchQuery.toLowerCase().trim();
-        const titleMatch = (p.name || (p as any).title || "").toLowerCase().includes(q);
-        const seriesMatch = (p.series || "").toLowerCase().includes(q);
-        const catMatch = (p.category || (p as any).product_type || "").toLowerCase().includes(q);
-        const descMatch = (p.description || "").toLowerCase().includes(q);
-        const styleMatch = (p.architecturalStyle || "").toLowerCase().includes(q);
-        const tagMatch = Array.isArray(p.tags) && p.tags.some((t: string) => t.toLowerCase().includes(q));
+        const rawQ = searchQuery.toLowerCase().trim();
+        const cleanDigits = rawQ.replace(/[^0-9]/g, "");
+        const numQ = cleanDigits ? parseInt(cleanDigits, 10) : NaN;
 
-        if (!titleMatch && !seriesMatch && !catMatch && !descMatch && !styleMatch && !tagMatch) {
+        const sqftNum = p.sqft || 0;
+        const sqftExactMatch = !isNaN(numQ) && numQ > 0 && (sqftNum === numQ || (sqftNum > 0 && Math.abs(sqftNum - numQ) <= 25));
+        const sqftStringMatch = !isNaN(numQ) && numQ > 50 && (
+          sqftNum.toString().includes(cleanDigits) ||
+          sqftNum.toLocaleString().includes(rawQ)
+        );
+
+        const titleMatch = (p.name || (p as any).title || "").toLowerCase().includes(rawQ);
+        const seriesMatch = (p.series || "").toLowerCase().includes(rawQ);
+        const catMatch = (p.category || (p as any).product_type || "").toLowerCase().includes(rawQ);
+        const descMatch = (p.description || "").toLowerCase().includes(rawQ);
+        const styleMatch = (p.architecturalStyle || "").toLowerCase().includes(rawQ);
+        const tagMatch = Array.isArray(p.tags) && p.tags.some((t: string) => t.toLowerCase().includes(rawQ));
+
+        if (!sqftExactMatch && !sqftStringMatch && !titleMatch && !seriesMatch && !catMatch && !descMatch && !styleMatch && !tagMatch) {
           return false;
         }
       }
@@ -207,19 +219,27 @@ export default function CategoryFilteredCatalog({
       return true;
     });
 
-    // Deduplicate by base model name so duplicate state pricing records do not repeat
-    const seen = new Set<string>();
-    const deduplicated: BuildingModel[] = [];
-    for (const p of matched) {
-      const base = getBaseModelName(p.name);
-      const key = base.toLowerCase();
-      if (!seen.has(key)) {
-        seen.add(key);
-        deduplicated.push(p);
+    let result = [...matched];
+
+    // Sort results by search relevance (exact SQ FT matches or title matches first)
+    if (searchQuery.trim()) {
+      const rawQ = searchQuery.toLowerCase().trim();
+      const cleanDigits = rawQ.replace(/[^0-9]/g, "");
+      const numQ = cleanDigits ? parseInt(cleanDigits, 10) : NaN;
+
+      if (!isNaN(numQ) && numQ > 0) {
+        result.sort((a: BuildingModel, b: BuildingModel) => {
+          const aSqft = a.sqft || 0;
+          const bSqft = b.sqft || 0;
+          const aDiff = Math.abs(aSqft - numQ);
+          const bDiff = Math.abs(bSqft - numQ);
+          if (aDiff !== bDiff) return aDiff - bDiff;
+          return 0;
+        });
       }
     }
 
-    return deduplicated;
+    return result;
   }, [
     catalogPool,
     selectedCategory,
@@ -449,7 +469,7 @@ export default function CategoryFilteredCatalog({
       {/* Product Catalog Grid */}
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 pt-1">
-          {filteredProducts.map((model) => {
+          {filteredProducts.map((model: BuildingModel) => {
             const activeCatSlug = selectedCategory !== "All" 
               ? (CATEGORY_ROUTE_MAP[selectedCategory] || `/${selectedCategory.toLowerCase()}`).replace(/^\//, "")
               : categoryKey;

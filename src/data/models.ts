@@ -127,6 +127,16 @@ export const CATEGORIES = [
     cta: "View Cabins",
   },
   {
+    id: "Modular Cabins",
+    title: "Modular Cabins",
+    tagline: "Factory-built precision prefab & modular log cabins.",
+    description: "High-performance modular cabins and turnkey prefab log retreats engineered for mountain, lake, or rural living.",
+    image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345",
+    count: 0,
+    href: "/modular-cabins",
+    cta: "View Modular Cabins",
+  },
+  {
     id: "ADUs & Granny Pods",
     title: "ADUs & Granny Pods",
     tagline: "Additional dwelling units for family or income.",

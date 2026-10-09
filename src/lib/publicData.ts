@@ -944,6 +944,20 @@ export function formatBlogArticle(b: any): ResourceArticle {
     metaDescription: b.seo_description || b.seoDescription || b.meta_description || b.metaDescription || b.excerpt,
     tags: Array.isArray(b.tags) ? b.tags : [],
     keyTakeaways: Array.isArray(b.key_takeaways || b.keyTakeaways) ? (b.key_takeaways || b.keyTakeaways) : undefined,
+    sqft: b.sqft,
+    bedrooms: b.bedrooms,
+    bathrooms: b.bathrooms,
+    stories: b.stories,
+    hasLoft: b.hasLoft !== undefined ? b.hasLoft : b.has_loft,
+    buildingStyle: b.buildingStyle || b.building_style,
+    buildType: b.buildType || b.build_type,
+    price: b.price || b.startingPrice || b.starting_price,
+    startingPrice: b.startingPrice || b.starting_price || b.price,
+    qualityBadge: b.qualityBadge || b.quality_badge,
+    pullQuote: b.pullQuote || b.pull_quote,
+    pullQuoteAuthor: b.pullQuoteAuthor || b.pull_quote_author,
+    customFeatures: Array.isArray(b.customFeatures || b.custom_features) ? (b.customFeatures || b.custom_features) : undefined,
+    heroBackground: b.heroBackground || b.hero_background,
   };
 }
 
@@ -1345,6 +1359,7 @@ const FALLBACK_PAGES: Record<string, Partial<CmsPage>> = {
 
 const FALLBACK_COLLECTIONS: PublicCollection[] = [
   { id: "cabins", name: "Cabins", slug: "cabins", tagline: "Rustic Timber & Handcrafted Modular Cabins", description: "Explore our collection of Amish-crafted and modular cabins built for year-round comfort.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345", status: "PUBLISHED" },
+  { id: "modular-cabins", name: "Modular Cabins", slug: "modular-cabins", tagline: "Modern Factory-Built Prefab & Modular Cabins", description: "Discover high-performance modular cabins and turnkey prefab log retreats engineered for mountain, lake, or rural living.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345", status: "PUBLISHED" },
   { id: "modular-homes", name: "Modular Homes", slug: "modular-homes", tagline: "Modern Precision-Engineered Residential Homes", description: "Full-sized single-family modular residences with architectural excellence.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", status: "PUBLISHED" },
   { id: "prefab-homes", name: "Prefab Homes", slug: "prefab-homes", tagline: "High-Performance Turnkey Prefabricated Residences", description: "Turnkey prefab homes manufactured in precision climate-controlled environments.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/prefabdua1.jpg?v=1737512098", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/prefabdua1.jpg?v=1737512098", status: "PUBLISHED" },
   { id: "tiny-homes", name: "Tiny Homes", slug: "tiny-homes", tagline: "Compact High-Efficiency Living & ADUs", description: "Modern tiny homes and backyard accessory dwelling units with premium finishes.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/maddy.png?v=1783804418", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/maddy.png?v=1783804418", status: "PUBLISHED" },

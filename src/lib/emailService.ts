@@ -84,11 +84,11 @@ function getContactPhone(): string {
 }
 
 function getContactEmail(): string {
-  return process.env.NEXT_PUBLIC_CONTACT_EMAIL || "modularhome.admin@gmail.com";
+  return process.env.NEXT_PUBLIC_CONTACT_EMAIL || "support@modularhome.com";
 }
 
 function getAdminNotificationEmail(): string {
-  return process.env.ADMIN_EMAIL || process.env.ADMIN_NOTIFICATION_EMAIL || "modularhome.admin@gmail.com";
+  return process.env.ADMIN_EMAIL || process.env.ADMIN_NOTIFICATION_EMAIL || "support@modularhome.com";
 }
 
 function wrapEmailTemplate(title: string, bodyContent: string): string {

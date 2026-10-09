@@ -13,8 +13,29 @@ import {
   BookOpen,
   Image as ImageIcon,
   Video,
+  Layers,
+  Sparkles,
+  Quote,
+  Home,
+  Bed,
+  Bath,
+  DollarSign,
+  Plus,
+  Trash2,
+  Sliders,
+  ExternalLink,
 } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
+
+const POPULAR_CATEGORIES = [
+  "Modular Cabins",
+  "Modular Homes & Prefab Homes",
+  "Modular Construction",
+  "Building Guides",
+  "Barndominiums",
+  "Tiny Homes & ADUs",
+  "Financing & Pricing",
+];
 
 export default function AdminEditBlogPage() {
   const params = useParams();
@@ -29,16 +50,55 @@ export default function AdminEditBlogPage() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
-    fetch(`/api/admin/blogs/${blogId}`)
+    if (!blogId) return;
+    fetch(`/api/admin/blogs/${encodeURIComponent(blogId)}`)
       .then((res) => res.json())
       .then((json) => {
         if (json.success && json.data) {
           const b = json.data;
-          setBlog(b);
+          
+          let parsedFeatures: Array<{ title: string; desc: string }> = [];
+          if (Array.isArray(b.customFeatures)) {
+            parsedFeatures = b.customFeatures;
+          } else if (Array.isArray(b.custom_features)) {
+            parsedFeatures = b.custom_features;
+          } else {
+            parsedFeatures = [
+              { title: b.sqft || "1,750 Sq Ft", desc: "Spacious layout with open-concept design and high volume ceilings." },
+              { title: b.bedrooms || "3 Bed", desc: "Comfortable bedrooms designed for family living, guests, or home office." },
+              { title: b.bathrooms || "2 Bath", desc: "Modern and functional bathrooms with premium pre-installed fixtures." },
+              { title: "Expansive Living Area", desc: "Extra elevated living space for guests, home office, or entertainment lounge." },
+              { title: b.qualityBadge || "Amish Built Quality", desc: "Crafted with premium structural materials and superior precision workmanship." },
+              { title: b.buildType || "Modular & Prefab Built", desc: "Built indoors in climate control for 50% faster build times and cost efficiency." },
+              { title: "Rustic Modern Design", desc: "Timeless architectural aesthetic with expansive floor-to-ceiling windows." },
+              { title: "Energy Efficient", desc: "Engineered thermal envelope built for year-round comfort and lower utility bills." },
+            ];
+          }
+
+          setBlog({
+            ...b,
+            category: b.category || "Modular Cabins",
+            sqft: b.sqft || "1,750 Sq Ft",
+            bedrooms: b.bedrooms || "3 Bed",
+            bathrooms: b.bathrooms || "2 Bath",
+            stories: b.stories || "1 Story",
+            hasLoft: b.hasLoft !== undefined ? Boolean(b.hasLoft) : true,
+            buildingStyle: b.buildingStyle || "Prefab Modular Home",
+            buildType: b.buildType || "Modular / Prefab",
+            price: b.price || b.startingPrice || "$265,000",
+            qualityBadge: b.qualityBadge || "Amish-Built Quality",
+            pullQuote: b.pullQuote || "A spacious, stylish, and affordable modular cabin — perfect for your forever home, vacation retreat, or rental property.",
+            pullQuoteAuthor: b.pullQuoteAuthor || "ModularHome.com Architectural Review",
+            customFeatures: parsedFeatures,
+          });
+
           try {
             const cats = typeof b.categories === "string" ? JSON.parse(b.categories) : b.categories;
-            setCategoriesText(Array.isArray(cats) ? cats.join(", ") : "");
-          } catch {}
+            setCategoriesText(Array.isArray(cats) ? cats.join(", ") : (b.category || "Modular Cabins"));
+          } catch {
+            setCategoriesText(b.category || "Modular Cabins");
+          }
+
           try {
             const t = typeof b.tags === "string" ? JSON.parse(b.tags) : b.tags;
             setTagsText(Array.isArray(t) ? t.join(", ") : "");
@@ -49,27 +109,57 @@ export default function AdminEditBlogPage() {
       .finally(() => setIsLoading(false));
   }, [blogId]);
 
+  const handleAddFeature = () => {
+    setBlog((prev: any) => ({
+      ...prev,
+      customFeatures: [
+        ...(prev.customFeatures || []),
+        { title: "New Feature", desc: "Feature description..." },
+      ],
+    }));
+  };
+
+  const handleRemoveFeature = (index: number) => {
+    setBlog((prev: any) => ({
+      ...prev,
+      customFeatures: prev.customFeatures.filter((_: any, i: number) => i !== index),
+    }));
+  };
+
+  const handleUpdateFeature = (index: number, field: "title" | "desc", value: string) => {
+    setBlog((prev: any) => {
+      const updated = [...(prev.customFeatures || [])];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, customFeatures: updated };
+    });
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setMessage(null);
 
     try {
+      const categoriesArray = categoriesText
+        ? categoriesText.split(",").map((c) => c.trim()).filter(Boolean)
+        : [blog.category];
+
       const res = await fetch(`/api/admin/blogs/${blogId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...blog,
-          categories: categoriesText.split(",").map((c) => c.trim()).filter(Boolean),
+          category: blog.category || categoriesArray[0] || "Modular Cabins",
+          categories: categoriesArray,
           tags: tagsText.split(",").map((t) => t.trim()).filter(Boolean),
         }),
       });
       const json = await res.json();
 
       if (json.success) {
-        setMessage({ type: "success", text: "Blog article updated successfully!" });
+        setMessage({ type: "success", text: "Article & Resource updated successfully!" });
       } else {
-        setMessage({ type: "error", text: json.error?.message || "Failed to update blog." });
+        setMessage({ type: "error", text: json.error?.message || "Failed to update article." });
       }
     } catch (err: any) {
       setMessage({ type: "error", text: err.message || "Network error." });
@@ -90,17 +180,20 @@ export default function AdminEditBlogPage() {
   if (!blog) {
     return (
       <div className="text-center py-20">
-        <p className="text-sm text-gray-600">Blog not found.</p>
+        <p className="text-sm text-gray-600">Article not found.</p>
         <Link href="/admin/blogs" className="text-xs font-bold text-[#d97706] mt-2 inline-block">
-          ← Back to Blogs
+          ← Back to Articles
         </Link>
       </div>
     );
   }
 
+  const previewCategory = (blog.category || "modular-construction").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const publicUrl = `/blogs/${previewCategory}/${blog.slug}`;
+
   return (
-    <form onSubmit={handleSave} className="space-y-6 animate-in fade-in pb-12">
-      {/* Header */}
+    <form onSubmit={handleSave} className="space-y-6 animate-in fade-in pb-16">
+      {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#e7e9ee] pb-5">
         <div className="flex items-center gap-3">
           <Link
@@ -110,11 +203,22 @@ export default function AdminEditBlogPage() {
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-serif font-bold text-[#101114] tracking-tight">
-              Edit Article: {blog.title}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-serif font-bold text-[#101114] tracking-tight">
+                Edit Article: {blog.title}
+              </h1>
+              <a
+                href={publicUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1 text-gray-400 hover:text-[#d97706] transition-colors"
+                title="View live article"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
             <p className="text-xs text-[#6b7280] font-mono mt-0.5">
-              Slug: /{blog.slug}
+              Live URL: {publicUrl}
             </p>
           </div>
         </div>
@@ -122,7 +226,7 @@ export default function AdminEditBlogPage() {
         <button
           type="submit"
           disabled={isSaving}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-bold uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-bold uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 cursor-pointer"
         >
           {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           <span>Save Changes</span>
@@ -147,11 +251,13 @@ export default function AdminEditBlogPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        {/* Left 2 Cols: Content */}
+        {/* Left 2 Columns: Main Content, Specs, Pull Quotes, and Features */}
         <div className="lg:col-span-2 space-y-6">
+          {/* 1. Core Article Details */}
           <div className="bg-white p-6 rounded-[18px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-4">
-            <h2 className="text-sm font-serif font-bold text-[#101114] border-b border-[#e7e9ee] pb-3">
-              Article Content & Details
+            <h2 className="text-sm font-serif font-bold text-[#101114] border-b border-[#e7e9ee] pb-3 flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-[#d97706]" />
+              <span>Article Details &amp; Headline</span>
             </h2>
 
             <div>
@@ -177,7 +283,7 @@ export default function AdminEditBlogPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#101114] mb-1.5">Short Excerpt</label>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">Subtitle / Short Summary</label>
               <textarea
                 rows={2}
                 value={blog.excerpt || ""}
@@ -185,24 +291,223 @@ export default function AdminEditBlogPage() {
                 className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
               />
             </div>
+          </div>
+
+          {/* 2. Key Specs & Ribbon Bar Settings */}
+          <div className="bg-white p-6 rounded-[18px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-4">
+            <h2 className="text-sm font-serif font-bold text-[#101114] border-b border-[#e7e9ee] pb-3 flex items-center gap-2">
+              <Sliders className="w-4 h-4 text-[#d97706]" />
+              <span>Model Specs &amp; Ribbon Bar (Appears on Hero &amp; Sidebar)</span>
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-[#101114] mb-1">Square Footage</label>
+                <input
+                  type="text"
+                  value={blog.sqft || ""}
+                  onChange={(e) => setBlog({ ...blog, sqft: e.target.value })}
+                  placeholder="e.g. 1,750 Sq Ft"
+                  className="w-full px-3 py-2 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] focus:bg-white focus:ring-2 focus:ring-[#fcb907]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#101114] mb-1">Bedrooms</label>
+                <input
+                  type="text"
+                  value={blog.bedrooms || ""}
+                  onChange={(e) => setBlog({ ...blog, bedrooms: e.target.value })}
+                  placeholder="e.g. 3 Bed"
+                  className="w-full px-3 py-2 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] focus:bg-white focus:ring-2 focus:ring-[#fcb907]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#101114] mb-1">Bathrooms</label>
+                <input
+                  type="text"
+                  value={blog.bathrooms || ""}
+                  onChange={(e) => setBlog({ ...blog, bathrooms: e.target.value })}
+                  placeholder="e.g. 2 Bath"
+                  className="w-full px-3 py-2 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] focus:bg-white focus:ring-2 focus:ring-[#fcb907]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#101114] mb-1">Stories</label>
+                <input
+                  type="text"
+                  value={blog.stories || ""}
+                  onChange={(e) => setBlog({ ...blog, stories: e.target.value })}
+                  placeholder="e.g. 1 Story"
+                  className="w-full px-3 py-2 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] focus:bg-white focus:ring-2 focus:ring-[#fcb907]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#101114] mb-1">Starting Price</label>
+                <input
+                  type="text"
+                  value={blog.price || ""}
+                  onChange={(e) => setBlog({ ...blog, price: e.target.value })}
+                  placeholder="e.g. $265,000"
+                  className="w-full px-3 py-2 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-bold text-[#d97706] focus:bg-white focus:ring-2 focus:ring-[#fcb907]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#101114] mb-1">Architectural Style</label>
+                <input
+                  type="text"
+                  value={blog.buildingStyle || ""}
+                  onChange={(e) => setBlog({ ...blog, buildingStyle: e.target.value })}
+                  placeholder="e.g. Prefab Modular Home"
+                  className="w-full px-3 py-2 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] focus:bg-white focus:ring-2 focus:ring-[#fcb907]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#101114] mb-1">Build Type</label>
+                <input
+                  type="text"
+                  value={blog.buildType || ""}
+                  onChange={(e) => setBlog({ ...blog, buildType: e.target.value })}
+                  placeholder="e.g. Modular / Prefab"
+                  className="w-full px-3 py-2 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] focus:bg-white focus:ring-2 focus:ring-[#fcb907]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#101114] mb-1">Quality Badge</label>
+                <input
+                  type="text"
+                  value={blog.qualityBadge || ""}
+                  onChange={(e) => setBlog({ ...blog, qualityBadge: e.target.value })}
+                  placeholder="e.g. Amish-Built Quality"
+                  className="w-full px-3 py-2 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] focus:bg-white focus:ring-2 focus:ring-[#fcb907]"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 pt-4">
+                <input
+                  type="checkbox"
+                  id="editHasLoft"
+                  checked={Boolean(blog.hasLoft)}
+                  onChange={(e) => setBlog({ ...blog, hasLoft: e.target.checked })}
+                  className="w-4 h-4 text-[#fcb907] rounded-md border-gray-300 focus:ring-[#fcb907] cursor-pointer"
+                />
+                <label htmlFor="editHasLoft" className="text-xs font-bold text-[#101114] cursor-pointer">
+                  Loft Included in Model
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Editorial Pull Quote Card */}
+          <div className="bg-white p-6 rounded-[18px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-4">
+            <h2 className="text-sm font-serif font-bold text-[#101114] border-b border-[#e7e9ee] pb-3 flex items-center gap-2">
+              <Quote className="w-4 h-4 text-[#d97706]" />
+              <span>Editorial Highlight / Pull Quote</span>
+            </h2>
 
             <div>
-              <label className="block text-xs font-bold text-[#101114] mb-1.5">Full Article Body *</label>
+              <label className="block text-xs font-bold text-[#101114] mb-1">Quote Text</label>
               <textarea
-                rows={12}
-                required
-                value={blog.content || ""}
-                onChange={(e) => setBlog({ ...blog, content: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] font-mono text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
+                rows={2}
+                value={blog.pullQuote || ""}
+                onChange={(e) => setBlog({ ...blog, pullQuote: e.target.value })}
+                placeholder="e.g. A spacious, stylish, and affordable modular cabin — perfect for your forever home, vacation retreat, or rental property."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] italic focus:bg-white focus:ring-2 focus:ring-[#fcb907]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1">Quote Attribution / Author</label>
+              <input
+                type="text"
+                value={blog.pullQuoteAuthor || ""}
+                onChange={(e) => setBlog({ ...blog, pullQuoteAuthor: e.target.value })}
+                placeholder="e.g. ModularHome.com Architectural Review"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-medium focus:bg-white focus:ring-2 focus:ring-[#fcb907]"
               />
             </div>
           </div>
 
-          {/* SEO Metadata */}
+          {/* 4. Key Features Grid Builder */}
+          <div className="bg-white p-6 rounded-[18px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-4">
+            <div className="flex items-center justify-between border-b border-[#e7e9ee] pb-3">
+              <h2 className="text-sm font-serif font-bold text-[#101114] flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#d97706]" />
+                <span>Key Features Grid Cards ({blog.customFeatures?.length || 0})</span>
+              </h2>
+              <button
+                type="button"
+                onClick={handleAddFeature}
+                className="text-xs font-bold text-[#d97706] hover:text-[#b45309] flex items-center gap-1 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Feature Card</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {(blog.customFeatures || []).map((feat: any, idx: number) => (
+                <div
+                  key={idx}
+                  className="p-3.5 rounded-xl border border-[#e7e9ee] bg-[#fcfcfd] space-y-2 relative group"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#6b7280]">
+                      Feature #{idx + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFeature(idx)}
+                      className="text-gray-400 hover:text-red-500 transition-colors p-1 cursor-pointer"
+                      title="Remove feature card"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={feat.title}
+                    onChange={(e) => handleUpdateFeature(idx, "title", e.target.value)}
+                    placeholder="Feature title"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-[#d5d9e0] bg-white text-xs font-bold text-[#101114] focus:ring-2 focus:ring-[#fcb907]"
+                  />
+                  <textarea
+                    rows={2}
+                    value={feat.desc}
+                    onChange={(e) => handleUpdateFeature(idx, "desc", e.target.value)}
+                    placeholder="Short description..."
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-[#d5d9e0] bg-white text-[11px] text-[#4b5563] focus:ring-2 focus:ring-[#fcb907]"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 5. Full Article Body */}
+          <div className="bg-white p-6 rounded-[18px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-4">
+            <h2 className="text-sm font-serif font-bold text-[#101114] border-b border-[#e7e9ee] pb-3">
+              Full Article Body Content *
+            </h2>
+            <textarea
+              rows={14}
+              required
+              value={blog.content || ""}
+              onChange={(e) => setBlog({ ...blog, content: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] font-mono text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
+            />
+          </div>
+
+          {/* 6. SEO Metadata */}
           <div className="bg-white p-6 rounded-[18px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-4">
             <div className="flex items-center gap-2 text-sm font-serif font-bold text-[#101114] border-b border-[#e7e9ee] pb-3">
               <Search className="w-4 h-4 text-[#d97706]" />
-              <span>Blog SEO Metadata</span>
+              <span>SEO &amp; Search Engine Optimization</span>
             </div>
 
             <div>
@@ -237,7 +542,7 @@ export default function AdminEditBlogPage() {
           </div>
         </div>
 
-        {/* Right 1 Col */}
+        {/* Right 1 Column: Publishing Settings, Category, Media & Visuals */}
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-[18px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-4">
             <h3 className="text-sm font-serif font-bold text-[#101114] border-b border-[#e7e9ee] pb-3">
@@ -251,10 +556,38 @@ export default function AdminEditBlogPage() {
                 onChange={(e) => setBlog({ ...blog, status: e.target.value })}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907] cursor-pointer"
               >
-                <option value="PUBLISHED">Published</option>
+                <option value="PUBLISHED">Published (Live on Site)</option>
                 <option value="DRAFT">Draft</option>
                 <option value="ARCHIVED">Archived</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">Primary Category</label>
+              <select
+                value={blog.category || "Modular Cabins"}
+                onChange={(e) => {
+                  setBlog({ ...blog, category: e.target.value });
+                  setCategoriesText(e.target.value);
+                }}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907] cursor-pointer mb-2"
+              >
+                {POPULAR_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                value={categoriesText}
+                onChange={(e) => {
+                  setCategoriesText(e.target.value);
+                  setBlog({ ...blog, category: e.target.value.split(",")[0]?.trim() || "Modular Cabins" });
+                }}
+                placeholder="Or comma-separated custom categories..."
+                className="w-full px-3.5 py-2 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-medium focus:bg-white focus:ring-2 focus:ring-[#fcb907]"
+              />
             </div>
 
             <div>
@@ -268,35 +601,28 @@ export default function AdminEditBlogPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#101114] mb-1.5">Categories (comma-separated)</label>
-              <input
-                type="text"
-                value={categoriesText}
-                onChange={(e) => setCategoriesText(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
-              />
-            </div>
-
-            <div>
               <label className="block text-xs font-bold text-[#101114] mb-1.5">Tags (comma-separated)</label>
               <input
                 type="text"
                 value={tagsText}
                 onChange={(e) => setTagsText(e.target.value)}
+                placeholder="Modular Cabins, Prefab, Price Guide"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
               />
             </div>
           </div>
 
+          {/* Media & Video */}
           <div className="bg-white p-6 rounded-[18px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-5">
-            <h3 className="text-sm font-serif font-bold text-[#101114] border-b border-[#e7e9ee] pb-3">
-              Media & Visuals
+            <h3 className="text-sm font-serif font-bold text-[#101114] border-b border-[#e7e9ee] pb-3 flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-[#d97706]" />
+              <span>Media &amp; Video Tour</span>
             </h3>
 
             <ImageUpload
-              label="Featured Header Image *"
-              value={blog.featuredImage || ""}
-              onChange={(url) => setBlog({ ...blog, featuredImage: url })}
+              label="Featured Article Header Image *"
+              value={blog.featuredImage || blog.featured_image || ""}
+              onChange={(url) => setBlog({ ...blog, featuredImage: url, featured_image: url })}
               folder="blogs"
               aspectRatio="16/10"
               helperText="Main editorial cover image displayed on blog listings and article hero."
@@ -305,7 +631,7 @@ export default function AdminEditBlogPage() {
             <div>
               <label className="block text-xs font-bold text-[#101114] mb-1.5 flex items-center gap-1.5">
                 <Video className="w-3.5 h-3.5 text-[#d97706]" />
-                <span>Embedded Video URL</span>
+                <span>Embedded YouTube Video Tour URL</span>
               </label>
               <input
                 type="text"

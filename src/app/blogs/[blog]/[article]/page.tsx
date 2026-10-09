@@ -147,7 +147,23 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
 
   // Format clean editorial title and extract specs
   const displayTitle = formatEditorialTitle(article.title);
-  const specs = extractArticleSpecs(article.title, rawBodyContent);
+  const extractedSpecs = extractArticleSpecs(article.title, rawBodyContent);
+
+  const hasLoftVal = article.hasLoft !== undefined
+    ? (typeof article.hasLoft === "string" ? article.hasLoft.toLowerCase().includes("true") || article.hasLoft.toLowerCase().includes("loft") : Boolean(article.hasLoft))
+    : extractedSpecs.hasLoft;
+
+  const specs = {
+    sqft: article.sqft || extractedSpecs.sqft,
+    bedrooms: article.bedrooms || extractedSpecs.bedrooms,
+    bathrooms: article.bathrooms || extractedSpecs.bathrooms,
+    hasLoft: hasLoftVal,
+    stories: article.stories || (hasLoftVal ? "1 + Loft" : "1 Story"),
+    buildingType: article.buildingStyle || extractedSpecs.buildingType || "Modular / Prefab",
+    buildType: article.buildType || "Modular / Prefab",
+    price: article.price || article.startingPrice || extractedSpecs.price || "$265,000",
+    qualityBadge: article.qualityBadge || "Amish-Built Quality",
+  };
 
   // Clean HTML body (strip duplicated first iframe if we render dedicated theater player)
   const cleanedHtml = cleanBlogHtml(rawBodyContent, Boolean(videoEmbed));
@@ -159,51 +175,63 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
 
   const formattedBlogName = (article.category || blog).replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
-  const heroImage = article.image || getHeroBackground(article.category || blog, article.title);
+  const heroImage = article.heroBackground || article.image || getHeroBackground(article.category || blog, article.title);
 
-  // Default Key Features list adapted to model specs
-  const keyFeaturesList = [
-    {
-      icon: Home,
-      title: specs.sqft || "1,856 Square Feet",
-      desc: "Spacious layout with open-concept design and high volume ceilings.",
-    },
-    {
-      icon: Bed,
-      title: specs.bedrooms || "3 Bedrooms",
-      desc: "Comfortable bedrooms designed for family living, guests, or home office.",
-    },
-    {
-      icon: Bath,
-      title: specs.bathrooms || "2 Bathrooms",
-      desc: "Modern and functional bathrooms with premium pre-installed fixtures.",
-    },
-    {
-      icon: Layers,
-      title: specs.hasLoft ? "Loft Included" : "Expansive Living Area",
-      desc: "Extra elevated living space for guests, home office, or entertainment lounge.",
-    },
-    {
-      icon: Leaf,
-      title: "Amish Built Quality",
-      desc: "Crafted with premium structural materials and superior precision workmanship.",
-    },
-    {
-      icon: Settings,
-      title: "Modular & Prefab Built",
-      desc: "Built indoors in climate control for 50% faster build times and cost efficiency.",
-    },
-    {
-      icon: TreePine,
-      title: "Rustic Modern Design",
-      desc: "Timeless architectural aesthetic with expansive floor-to-ceiling windows.",
-    },
-    {
-      icon: Zap,
-      title: "Energy Efficient",
-      desc: "Engineered thermal envelope built for year-round comfort and lower utility bills.",
-    },
-  ];
+  const pullQuoteText = article.pullQuote || "A spacious, stylish, and affordable modular cabin — perfect for your forever home, vacation retreat, or rental property.";
+  const pullQuoteAttribution = article.pullQuoteAuthor || "ModularHome.com Architectural Review";
+
+  // Default Key Features list adapted to model specs, or customFeatures if provided
+  const keyFeaturesList = article.customFeatures && article.customFeatures.length > 0
+    ? article.customFeatures.map((f, idx) => {
+        const icons = [Home, Bed, Bath, Layers, Leaf, Settings, TreePine, Zap];
+        return {
+          icon: icons[idx % icons.length] || Sparkles,
+          title: f.title,
+          desc: f.desc,
+        };
+      })
+    : [
+        {
+          icon: Home,
+          title: specs.sqft || "1,750 Sq Ft",
+          desc: "Spacious layout with open-concept design and high volume ceilings.",
+        },
+        {
+          icon: Bed,
+          title: specs.bedrooms || "3 Bed",
+          desc: "Comfortable bedrooms designed for family living, guests, or home office.",
+        },
+        {
+          icon: Bath,
+          title: specs.bathrooms || "2 Bath",
+          desc: "Modern and functional bathrooms with premium pre-installed fixtures.",
+        },
+        {
+          icon: Layers,
+          title: specs.hasLoft ? "Loft Included" : "Expansive Living Area",
+          desc: "Extra elevated living space for guests, home office, or entertainment lounge.",
+        },
+        {
+          icon: Leaf,
+          title: specs.qualityBadge || "Amish Built Quality",
+          desc: "Crafted with premium structural materials and superior precision workmanship.",
+        },
+        {
+          icon: Settings,
+          title: specs.buildType || "Modular & Prefab Built",
+          desc: "Built indoors in climate control for 50% faster build times and cost efficiency.",
+        },
+        {
+          icon: TreePine,
+          title: "Rustic Modern Design",
+          desc: "Timeless architectural aesthetic with expansive floor-to-ceiling windows.",
+        },
+        {
+          icon: Zap,
+          title: "Energy Efficient",
+          desc: "Engineered thermal envelope built for year-round comfort and lower utility bills.",
+        },
+      ];
 
   return (
     <div className="min-h-screen bg-[#fafbfc] text-[#101114]">
@@ -344,14 +372,14 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
                 <Layers className="w-4 h-4 text-[#d97706]" />
                 <div>
                   <span className="font-extrabold text-[#101114]">Loft</span>
-                  <span className="text-[11px] text-[#6b7280] ml-1">Included</span>
+                  <span className="text-[11px] text-[#6b7280] ml-1">{specs.hasLoft ? "Included" : "N/A"}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 hidden lg:flex">
                 <Wrench className="w-4 h-4 text-[#d97706]" />
                 <div>
-                  <span className="font-extrabold text-[#101114]">Amish Built</span>
+                  <span className="font-extrabold text-[#101114]">{specs.qualityBadge || "Amish Built"}</span>
                   <span className="text-[11px] text-[#6b7280] ml-1">Quality</span>
                 </div>
               </div>
@@ -359,8 +387,8 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
               <div className="flex items-center gap-2 hidden xl:flex">
                 <Truck className="w-4 h-4 text-[#d97706]" />
                 <div>
-                  <span className="font-extrabold text-[#101114]">Modular &amp;</span>
-                  <span className="text-[11px] text-[#6b7280] ml-1">Prefab Built</span>
+                  <span className="font-extrabold text-[#101114]">{specs.buildType || "Modular & Prefab"}</span>
+                  <span className="text-[11px] text-[#6b7280] ml-1">Built</span>
                 </div>
               </div>
             </div>
@@ -399,10 +427,10 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
                 </h2>
               </div>
               <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
-                The {displayTitle} is one of the most popular designs for families, vacation rentals, and full-time living. With {specs.bedrooms || "3 bedrooms"}, {specs.bathrooms || "2 bathrooms"}, and a spacious loft, this {specs.sqft || "1,856 sq ft"} modular cabin offers the perfect combination of rustic elegance and modern functionality.
+                The {displayTitle} is one of the most popular designs for families, vacation rentals, and full-time living. With {specs.bedrooms || "3 Bed"}, {specs.bathrooms || "2 Bath"}, and {specs.hasLoft ? "a spacious loft" : "an expansive floor plan"}, this {specs.sqft || "1,750 Sq Ft"} modular cabin offers the perfect combination of rustic elegance and modern functionality.
               </p>
               <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
-                Amish-built with high-quality materials and expert craftsmanship, the {displayTitle} delivers timeless design, energy efficiency, and a comfortable open-concept layout — all at an incredible starting price of <strong className="text-[#101114]">{specs.price || "only $285,000"}</strong>.
+                Amish-built with high-quality materials and expert craftsmanship, the {displayTitle} delivers timeless design, energy efficiency, and a comfortable open-concept layout — all at an incredible starting price of <strong className="text-[#101114]">only {specs.price || "$265,000"}</strong>.
               </p>
             </section>
 
@@ -423,10 +451,10 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
             <div className="p-6 bg-[#fdfbf7] rounded-[18px] border border-[#fef3c7] relative overflow-hidden my-6">
               <Quote className="w-10 h-10 text-[#fcb907]/20 absolute -right-1 -bottom-1 pointer-events-none" />
               <p className="text-sm sm:text-base font-bold text-[#101114] italic leading-relaxed">
-                &ldquo;A spacious, stylish, and affordable modular cabin — perfect for your forever home, vacation retreat, or rental property.&rdquo;
+                &ldquo;{pullQuoteText}&rdquo;
               </p>
               <div className="text-xs font-bold text-[#d97706] mt-2">
-                — ModularHome.com Architectural Review
+                — {pullQuoteAttribution}
               </div>
             </div>
 

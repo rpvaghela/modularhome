@@ -20,8 +20,10 @@ export const CATEGORY_SLUG_MAP: Record<string, string> = {
   "cabins": "cabins",
   "cabin": "cabins",
   "log-cabins": "cabins",
-  "modular-cabins": "cabins",
-  "prefab-cabins": "cabins",
+  "modular-cabins": "modular-cabins",
+  "modular-cabin": "modular-cabins",
+  "prefab-cabins": "modular-cabins",
+  "prefab-cabin": "modular-cabins",
   "amish-built-cabins": "cabins",
 
   "modular-homes": "modular-homes",
@@ -75,6 +77,7 @@ export const CATEGORY_SLUG_MAP: Record<string, string> = {
 
 export const VALID_PRODUCT_CATEGORIES = [
   "cabins",
+  "modular-cabins",
   "modular-homes",
   "barndominiums",
   "house-kits",
@@ -111,6 +114,15 @@ export function getProductCategorySlug(product?: ProductUrlInput | null): ValidP
   // 2. Keyword heuristic matching (ordered by specificity)
   if (combined.includes("barndo") || combined.includes("barndominium")) {
     return "barndominiums";
+  }
+
+  if (
+    combined.includes("modular cabin") ||
+    combined.includes("modular-cabin") ||
+    combined.includes("prefab cabin") ||
+    combined.includes("prefab-cabin")
+  ) {
+    return "modular-cabins";
   }
 
   if (
@@ -182,7 +194,7 @@ export function getProductUrl(product?: ProductUrlInput | null): string {
   // Strip any leading slashes or existing prefixes if accidentally passed
   const cleanSlug = slug
     .replace(/^https?:\/\/[^\/]+/i, "")
-    .replace(/^\/(?:products|buildings|models|cabins|modular-homes|barndominiums|house-kits|tiny-homes|park-models|adus|a-frame-homes|prefab-homes|commercial-modular-buildings|commercial-buildings|custom-homes)\//i, "")
+    .replace(/^\/(?:products|buildings|models|cabins|modular-cabins|modular-homes|barndominiums|house-kits|tiny-homes|park-models|adus|a-frame-homes|prefab-homes|commercial-modular-buildings|commercial-buildings|custom-homes)\//i, "")
     .replace(/^\/+|\/+$/g, "");
 
   const categorySlug = getProductCategorySlug(product);
@@ -205,6 +217,7 @@ export function getCategoryDisplayName(slug: string): string {
   const norm = (CATEGORY_SLUG_MAP[slug.toLowerCase()] || slug).toLowerCase();
   switch (norm) {
     case "cabins": return "Cabins";
+    case "modular-cabins": return "Modular Cabins";
     case "modular-homes": return "Modular Homes";
     case "barndominiums": return "Barndominiums";
     case "house-kits": return "House Kits";

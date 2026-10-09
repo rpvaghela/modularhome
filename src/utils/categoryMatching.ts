@@ -185,7 +185,37 @@ export function matchProductCategory(
     );
   }
 
-  // 8. Cabins (All Handcrafted Log Cabins & Modular Cabins)
+  // 8a. Modular Cabins & Prefab Cabins (Dedicated collection at /modular-cabins)
+  if (
+    clean.includes("modular cabin") ||
+    clean.includes("prefab cabin") ||
+    clean === "modular cabins" ||
+    clean === "modular cabin" ||
+    clean === "modular-cabins" ||
+    clean === "prefab-cabins"
+  ) {
+    return (
+      (mCat.includes("cabin") ||
+        mName.includes("cabin") ||
+        mSlug.includes("cabin") ||
+        mName.includes("lodge") ||
+        mName.includes("log home") ||
+        mName.includes("rustic") ||
+        mName.includes("muchacho") ||
+        mName.includes("bertha") ||
+        mName.includes("sparrow") ||
+        mName.includes("gatlinburg") ||
+        mName.includes("amish")) &&
+      !mName.includes("barndo") &&
+      !mName.includes("house kit") &&
+      !mName.includes("home kit") &&
+      !mName.includes("duplex") &&
+      !mName.includes("park model") &&
+      !mName.includes("a-frame")
+    );
+  }
+
+  // 8b. Cabins (All Handcrafted Log Cabins & Modular Cabins)
   if (clean.includes("cabin")) {
     return (
       (mCat.includes("cabin") ||

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { getCustomBlogByIdOrSlug, saveCustomBlog, deleteCustomBlog } from "@/lib/blogStore";
-import { clearPublicDataCache } from "@/lib/publicData";
+import { clearPublicDataCache, getPublicBlogBySlug } from "@/lib/publicData";
 
 export async function GET(
   request: NextRequest,
@@ -12,7 +12,8 @@ export async function GET(
   if (authResult instanceof NextResponse) return authResult;
 
   try {
-    const { id } = await params;
+    const rawId = (await params).id;
+    const id = decodeURIComponent(rawId).trim();
 
     // 1. Check local store
     const localBlog = getCustomBlogByIdOrSlug(id);
@@ -59,9 +60,61 @@ export async function GET(
             publishedAt: blog.published_at || blog.created_at,
             tags: Array.isArray(blog.tags) ? blog.tags : [],
             keyTakeaways: Array.isArray(blog.key_takeaways) ? blog.key_takeaways : [],
+            sqft: blog.sqft,
+            bedrooms: blog.bedrooms,
+            bathrooms: blog.bathrooms,
+            stories: blog.stories,
+            hasLoft: blog.has_loft !== undefined ? blog.has_loft : blog.hasLoft,
+            buildingStyle: blog.building_style || blog.buildingStyle,
+            buildType: blog.build_type || blog.buildType,
+            price: blog.price || blog.starting_price,
+            qualityBadge: blog.quality_badge || blog.qualityBadge,
+            pullQuote: blog.pull_quote || blog.pullQuote,
+            pullQuoteAuthor: blog.pull_quote_author || blog.pullQuoteAuthor,
+            customFeatures: blog.custom_features || blog.customFeatures,
+            heroBackground: blog.hero_background || blog.heroBackground,
           },
         });
       }
+    }
+
+    // 3. Fallback to catalog articles
+    const fallbackArticle = await getPublicBlogBySlug(id);
+    if (fallbackArticle) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          id: fallbackArticle.id,
+          slug: fallbackArticle.slug,
+          title: fallbackArticle.title,
+          category: fallbackArticle.category || "Building Guides",
+          readTime: fallbackArticle.readTime || "5 min read",
+          excerpt: fallbackArticle.excerpt || "",
+          content: Array.isArray(fallbackArticle.content)
+            ? fallbackArticle.content.join("\n\n")
+            : (fallbackArticle.content || ""),
+          featuredImage: fallbackArticle.image || "",
+          featured_image: fallbackArticle.image || "",
+          author: fallbackArticle.author || "ModularHome Engineering Team",
+          status: "PUBLISHED",
+          publishedAt: fallbackArticle.published_at || fallbackArticle.date || new Date().toISOString(),
+          tags: fallbackArticle.tags || [],
+          keyTakeaways: fallbackArticle.keyTakeaways || [],
+          sqft: fallbackArticle.sqft,
+          bedrooms: fallbackArticle.bedrooms,
+          bathrooms: fallbackArticle.bathrooms,
+          stories: fallbackArticle.stories,
+          hasLoft: fallbackArticle.hasLoft,
+          buildingStyle: fallbackArticle.buildingStyle,
+          buildType: fallbackArticle.buildType,
+          price: fallbackArticle.price || fallbackArticle.startingPrice,
+          qualityBadge: fallbackArticle.qualityBadge,
+          pullQuote: fallbackArticle.pullQuote,
+          pullQuoteAuthor: fallbackArticle.pullQuoteAuthor,
+          customFeatures: fallbackArticle.customFeatures,
+          heroBackground: fallbackArticle.heroBackground,
+        },
+      });
     }
 
     return NextResponse.json(
@@ -113,6 +166,20 @@ export async function PUT(
       imageAltText: body.imageAltText || body.image_alt_text,
       canonicalUrl: body.canonicalUrl || body.canonical_url,
       keyTakeaways: body.keyTakeaways || body.key_takeaways,
+      sqft: body.sqft,
+      bedrooms: body.bedrooms,
+      bathrooms: body.bathrooms,
+      stories: body.stories,
+      hasLoft: body.hasLoft,
+      buildingStyle: body.buildingStyle,
+      buildType: body.buildType,
+      price: body.price || body.startingPrice,
+      startingPrice: body.startingPrice || body.price,
+      qualityBadge: body.qualityBadge,
+      pullQuote: body.pullQuote,
+      pullQuoteAuthor: body.pullQuoteAuthor,
+      customFeatures: Array.isArray(body.customFeatures) ? body.customFeatures : undefined,
+      heroBackground: body.heroBackground,
     });
 
     // 2. Also update in Supabase if configured

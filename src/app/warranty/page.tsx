@@ -94,7 +94,7 @@ const CLAIM_STEPS = [
   {
     num: "2",
     title: "Submit Claim Ticket",
-    desc: "Email our Customer Care team at modularhome.admin@gmail.com with your original build contract number and property address.",
+    desc: "Email our Customer Care team at support@modularhome.com with your original build contract number and property address.",
   },
   {
     num: "3",
@@ -258,7 +258,7 @@ export default async function WarrantyPage() {
           </p>
           <div className="pt-2 flex flex-wrap justify-center gap-3">
             <a
-              href="mailto:modularhome.admin@gmail.com"
+              href="mailto:support@modularhome.com"
               className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black text-xs uppercase tracking-wider py-3.5 px-6 rounded-[10px] transition-all flex items-center gap-2"
             >
               <Mail className="w-4 h-4" />

@@ -140,7 +140,7 @@ export default async function RefundCancellationPolicyPage() {
               How to Submit a Cancellation Request
             </h2>
             <p>
-              All cancellation requests must be submitted in writing via certified mail or by email to <a href="mailto:modularhome.admin@gmail.com" className="text-[#d97706] font-bold underline">modularhome.admin@gmail.com</a>. Approved refunds are processed back to the original method of payment within 10 to 14 business days.
+              All cancellation requests must be submitted in writing via certified mail or by email to <a href="mailto:support@modularhome.com" className="text-[#d97706] font-bold underline">support@modularhome.com</a>. Approved refunds are processed back to the original method of payment within 10 to 14 business days.
             </p>
           </div>
         </div>

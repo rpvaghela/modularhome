@@ -109,7 +109,7 @@ export default async function AccessibilityPage() {
             </p>
             <div className="p-4 bg-[#f8f9fa] rounded-[12px] border border-[#e7e9ee] space-y-1 text-xs">
               <div className="font-bold text-[#101114]">Accessibility Coordinator</div>
-              <div>Email: <a href="mailto:modularhome.admin@gmail.com" className="text-[#d97706]">modularhome.admin@gmail.com</a></div>
+              <div>Email: <a href="mailto:support@modularhome.com" className="text-[#d97706]">support@modularhome.com</a></div>
               <div>Phone: +1 (812) 595-4033</div>
             </div>
           </div>

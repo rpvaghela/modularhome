@@ -58,7 +58,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
   const companyName = initialSettings?.companyName || "ModularHome.com";
   const logoUrl = initialSettings?.logoUrl || "/newmodularlogo.png";
   const phone = initialSettings?.phone || "+1 (812) 595-4033";
-  const emailAddress = initialSettings?.email || "modularhome.admin@gmail.com";
+  const emailAddress = initialSettings?.email || "support@modularhome.com";
   const address = initialSettings?.address || "Factory Headquarters, IN & Nationwide Delivery";
   const businessHours = initialSettings?.businessHours || "Mon – Fri: 8:00 AM – 6:00 PM EST";
   const footerText = initialSettings?.footerText || "ModularHome.com leads the American prefabricated housing movement with precision-engineered modular residences, luxury barndominiums, and rapid-deployment cabin kits.";
@@ -111,10 +111,11 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
 
   const currentYear = new Date().getFullYear();
 
-  // Column 1: Explore Homes (11 Collections)
+  // Column 1: Explore Homes (12 Collections)
   const exploreLinks = [
     { label: "Modular Homes", href: "/modular-homes" },
     { label: "Prefab Homes", href: "/prefab-homes" },
+    { label: "Modular Cabins", href: "/modular-cabins" },
     { label: "Barndominiums", href: "/barndominiums" },
     { label: "House Kits", href: "/house-kits" },
     { label: "Tiny Homes", href: "/tiny-homes" },

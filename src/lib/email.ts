@@ -9,7 +9,7 @@ export function getAdminEmail(): string {
   return (
     process.env.ADMIN_EMAIL?.trim() ||
     process.env.ADMIN_NOTIFICATION_EMAIL?.trim() ||
-    "modularhome.admin@gmail.com"
+    "support@modularhome.com"
   );
 }
 

@@ -145,7 +145,7 @@ export default async function PrivacyPolicyPage() {
               6. Your Privacy Rights (CCPA / GDPR)
             </h2>
             <p>
-              Depending on your state or jurisdiction of residence, you may have the right to request access to the personal data we hold about you, request corrections or deletion, or opt-out of marketing communications. To exercise your privacy rights, email us at <a href="mailto:modularhome.admin@gmail.com" className="text-[#d97706] font-bold underline">modularhome.admin@gmail.com</a>.
+              Depending on your state or jurisdiction of residence, you may have the right to request access to the personal data we hold about you, request corrections or deletion, or opt-out of marketing communications. To exercise your privacy rights, email us at <a href="mailto:support@modularhome.com" className="text-[#d97706] font-bold underline">support@modularhome.com</a>.
             </p>
           </div>
 
@@ -155,7 +155,7 @@ export default async function PrivacyPolicyPage() {
             </h2>
             <div className="p-4 bg-[#f8f9fa] rounded-[12px] border border-[#e7e9ee] space-y-1 text-xs">
               <div className="font-bold text-[#101114]">ModularHome.com Privacy Team</div>
-              <div>Email: <a href="mailto:modularhome.admin@gmail.com" className="text-[#d97706]">modularhome.admin@gmail.com</a></div>
+              <div>Email: <a href="mailto:support@modularhome.com" className="text-[#d97706]">support@modularhome.com</a></div>
               <div>Phone: +1 (812) 595-4033</div>
             </div>
           </div>

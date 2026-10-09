@@ -27,6 +27,21 @@ export interface ResourceArticle {
   canonical_url?: string;
   old_shopify_url?: string;
   new_nextjs_url?: string;
+  // Editorial specs & customization fields
+  sqft?: string;
+  bedrooms?: string;
+  bathrooms?: string;
+  stories?: string;
+  hasLoft?: boolean | string;
+  buildingStyle?: string;
+  buildType?: string;
+  price?: string;
+  startingPrice?: string;
+  qualityBadge?: string;
+  pullQuote?: string;
+  pullQuoteAuthor?: string;
+  customFeatures?: Array<{ title: string; desc: string; icon?: string }>;
+  heroBackground?: string;
 }
 
 export const RESOURCE_CATEGORIES = [

@@ -45,6 +45,21 @@ export interface StoredBlog {
   canonical_url?: string;
   keyTakeaways?: string[];
   key_takeaways?: string[];
+  // Editorial specs & customizations
+  sqft?: string;
+  bedrooms?: string;
+  bathrooms?: string;
+  stories?: string;
+  hasLoft?: boolean | string;
+  buildingStyle?: string;
+  buildType?: string;
+  price?: string;
+  startingPrice?: string;
+  qualityBadge?: string;
+  pullQuote?: string;
+  pullQuoteAuthor?: string;
+  customFeatures?: Array<{ title: string; desc: string; icon?: string }>;
+  heroBackground?: string;
   createdAt?: string;
   created_at?: string;
   updatedAt?: string;
@@ -143,6 +158,21 @@ export function saveCustomBlog(blogData: Partial<StoredBlog> & { title: string; 
     canonical_url: blogData.canonicalUrl || blogData.canonical_url,
     keyTakeaways: Array.isArray(blogData.keyTakeaways) ? blogData.keyTakeaways : (Array.isArray(blogData.key_takeaways) ? blogData.key_takeaways : []),
     key_takeaways: Array.isArray(blogData.keyTakeaways) ? blogData.keyTakeaways : (Array.isArray(blogData.key_takeaways) ? blogData.key_takeaways : []),
+    // Extended fields
+    sqft: blogData.sqft,
+    bedrooms: blogData.bedrooms,
+    bathrooms: blogData.bathrooms,
+    stories: blogData.stories,
+    hasLoft: blogData.hasLoft,
+    buildingStyle: blogData.buildingStyle,
+    buildType: blogData.buildType,
+    price: blogData.price || blogData.startingPrice,
+    startingPrice: blogData.startingPrice || blogData.price,
+    qualityBadge: blogData.qualityBadge,
+    pullQuote: blogData.pullQuote,
+    pullQuoteAuthor: blogData.pullQuoteAuthor,
+    customFeatures: Array.isArray(blogData.customFeatures) ? blogData.customFeatures : undefined,
+    heroBackground: blogData.heroBackground,
     createdAt: blogData.createdAt || (existingIdx >= 0 ? blogs[existingIdx].createdAt : now),
     created_at: blogData.createdAt || (existingIdx >= 0 ? blogs[existingIdx].createdAt : now),
     updatedAt: now,

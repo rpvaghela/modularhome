@@ -76,7 +76,7 @@ export async function sendResendEmail(options: SendEmailOptions): Promise<SendEm
   const replyToAddress =
     options.replyTo ||
     process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
-    "modularhome.admin@gmail.com";
+    "support@modularhome.com";
 
   if (fromAddress.includes("onboarding@resend.dev") && process.env.NODE_ENV !== "production") {
     console.info(

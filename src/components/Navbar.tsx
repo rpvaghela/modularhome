@@ -42,6 +42,7 @@ interface CategoryNavOption {
 const PRIMARY_MENU_OPTIONS: CategoryNavOption[] = [
   { label: "Modular Homes", href: "/modular-homes", categoryQuery: "Modular Homes" },
   { label: "Prefab Homes", href: "/prefab-homes", categoryQuery: "Prefab Homes" },
+  { label: "Modular Cabins", href: "/modular-cabins", categoryQuery: "Modular Cabins" },
   { label: "Barndominiums", href: "/barndominiums", categoryQuery: "Barndominiums" },
   { label: "House Kits", href: "/house-kits", categoryQuery: "House Kits" },
   { label: "Tiny Homes", href: "/tiny-homes", categoryQuery: "Tiny Homes" },
