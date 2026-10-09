@@ -426,12 +426,32 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
                   Introduction
                 </h2>
               </div>
-              <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
-                The {displayTitle} is one of the most popular designs for families, vacation rentals, and full-time living. With {specs.bedrooms || "3 Bed"}, {specs.bathrooms || "2 Bath"}, and {specs.hasLoft ? "a spacious loft" : "an expansive floor plan"}, this {specs.sqft || "1,750 Sq Ft"} modular cabin offers the perfect combination of rustic elegance and modern functionality.
-              </p>
-              <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
-                Amish-built with high-quality materials and expert craftsmanship, the {displayTitle} delivers timeless design, energy efficiency, and a comfortable open-concept layout — all at an incredible starting price of <strong className="text-[#101114]">only {specs.price || "$265,000"}</strong>.
-              </p>
+              {article.introduction && article.introduction.trim() ? (
+                article.introduction.includes("<") && article.introduction.includes(">") ? (
+                  <RichHtmlContent content={article.introduction} />
+                ) : (
+                  <div className="space-y-3.5">
+                    {article.introduction.split(/\n\s*\n|\r\n\s*\r\n/).map((para, pIdx) => {
+                      const cleanPara = para.trim();
+                      if (!cleanPara) return null;
+                      return (
+                        <p key={pIdx} className="text-sm sm:text-base text-[#374151] leading-relaxed">
+                          {cleanPara}
+                        </p>
+                      );
+                    })}
+                  </div>
+                )
+              ) : (
+                <>
+                  <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
+                    The {displayTitle} is one of the most popular designs for families, vacation rentals, and full-time living. With {specs.bedrooms || "3 Bed"}, {specs.bathrooms || "2 Bath"}, and {specs.hasLoft ? "a spacious loft" : "an expansive floor plan"}, this {specs.sqft || "1,750 Sq Ft"} modular cabin offers the perfect combination of rustic elegance and modern functionality.
+                  </p>
+                  <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
+                    Amish-built with high-quality materials and expert craftsmanship, the {displayTitle} delivers timeless design, energy efficiency, and a comfortable open-concept layout — all at an incredible starting price of <strong className="text-[#101114]">only {specs.price || "$265,000"}</strong>.
+                  </p>
+                </>
+              )}
             </section>
 
             {/* Section: Video Walkthrough */}

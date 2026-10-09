@@ -52,6 +52,7 @@ export async function GET(
             category: blog.blog_title || blog.category || "Building Guides",
             readTime: blog.read_time || "5 min read",
             excerpt: blog.excerpt || blog.seo_description || "",
+            introduction: blog.introduction || blog.intro || blog.intro_text || "",
             content: blog.body_html || blog.content || "",
             featuredImage: blog.image_url || blog.featured_image || "",
             featured_image: blog.image_url || blog.featured_image || "",
@@ -90,6 +91,7 @@ export async function GET(
           category: fallbackArticle.category || "Building Guides",
           readTime: fallbackArticle.readTime || "5 min read",
           excerpt: fallbackArticle.excerpt || "",
+          introduction: fallbackArticle.introduction || "",
           content: Array.isArray(fallbackArticle.content)
             ? fallbackArticle.content.join("\n\n")
             : (fallbackArticle.content || ""),

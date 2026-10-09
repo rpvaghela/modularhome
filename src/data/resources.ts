@@ -28,6 +28,7 @@ export interface ResourceArticle {
   old_shopify_url?: string;
   new_nextjs_url?: string;
   // Editorial specs & customization fields
+  introduction?: string;
   sqft?: string;
   bedrooms?: string;
   bathrooms?: string;

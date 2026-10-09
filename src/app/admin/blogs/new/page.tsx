@@ -45,6 +45,7 @@ export default function AdminNewBlogPage() {
     title: "",
     slug: "",
     excerpt: "",
+    introduction: "",
     content: "",
     featuredImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345",
     heroBackground: "",
@@ -238,7 +239,42 @@ export default function AdminNewBlogPage() {
             </div>
           </div>
 
-          {/* 2. Key Specs & Ribbon Bar Settings */}
+          {/* 2. Article Introduction (Screenshot Section) */}
+          <div className="bg-white p-6 rounded-[18px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-4">
+            <div className="border-l-4 border-[#fcb907] pl-3 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-serif font-bold text-[#101114]">
+                  Article &amp; Resource Introduction
+                </h2>
+                <p className="text-[11px] text-[#6b7280]">
+                  Appears at the very top of the article body under the &ldquo;Introduction&rdquo; headline.
+                </p>
+              </div>
+              <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-50 text-[#d97706] border border-amber-200">
+                Introduction
+              </span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">
+                Introduction Paragraphs (Plain text with line breaks or HTML)
+              </label>
+              <textarea
+                rows={5}
+                value={form.introduction}
+                onChange={(e) => setForm({ ...form, introduction: e.target.value })}
+                placeholder={`The New Home is one of the most popular designs for families, vacation rentals, and full-time living. With 3 Bed, 2 Bath, and a spacious loft, this 1,750 Sq Ft modular cabin offers the perfect combination of rustic elegance and modern functionality.
+
+Amish-built with high-quality materials and expert craftsmanship, the New Home delivers timeless design, energy efficiency, and a comfortable open-concept layout — all at an incredible starting price of only $265,000.`}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907] leading-relaxed"
+              />
+              <p className="text-[11px] text-[#6b7280] mt-1">
+                Leave empty to automatically generate from model title, specs, and price.
+              </p>
+            </div>
+          </div>
+
+          {/* 3. Key Specs & Ribbon Bar Settings */}
           <div className="bg-white p-6 rounded-[18px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-4">
             <h2 className="text-sm font-serif font-bold text-[#101114] border-b border-[#e7e9ee] pb-3 flex items-center gap-2">
               <Sliders className="w-4 h-4 text-[#d97706]" />

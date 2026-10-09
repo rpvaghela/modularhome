@@ -46,6 +46,7 @@ export interface StoredBlog {
   keyTakeaways?: string[];
   key_takeaways?: string[];
   // Editorial specs & customizations
+  introduction?: string;
   sqft?: string;
   bedrooms?: string;
   bathrooms?: string;
@@ -159,6 +160,7 @@ export function saveCustomBlog(blogData: Partial<StoredBlog> & { title: string; 
     keyTakeaways: Array.isArray(blogData.keyTakeaways) ? blogData.keyTakeaways : (Array.isArray(blogData.key_takeaways) ? blogData.key_takeaways : []),
     key_takeaways: Array.isArray(blogData.keyTakeaways) ? blogData.keyTakeaways : (Array.isArray(blogData.key_takeaways) ? blogData.key_takeaways : []),
     // Extended fields
+    introduction: blogData.introduction || (blogData as any).intro || (blogData as any).intro_text || "",
     sqft: blogData.sqft,
     bedrooms: blogData.bedrooms,
     bathrooms: blogData.bathrooms,
