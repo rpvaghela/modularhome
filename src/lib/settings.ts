@@ -26,7 +26,7 @@ export const DEFAULT_SETTINGS: PublicGlobalSettings = {
   logoUrl: "/newmodularlogo.png",
   faviconUrl: "/favicon.ico",
   phone: "+1 (812) 595-4033",
-  email: "support@modularhome.com",
+  email: "modularhome.admin@gmail.com",
   address: "Factory Headquarters, IN & Nationwide Delivery",
   businessHours: "Mon – Fri: 8:00 AM – 6:00 PM EST",
   socialLinks: {
@@ -166,7 +166,7 @@ export async function getPublicGlobalSettings(): Promise<PublicGlobalSettings> {
       logoUrl: raw.logo_url || raw.logoUrl || localSettings.logoUrl,
       faviconUrl: raw.favicon_url || raw.faviconUrl || localSettings.faviconUrl,
       phone: raw.phone || localSettings.phone,
-      email: (raw.email && raw.email.toLowerCase().trim() !== "modularhome.admin@gmail.com") ? raw.email : (localSettings.email || "support@modularhome.com"),
+      email: raw.email || localSettings.email || "modularhome.admin@gmail.com",
       address: raw.address || localSettings.address,
       businessHours: raw.business_hours || raw.businessHours || localSettings.businessHours,
       socialLinks: socialLinks || localSettings.socialLinks,
