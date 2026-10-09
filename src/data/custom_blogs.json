@@ -36,8 +36,8 @@
     "key_takeaways": [],
     "createdAt": "2026-10-09T17:32:10.448Z",
     "created_at": "2026-10-09T17:32:10.448Z",
-    "updatedAt": "2026-10-09T17:58:57.031Z",
-    "updated_at": "2026-10-09T17:58:57.031Z",
+    "updatedAt": "2026-10-09T18:18:58.996Z",
+    "updated_at": "2026-10-09T18:18:58.996Z",
     "sqft": "1,750 Sq Ft",
     "bedrooms": "3 Bed",
     "bathrooms": "2 Bath",
@@ -45,8 +45,8 @@
     "hasLoft": true,
     "buildingStyle": "Prefab Modular Home",
     "buildType": "Modular / Prefab",
-    "price": "$265,000",
-    "startingPrice": "$265,000",
+    "price": "$26,000",
+    "startingPrice": "$26,000",
     "qualityBadge": "Amish-Built Quality",
     "pullQuote": "A spacious, stylish, and affordable modular cabin — perfect for your forever home, vacation retreat, or rental property.",
     "pullQuoteAuthor": "ModularHome.com Architectural Review",
@@ -83,7 +83,8 @@
         "title": "Energy Efficient",
         "desc": "Engineered thermal envelope built for year-round comfort and lower utility bills."
       }
-    ]
+    ],
+    "introduction": ""
   },
   {
     "id": "gid://shopify/Article/571818770535",
