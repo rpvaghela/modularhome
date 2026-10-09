@@ -31,6 +31,34 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
     pathname === "/account/forgot-password" ||
     pathname === "/account/reset-password";
 
+  // Dynamic Document Title Updater for Customer Portal
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (pathname === "/account") {
+      document.title = "My Account Dashboard | ModularHome.com";
+    } else if (pathname === "/account/orders") {
+      document.title = "My Orders & Receipts | ModularHome.com";
+    } else if (pathname.startsWith("/account/orders/")) {
+      document.title = "Order Details | ModularHome.com";
+    } else if (pathname === "/account/downloads") {
+      document.title = "My Blueprint Downloads | ModularHome.com";
+    } else if (pathname === "/account/profile") {
+      document.title = "Account Profile & Settings | ModularHome.com";
+    } else if (pathname === "/account/forgot-password") {
+      document.title = "Forgot Password | ModularHome.com";
+    } else if (pathname === "/account/reset-password") {
+      document.title = "Reset Password | ModularHome.com";
+    } else if (pathname.startsWith("/account/invoices/")) {
+      document.title = "Order Invoice & Receipt | ModularHome.com";
+    } else if (pathname === "/account/verify") {
+      document.title = "Verify Customer Email | ModularHome.com";
+    } else if (pathname === "/account/login") {
+      document.title = "Customer Sign In | ModularHome.com";
+    } else if (pathname === "/account/signup") {
+      document.title = "Create Customer Account | ModularHome.com";
+    }
+  }, [pathname]);
+
   useEffect(() => {
     let isMounted = true;
     fetch("/api/customer/auth/me")

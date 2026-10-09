@@ -66,6 +66,46 @@ function getStoredLastActivity(): number {
   }
 }
 
+function getAdminPageTitle(pathname: string): string {
+  if (!pathname || pathname === "/admin") return "Admin Dashboard | ModularHome.com";
+  if (pathname === "/admin/login") return "Admin Sign In | ModularHome.com";
+  if (pathname === "/admin/products") return "Home Models Catalog | Admin Dashboard";
+  if (pathname === "/admin/products/new") return "New Home Model | Admin Dashboard";
+  if (pathname.startsWith("/admin/products/")) return "Edit Home Model | Admin Dashboard";
+  if (pathname === "/admin/floor-plans") return "Floor Plans & Blueprints | Admin Dashboard";
+  if (pathname.startsWith("/admin/floor-plans/")) return "Edit Floor Plan | Admin Dashboard";
+  if (pathname === "/admin/collections") return "Collections Management | Admin Dashboard";
+  if (pathname.startsWith("/admin/collections/")) return "Edit Collection | Admin Dashboard";
+  if (pathname === "/admin/pages") return "CMS Pages | Admin Dashboard";
+  if (pathname.startsWith("/admin/pages/")) return "Edit CMS Page | Admin Dashboard";
+  if (pathname === "/admin/blogs") return "Blog Articles | Admin Dashboard";
+  if (pathname === "/admin/blogs/new") return "Create Blog Article | Admin Dashboard";
+  if (pathname.startsWith("/admin/blogs/")) return "Edit Blog Article | Admin Dashboard";
+  if (pathname === "/admin/videos") return "Video Walkthroughs | Admin Dashboard";
+  if (pathname === "/admin/sections") return "Homepage & Layout Sections | Admin Dashboard";
+  if (pathname === "/admin/pricing") return "Pricing Rules & Packages | Admin Dashboard";
+  if (pathname === "/admin/faqs") return "FAQs Management | Admin Dashboard";
+  if (pathname === "/admin/reviews") return "Customer Testimonials & Reviews | Admin Dashboard";
+  if (pathname === "/admin/leads") return "Customer Inquiries & Leads | Admin Dashboard";
+  if (pathname === "/admin/quotations") return "Custom Quotations | Admin Dashboard";
+  if (pathname === "/admin/orders") return "Customer Orders | Admin Dashboard";
+  if (pathname === "/admin/customers") return "Customers Directory | Admin Dashboard";
+  if (pathname.startsWith("/admin/customers/")) return "Customer Account Profile | Admin Dashboard";
+  if (pathname === "/admin/analytics") return "Analytics & Site Traffic | Admin Dashboard";
+  if (pathname === "/admin/reports") return "Sales & Performance Reports | Admin Dashboard";
+  if (pathname === "/admin/media") return "Media Assets Library | Admin Dashboard";
+  if (pathname === "/admin/redirects") return "301/302 Redirect Manager | Admin Dashboard";
+  if (pathname === "/admin/security") return "Security & Sessions | Admin Dashboard";
+  if (pathname === "/admin/logs") return "Audit Logs & Activity | Admin Dashboard";
+  if (pathname === "/admin/settings") return "Global Store Settings | Admin Dashboard";
+  if (pathname === "/admin/settings/header") return "Header Settings | Admin Dashboard";
+  if (pathname === "/admin/settings/footer") return "Footer Settings | Admin Dashboard";
+  if (pathname === "/admin/settings/navigation") return "Navigation Menus | Admin Dashboard";
+  if (pathname === "/admin/shopify") return "Shopify Catalog Sync | Admin Dashboard";
+  if (pathname === "/admin/users") return "Admin Team Users | Admin Dashboard";
+  return "ModularHome.com Admin";
+}
+
 export default function AdminLayout({
   children,
 }: {
@@ -80,6 +120,13 @@ export default function AdminLayout({
   const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
 
   const isLoginPage = pathname === "/admin/login";
+
+  // Dynamic Browser Document Title for Admin Routes
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.title = getAdminPageTitle(pathname);
+    }
+  }, [pathname]);
 
   // Unified Logout Handler with full client purge
   const performLogout = useCallback(
