@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Search, X, Clock, Calendar, BookOpen, ArrowRight, Filter } from "lucide-react";
 import { ResourceArticle } from "@/data/resources";
+import { formatEditorialTitle } from "@/utils/text";
 
 interface BlogsCatalogProps {
   initialArticles: ResourceArticle[];
@@ -206,8 +207,8 @@ export default function BlogsCatalog({ initialArticles }: BlogsCatalogProps) {
                       )}
                     </div>
 
-                    <h2 className="text-base font-black text-[#101114] group-hover:text-[#d97706] transition-colors leading-snug line-clamp-2">
-                      {article.title}
+                    <h2 className="text-base font-black text-[#101114] group-hover:text-[#d97706] transition-colors leading-snug line-clamp-2 font-display">
+                      {formatEditorialTitle(article.title)}
                     </h2>
 
                     <p className="text-xs text-[#6b7280] line-clamp-2 leading-relaxed">
