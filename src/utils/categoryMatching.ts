@@ -185,7 +185,7 @@ export function matchProductCategory(
     );
   }
 
-  // 8. Cabins
+  // 8. Cabins (All Handcrafted Log Cabins & Modular Cabins)
   if (clean.includes("cabin")) {
     return (
       (mCat.includes("cabin") ||
@@ -197,7 +197,9 @@ export function matchProductCategory(
       !mName.includes("barndo") &&
       !mName.includes("house kit") &&
       !mName.includes("home kit") &&
-      !mName.includes("duplex")
+      !mName.includes("duplex") &&
+      !mName.includes("park model") &&
+      !mName.includes("a-frame")
     );
   }
 
@@ -213,7 +215,8 @@ export function matchProductCategory(
       !mName.includes("barndo") &&
       !mName.includes("pole barn") &&
       !mName.includes("duplex") &&
-      !mName.includes("house kit")
+      !mName.includes("house kit") &&
+      !mName.includes("cabin")
     );
   }
 
@@ -228,9 +231,10 @@ export function matchProductCategory(
     );
   }
 
-  // 11. Modular Homes (Strictly Modular Homes & Modular Residences)
+  // 11. Modular Homes (Strictly Single-Family Modular Homes & Modular Residences - No Cabins)
   if (clean.includes("modular")) {
     const isExcluded =
+      mName.includes("cabin") ||
       mName.includes("kit") ||
       mName.includes("duplex") ||
       mName.includes("barndo") ||
@@ -241,20 +245,27 @@ export function matchProductCategory(
       mName.includes("dealer") ||
       mName.includes("broker") ||
       mName.includes("pole barn") ||
-      (mName.includes("cabin") && !mName.includes("modular"));
+      mName.includes("shed") ||
+      mSlug.includes("cabin");
 
     return (
       !isExcluded &&
-      (mCat.includes("modular") ||
-        mName.includes("modular") ||
-        mSlug.includes("modular") ||
+      (mCat === "modular homes" ||
+        mCat === "modular" ||
+        mName.includes("modular home") ||
+        mName.includes("modular residence") ||
+        mName.includes("modular estate") ||
+        mName.includes("farmhouse charm") ||
+        mName.includes("modern craftsman") ||
+        mName.includes("aspen ridge") ||
+        mName.includes("prairie modern") ||
+        mName.includes("grandview") ||
+        mName.includes("cascade valley") ||
+        mName.includes("copper house") ||
         mName.includes("rancher") ||
-        mName.includes("farmhouse") ||
         mName.includes("residence") ||
         mName.includes("craftsman") ||
-        mName.includes("charm") ||
-        mName.includes("estate") ||
-        mName.includes("copper house"))
+        mName.includes("farmhouse"))
     );
   }
 

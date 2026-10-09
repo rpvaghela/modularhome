@@ -170,6 +170,270 @@ export const CATEGORIES = [
 
 export const BUILDING_MODELS: BuildingModel[] = [
   {
+    "id": "mod-craftsman-residence",
+    "slug": "the-modern-craftsman-modular-residence",
+    "name": "The Modern Craftsman Modular Residence",
+    "series": "Residential Series",
+    "category": "Modular Homes",
+    "architecturalStyle": "Modern Craftsman",
+    "tagline": "2,150 SQ FT • 3 Bed 2.5 Bath Precision Factory Modular Home",
+    "description": "<p><strong>The Modern Craftsman Modular Residence</strong> combines timeless architectural proportion with modern precision factory engineering. Featuring 2,150 sq ft of open-concept living, a chef's kitchen with quartz surfaces, high vaulted ceilings, and a private master retreat with walk-in dressing suite.</p>",
+    "sqft": 2150,
+    "bedrooms": 3,
+    "bathrooms": 2.5,
+    "stories": 1,
+    "startingPrice": 249900,
+    "dimensions": "32x68 ft",
+    "frameType": "100% Commercial-Grade Galvanized Light Gauge Steel",
+    "roofPitch": "6:12 Pitch Architectural Standing Seam",
+    "windRating": "Up to 150 MPH (Engineered for Extreme Weather)",
+    "snowLoad": "50 PSF Ground Snow Load Rated",
+    "warranty": "50-Year Structural Frame Warranty",
+    "primaryImage": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691",
+    "image": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691",
+    "gallery": [
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691",
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545"
+    ],
+    "floorPlanImage": "",
+    "features": [
+      "Precision Commercial-Grade Galvanized Steel Framing",
+      "High-R Structural Insulated Panels (SIPs) for Low Utility Costs",
+      "Expansive Great Room with 10ft Vaulted Ceilings",
+      "Turnkey Factory-Built Modules Delivered Nationwide"
+    ],
+    "specs": [
+      { "label": "Living Area", "value": "2,150 SQ FT" },
+      { "label": "Bedrooms", "value": "3 Bed" },
+      { "label": "Bathrooms", "value": "2.5 Bath" },
+      { "label": "Frame Type", "value": "Galvanized Precision Steel" },
+      { "label": "Warranty", "value": "50-Year Structural Warranty" }
+    ],
+    "customizableOptions": [
+      { "id": "opt-1", "name": "Covered Wrap-Around Porch", "price": 14500, "description": "Composite decking & architectural posts" },
+      { "id": "opt-2", "name": "Solar Ready Energy Package", "price": 8500, "description": "Pre-wired for roof solar & battery backup" }
+    ],
+    "tags": ["Featured", "Modular", "Turnkey"],
+    "collections": ["Modular Homes", "modular-homes"]
+  },
+  {
+    "id": "mod-farmhouse-charm",
+    "slug": "the-farmhouse-charm-modular-home",
+    "name": "The Farmhouse Charm Modular Home",
+    "series": "Residential Series",
+    "category": "Modular Homes",
+    "architecturalStyle": "Modern Farmhouse",
+    "tagline": "1,160 SQ FT • 2 Bed 2 Bath Turnkey Modular Home",
+    "description": "<p><strong>The Farmhouse Charm Modular Home</strong> offers elegant single-story living with classic board-and-batten siding, large black-frame windows, and open kitchen and living spaces.</p>",
+    "sqft": 1160,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "stories": 1,
+    "startingPrice": 219900,
+    "dimensions": "28x42 ft",
+    "frameType": "100% Commercial-Grade Galvanized Light Gauge Steel",
+    "roofPitch": "5:12 Pitch Standing Seam",
+    "windRating": "Up to 150 MPH Rated",
+    "snowLoad": "50 PSF Ground Snow Load Rated",
+    "warranty": "50-Year Structural Frame Warranty",
+    "primaryImage": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/prefabdua1.jpg?v=1737512098",
+    "image": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/prefabdua1.jpg?v=1737512098",
+    "gallery": [
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/prefabdua1.jpg?v=1737512098"
+    ],
+    "floorPlanImage": "",
+    "features": [
+      "Board and Batten Architectural Facade",
+      "Energy-Efficient High-R Thermal Envelope",
+      "Split Bedroom Layout with Private Master En-Suite",
+      "Factory-Built Turnkey Precision Construction"
+    ],
+    "specs": [
+      { "label": "Living Area", "value": "1,160 SQ FT" },
+      { "label": "Bedrooms", "value": "2 Bed" },
+      { "label": "Bathrooms", "value": "2 Bath" },
+      { "label": "Frame Type", "value": "Galvanized Steel" },
+      { "label": "Warranty", "value": "50-Year Structural Warranty" }
+    ],
+    "customizableOptions": [
+      { "id": "opt-1", "name": "Covered Front Veranda", "price": 9500, "description": "Covered entryway porch" }
+    ],
+    "tags": ["Featured", "Modular", "Turnkey"],
+    "collections": ["Modular Homes", "modular-homes"]
+  },
+  {
+    "id": "mod-aspen-ridge",
+    "slug": "the-aspen-ridge-luxury-modular-home",
+    "name": "The Aspen Ridge Luxury Modular Home",
+    "series": "Luxury Series",
+    "category": "Modular Homes",
+    "architecturalStyle": "Contemporary Luxury",
+    "tagline": "2,850 SQ FT • 4 Bed 3.5 Bath Contemporary Modular Home",
+    "description": "<p><strong>The Aspen Ridge Luxury Modular Home</strong> represents the pinnacle of modern prefabricated architecture. Massive multi-slide glass walls, dual primary suites, and dedicated office and entertainment rooms.</p>",
+    "sqft": 2850,
+    "bedrooms": 4,
+    "bathrooms": 3.5,
+    "stories": 2,
+    "startingPrice": 319900,
+    "dimensions": "36x70 ft",
+    "frameType": "100% Commercial-Grade Galvanized Light Gauge Steel",
+    "roofPitch": "Architectural Multi-Pitch",
+    "windRating": "Up to 150 MPH Rated",
+    "snowLoad": "60 PSF Ground Snow Load Rated",
+    "warranty": "50-Year Structural Frame Warranty",
+    "primaryImage": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/cross.jpg?v=1735268780",
+    "image": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/cross.jpg?v=1735268780",
+    "gallery": [
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/cross.jpg?v=1735268780"
+    ],
+    "floorPlanImage": "",
+    "features": [
+      "Floor-to-Ceiling Argon Low-E Architectural Glass",
+      "Two-Story Double-Volume Great Room",
+      "Dual Master Suites on Main and Upper Levels",
+      "Commercial-Grade Steel Modular Core"
+    ],
+    "specs": [
+      { "label": "Living Area", "value": "2,850 SQ FT" },
+      { "label": "Bedrooms", "value": "4 Bed" },
+      { "label": "Bathrooms", "value": "3.5 Bath" },
+      { "label": "Stories", "value": "2 Level" },
+      { "label": "Warranty", "value": "50-Year Structural Warranty" }
+    ],
+    "customizableOptions": [
+      { "id": "opt-1", "name": "Balcony Glass Railing Package", "price": 11500, "description": "Tempered glass balcony railings" }
+    ],
+    "tags": ["Featured", "Modular", "Turnkey"],
+    "collections": ["Modular Homes", "modular-homes"]
+  },
+  {
+    "id": "mod-prairie-modern",
+    "slug": "the-prairie-modern-modular-residence",
+    "name": "The Prairie Modern Modular Residence",
+    "series": "Residential Series",
+    "category": "Modular Homes",
+    "architecturalStyle": "Modern Prairie",
+    "tagline": "2,200 SQ FT • 3 Bed 2.5 Bath Single-Level Modular Home",
+    "description": "<p><strong>The Prairie Modern Modular Residence</strong> features clean horizontal sightlines, deep roof overhangs, and expansive split-bedroom living engineered for year-round thermal comfort.</p>",
+    "sqft": 2200,
+    "bedrooms": 3,
+    "bathrooms": 2.5,
+    "stories": 1,
+    "startingPrice": 289900,
+    "dimensions": "34x66 ft",
+    "frameType": "100% Commercial-Grade Galvanized Light Gauge Steel",
+    "roofPitch": "3:12 Low-Pitch Modern",
+    "windRating": "Up to 150 MPH Rated",
+    "snowLoad": "50 PSF Ground Snow Load Rated",
+    "warranty": "50-Year Structural Frame Warranty",
+    "primaryImage": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545",
+    "image": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545",
+    "gallery": [
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545"
+    ],
+    "floorPlanImage": "",
+    "features": [
+      "Single-Level Accessible Universal Design",
+      "Continuous High-R Thermal Break Envelope",
+      "Large Kitchen Island & Walk-In Pantry",
+      "Engineered Structural Steel Frame"
+    ],
+    "specs": [
+      { "label": "Living Area", "value": "2,200 SQ FT" },
+      { "label": "Bedrooms", "value": "3 Bed" },
+      { "label": "Bathrooms", "value": "2.5 Bath" },
+      { "label": "Warranty", "value": "50-Year Structural Warranty" }
+    ],
+    "customizableOptions": [],
+    "tags": ["Featured", "Modular", "Turnkey"],
+    "collections": ["Modular Homes", "modular-homes"]
+  },
+  {
+    "id": "mod-grandview-estate",
+    "slug": "the-grandview-two-story-modular-estate",
+    "name": "The Grandview Two-Story Modular Estate",
+    "series": "Estate Series",
+    "category": "Modular Homes",
+    "architecturalStyle": "Traditional Luxury",
+    "tagline": "3,200 SQ FT • 5 Bed 4 Bath Two-Story Modular Home",
+    "description": "<p><strong>The Grandview Two-Story Modular Estate</strong> provides abundant space for growing families with 5 bedrooms, 4 bathrooms, dedicated bonus room, and formal dining.</p>",
+    "sqft": 3200,
+    "bedrooms": 5,
+    "bathrooms": 4,
+    "stories": 2,
+    "startingPrice": 349900,
+    "dimensions": "40x48 ft Two-Story",
+    "frameType": "100% Commercial-Grade Galvanized Light Gauge Steel",
+    "roofPitch": "7:12 Architectural Pitch",
+    "windRating": "Up to 150 MPH Rated",
+    "snowLoad": "50 PSF Ground Snow Load Rated",
+    "warranty": "50-Year Structural Frame Warranty",
+    "primaryImage": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM2334-FRONT.jpg?v=1752962746",
+    "image": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM2334-FRONT.jpg?v=1752962746",
+    "gallery": [
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM2334-FRONT.jpg?v=1752962746"
+    ],
+    "floorPlanImage": "",
+    "features": [
+      "Two-Story Precision Modular Engineering",
+      "5 Generous Bedrooms with Dedicated Upper Media Suite",
+      "Heavy-Gauge Galvanized Steel Floor & Roof Trusses",
+      "Turnkey Factory-Built Crane Set Installation"
+    ],
+    "specs": [
+      { "label": "Living Area", "value": "3,200 SQ FT" },
+      { "label": "Bedrooms", "value": "5 Bed" },
+      { "label": "Bathrooms", "value": "4 Bath" },
+      { "label": "Stories", "value": "2 Level" },
+      { "label": "Warranty", "value": "50-Year Structural Warranty" }
+    ],
+    "customizableOptions": [],
+    "tags": ["Featured", "Modular", "Turnkey"],
+    "collections": ["Modular Homes", "modular-homes"]
+  },
+  {
+    "id": "mod-cascade-valley",
+    "slug": "the-cascade-valley-modular-home",
+    "name": "The Cascade Valley Modular Home",
+    "series": "Residential Series",
+    "category": "Modular Homes",
+    "architecturalStyle": "Modern Homes",
+    "tagline": "2,400 SQ FT • 4 Bed 3 Bath Modular Home",
+    "description": "<p><strong>The Cascade Valley Modular Home</strong> is a spacious 4-bedroom residence designed with large gathering spaces, high energy efficiency, and low-maintenance exterior finishes.</p>",
+    "sqft": 2400,
+    "bedrooms": 4,
+    "bathrooms": 3,
+    "stories": 1,
+    "startingPrice": 269900,
+    "dimensions": "34x72 ft",
+    "frameType": "100% Commercial-Grade Galvanized Light Gauge Steel",
+    "roofPitch": "5:12 Pitch Architectural Metal",
+    "windRating": "Up to 150 MPH Rated",
+    "snowLoad": "50 PSF Ground Snow Load Rated",
+    "warranty": "50-Year Structural Frame Warranty",
+    "primaryImage": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691",
+    "image": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691",
+    "gallery": [
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691"
+    ],
+    "floorPlanImage": "",
+    "features": [
+      "4 Bedroom Split Floor Plan with Private Master Wing",
+      "Airtight High-R SIP Panel & Steel Construction",
+      "Large Covered Back Patio Access",
+      "Turnkey Factory Built Delivery"
+    ],
+    "specs": [
+      { "label": "Living Area", "value": "2,400 SQ FT" },
+      { "label": "Bedrooms", "value": "4 Bed" },
+      { "label": "Bathrooms", "value": "3 Bath" },
+      { "label": "Warranty", "value": "50-Year Structural Warranty" }
+    ],
+    "customizableOptions": [],
+    "tags": ["Featured", "Modular", "Turnkey"],
+    "collections": ["Modular Homes", "modular-homes"]
+  },
+  {
     "id": "9786090357052",
     "slug": "hummingbird-hollow-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
     "name": "Hummingbird Hollow – Panelized SIP Panel House Kit | Energy-Efficient SIP Home Kit",
