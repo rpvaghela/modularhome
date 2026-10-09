@@ -33,8 +33,9 @@ export const CATEGORY_ROUTE_MAP: Record<string, string> = {
   "ADUs": "/adus",
   "A-Frame Homes": "/a-frame-homes",
   "A-Frames": "/a-frame-homes",
-  "Commercial Buildings": "/commercial-buildings",
-  "Commercial": "/commercial-buildings",
+  "Commercial Buildings": "/commercial-modular-buildings",
+  "Commercial": "/commercial-modular-buildings",
+  "Commercial Modular Buildings": "/commercial-modular-buildings",
   "Custom Homes": "/custom-homes",
 };
 

@@ -62,9 +62,11 @@ export const CATEGORY_SLUG_MAP: Record<string, string> = {
   "prefab-home": "prefab-homes",
   "prefab": "prefab-homes",
 
-  "commercial-buildings": "commercial-buildings",
-  "commercial": "commercial-buildings",
-  "commercial-steel-buildings": "commercial-buildings",
+  "commercial-modular-buildings": "commercial-modular-buildings",
+  "commercial-buildings": "commercial-modular-buildings",
+  "commercial": "commercial-modular-buildings",
+  "commercial-steel-buildings": "commercial-modular-buildings",
+  "commercial-modular": "commercial-modular-buildings",
 
   "custom-homes": "custom-homes",
   "custom-home": "custom-homes",
@@ -81,6 +83,7 @@ export const VALID_PRODUCT_CATEGORIES = [
   "adus",
   "a-frame-homes",
   "prefab-homes",
+  "commercial-modular-buildings",
   "commercial-buildings",
   "custom-homes",
 ] as const;
@@ -153,8 +156,8 @@ export function getProductCategorySlug(product?: ProductUrlInput | null): ValidP
     return "house-kits";
   }
 
-  if (combined.includes("commercial") || combined.includes("warehouse") || combined.includes("office building")) {
-    return "commercial-buildings";
+  if (combined.includes("commercial") || combined.includes("warehouse") || combined.includes("office building") || combined.includes("duplex")) {
+    return "commercial-modular-buildings";
   }
 
   if (combined.includes("custom home") || combined.includes("custom-designed")) {
@@ -179,7 +182,7 @@ export function getProductUrl(product?: ProductUrlInput | null): string {
   // Strip any leading slashes or existing prefixes if accidentally passed
   const cleanSlug = slug
     .replace(/^https?:\/\/[^\/]+/i, "")
-    .replace(/^\/(?:products|buildings|models|cabins|modular-homes|barndominiums|house-kits|tiny-homes|park-models|adus|a-frame-homes|prefab-homes|commercial-buildings|custom-homes)\//i, "")
+    .replace(/^\/(?:products|buildings|models|cabins|modular-homes|barndominiums|house-kits|tiny-homes|park-models|adus|a-frame-homes|prefab-homes|commercial-modular-buildings|commercial-buildings|custom-homes)\//i, "")
     .replace(/^\/+|\/+$/g, "");
 
   const categorySlug = getProductCategorySlug(product);
@@ -210,7 +213,8 @@ export function getCategoryDisplayName(slug: string): string {
     case "adus": return "ADUs & Granny Pods";
     case "a-frame-homes": return "A-Frame Homes";
     case "prefab-homes": return "Prefab Homes";
-    case "commercial-buildings": return "Commercial Buildings";
+    case "commercial-modular-buildings": return "Commercial Modular Buildings";
+    case "commercial-buildings": return "Commercial Modular Buildings";
     case "custom-homes": return "Custom Homes";
     default:
       return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());

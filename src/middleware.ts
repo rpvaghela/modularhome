@@ -11,6 +11,7 @@ const LEGACY_REDIRECTS: Record<string, string> = {
   "/floor-plan": "/floor-plans",
   "/plans": "/floor-plans",
   "/models": "/buildings",
+  "/commercial-buildings": "/commercial-modular-buildings",
 };
 
 // Imported Matrixify Shopify & Product category redirects (2,748 mapped paths)
@@ -85,7 +86,7 @@ export async function middleware(request: NextRequest) {
     else if (cleanCat.includes("adu") || cleanCat.includes("granny")) targetCat = "adus";
     else if (cleanCat.includes("a-frame") || cleanCat.includes("aframe")) targetCat = "a-frame-homes";
     else if (cleanCat.includes("kit") || cleanCat.includes("sip")) targetCat = "house-kits";
-    else if (cleanCat.includes("commercial")) targetCat = "commercial-buildings";
+    else if (cleanCat.includes("commercial")) targetCat = "commercial-modular-buildings";
     else if (cleanCat.includes("custom")) targetCat = "custom-homes";
 
     destinationPath = `/${targetCat}`;
@@ -96,11 +97,17 @@ export async function middleware(request: NextRequest) {
   if (lowerPath.startsWith("/collections/") && lowerPath !== "/collections/all") {
     const colSlug = lowerPath.replace(/^\/collections\//, "").replace(/\/+$/, "");
     if (colSlug && !colSlug.includes("/")) {
-      destinationPath = `/${colSlug}`;
+      destinationPath = colSlug === "commercial-buildings" ? "/commercial-modular-buildings" : `/${colSlug}`;
     }
   }
 
-  // 2c. Dynamic category redirect for any remaining /buildings/, /models/, or /products/ paths
+  // 2c. Direct /commercial-buildings/* to /commercial-modular-buildings/* redirect (301)
+  if (lowerPath.startsWith("/commercial-buildings/")) {
+    const sub = lowerPath.replace(/^\/commercial-buildings\//, "");
+    destinationPath = `/commercial-modular-buildings/${sub}`;
+  }
+
+  // 2d. Dynamic category redirect for any remaining /buildings/, /models/, or /products/ paths
   if (
     destinationPath === normalizedPath &&
     (lowerPath.startsWith("/buildings/") ||
@@ -132,6 +139,8 @@ export async function middleware(request: NextRequest) {
         cat = "a-frame-homes";
       else if (slug.includes("house-kit") || slug.includes("sip-panel"))
         cat = "house-kits";
+      else if (slug.includes("duplex") || slug.includes("commercial"))
+        cat = "commercial-modular-buildings";
 
       destinationPath = `/${cat}/${slug}`;
     }

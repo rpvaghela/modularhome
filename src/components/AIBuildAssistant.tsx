@@ -96,7 +96,7 @@ export default function AIBuildAssistant() {
       return {
         reply: "For workshops, commercial space, and multi-purpose buildings, take a look at 'The Timberline Workshop' (3,000 sq ft clear-span) and 'The Artisan Shed' (480 sq ft versatile studio kit).",
         actionButtons: [
-          { label: "Explore The Timberline", href: "/commercial-buildings/the-timberline-workshop" },
+          { label: "Explore The Timberline", href: "/commercial-modular-buildings/the-timberline-workshop" },
           { label: "Explore The Artisan Shed", href: "/house-kits/the-artisan-shed" },
         ],
       };

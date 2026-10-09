@@ -147,13 +147,13 @@ export const CATEGORIES = [
     cta: "View A-Frames",
   },
   {
-    id: "Commercial Buildings",
-    title: "Commercial Buildings",
+    id: "Commercial Modular Buildings",
+    title: "Commercial Modular Buildings",
     tagline: "Modular solutions for commercial applications.",
     description: "Durable modular structures for offices, retail, hospitality, community spaces, and business use.",
     image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/442435176_1117036319546606_7478160302982824370_n_2a3e20a5-fc3f-46af-9aa2-8da3022fbe87.jpg?v=1736129729",
     count: 0,
-    href: "/commercial-buildings",
+    href: "/commercial-modular-buildings",
     cta: "View Commercial",
   },
   {

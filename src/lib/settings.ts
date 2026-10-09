@@ -50,7 +50,7 @@ export const DEFAULT_SETTINGS: PublicGlobalSettings = {
     { label: "Cabins", href: "/cabins" },
     { label: "ADUs & Granny Pods", href: "/adus" },
     { label: "A-Frames", href: "/a-frame-homes" },
-    { label: "Commercial", href: "/commercial-buildings" },
+    { label: "Commercial", href: "/commercial-modular-buildings" },
   ],
   footerText: "ModularHome.com leads the American prefabricated housing movement with precision-engineered modular residences, luxury barndominiums, and rapid-deployment cabin kits.",
   footerLinks: [

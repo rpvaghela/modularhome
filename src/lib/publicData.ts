@@ -1846,7 +1846,7 @@ export const MEGA_MENU_CATEGORIES_CONFIG = [
   {
     label: "Commercial",
     categoryQuery: "Commercial Buildings",
-    viewAllHref: "/commercial-buildings",
+    viewAllHref: "/commercial-modular-buildings",
     tagline: "Steel commercial facilities, offices & multi-unit buildings",
   },
 ];

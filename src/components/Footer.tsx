@@ -122,7 +122,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
     { label: "Cabins", href: "/cabins" },
     { label: "ADUs & Granny Pods", href: "/adus" },
     { label: "A-Frame Homes", href: "/a-frame-homes" },
-    { label: "Commercial Buildings", href: "/commercial-buildings" },
+    { label: "Commercial Buildings", href: "/commercial-modular-buildings" },
     { label: "Custom Homes", href: "/custom-homes" },
   ];
 

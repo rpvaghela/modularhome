@@ -49,7 +49,7 @@ const PRIMARY_MENU_OPTIONS: CategoryNavOption[] = [
   { label: "Cabins", href: "/cabins", categoryQuery: "Cabins" },
   { label: "ADUs & Granny Pods", href: "/adus", categoryQuery: "ADUs & Granny Pods" },
   { label: "A-Frames", href: "/a-frame-homes", categoryQuery: "A-Frame Homes" },
-  { label: "Commercial", href: "/commercial-buildings", categoryQuery: "Commercial Buildings" },
+  { label: "Commercial", href: "/commercial-modular-buildings", categoryQuery: "Commercial Buildings" },
 ];
 
 const CORE_MORE_OPTIONS = [
