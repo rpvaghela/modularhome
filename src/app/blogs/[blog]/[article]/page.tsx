@@ -97,6 +97,20 @@ export async function generateMetadata({
   };
 }
 
+function getHeroBackground(category?: string, title?: string): string {
+  const text = `${category || ""} ${title || ""}`.toLowerCase();
+  if (text.includes("cabin") || text.includes("lodge") || text.includes("timber") || text.includes("gatlinburg") || text.includes("appalachian") || text.includes("mountain")) {
+    return "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2400&q=85";
+  }
+  if (text.includes("barndo") || text.includes("barndominium") || text.includes("farmhouse") || text.includes("ranch")) {
+    return "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2400&q=85";
+  }
+  if (text.includes("tiny") || text.includes("adu") || text.includes("pod") || text.includes("backyard")) {
+    return "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2400&q=85";
+  }
+  return "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2400&q=85";
+}
+
 export default async function BlogArticlePage({ params }: BlogArticlePageProps) {
   const { blog, article: articleSlug } = await params;
   if (!articleSlug || articleSlug === "undefined" || articleSlug === "null") {
@@ -195,11 +209,23 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
       <ArticleReadingBar />
 
       {/* ========================================================================= */}
-      {/* 1. HERO SECTION (Dark Luxury Backdrop with Cabin Hero Image)              */}
+      {/* 1. HERO SECTION (Dark Luxury Backdrop with Scenic Background & Cabin Image)*/}
       {/* ========================================================================= */}
       <section className="relative bg-[#0c0d10] text-white overflow-hidden pt-6 pb-12 sm:pb-16 border-b border-[#1c1f26]">
-        {/* Subtle Ambient Glow */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 to-transparent z-10 pointer-events-none" />
+        {/* Scenic Panoramic Mountain & Forest Background Image */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+          <Image
+            src={getHeroBackground(article.category || blog, article.title)}
+            alt="Scenic Mountain Landscape Background"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center opacity-45 brightness-75 scale-105"
+          />
+          {/* Multi-layered Gradients for Deep Contrast & Text Legibility */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0c0d10]/95 via-[#0c0d10]/85 to-[#0c0d10]/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0d10] via-transparent to-[#0c0d10]/80" />
+        </div>
         
         <div className="wrap relative z-20">
           {/* Breadcrumb Navigation inside Hero */}
