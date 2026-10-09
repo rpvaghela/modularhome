@@ -51,8 +51,21 @@ export async function GET(request: NextRequest) {
       const title = col.title || col.name || "";
       const handle = col.handle || col.slug || "";
       const fallbackImg = getCategoryFallbackImage(title, title, handle);
-      const img = normalizeImageUrl(col.image || col.banner_image || col.featured_image, fallbackImg);
-      const bannerImg = normalizeImageUrl(col.banner_image || col.image, fallbackImg);
+      const isGeneric = (u?: string | null) =>
+        !u ||
+        u.includes("unsplash.com") ||
+        u.includes("placeholder") ||
+        u.includes("newmodularlogo") ||
+        u.includes("finallogo") ||
+        u === "undefined" ||
+        u === "null";
+
+      const img = isGeneric(col.image || col.banner_image || col.featured_image)
+        ? fallbackImg
+        : normalizeImageUrl(col.image || col.banner_image || col.featured_image, fallbackImg);
+      const bannerImg = isGeneric(col.banner_image || col.image)
+        ? fallbackImg
+        : normalizeImageUrl(col.banner_image || col.image, fallbackImg);
 
       return {
         id: col.id,

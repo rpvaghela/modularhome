@@ -1,5 +1,67 @@
 [
   {
+    "id": "eml-1791488476910-hqbsf",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_AI_CHAT_LEAD",
+    "subject": "New AI Build Request — CHETAN SONAWANE",
+    "status": "SENT",
+    "metadata": {
+      "lead_id": "lead_chat_1791488476000",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "resend_id": "01a11d08-c5f7-792b-918f-0726195f76c3"
+    },
+    "created_at": "2026-10-08T19:41:16.910Z"
+  },
+  {
+    "id": "eml-1791488463579-wtokz",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_AI_CHAT_LEAD",
+    "subject": "New AI Build Request — CHETAN SONAWANE",
+    "status": "SENT",
+    "metadata": {
+      "lead_id": "lead_chat_1791488462575",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "resend_id": "01a11d08-91f1-7f01-b497-7aad6e621ad8"
+    },
+    "created_at": "2026-10-08T19:41:03.579Z"
+  },
+  {
+    "id": "eml-1791488439706-bon5m",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_AI_CHAT_LEAD",
+    "subject": "New AI Build Request — CHETAN SONAWANE",
+    "status": "SENT",
+    "metadata": {
+      "lead_id": "lead_chat_1791488438315",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "resend_id": "01a11d08-348f-7d47-979d-93cd69f38ec9"
+    },
+    "created_at": "2026-10-08T19:40:39.706Z"
+  },
+  {
+    "id": "eml-1791486865907-63zae",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_CHECKOUT_NOTIFICATION",
+    "subject": "New Floor Plan Checkout — CHETAN SONAWANE",
+    "status": "SENT",
+    "metadata": {
+      "order_number": "MH-ORD-864723-492",
+      "order_id": "ord_1791486864726",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "total_amount": 495,
+      "resend_id": "01a11cf0-3112-7e64-ad79-3632ce9ee048"
+    },
+    "created_at": "2026-10-08T19:14:25.907Z"
+  },
+  {
     "id": "eml-1791486485906-qu78n",
     "recipient": "modularhome.admin@gmail.com",
     "template_type": "ADMIN_CHECKOUT_NOTIFICATION",

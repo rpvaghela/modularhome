@@ -173,8 +173,8 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
             Blogs
           </Link>
           <span>/</span>
-          <Link href={`/blogs/${blog}`} className="hover:text-[#101114] transition-colors capitalize">
-            {formattedBlogName}
+          <Link href="/blogs" className="hover:text-[#101114] transition-colors">
+            {article.category || formattedBlogName}
           </Link>
           <span>/</span>
           <span className="text-[#d97706] font-bold truncate max-w-xs sm:max-w-md">

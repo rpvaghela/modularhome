@@ -45,6 +45,14 @@ export async function GET(
     const title = collection.title || collection.name || "";
     const handle = collection.handle || collection.slug || "";
     const fallbackImg = getCategoryFallbackImage(title, title, handle);
+    const isGeneric = (u?: string | null) =>
+      !u ||
+      u.includes("unsplash.com") ||
+      u.includes("placeholder") ||
+      u.includes("newmodularlogo") ||
+      u.includes("finallogo") ||
+      u === "undefined" ||
+      u === "null";
 
     const formatted = {
       ...collection,
@@ -54,8 +62,12 @@ export async function GET(
       handle: handle,
       description: collection.description_html || collection.description || "",
       description_html: collection.description_html || collection.description || "",
-      image: normalizeImageUrl(collection.image || collection.banner_image, fallbackImg),
-      bannerImage: normalizeImageUrl(collection.banner_image || collection.image, fallbackImg),
+      image: isGeneric(collection.image || collection.banner_image)
+        ? fallbackImg
+        : normalizeImageUrl(collection.image || collection.banner_image, fallbackImg),
+      bannerImage: isGeneric(collection.banner_image || collection.image)
+        ? fallbackImg
+        : normalizeImageUrl(collection.banner_image || collection.image, fallbackImg),
       status: collection.published !== false ? "PUBLISHED" : "DRAFT",
       published: collection.published !== false,
       productIds: pIds,

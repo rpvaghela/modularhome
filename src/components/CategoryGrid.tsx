@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { PublicCollection, HomeTypeCategoryItem } from "@/lib/publicData";
+import { PublicCollection, HomeTypeCategoryItem, getCategoryFallbackImage } from "@/lib/publicData";
 
 export interface CategoryItem {
   id: string;
@@ -40,15 +40,8 @@ export default function CategoryGrid({ categories, collections }: CategoryGridPr
 
     displayItems = sortedCollections.slice(0, 10).map((col) => {
       let img = col.image || col.bannerImage;
-      if (!img || img.includes("placeholder") || img.includes("newmodularlogo") || img.includes("finallogo")) {
-        const lower = col.name.toLowerCase();
-        if (lower.includes("barndo")) img = "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM3945-front_1.png?v=1750743065";
-        else if (lower.includes("cabin")) img = "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345";
-        else if (lower.includes("kit")) img = "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/m1_ce95e0cb-7b02-4d09-b913-1fc48d1b48f1.jpg?v=1774680383";
-        else if (lower.includes("tiny")) img = "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/maddy.png?v=1783804418";
-        else if (lower.includes("adu") || lower.includes("granny")) img = "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308";
-        else if (lower.includes("a-frame") || lower.includes("aframe")) img = "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/blackaframe.png?v=1770169284";
-        else img = "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691";
+      if (!img || img.includes("placeholder") || img.includes("newmodularlogo") || img.includes("finallogo") || img.includes("unsplash.com")) {
+        img = getCategoryFallbackImage(col.name, col.name, col.slug);
       }
 
       return {

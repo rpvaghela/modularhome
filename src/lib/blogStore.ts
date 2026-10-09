@@ -1,9 +1,18 @@
-import fs from "fs";
-import path from "path";
 import type { ResourceArticle } from "@/data/resources";
+import customBlogsData from "@/data/custom_blogs.json";
 
-const DATA_DIR = path.join(process.cwd(), "src", "data");
-const BLOGS_FILE = path.join(DATA_DIR, "custom_blogs.json");
+let fs: any = null;
+let path: any = null;
+
+if (typeof window === "undefined") {
+  try {
+    fs = require("fs");
+    path = require("path");
+  } catch {}
+}
+
+const DATA_DIR = path ? path.join(process.cwd(), "src", "data") : "";
+const BLOGS_FILE = path ? path.join(DATA_DIR, "custom_blogs.json") : "";
 
 export interface StoredBlog {
   id: string;
@@ -43,6 +52,7 @@ export interface StoredBlog {
 }
 
 function ensureDataDirectory() {
+  if (!fs || !DATA_DIR) return;
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -53,26 +63,27 @@ function ensureDataDirectory() {
 }
 
 export function readBlogsFromStore(): StoredBlog[] {
+  if (typeof window !== "undefined" || !fs || !BLOGS_FILE) {
+    return (customBlogsData as StoredBlog[]) || [];
+  }
   try {
     ensureDataDirectory();
     if (!fs.existsSync(BLOGS_FILE)) {
-      fs.writeFileSync(BLOGS_FILE, JSON.stringify([], null, 2), "utf-8");
-      return [];
+      return (customBlogsData as StoredBlog[]) || [];
     }
     const data = fs.readFileSync(BLOGS_FILE, "utf-8");
     const parsed = JSON.parse(data);
-    if (!Array.isArray(parsed)) {
-      fs.writeFileSync(BLOGS_FILE, JSON.stringify([], null, 2), "utf-8");
-      return [];
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return (customBlogsData as StoredBlog[]) || [];
     }
     return parsed;
   } catch (error) {
-    console.error("Error reading custom_blogs.json:", error);
-    return [];
+    return (customBlogsData as StoredBlog[]) || [];
   }
 }
 
 export function writeBlogsToStore(blogs: StoredBlog[]): void {
+  if (!fs || !BLOGS_FILE) return;
   try {
     ensureDataDirectory();
     fs.writeFileSync(BLOGS_FILE, JSON.stringify(blogs, null, 2), "utf-8");

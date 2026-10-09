@@ -8,6 +8,7 @@ import { matchProductCategory } from "@/utils/categoryMatching";
 import { getProductUrl } from "@/utils/productUrls";
 import { readProductsFromStore } from "./productStore";
 import { readFloorPlansFromStore, getCustomFloorPlanByIdOrSlug } from "./floorPlanStore";
+import { readBlogsFromStore, getCustomBlogByIdOrSlug } from "./blogStore";
 
 interface CacheEntry<T> {
   data: T;
@@ -53,31 +54,43 @@ export function clearPublicDataCache(): void {
  */
 export function getCategoryFallbackImage(category?: string, name?: string, slug?: string): string {
   const text = `${category || ""} ${name || ""} ${slug || ""}`.toLowerCase();
-  if (text.includes("cabin") || text.includes("log home") || text.includes("wood") || text.includes("timber") || text.includes("rustic") || text.includes("berkley")) {
+  if (text.includes("cabin") || text.includes("log home") || text.includes("wood") || text.includes("timber") || text.includes("rustic") || text.includes("berkley") || text.includes("lodge")) {
     return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345";
   }
-  if (text.includes("barndo") || text.includes("barndominium") || text.includes("steel home")) {
+  if (text.includes("barndo") || text.includes("barndominium") || text.includes("steel home") || text.includes("shop home") || text.includes("clear-span") || text.includes("clear span")) {
     return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM3945-front_1.png?v=1750743065";
   }
   if (text.includes("tiny") || text.includes("micro") || text.includes("small")) {
     return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/maddy.png?v=1783804418";
   }
-  if (text.includes("adu") || text.includes("granny") || text.includes("studio") || text.includes("pod")) {
+  if (text.includes("park") || text.includes("resort") || text.includes("rv")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/aspen2.avif?v=1783816889";
+  }
+  if (text.includes("adu") || text.includes("granny") || text.includes("studio") || text.includes("pod") || text.includes("suite") || text.includes("aduvian") || text.includes("backyard")) {
     return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308";
   }
-  if (text.includes("a-frame") || text.includes("aframe")) {
+  if (text.includes("a-frame") || text.includes("aframe") || text.includes("a frame")) {
     return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/blackaframe.png?v=1770169284";
   }
   if (text.includes("kit") || text.includes("framing") || text.includes("panelized") || text.includes("sip")) {
     return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/m1_ce95e0cb-7b02-4d09-b913-1fc48d1b48f1.jpg?v=1774680383";
   }
-  if (text.includes("commercial") || text.includes("office") || text.includes("multi")) {
-    return "https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=1200&q=80";
+  if (text.includes("prefab")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/prefabdua1.jpg?v=1737512098";
   }
-  if (text.includes("modern") || text.includes("luxury") || text.includes("architectural")) {
-    return "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80";
+  if (text.includes("commercial") || text.includes("office") || text.includes("multi") || text.includes("retail") || text.includes("government") || text.includes("warehouse")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/442435176_1117036319546606_7478160302982824370_n_2a3e20a5-fc3f-46af-9aa2-8da3022fbe87.jpg?v=1736129729";
   }
-  return "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80";
+  if (text.includes("custom") || text.includes("estate") || text.includes("luxury") || text.includes("bespoke")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/cross.jpg?v=1735268780";
+  }
+  if (text.includes("ranch") || text.includes("single-level") || text.includes("single level") || text.includes("1-story") || text.includes("1 story")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545";
+  }
+  if (text.includes("two-story") || text.includes("two story") || text.includes("2-story") || text.includes("2 story") || text.includes("multi-level") || text.includes("duplex")) {
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM2334-FRONT.jpg?v=1752962746";
+  }
+  return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691";
 }
 
 /**
@@ -212,11 +225,30 @@ export function formatProduct(p: any): BuildingModel {
   }
   const finalPrice = startingPrice && !isNaN(startingPrice) && startingPrice > 0 ? startingPrice : 0;
 
-  const sqft = p.sqft !== null && p.sqft !== undefined && !isNaN(Number(p.sqft)) ? Number(p.sqft) : (p.square_feet ? Number(p.square_feet) : 0);
+  let sqft = p.sqft !== null && p.sqft !== undefined && !isNaN(Number(p.sqft)) ? Number(p.sqft) : (p.square_feet ? Number(p.square_feet) : 0);
   const bedrooms = p.bedrooms !== null && p.bedrooms !== undefined && !isNaN(Number(p.bedrooms)) ? Number(p.bedrooms) : (p.beds !== undefined ? Number(p.beds) : 0);
   const bathrooms = p.bathrooms !== null && p.bathrooms !== undefined && !isNaN(Number(p.bathrooms)) ? Number(p.bathrooms) : (p.baths !== undefined ? Number(p.baths) : 0);
   const stories = p.stories !== null && p.stories !== undefined && !isNaN(Number(p.stories)) ? Number(p.stories) : 1;
   const dimensions = p.dimensions || "";
+
+  // Intelligent check against description for comma-truncated values (e.g. 144 instead of 1,144)
+  const descText = ((p.description || p.description_html || "") + " " + (p.title || p.name || "")).replace(/<[^>]*>/g, " ");
+  const sqftDescMatch =
+    descText.match(/(?:living\s*(?:area|space)|total\s*square\s*footage|square\s*footage|size)[:\s]+(\d[\d,]*)\s*(?:sq\.?\s*ft|sqft|square\s*feet|sf\b)/i) ||
+    descText.match(/(\d[\d,]*)\s*(?:sq\.?\s*ft\.?|sqft|square\s*feet|square\s*foot|sf\b)/i);
+  if (sqftDescMatch) {
+    const parsedDescSqft = parseInt(sqftDescMatch[1].replace(/,/g, ""), 10);
+    if (parsedDescSqft >= 80 && parsedDescSqft <= 25000) {
+      if (
+        !sqft ||
+        sqft === 0 ||
+        (sqft < 300 && bedrooms >= 2) ||
+        (sqft < parsedDescSqft && String(parsedDescSqft).endsWith(String(sqft)))
+      ) {
+        sqft = parsedDescSqft;
+      }
+    }
+  }
 
   const collectionNames: string[] = [];
   if (Array.isArray(p.collections)) {
@@ -279,6 +311,15 @@ export function formatProduct(p: any): BuildingModel {
           ? String(p.handle || p.slug).replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())
           : "Precision Modular Model");
 
+  const computedTagline = sqft > 0
+    ? `${sqft.toLocaleString()} Sq Ft • ${bedrooms === 0 ? "Studio" : `${bedrooms} Bed`} • ${bathrooms} Bath ${isCabinOrTimber ? "Cabin" : "Modular"} Design`
+    : "";
+
+  const safeTagline =
+    p.tagline && !p.tagline.includes("144 Sq Ft") && !p.tagline.includes("504 Sq Ft") && !p.tagline.includes("334 Sq Ft") && !p.tagline.includes("955 Sq Ft")
+      ? p.tagline
+      : computedTagline;
+
   return {
     id: String(p.id || p.handle || p.slug),
     slug: p.handle || p.slug || p.id,
@@ -286,7 +327,7 @@ export function formatProduct(p: any): BuildingModel {
     series: p.series || p.product_type || "Essential Series",
     category: p.category || p.product_type || "Modular Homes",
     architecturalStyle: p.architectural_style || p.architecturalStyle || (isCabinOrTimber ? "Rustic Cabin" : "Modern Homes"),
-    tagline: p.tagline || (sqft > 0 ? `${sqft} Sq Ft ${isCabinOrTimber ? "Handcrafted Log Cabin" : "Precision Engineered Home"}` : ""),
+    tagline: safeTagline,
     description: p.description || p.description_html || "",
     sqft,
     bedrooms,
@@ -312,10 +353,15 @@ export function formatProduct(p: any): BuildingModel {
       : defaultFeatures,
     specs:
       specsArray.length > 0
-        ? specsArray
+        ? specsArray.map((s: any) => {
+            if (s.label === "Living Area" && sqft > 0) {
+              return { label: "Living Area", value: `${sqft.toLocaleString()} SQ FT` };
+            }
+            return s;
+          })
         : [
             ...(dimensions ? [{ label: "Dimensions", value: dimensions }] : []),
-            ...(sqft > 0 ? [{ label: "Living Area", value: `${sqft} SQ FT` }] : []),
+            ...(sqft > 0 ? [{ label: "Living Area", value: `${sqft.toLocaleString()} SQ FT` }] : []),
             ...(bedrooms >= 0 ? [{ label: "Bedrooms", value: bedrooms === 0 ? "Studio / Open" : `${bedrooms} Bed` }] : []),
             ...(bathrooms > 0 ? [{ label: "Bathrooms", value: `${bathrooms} Bath` }] : []),
             ...(stories > 0 ? [{ label: "Stories", value: `${stories} Level` }] : []),
@@ -861,8 +907,48 @@ function resolveBlogImage(b: any): string {
   return normalizeImageUrl(raw, "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691");
 }
 
+export function formatBlogArticle(b: any): ResourceArticle {
+  let formattedDate = b.date || "Recent";
+  if (b.published_at || b.publishedAt || b.created_at || b.createdAt) {
+    try {
+      const d = new Date(b.published_at || b.publishedAt || b.created_at || b.createdAt);
+      if (!isNaN(d.getTime())) {
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        formattedDate = `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+      }
+    } catch {}
+  }
+
+  const rawSlug = b.handle || b.slug || b.id || "";
+  const cleanSlug = String(rawSlug).toLowerCase().trim().replace(/^\/+|\/+$/g, "");
+  const cat = b.blog_title || b.category || (Array.isArray(b.categories) && b.categories[0]) || "Building Guides";
+  const catSlug = (b.category_slug || cat.toLowerCase().replace(/[^a-z0-9]+/g, "-")).replace(/^blogs-/, "");
+
+  return {
+    id: String(b.id || cleanSlug),
+    title: b.title || "Modular Home Guide",
+    slug: cleanSlug,
+    handle: cleanSlug,
+    excerpt: b.excerpt || b.seo_description || b.meta_description || b.metaDescription || "",
+    content: typeof b.body_html === "string" ? [b.body_html] : (Array.isArray(b.content) ? b.content : (b.content ? [b.content] : [])),
+    category: cat,
+    category_slug: catSlug,
+    readTime: b.readTime || b.read_time || "5 min read",
+    date: formattedDate,
+    published_at: b.published_at || b.publishedAt,
+    created_at: b.created_at || b.createdAt,
+    image: resolveBlogImage(b),
+    author: b.author || b.author_name || "ModularHome Engineering Team",
+    embeddedVideoUrl: b.embedded_video_url || b.embeddedVideoUrl,
+    seoTitle: b.seo_title || b.seoTitle || `${b.title} | ModularHome.com Guide`,
+    metaDescription: b.seo_description || b.seoDescription || b.meta_description || b.metaDescription || b.excerpt,
+    tags: Array.isArray(b.tags) ? b.tags : [],
+    keyTakeaways: Array.isArray(b.key_takeaways || b.keyTakeaways) ? (b.key_takeaways || b.keyTakeaways) : undefined,
+  };
+}
+
 /**
- * Fetches published articles / blogs directly from Supabase or verified local store
+ * Fetches all published articles / blogs directly from Supabase, custom store, and migrated catalog
  */
 export async function getPublicBlogs(params?: { category?: string; search?: string }): Promise<ResourceArticle[]> {
   try {
@@ -870,14 +956,35 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
     let blogsList = getCached<ResourceArticle[]>(cacheKey);
 
     if (!blogsList || blogsList.length === 0) {
-      blogsList = [];
+      const merged: ResourceArticle[] = [];
+      const seenSlugs = new Set<string>();
 
+      // 1. Custom Admin Store Blogs (highest priority)
+      try {
+        const customStored = readBlogsFromStore();
+        for (const raw of customStored) {
+          if (!raw || (!raw.slug && !raw.id)) continue;
+          if (raw.status === "DRAFT") continue;
+          const art = formatBlogArticle(raw);
+          if (art && art.slug) {
+            const clean = art.slug.toLowerCase().trim();
+            if (!seenSlugs.has(clean)) {
+              seenSlugs.add(clean);
+              merged.push(art);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Error reading custom blogs store:", err);
+      }
+
+      // 2. Database blogs from Supabase
       if (isSupabaseConfigured()) {
         try {
           const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), 800);
+          const timer = setTimeout(() => controller.abort(), 1200);
 
-          let { data: blogPosts, error } = await supabaseAdmin
+          const { data: dbPosts, error } = await supabaseAdmin
             .from("blog_posts")
             .select("*")
             .abortSignal(controller.signal)
@@ -885,35 +992,16 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
 
           clearTimeout(timer);
 
-          if (!error && blogPosts && blogPosts.length > 0) {
-            for (const b of blogPosts) {
-              let formattedDate = "Recent";
-              if (b.published_at || b.created_at) {
-                try {
-                  const d = new Date(b.published_at || b.created_at);
-                  if (!isNaN(d.getTime())) {
-                    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                    formattedDate = `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
-                  }
-                } catch {}
+          if (!error && dbPosts && dbPosts.length > 0) {
+            for (const raw of dbPosts) {
+              const art = formatBlogArticle(raw);
+              if (art && art.slug) {
+                const clean = art.slug.toLowerCase().trim();
+                if (!seenSlugs.has(clean)) {
+                  seenSlugs.add(clean);
+                  merged.push(art);
+                }
               }
-              blogsList.push({
-                id: b.id,
-                title: b.title,
-                slug: b.handle || b.slug || b.id,
-                excerpt: b.excerpt || b.seo_description || b.meta_description || "",
-                content: typeof b.body_html === "string" ? [b.body_html] : (Array.isArray(b.content) ? b.content : (b.content ? [b.content] : [])),
-                category: b.blog_title || b.category || "Building Guides",
-                readTime: b.read_time || "5 min read",
-                date: formattedDate,
-                image: resolveBlogImage(b),
-                author: b.author || b.author_name || "ModularHome Engineering Team",
-                embeddedVideoUrl: b.embedded_video_url,
-                seoTitle: b.seo_title || `${b.title} | ModularHome.com Guide`,
-                metaDescription: b.seo_description || b.meta_description || b.excerpt,
-                tags: Array.isArray(b.tags) ? b.tags : [],
-                keyTakeaways: Array.isArray(b.key_takeaways) ? b.key_takeaways : undefined,
-              });
             }
           }
         } catch (e) {
@@ -921,10 +1009,20 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
         }
       }
 
-      if (blogsList.length === 0) {
-        blogsList = [...RESOURCE_ARTICLES];
+      // 3. All Migrated Articles (ensuring all 189+ articles are present)
+      for (const raw of RESOURCE_ARTICLES) {
+        if (!raw || (!raw.slug && !raw.id)) continue;
+        const art = formatBlogArticle(raw);
+        if (art && art.slug) {
+          const clean = art.slug.toLowerCase().trim();
+          if (!seenSlugs.has(clean)) {
+            seenSlugs.add(clean);
+            merged.push(art);
+          }
+        }
       }
 
+      blogsList = merged.length > 0 ? merged : [...RESOURCE_ARTICLES].map(formatBlogArticle);
       setCached(cacheKey, blogsList, 60000);
     }
 
@@ -933,6 +1031,7 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
       const cleanCat = params.category.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       filtered = filtered.filter(
         (a) =>
+          (a.category_slug || "").toLowerCase() === cleanCat ||
           (a.category || "").toLowerCase().replace(/[^a-z0-9]+/g, "-") === cleanCat ||
           (a.category || "").toLowerCase().includes(params.category!.toLowerCase()) ||
           params.category!.toLowerCase().includes((a.category || "").toLowerCase())
@@ -944,19 +1043,20 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
         (a) =>
           (a.title || "").toLowerCase().includes(q) ||
           (a.excerpt || "").toLowerCase().includes(q) ||
-          (a.category || "").toLowerCase().includes(q)
+          (a.category || "").toLowerCase().includes(q) ||
+          (a.tags && a.tags.some((t: string) => t.toLowerCase().includes(q)))
       );
     }
 
     return filtered;
   } catch (e) {
     console.error("Error fetching public blogs:", e);
-    return [...RESOURCE_ARTICLES];
+    return [...RESOURCE_ARTICLES].map(formatBlogArticle);
   }
 }
 
 /**
- * Fetches a single published article / blog by slug or ID directly from Supabase
+ * Fetches a single published article / blog by slug or ID directly
  */
 export async function getPublicBlogBySlug(slugParam: string): Promise<ResourceArticle | null> {
   if (!slugParam) return null;
@@ -965,14 +1065,32 @@ export async function getPublicBlogBySlug(slugParam: string): Promise<ResourceAr
   const cached = getCached<ResourceArticle | null>(cacheKey);
   if (cached !== null && cached !== undefined) return cached;
 
-  const localBlogMatch = RESOURCE_ARTICLES.find(
-    (a) => a.slug.toLowerCase() === cleanSlug || a.id.toLowerCase() === cleanSlug
+  // 1. Check custom blogs store
+  try {
+    const customMatch = getCustomBlogByIdOrSlug(cleanSlug);
+    if (customMatch) {
+      const formatted = formatBlogArticle(customMatch);
+      setCached(cacheKey, formatted, 60000);
+      return formatted;
+    }
+  } catch {}
+
+  // 2. Check full merged blogs list
+  const allBlogs = await getPublicBlogs();
+  const matched = allBlogs.find(
+    (a) =>
+      a.slug.toLowerCase() === cleanSlug ||
+      a.id.toLowerCase() === cleanSlug ||
+      (a.handle && a.handle.toLowerCase() === cleanSlug) ||
+      a.slug.replace(/[^a-z0-9]/g, "") === cleanSlug.replace(/[^a-z0-9]/g, "")
   );
-  if (localBlogMatch) {
-    setCached(cacheKey, localBlogMatch, 60000);
-    return localBlogMatch;
+
+  if (matched) {
+    setCached(cacheKey, matched, 60000);
+    return matched;
   }
 
+  // 3. Fallback database lookup if Supabase configured
   let result: ResourceArticle | null = null;
   try {
     if (isSupabaseConfigured()) {
@@ -1004,33 +1122,7 @@ export async function getPublicBlogBySlug(slugParam: string): Promise<ResourceAr
       }
 
       if (blog) {
-        let formattedDate = "Recent";
-        if (blog.published_at || blog.created_at) {
-          try {
-            const d = new Date(blog.published_at || blog.created_at);
-            if (!isNaN(d.getTime())) {
-              const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-              formattedDate = `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
-            }
-          } catch {}
-        }
-        result = {
-          id: blog.id,
-          title: blog.title,
-          slug: blog.handle || blog.slug,
-          excerpt: blog.excerpt || blog.seo_description || blog.meta_description || "",
-          content: typeof blog.body_html === "string" ? [blog.body_html] : (Array.isArray(blog.content) ? blog.content : (blog.content ? [blog.content] : [])),
-          category: blog.blog_title || blog.category || "Building Guides",
-          readTime: blog.read_time || "5 min read",
-          date: formattedDate,
-          image: resolveBlogImage(blog),
-          author: blog.author || blog.author_name || "ModularHome Engineering Team",
-          embeddedVideoUrl: blog.embedded_video_url,
-          seoTitle: blog.seo_title || `${blog.title} | ModularHome.com Guide`,
-          metaDescription: blog.seo_description || blog.meta_description || blog.excerpt,
-          tags: Array.isArray(blog.tags) ? blog.tags : [],
-          keyTakeaways: Array.isArray(blog.key_takeaways) ? blog.key_takeaways : undefined,
-        };
+        result = formatBlogArticle(blog);
       }
     }
   } catch (e) {
@@ -1042,10 +1134,10 @@ export async function getPublicBlogBySlug(slugParam: string): Promise<ResourceAr
       (a) => a.slug.toLowerCase() === cleanSlug || a.id.toLowerCase() === cleanSlug
     );
     if (localBlogMatch) {
-      result = localBlogMatch;
+      result = formatBlogArticle(localBlogMatch);
     } else if (cleanSlug && !cleanSlug.includes('totally-fake') && cleanSlug.length > 2) {
       const words = cleanSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      result = {
+      result = formatBlogArticle({
         id: `blog-${cleanSlug}`,
         title: words,
         slug: cleanSlug,
@@ -1061,8 +1153,7 @@ export async function getPublicBlogBySlug(slugParam: string): Promise<ResourceAr
         author: "ModularHome Editorial Team",
         seoTitle: `${words} | ModularHome.com Guide`,
         metaDescription: `Comprehensive architectural guide, specifications, and building advice for ${words}.`,
-        tags: ["Modular Homes", "Building Guides", "Prefab Architecture"],
-      };
+      });
     }
   }
 
@@ -1253,19 +1344,23 @@ const FALLBACK_PAGES: Record<string, Partial<CmsPage>> = {
 };
 
 const FALLBACK_COLLECTIONS: PublicCollection[] = [
-  { id: "cabins", name: "Cabins", slug: "cabins", tagline: "Rustic Timber & Handcrafted Modular Cabins", description: "Explore our collection of Amish-crafted and modular cabins built for year-round comfort.", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
-  { id: "modular-homes", name: "Modular Homes", slug: "modular-homes", tagline: "Modern Precision-Engineered Residential Homes", description: "Full-sized single-family modular residences with architectural excellence.", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
-  { id: "tiny-homes", name: "Tiny Homes", slug: "tiny-homes", tagline: "Compact High-Efficiency Living & ADUs", description: "Modern tiny homes and backyard accessory dwelling units with premium finishes.", image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
-  { id: "barndominiums", name: "Barndominiums", slug: "barndominiums", tagline: "Spacious Steel Clear-Span Residences", description: "Open-concept living combined with massive workshop and garage spaces.", image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
-  { id: "house-kits", name: "House Kits", slug: "house-kits", tagline: "Prefab Panelized & Steel Framing Kits", description: "Complete pre-cut structural kits engineered for fast on-site erection.", image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
-  { id: "modern-homes", name: "Modern Homes", slug: "modern-homes", tagline: "Contemporary Architectural Prefab Series", description: "Sleek lines, floor-to-ceiling glass, and minimalist luxury modular homes.", image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
-  { id: "custom-builds", name: "Custom Builds", slug: "custom-builds", tagline: "Bespoke Architectural Modular Engineering", description: "Custom engineered modular solutions tailored to your unique building site.", image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
-  { id: "residential-series", name: "Residential Series", slug: "residential-series", tagline: "Single-Family & Multi-Family Residential Models", description: "Engineered single-family and duplex modular models with turnkey floor plans.", image: "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
-  { id: "commercial-series", name: "Commercial Series", slug: "commercial-series", tagline: "Commercial Modular & Multi-Unit Construction", description: "Modular office buildings, workforce housing, hospitality, and commercial complexes.", image: "https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
-  { id: "aduvian-collection", name: "Aduvian Modern Studios", slug: "aduvian-collection", tagline: "Luxury Modular ADUs & Studio Pods", description: "Architectural backyard studios, home offices, and guest suites.", image: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
-  { id: "ranch-series", name: "Ranch Series", slug: "ranch-series", tagline: "Single-Level Modular Ranch Homes", description: "Accessible, single-story ranch modular homes with open split-bedroom layouts.", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
-  { id: "two-story-series", name: "Two-Story Series", slug: "two-story-series", tagline: "Two-Story Modular Residences", description: "Multi-level modular homes maximizing living space on compact property footprints.", image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
-  { id: "all", name: "All Models", slug: "all", tagline: "Complete Catalog of Modular Homes & Kits", description: "Browse every modular home, cabin, barndominium, and house kit in our portfolio.", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80", status: "PUBLISHED" },
+  { id: "cabins", name: "Cabins", slug: "cabins", tagline: "Rustic Timber & Handcrafted Modular Cabins", description: "Explore our collection of Amish-crafted and modular cabins built for year-round comfort.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345", status: "PUBLISHED" },
+  { id: "modular-homes", name: "Modular Homes", slug: "modular-homes", tagline: "Modern Precision-Engineered Residential Homes", description: "Full-sized single-family modular residences with architectural excellence.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", status: "PUBLISHED" },
+  { id: "prefab-homes", name: "Prefab Homes", slug: "prefab-homes", tagline: "High-Performance Turnkey Prefabricated Residences", description: "Turnkey prefab homes manufactured in precision climate-controlled environments.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/prefabdua1.jpg?v=1737512098", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/prefabdua1.jpg?v=1737512098", status: "PUBLISHED" },
+  { id: "tiny-homes", name: "Tiny Homes", slug: "tiny-homes", tagline: "Compact High-Efficiency Living & ADUs", description: "Modern tiny homes and backyard accessory dwelling units with premium finishes.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/maddy.png?v=1783804418", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/maddy.png?v=1783804418", status: "PUBLISHED" },
+  { id: "park-models", name: "Park Models", slug: "park-models", tagline: "Certified Park Model Cottages & Resort Cabins", description: "Architectural park model cottages engineered for seasonal or resort living.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/aspen2.avif?v=1783816889", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/aspen2.avif?v=1783816889", status: "PUBLISHED" },
+  { id: "barndominiums", name: "Barndominiums", slug: "barndominiums", tagline: "Spacious Steel Clear-Span Residences", description: "Open-concept living combined with massive workshop and garage spaces.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM3945-front_1.png?v=1750743065", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM3945-front_1.png?v=1750743065", status: "PUBLISHED" },
+  { id: "house-kits", name: "House Kits", slug: "house-kits", tagline: "Prefab Panelized & Steel Framing Kits", description: "Complete pre-cut structural kits engineered for fast on-site erection.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/m1_ce95e0cb-7b02-4d09-b913-1fc48d1b48f1.jpg?v=1774680383", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/m1_ce95e0cb-7b02-4d09-b913-1fc48d1b48f1.jpg?v=1774680383", status: "PUBLISHED" },
+  { id: "modern-homes", name: "Modern Homes", slug: "modern-homes", tagline: "Contemporary Architectural Prefab Series", description: "Sleek lines, floor-to-ceiling glass, and minimalist luxury modular homes.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", status: "PUBLISHED" },
+  { id: "custom-builds", name: "Custom Builds", slug: "custom-builds", tagline: "Bespoke Architectural Modular Engineering", description: "Custom engineered modular solutions tailored to your unique building site.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/cross.jpg?v=1735268780", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/cross.jpg?v=1735268780", status: "PUBLISHED" },
+  { id: "residential-series", name: "Residential Series", slug: "residential-series", tagline: "Single-Family & Multi-Family Residential Models", description: "Engineered single-family and duplex modular models with turnkey floor plans.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545", status: "PUBLISHED" },
+  { id: "commercial-series", name: "Commercial Series", slug: "commercial-series", tagline: "Commercial Modular & Multi-Unit Construction", description: "Modular office buildings, workforce housing, hospitality, and commercial complexes.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/442435176_1117036319546606_7478160302982824370_n_2a3e20a5-fc3f-46af-9aa2-8da3022fbe87.jpg?v=1736129729", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/442435176_1117036319546606_7478160302982824370_n_2a3e20a5-fc3f-46af-9aa2-8da3022fbe87.jpg?v=1736129729", status: "PUBLISHED" },
+  { id: "aduvian-collection", name: "Aduvian Modern Studios", slug: "aduvian-collection", tagline: "Luxury Modular ADUs & Studio Pods", description: "Architectural backyard studios, home offices, and guest suites.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308", status: "PUBLISHED" },
+  { id: "adus", name: "ADUs & Granny Pods", slug: "adus", tagline: "Luxury Modular ADUs & Studio Pods", description: "Permit-ready backyard suites and secondary dwelling units.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308", status: "PUBLISHED" },
+  { id: "a-frame-homes", name: "A-Frames", slug: "a-frame-homes", tagline: "Architectural Glass-Gable A-Frame Home Kits", description: "Iconic steep-pitch architectural homes engineered for heavy snow loads and mountain views.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/blackaframe.png?v=1770169284", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/blackaframe.png?v=1770169284", status: "PUBLISHED" },
+  { id: "ranch-series", name: "Ranch Series", slug: "ranch-series", tagline: "Single-Level Modular Ranch Homes", description: "Accessible, single-story ranch modular homes with open split-bedroom layouts.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545", status: "PUBLISHED" },
+  { id: "two-story-series", name: "Two-Story Series", slug: "two-story-series", tagline: "Two-Story Modular Residences", description: "Multi-level modular homes maximizing living space on compact property footprints.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM2334-FRONT.jpg?v=1752962746", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM2334-FRONT.jpg?v=1752962746", status: "PUBLISHED" },
+  { id: "all", name: "All Models", slug: "all", tagline: "Complete Catalog of Modular Homes & Kits", description: "Browse every modular home, cabin, barndominium, and house kit in our portfolio.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", status: "PUBLISHED" },
 ];
 
 /**
@@ -1497,14 +1592,28 @@ export async function getPublicCollections(): Promise<PublicCollection[]> {
             const pIds = col.product_collections ? col.product_collections.map((pc: any) => pc.product_id) : [];
             const title = col.title || col.name || "";
             const handle = col.handle || col.slug || "";
+            const catFallback = getCategoryFallbackImage(title, title, handle);
+
+            const isGeneric = (u?: string | null) =>
+              !u ||
+              u.includes("unsplash.com") ||
+              u.includes("placeholder") ||
+              u.includes("newmodularlogo") ||
+              u.includes("finallogo") ||
+              u === "undefined" ||
+              u === "null";
+
+            const img = isGeneric(col.image) ? catFallback : normalizeImageUrl(col.image, catFallback);
+            const bannerImg = isGeneric(col.banner_image || col.image) ? catFallback : normalizeImageUrl(col.banner_image || col.image, catFallback);
+
             return {
               id: col.id,
               name: title,
               slug: handle,
               tagline: col.tagline || `Engineered ${title}`,
               description: col.description_html || col.description || "",
-              image: normalizeImageUrl(col.image, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"),
-              bannerImage: normalizeImageUrl(col.banner_image || col.image, "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"),
+              image: img,
+              bannerImage: bannerImg,
               isFeatured: Boolean(col.is_featured),
               status: col.published !== false ? "PUBLISHED" : "DRAFT",
               displayOrder: Number(col.display_order) || 0,

@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Layers, Sparkles } from "lucide-react";
-import { getPublicCollections, getHomeTypeCategories } from "@/lib/publicData";
+import { getPublicCollections, getHomeTypeCategories, getCategoryFallbackImage } from "@/lib/publicData";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -80,7 +80,7 @@ export default async function CollectionsIndexPage() {
           >
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
               <Image
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+                src="https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691"
                 alt="All Modular Home Models"
                 fill
                 priority
@@ -106,38 +106,41 @@ export default async function CollectionsIndexPage() {
           </Link>
 
           {/* Dynamic / Migrated Collections */}
-          {collections.map((col) => (
-            <Link
-              key={col.id}
-              href={`/collections/${col.slug}`}
-              className="group card overflow-hidden flex flex-col justify-between bg-white rounded-[18px] border border-[#e7e9ee] hover:-translate-y-1 transition-all"
-            >
-              <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
-                <Image
-                  src={col.image || col.bannerImage || "/newmodularlogo.png"}
-                  alt={col.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-3 left-3 bg-[#101114] text-[#fcb907] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-xs">
-                  {col.productCount || 0} Models
+          {collections.map((col) => {
+            const colImg = col.image || col.bannerImage || getCategoryFallbackImage(col.name, col.name, col.slug);
+            return (
+              <Link
+                key={col.id}
+                href={`/collections/${col.slug}`}
+                className="group card overflow-hidden flex flex-col justify-between bg-white rounded-[18px] border border-[#e7e9ee] hover:-translate-y-1 transition-all"
+              >
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
+                  <Image
+                    src={colImg}
+                    alt={col.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute top-3 left-3 bg-[#101114] text-[#fcb907] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-xs">
+                    {col.productCount || 0} Models
+                  </div>
                 </div>
-              </div>
-              <div className="p-5 space-y-2">
-                <h2 className="text-lg font-black text-[#101114] group-hover:text-[#d97706] transition-colors">
-                  {col.name}
-                </h2>
-                <p className="text-xs text-[#6b7280] leading-relaxed line-clamp-2">
-                  {col.tagline || col.description?.replace(/<[^>]*>?/gm, "").slice(0, 100) || `High-performance ${col.name} designs.`}
-                </p>
-                <div className="pt-2 text-xs font-bold text-[#d97706] inline-flex items-center gap-1 group-hover:underline">
-                  <span>View Collection</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                <div className="p-5 space-y-2">
+                  <h2 className="text-lg font-black text-[#101114] group-hover:text-[#d97706] transition-colors">
+                    {col.name}
+                  </h2>
+                  <p className="text-xs text-[#6b7280] leading-relaxed line-clamp-2">
+                    {col.tagline || col.description?.replace(/<[^>]*>?/gm, "").slice(0, 100) || `High-performance ${col.name} designs.`}
+                  </p>
+                  <div className="pt-2 text-xs font-bold text-[#d97706] inline-flex items-center gap-1 group-hover:underline">
+                    <span>View Collection</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>

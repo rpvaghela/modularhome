@@ -14,7 +14,7 @@ import {
 import BuildingCard from "@/components/BuildingCard";
 import ShareButton from "@/components/ShareButton";
 import CategoryFilteredCatalog from "@/components/CategoryFilteredCatalog";
-import { getPublicCollections, getPublicProducts } from "@/lib/publicData";
+import { getPublicCollections, getPublicProducts, getCategoryFallbackImage } from "@/lib/publicData";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -79,7 +79,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
   const collectionTagline = "Complete Architectural Catalog";
   const collectionDescription =
     "Explore our comprehensive selection of precision light-gauge steel modular homes, turnkey prefab residences, rustic solid log cabins, energy-efficient SIP panel kits, and accessory dwelling units (ADUs). Every model is engineered for rapid assembly and lifetime structural performance.";
-  const collectionImage = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80";
+  const collectionImage = getCategoryFallbackImage(collectionTitle, collectionTitle, slug);
   const matchedProducts = allProducts;
 
   // Schema.org CollectionPage and ItemList JSON-LD

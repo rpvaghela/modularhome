@@ -124,7 +124,7 @@ export default async function ContactPage() {
 
 
   const phone = settings.phone || "+1 (812) 595-4033";
-  const email = settings.email || "modularhome.admin@gmail.com";
+  const email = settings.email || "support@modularhome.com";
   const address = settings.address || "Factory Headquarters, Indiana & Nationwide Staging Facilities";
 
   const jsonLd = {

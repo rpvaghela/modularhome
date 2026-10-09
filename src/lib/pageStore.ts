@@ -1,10 +1,18 @@
-import fs from "fs";
-import path from "path";
 import { CmsPage, PageSection } from "./publicData";
 
-const DATA_DIR = path.join(process.cwd(), "src", "data");
-const PAGES_FILE = path.join(DATA_DIR, "custom_pages.json");
-const SECTIONS_FILE = path.join(DATA_DIR, "custom_sections.json");
+let fs: any = null;
+let path: any = null;
+
+if (typeof window === "undefined") {
+  try {
+    fs = require("fs");
+    path = require("path");
+  } catch {}
+}
+
+const DATA_DIR = path ? path.join(process.cwd(), "src", "data") : "";
+const PAGES_FILE = path ? path.join(DATA_DIR, "custom_pages.json") : "";
+const SECTIONS_FILE = path ? path.join(DATA_DIR, "custom_sections.json") : "";
 
 export function isUuidString(str?: string | null): boolean {
   if (!str) return false;

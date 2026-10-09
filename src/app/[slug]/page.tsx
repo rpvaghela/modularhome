@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { headers } from "next/headers";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
-import { getPublicProducts, getPublicCollections, getPublicCollectionBySlug } from "@/lib/publicData";
+import { getPublicProducts, getPublicCollections, getPublicCollectionBySlug, getCategoryFallbackImage } from "@/lib/publicData";
 import { CATEGORIES } from "@/data/models";
 import { matchProductCategory } from "@/utils/categoryMatching";
 import { isCategorySlug, getCategoryDisplayName } from "@/utils/productUrls";
@@ -69,8 +69,9 @@ export async function generateMetadata({
     const canonical = getCanonicalUrl(`/${cleanSlug}`);
     const image =
       catDef?.image ||
+      getCategoryFallbackImage(displayName, displayName, cleanSlug) ||
       matched[0]?.primaryImage ||
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80";
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691";
 
     return {
       title,
@@ -154,7 +155,7 @@ export default async function DynamicSlugPage({ params }: DynamicSlugPageProps) 
     const description =
       catDef?.description ||
       `Explore our curated selection of high-performance ${title.toLowerCase()} models and precision floor plans. Built to rigorous architectural standards with nationwide delivery options.`;
-    const image = catDef?.image || matchedProducts[0]?.primaryImage;
+    const image = catDef?.image || getCategoryFallbackImage(title, title, cleanSlug) || matchedProducts[0]?.primaryImage;
 
     return (
       <CategoryCollectionRenderer

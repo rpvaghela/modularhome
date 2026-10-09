@@ -1,14 +1,22 @@
-import fs from "fs";
-import path from "path";
 import { VideoItem, SyncStats } from "@/types/video";
 import { VIDEOS_DATA } from "@/data/videos";
 import syncedVideosFallback from "@/data/synced_videos.json";
 import syncStatsFallback from "@/data/sync_stats.json";
 import { supabaseAdmin, isSupabaseConfigured } from "./supabase";
 
-const DATA_DIR = path.join(process.cwd(), "src", "data");
-const FILE_PATH = path.join(DATA_DIR, "synced_videos.json");
-const STATS_FILE_PATH = path.join(DATA_DIR, "sync_stats.json");
+let fs: any = null;
+let path: any = null;
+
+if (typeof window === "undefined") {
+  try {
+    fs = require("fs");
+    path = require("path");
+  } catch {}
+}
+
+const DATA_DIR = path ? path.join(process.cwd(), "src", "data") : "";
+const FILE_PATH = path ? path.join(DATA_DIR, "synced_videos.json") : "";
+const STATS_FILE_PATH = path ? path.join(DATA_DIR, "sync_stats.json") : "";
 
 // In-memory cache
 let memoryVideosCache: VideoItem[] | null = null;

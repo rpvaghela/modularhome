@@ -26,7 +26,7 @@ export const DEFAULT_SETTINGS: PublicGlobalSettings = {
   logoUrl: "/newmodularlogo.png",
   faviconUrl: "/favicon.ico",
   phone: "+1 (812) 595-4033",
-  email: "modularhome.admin@gmail.com",
+  email: "support@modularhome.com",
   address: "Factory Headquarters, IN & Nationwide Delivery",
   businessHours: "Mon – Fri: 8:00 AM – 6:00 PM EST",
   socialLinks: {

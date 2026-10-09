@@ -306,7 +306,7 @@ export default function ModelDetailClient({
                   <Maximize2 className="w-4 h-4 text-[#d97706] mb-1" />
                   <span className="text-[10px] uppercase text-[#6b7280] font-bold">Area</span>
                   <span className="font-bold text-xs sm:text-sm text-[#101114]">
-                    {model.sqft > 0 ? `${model.sqft} SQ FT` : (model.dimensions || "Custom Size")}
+                    {model.sqft > 0 ? `${model.sqft.toLocaleString()} SQ FT` : (model.dimensions || "Custom Size")}
                   </span>
                 </div>
                 <div className="flex flex-col items-center border-x border-[#e7e9ee]">

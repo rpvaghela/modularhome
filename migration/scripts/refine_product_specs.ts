@@ -2,7 +2,7 @@ import "dotenv/config";
 import * as fs from "fs";
 import * as path from "path";
 import * as XLSX from "xlsx";
-import { Client } from "pg";
+import { createClient } from "@supabase/supabase-js";
 import { cleanHtmlContent, cleanSeoTitle, cleanSeoDescription } from "../mappers/branding_cleaner";
 
 interface RefinedSpecs {
@@ -68,15 +68,21 @@ export function extractDetailedSpecs(
     }
   }
 
-  // 3. Square Footage
-  const sqftMatch =
-    text.match(/(\d{3,5})\s*(?:sq\.?\s*ft\.?|sqft|square\s*feet|square\s*foot|sf\b)/i) ||
-    title.match(/(\d{3,5})\s*(?:sq\.?\s*ft\.?|sqft|sf\b)/i);
+  // 3. Square Footage with Comma Support (e.g. 1,144 sq ft, 1,504 sq ft, 3,955 sqft)
+  const sqftPatterns = [
+    /(?:living\s*(?:area|space)|total\s*square\s*footage|square\s*footage|size)[:\s]+(\d[\d,]*)\s*(?:sq\.?\s*ft|sqft|square\s*feet|sf\b)/i,
+    /(\d[\d,]*)\s*(?:sq\.?\s*ft\.?|sqft|square\s*feet|square\s*foot|sf\b)/i,
+    /(\d[\d,]*)\s*(?:sq\.?\s*ft|sqft)/i,
+  ];
 
-  if (sqftMatch) {
-    const s = parseInt(sqftMatch[1], 10);
-    if (s >= 80 && s <= 15000) {
-      sqft = s;
+  for (const pat of sqftPatterns) {
+    const m = text.match(pat) || title.match(pat);
+    if (m) {
+      const parsed = parseInt(m[1].replace(/,/g, ""), 10);
+      if (parsed >= 80 && parsed <= 25000) {
+        sqft = parsed;
+        break;
+      }
     }
   }
 
@@ -147,10 +153,20 @@ export function extractDetailedSpecs(
   const lowerTitle = title.toLowerCase();
   const lowerHandle = handle.toLowerCase();
 
+  const isCabinOrTimber =
+    lowerTitle.includes("cabin") ||
+    lowerHandle.includes("cabin") ||
+    lowerTitle.includes("chalet") ||
+    lowerTitle.includes("a-frame") ||
+    lowerTitle.includes("log") ||
+    lowerTitle.includes("timber") ||
+    text.toLowerCase().includes("log cabin") ||
+    text.toLowerCase().includes("amish built");
+
   if (lowerTitle.includes("barndo") || lowerHandle.includes("barndo")) {
     architectural_style = "Barndominium";
     series = "Barndominium Series";
-  } else if (lowerTitle.includes("cabin") || lowerHandle.includes("cabin") || lowerTitle.includes("chalet") || lowerTitle.includes("a-frame")) {
+  } else if (isCabinOrTimber) {
     architectural_style = "Cabin";
     series = "Cabin Series";
   } else if (lowerTitle.includes("ranch") || lowerHandle.includes("ranch")) {
@@ -174,9 +190,9 @@ export function extractDetailedSpecs(
   let tagline = `Precision-Engineered ${architectural_style} Modular Home`;
   if (sqft && bedrooms !== null && bathrooms !== null) {
     const bedStr = bedrooms === 0 ? "Studio" : `${bedrooms} Bed`;
-    tagline = `${sqft} Sq Ft • ${bedStr} • ${bathrooms} Bath ${architectural_style} Design`;
+    tagline = `${sqft.toLocaleString()} Sq Ft • ${bedStr} • ${bathrooms} Bath ${architectural_style} Design`;
   } else if (sqft) {
-    tagline = `${sqft} Sq Ft Precision Steel ${architectural_style}`;
+    tagline = `${sqft.toLocaleString()} Sq Ft ${isCabinOrTimber ? "Handcrafted Timber" : "Precision Steel"} ${architectural_style}`;
   } else if (dimensions) {
     tagline = `${dimensions} Precision Modular ${architectural_style}`;
   }
@@ -193,24 +209,39 @@ export function extractDetailedSpecs(
       .filter(Boolean);
   }
 
-  // 11. Features
-  const features: string[] = [
-    "Precision Commercial-Grade Galvanized Steel Framing",
-    "Energy-Efficient High-R Value Structural Insulated Panels (SIPs)",
-    "Engineered for Up to 150 MPH Wind & 50 PSF Snow Loads",
-    "Pre-drilled MEP & Fast Modular On-Site Assembly",
-  ];
+  // 11. Features & Materials
+  const features: string[] = isCabinOrTimber
+    ? [
+        "Precision-Milled Interlocking Solid Log Joinery & Heavy Timber Framing",
+        "Tongue-and-Groove Ceiling Decking & Architectural Rafter System",
+        "Pre-Cut Precision Building Kit with Complete Assembly Documentation",
+        "Engineered for Severe Snow Loads & Year-Round Thermal Performance",
+      ]
+    : [
+        "Precision Commercial-Grade Galvanized Steel Framing",
+        "Energy-Efficient High-R Value Structural Insulated Panels (SIPs)",
+        "Engineered for Up to 150 MPH Wind & 50 PSF Snow Loads",
+        "Pre-drilled MEP & Fast Modular On-Site Assembly",
+      ];
+
+  const defaultFrame = isCabinOrTimber
+    ? "Precision-Engineered Heavy Timber & Milled Solid Log Wall System"
+    : "100% Commercial-Grade Galvanized Light Gauge Steel";
+
+  const defaultWarranty = isCabinOrTimber
+    ? "25-Year Structural Integrity & Craftsmanship Warranty"
+    : "50-Year Structural Steel Frame Warranty";
 
   // 12. Structured Specs Array
   const specs: Array<{ label: string; value: string }> = [];
   if (dimensions) specs.push({ label: "Dimensions", value: dimensions });
-  if (sqft) specs.push({ label: "Living Area", value: `${sqft} SQ FT` });
+  if (sqft) specs.push({ label: "Living Area", value: `${sqft.toLocaleString()} SQ FT` });
   if (bedrooms !== null) specs.push({ label: "Bedrooms", value: bedrooms === 0 ? "Studio / Open" : `${bedrooms} Bed` });
   if (bathrooms !== null) specs.push({ label: "Bathrooms", value: `${bathrooms} Bath` });
   if (stories !== null) specs.push({ label: "Stories", value: `${stories} Level` });
   if (starting_price) specs.push({ label: "Base Price", value: `$${starting_price.toLocaleString()}` });
-  specs.push({ label: "Frame Type", value: "100% Commercial-Grade Galvanized Light Gauge Steel" });
-  specs.push({ label: "Warranty", value: "50-Year Structural Steel Frame Warranty" });
+  specs.push({ label: "Frame Type", value: defaultFrame });
+  specs.push({ label: "Warranty", value: defaultWarranty });
 
   return {
     sqft,
@@ -279,16 +310,12 @@ async function runUpdate() {
 
   console.log(`Parsed ${productData.size} products from Products.csv`);
 
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) throw new Error("DATABASE_URL is missing");
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey) throw new Error("Supabase credentials missing");
 
-  const client = new Client({
-    connectionString: dbUrl,
-    ssl: { rejectUnauthorized: false },
-  });
-
-  await client.connect();
-  console.log("Connected to database. Applying accurate product specs...");
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  console.log("Connected to Supabase. Applying accurate product specs across database...");
 
   let updatedCount = 0;
   let skippedCount = 0;
@@ -310,72 +337,55 @@ async function runUpdate() {
       data.images
     );
 
-    const updateQuery = `
-      UPDATE products
-      SET
-        sqft = $1,
-        bedrooms = $2,
-        bathrooms = $3,
-        stories = $4,
-        dimensions = $5,
-        starting_price = $6,
-        tags = $7::jsonb,
-        features = $8::jsonb,
-        specs = $9::jsonb,
-        architectural_style = $10,
-        series = $11,
-        tagline = $12,
-        primary_image_url = $13,
-        updated_at = now()
-      WHERE handle = $14;
-    `;
+    const updatePayload: Record<string, any> = {
+      sqft: specs.sqft,
+      bedrooms: specs.bedrooms,
+      bathrooms: specs.bathrooms,
+      stories: specs.stories,
+      dimensions: specs.dimensions,
+      starting_price: specs.starting_price,
+      tags: specs.tags,
+      features: specs.features,
+      specs: specs.specs,
+      architectural_style: specs.architectural_style,
+      series: specs.series,
+      tagline: specs.tagline,
+      primary_image_url: specs.primary_image_url,
+      updated_at: new Date().toISOString(),
+    };
 
-    const values = [
-      specs.sqft,
-      specs.bedrooms,
-      specs.bathrooms,
-      specs.stories,
-      specs.dimensions,
-      specs.starting_price,
-      JSON.stringify(specs.tags),
-      JSON.stringify(specs.features),
-      JSON.stringify(specs.specs),
-      specs.architectural_style,
-      specs.series,
-      specs.tagline,
-      specs.primary_image_url,
-      handle,
-    ];
+    const { error } = await supabase
+      .from("products")
+      .update(updatePayload)
+      .eq("handle", handle);
 
-    const res = await client.query(updateQuery, values);
-    if (res.rowCount && res.rowCount > 0) {
-      updatedCount++;
-    } else {
+    if (error) {
+      console.warn(`Failed to update ${handle}:`, error.message);
       skippedCount++;
+    } else {
+      updatedCount++;
     }
   }
 
   console.log(`\n✓ Successfully updated ${updatedCount} products with real source specs!`);
   if (skippedCount > 0) {
-    console.log(`Skipped ${skippedCount} products (not present in products table).`);
+    console.log(`Skipped/Errors on ${skippedCount} products.`);
   }
 
-  // Verify Hummingbird Hollow and top samples
-  const checkSample = await client.query(`
-    SELECT handle, title, sqft, bedrooms, bathrooms, dimensions, starting_price, primary_image_url
-    FROM products
-    WHERE handle IN (
-      'hummingbird-hollow-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit',
-      '14-by-36-driftwood-modern-cabin-house-shell',
-      '14-by-52-sunnyside-modern-cabin-house-shell',
-      '14-by-40-azteca-modern-cabin'
-    );
-  `);
+  // Verify Country Rancher and top samples
+  const { data: checkSample } = await supabase
+    .from("products")
+    .select("handle, title, sqft, bedrooms, bathrooms, dimensions, starting_price, tagline")
+    .in("handle", [
+      "the-country-rancher-amish-built-modular-cabin",
+      "the-cumberland-crossing-cabin-maine-pricing",
+      "the-magnoliasteel-barndo-house-kit",
+      "hummingbird-hollow-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit"
+    ]);
 
   console.log("\n=== VERIFICATION OF SAMPLE PRODUCTS IN DB ===");
-  console.table(checkSample.rows);
-
-  await client.end();
+  console.table(checkSample);
 }
 
 runUpdate().catch(console.error);
+
