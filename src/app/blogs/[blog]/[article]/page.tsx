@@ -4,38 +4,37 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { 
-  ArrowLeft, 
-  ArrowRight, 
   Clock, 
   Calendar, 
-  CheckCircle2, 
   Tag, 
-  Sparkles, 
-  Building2, 
+  MessageSquare, 
   Home, 
   Bed, 
   Bath, 
-  Maximize2, 
-  DollarSign, 
-  ShieldCheck, 
+  Layers, 
+  Wrench, 
+  Truck, 
+  ArrowRight, 
+  FileText, 
+  Download, 
+  ChevronRight, 
   Play, 
-  Share2, 
-  Compass, 
-  Phone, 
-  FileText,
-  UserCheck,
-  Quote,
-  Layers,
-  Printer,
-  Bookmark,
-  Check
+  CheckCircle2, 
+  ShieldCheck, 
+  Zap, 
+  TreePine, 
+  Sparkles, 
+  Leaf, 
+  Settings, 
+  Maximize2,
+  DollarSign,
+  Quote
 } from "lucide-react";
 import { getPublicBlogBySlug, getPublicBlogs } from "@/lib/publicData";
 import { resolveVideoEmbedUrl } from "@/lib/videoUtils";
 import RichHtmlContent from "@/components/RichHtmlContent";
-import ShareButton from "@/components/ShareButton";
+import BlogTableOfContents from "@/components/BlogTableOfContents";
 import ArticleReadingBar from "@/components/ArticleReadingBar";
-import ArticleTableOfContents from "@/components/ArticleTableOfContents";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import { formatEditorialTitle, extractArticleSpecs, cleanBlogHtml } from "@/utils/text";
 
@@ -113,7 +112,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
   const allArticles = await getPublicBlogs();
   const relatedArticles = allArticles
     .filter((a: any) => a.slug !== article.slug && a.id !== article.id)
-    .slice(0, 3);
+    .slice(0, 4);
 
   // Extract raw body content string
   const rawBodyContent = Array.isArray(article.content)
@@ -144,365 +143,343 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
     .replace(/[^a-z0-9]+/g, "-");
   const canonical = getCanonicalUrl(`/blogs/${canonicalCategory}/${article.slug}`);
 
-  // Schema.org Article + Breadcrumb JSON-LD
-  const jsonLd = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      headline: displayTitle,
-      description: article.metaDescription || article.excerpt,
-      image: [article.image || "https://modularhome.com/newmodularlogo.png"],
-      datePublished: article.published_at || article.date,
-      dateModified: article.published_at || article.date,
-      author: {
-        "@type": "Person",
-        name: article.author || "ModularHome Engineering Team",
-      },
-      publisher: {
-        "@type": "Organization",
-        name: "ModularHome.com",
-        logo: {
-          "@type": "ImageObject",
-          url: "https://modularhome.com/newmodularlogo.png",
-        },
-      },
-      mainEntityOfPage: {
-        "@type": "WebPage",
-        "@id": canonical,
-      },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: "https://modularhome.com",
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Blogs",
-          item: "https://modularhome.com/blogs",
-        },
-        {
-          "@type": "ListItem",
-          position: 3,
-          name: article.category || blog,
-          item: `https://modularhome.com/blogs/${canonicalCategory}`,
-        },
-        {
-          "@type": "ListItem",
-          position: 4,
-          name: displayTitle,
-          item: canonical,
-        },
-      ],
-    },
-  ];
-
   const formattedBlogName = (article.category || blog).replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  const hasKeySpecs = Boolean(specs.price || specs.bedrooms || specs.bathrooms || specs.sqft || specs.buildingType);
 
-  const tocItems = [
-    { id: "overview", text: "1. Architectural Overview" },
-    ...(hasKeySpecs ? [{ id: "specs", text: "2. Floor Plan Specifications" }] : []),
-    ...(videoEmbed ? [{ id: "video-tour", text: "3. Factory Video Walkthrough" }] : []),
-    { id: "interior-details", text: "4. Interior Design & Features" },
-    { id: "pricing-quote", text: "5. Pricing, Permits & Customization" },
+  // Default Key Features list adapted to model specs
+  const keyFeaturesList = [
+    {
+      icon: Home,
+      title: specs.sqft || "1,856 Square Feet",
+      desc: "Spacious layout with open-concept design and high volume ceilings.",
+    },
+    {
+      icon: Bed,
+      title: specs.bedrooms || "3 Bedrooms",
+      desc: "Comfortable bedrooms designed for family living, guests, or home office.",
+    },
+    {
+      icon: Bath,
+      title: specs.bathrooms || "2 Bathrooms",
+      desc: "Modern and functional bathrooms with premium pre-installed fixtures.",
+    },
+    {
+      icon: Layers,
+      title: specs.hasLoft ? "Loft Included" : "Expansive Living Area",
+      desc: "Extra elevated living space for guests, home office, or entertainment lounge.",
+    },
+    {
+      icon: Leaf,
+      title: "Amish Built Quality",
+      desc: "Crafted with premium structural materials and superior precision workmanship.",
+    },
+    {
+      icon: Settings,
+      title: "Modular & Prefab Built",
+      desc: "Built indoors in climate control for 50% faster build times and cost efficiency.",
+    },
+    {
+      icon: TreePine,
+      title: "Rustic Modern Design",
+      desc: "Timeless architectural aesthetic with expansive floor-to-ceiling windows.",
+    },
+    {
+      icon: Zap,
+      title: "Energy Efficient",
+      desc: "Engineered thermal envelope built for year-round comfort and lower utility bills.",
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-white pt-2 pb-24 text-[#101114]">
+    <div className="min-h-screen bg-[#fafbfc] text-[#101114]">
       {/* Scroll Reading Progress Bar */}
       <ArticleReadingBar />
 
-      {/* Schema.org Injection */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
-      <div className="wrap max-w-6xl">
-        {/* Top Breadcrumb Navigation */}
-        <div className="py-2.5 text-xs text-[#6b7280] flex items-center justify-between border-b border-[#e7e9ee] mb-6 gap-4">
-          <div className="flex items-center gap-2 overflow-hidden truncate">
-            <Link href="/" className="hover:text-[#101114] transition-colors shrink-0">
+      {/* ========================================================================= */}
+      {/* 1. HERO SECTION (Dark Luxury Backdrop with Cabin Hero Image)              */}
+      {/* ========================================================================= */}
+      <section className="relative bg-[#0c0d10] text-white overflow-hidden pt-6 pb-12 sm:pb-16 border-b border-[#1c1f26]">
+        {/* Subtle Ambient Glow */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 to-transparent z-10 pointer-events-none" />
+        
+        <div className="wrap relative z-20">
+          {/* Breadcrumb Navigation inside Hero */}
+          <nav className="flex items-center gap-2 text-xs text-[#9ca3af] mb-6 overflow-hidden truncate">
+            <Link href="/" className="hover:text-white transition-colors shrink-0">
               Home
             </Link>
-            <span>/</span>
-            <Link href="/blogs" className="hover:text-[#101114] transition-colors shrink-0">
+            <span>&gt;</span>
+            <Link href="/blogs" className="hover:text-white transition-colors shrink-0">
               Blogs
             </Link>
-            <span>/</span>
-            <Link href={`/blogs/${canonicalCategory}`} className="hover:text-[#101114] transition-colors shrink-0 text-[#d97706] font-bold">
+            <span>&gt;</span>
+            <Link href={`/blogs/${canonicalCategory}`} className="hover:text-[#fcb907] transition-colors shrink-0 text-[#d1d5db]">
               {formattedBlogName}
             </Link>
-            <span>/</span>
-            <span className="text-[#8c94a0] truncate font-medium">
+            <span>&gt;</span>
+            <span className="text-[#9ca3af] truncate">
               {displayTitle}
             </span>
-          </div>
+          </nav>
 
-          <ShareButton
-            variant="badge"
-            label="Share Article"
-            item={{
-              title: displayTitle,
-              url: canonical,
-              description: article.excerpt,
-              image: article.image,
-              category: formattedBlogName,
-            }}
-            buttonTitle={`Share ${displayTitle}`}
-          />
-        </div>
-
-        {/* Magazine Editorial Header Section */}
-        <header className="space-y-4 max-w-4xl mb-8">
-          {/* Category Kicker */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.15em] bg-[#fcb907] text-[#101114] rounded-full shadow-xs">
-              <Sparkles className="w-3 h-3 text-[#101114]" />
-              <span>{formattedBlogName}</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6b7280] bg-[#f8f9fa] border border-[#e7e9ee] px-3 py-1 rounded-full">
-              <Clock className="w-3.5 h-3.5 text-[#d97706]" />
-              <span>{article.readTime || "4 min read"}</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6b7280] bg-[#f8f9fa] border border-[#e7e9ee] px-3 py-1 rounded-full">
-              <Calendar className="w-3.5 h-3.5 text-[#d97706]" />
-              <span>{article.date}</span>
-            </span>
-          </div>
-
-          {/* Clean Magazine Headline */}
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-[-1.5px] text-[#101114] leading-[1.12] font-display">
-            {displayTitle}
-          </h1>
-
-          {/* Editorial Deck / Standfirst Subtitle */}
-          {article.excerpt && (
-            <p className="text-base sm:text-lg md:text-xl text-[#4b5563] leading-relaxed font-normal pt-1 border-l-3 border-[#fcb907] pl-4 italic bg-[#fffdfa] py-2 rounded-r-xl">
-              &ldquo;{article.excerpt}&rdquo;
-            </p>
-          )}
-
-          {/* Author Byline Bar & Action Tools */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-3 pb-3 border-b border-[#e7e9ee]">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-[#101114] text-[#fcb907] font-black text-sm flex items-center justify-center shadow-sm shrink-0 ring-2 ring-[#fcb907]/30">
-                {article.author ? article.author[0].toUpperCase() : "M"}
-              </div>
-              <div>
-                <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black text-[#101114]">
-                  <span>By {article.author || "ModularHome Engineering Team"}</span>
-                  <span title="Verified Author" className="inline-flex">
-                    <UserCheck className="w-4 h-4 text-emerald-600" />
-                  </span>
-                </div>
-                <div className="text-[11px] text-[#6b7280]">
-                  Architectural Contributor &amp; Modular Housing Specialist
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Link
-                href="/quote"
-                className="text-xs font-black uppercase tracking-wider bg-[#101114] text-white hover:bg-[#fcb907] hover:text-[#101114] px-4 py-2 rounded-[10px] transition-colors shadow-xs"
-              >
-                Price This Model
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        {/* Hero Architectural Image with Caption */}
-        {article.image && (
-          <div className="mb-10 space-y-2.5">
-            <div className="relative aspect-[16/9] sm:aspect-[21/10] w-full rounded-[22px] overflow-hidden bg-gray-100 shadow-md border border-[#e7e9ee] group">
-              <Image
-                src={article.image}
-                alt={displayTitle}
-                fill
-                priority
-                sizes="100vw"
-                className="object-cover group-hover:scale-[1.01] transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white text-xs">
-                <span className="bg-[#101114]/80 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-bold border border-white/20">
-                  {specs.buildingType || "Featured Architectural Tour"}
+          {/* Hero Grid: Left Content & Right Glowing Image */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            {/* Left Content */}
+            <div className="lg:col-span-6 space-y-4">
+              {/* Gold Category Pill */}
+              <div className="inline-block">
+                <span className="bg-[#fcb907] text-[#101114] text-[11px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full shadow-md">
+                  {formattedBlogName}
                 </span>
-                {specs.price && (
-                  <span className="bg-[#fcb907] text-[#101114] px-4 py-1.5 rounded-full text-xs font-black shadow-md">
-                    Starting at {specs.price}
-                  </span>
-                )}
               </div>
-            </div>
-            <div className="flex items-center justify-between text-[11px] text-[#6b7280] px-1 italic">
-              <span>Figure 1: Architectural elevation and layout preview of {displayTitle}.</span>
-              <span className="text-[#9ca3af]">Photo courtesy of ModularHome.com Manufacturing</span>
-            </div>
-          </div>
-        )}
 
-        {/* Quick Model Specs Pullout Bar (If parsed from article data) */}
-        {hasKeySpecs && (
-          <div id="specs" className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-12 p-4 sm:p-5 bg-[#f8f9fa] border border-[#e7e9ee] rounded-[20px] shadow-xs">
-            {specs.price && (
-              <div className="flex items-center gap-3 p-3.5 bg-white rounded-[14px] border border-[#e7e9ee] shadow-2xs">
-                <div className="w-9 h-9 rounded-xl bg-[#fef3c7] text-[#d97706] flex items-center justify-center shrink-0">
-                  <DollarSign className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280]">Est. Base Price</div>
-                  <div className="text-sm sm:text-base font-black text-[#101114]">{specs.price}</div>
-                </div>
-              </div>
-            )}
+              {/* Main Headline */}
+              <h1 className="text-2xl sm:text-4xl lg:text-[40px] font-black text-white leading-[1.18] tracking-tight font-display">
+                {displayTitle}
+              </h1>
 
-            {specs.bedrooms && (
-              <div className="flex items-center gap-3 p-3.5 bg-white rounded-[14px] border border-[#e7e9ee] shadow-2xs">
-                <div className="w-9 h-9 rounded-xl bg-[#fef3c7] text-[#d97706] flex items-center justify-center shrink-0">
-                  <Bed className="w-5 h-5" />
+              {/* Subtitle / Excerpt */}
+              {article.excerpt && (
+                <p className="text-xs sm:text-sm text-[#d1d5db] leading-relaxed line-clamp-3">
+                  {article.excerpt}
+                </p>
+              )}
+
+              {/* Meta Bar with 4 Icons */}
+              <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-white/10 text-xs text-[#9ca3af]">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-[#fcb907] shrink-0" />
+                  <div>
+                    <div className="text-[11px] font-bold text-white">{article.date}</div>
+                    <div className="text-[10px] text-[#8c94a0]">Updated</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280]">Bedrooms</div>
-                  <div className="text-sm sm:text-base font-black text-[#101114]">
-                    {specs.bedrooms} {specs.hasLoft ? "+ Loft" : ""}
+
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-[#fcb907] shrink-0" />
+                  <div>
+                    <div className="text-[11px] font-bold text-white">{article.readTime || "8 min read"}</div>
+                    <div className="text-[10px] text-[#8c94a0]">Reading Time</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-[#fcb907] shrink-0" />
+                  <div>
+                    <div className="text-[11px] font-bold text-white">{formattedBlogName}</div>
+                    <div className="text-[10px] text-[#8c94a0]">Category</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-[#fcb907] shrink-0" />
+                  <div>
+                    <div className="text-[11px] font-bold text-white">0</div>
+                    <div className="text-[10px] text-[#8c94a0]">Comments</div>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
 
-            {specs.bathrooms && (
-              <div className="flex items-center gap-3 p-3.5 bg-white rounded-[14px] border border-[#e7e9ee] shadow-2xs">
-                <div className="w-9 h-9 rounded-xl bg-[#fef3c7] text-[#d97706] flex items-center justify-center shrink-0">
-                  <Bath className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280]">Bathrooms</div>
-                  <div className="text-sm sm:text-base font-black text-[#101114]">{specs.bathrooms}</div>
-                </div>
+            {/* Right Glowing Cabin Photo */}
+            <div className="lg:col-span-6">
+              <div className="relative aspect-[16/11] w-full rounded-[22px] overflow-hidden shadow-2xl border border-white/15 bg-black/60 group">
+                <Image
+                  src={article.image || "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345"}
+                  alt={displayTitle}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover group-hover:scale-[1.02] transition-transform duration-700"
+                />
               </div>
-            )}
-
-            {specs.sqft && (
-              <div className="flex items-center gap-3 p-3.5 bg-white rounded-[14px] border border-[#e7e9ee] shadow-2xs">
-                <div className="w-9 h-9 rounded-xl bg-[#fef3c7] text-[#d97706] flex items-center justify-center shrink-0">
-                  <Maximize2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280]">Living Area</div>
-                  <div className="text-sm sm:text-base font-black text-[#101114]">{specs.sqft}</div>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
-        )}
+        </div>
+      </section>
 
-        {/* 2-Column Editorial Grid: Article Content (8 cols) & Sticky Right Sidebar (4 cols) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
-          <main className="lg:col-span-8 space-y-10">
+      {/* ========================================================================= */}
+      {/* 2. HORIZONTAL QUICK SPEC RIBBON BAR                                       */}
+      {/* ========================================================================= */}
+      <section className="bg-white border-b border-[#e7e9ee] py-3.5 shadow-xs sticky top-0 z-30">
+        <div className="wrap">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            {/* Quick Specs Icons */}
+            <div className="flex flex-wrap items-center gap-5 sm:gap-8 text-xs text-[#374151]">
+              <div className="flex items-center gap-2">
+                <Home className="w-4 h-4 text-[#d97706]" />
+                <div>
+                  <span className="font-extrabold text-[#101114]">{specs.sqft || "1,856"}</span>
+                  <span className="text-[11px] text-[#6b7280] ml-1">Sq Ft</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Bed className="w-4 h-4 text-[#d97706]" />
+                <div>
+                  <span className="font-extrabold text-[#101114]">{specs.bedrooms?.replace(/bed/i, "").trim() || "3"}</span>
+                  <span className="text-[11px] text-[#6b7280] ml-1">Bedrooms</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Bath className="w-4 h-4 text-[#d97706]" />
+                <div>
+                  <span className="font-extrabold text-[#101114]">{specs.bathrooms?.replace(/bath/i, "").trim() || "2"}</span>
+                  <span className="text-[11px] text-[#6b7280] ml-1">Bathrooms</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 hidden md:flex">
+                <Layers className="w-4 h-4 text-[#d97706]" />
+                <div>
+                  <span className="font-extrabold text-[#101114]">Loft</span>
+                  <span className="text-[11px] text-[#6b7280] ml-1">Included</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 hidden lg:flex">
+                <Wrench className="w-4 h-4 text-[#d97706]" />
+                <div>
+                  <span className="font-extrabold text-[#101114]">Amish Built</span>
+                  <span className="text-[11px] text-[#6b7280] ml-1">Quality</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 hidden xl:flex">
+                <Truck className="w-4 h-4 text-[#d97706]" />
+                <div>
+                  <span className="font-extrabold text-[#101114]">Modular &amp;</span>
+                  <span className="text-[11px] text-[#6b7280] ml-1">Prefab Built</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Quote CTA Button */}
+            <Link
+              href="/quote"
+              className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-[10px] transition-all flex items-center gap-1.5 shadow-xs ml-auto shrink-0"
+            >
+              <span>Request a Quote</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 3. MAIN 2-COLUMN EDITORIAL CONTENT (Left 8 cols, Right Sidebar 4 cols)    */}
+      {/* ========================================================================= */}
+      <div className="wrap pt-8 pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+          
+          {/* ===================================================================== */}
+          {/* LEFT COLUMN: Main Article Body                                        */}
+          {/* ===================================================================== */}
+          <main className="lg:col-span-8 space-y-8">
             
-            {/* Executive Takeaways / Key Notes Box */}
-            {article.keyTakeaways && article.keyTakeaways.length > 0 && (
-              <section id="overview" className="p-6 sm:p-7 bg-[#fdfbf7] border-l-4 border-[#fcb907] border-y border-r border-[#fef3c7] rounded-r-[20px] rounded-l-[4px] shadow-xs space-y-3.5">
-                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#101114]">
-                  <CheckCircle2 className="w-4 h-4 text-[#d97706]" />
-                  <span>Key Architectural Takeaways &amp; Executive Summary</span>
-                </div>
-                <ul className="space-y-2.5 text-xs sm:text-sm text-[#374151] leading-relaxed">
-                  {article.keyTakeaways.map((point: string, idx: number) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <span className="w-2 h-2 rounded-full bg-[#d97706] mt-1.5 shrink-0 shadow-xs"></span>
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
+            {/* Table of Contents Box */}
+            <BlogTableOfContents />
 
-            {/* Embedded Video Player (Theater Box) */}
+            {/* Section 1: Introduction */}
+            <section id="introduction" className="space-y-4">
+              <div className="border-l-4 border-[#fcb907] pl-3">
+                <h2 className="text-2xl sm:text-3xl font-black text-[#101114] tracking-tight">
+                  Introduction
+                </h2>
+              </div>
+              <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
+                The {displayTitle} is one of the most popular designs for families, vacation rentals, and full-time living. With {specs.bedrooms || "3 bedrooms"}, {specs.bathrooms || "2 bathrooms"}, and a spacious loft, this {specs.sqft || "1,856 sq ft"} modular cabin offers the perfect combination of rustic elegance and modern functionality.
+              </p>
+              <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
+                Amish-built with high-quality materials and expert craftsmanship, the {displayTitle} delivers timeless design, energy efficiency, and a comfortable open-concept layout — all at an incredible starting price of <strong className="text-[#101114]">{specs.price || "only $285,000"}</strong>.
+              </p>
+            </section>
+
+            {/* Section: Video Walkthrough */}
             {videoEmbed && (
-              <section id="video-tour" className="space-y-3 p-5 sm:p-6 bg-[#101114] text-white rounded-[22px] shadow-xl border border-white/10">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-[#fcb907] text-[#101114] flex items-center justify-center font-bold shadow-sm">
-                      <Play className="w-4 h-4 fill-current ml-0.5" />
-                    </div>
-                    <div>
-                      <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">
-                        Official Factory Tour Walkthrough
-                      </h3>
-                      <p className="text-[11px] text-gray-400">
-                        {specs.tourDuration || "High-Definition Video Tour"}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-white/10 text-[#fcb907] px-3 py-1 rounded-full border border-white/10">
-                    HD Video
-                  </span>
-                </div>
-
-                <div className="relative aspect-video w-full rounded-[16px] overflow-hidden bg-black shadow-inner border border-white/10">
-                  <iframe
-                    src={videoEmbed}
-                    title={displayTitle}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full border-0"
-                  />
-                </div>
+              <section id="video-tour" className="relative aspect-video w-full rounded-[18px] overflow-hidden bg-black shadow-lg border border-[#e7e9ee] my-6">
+                <iframe
+                  src={videoEmbed}
+                  title={displayTitle}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full border-0"
+                />
               </section>
             )}
 
-            {/* Formatted Article Body */}
-            <section id="interior-details" className="space-y-6 pt-1">
+            {/* Editorial Pull Quote Box */}
+            <div className="p-6 bg-[#fdfbf7] rounded-[18px] border border-[#fef3c7] relative overflow-hidden my-6">
+              <Quote className="w-10 h-10 text-[#fcb907]/20 absolute -right-1 -bottom-1 pointer-events-none" />
+              <p className="text-sm sm:text-base font-bold text-[#101114] italic leading-relaxed">
+                &ldquo;A spacious, stylish, and affordable modular cabin — perfect for your forever home, vacation retreat, or rental property.&rdquo;
+              </p>
+              <div className="text-xs font-bold text-[#d97706] mt-2">
+                — ModularHome.com Architectural Review
+              </div>
+            </div>
+
+            {/* Section 2: Key Features Grid */}
+            <section id="key-features" className="space-y-4 pt-2">
+              <div className="border-l-4 border-[#fcb907] pl-3">
+                <h2 className="text-2xl sm:text-3xl font-black text-[#101114] tracking-tight">
+                  Key Features
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+                {keyFeaturesList.map((feature, idx) => {
+                  const Icon = feature.icon;
+                  return (
+                    <div
+                      key={idx}
+                      className="p-4 bg-white rounded-[14px] border border-[#e7e9ee] shadow-2xs flex items-start gap-3.5 hover:border-[#fcb907] transition-all"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-[#fef3c7] text-[#d97706] flex items-center justify-center shrink-0 shadow-2xs">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <h3 className="text-xs sm:text-sm font-black text-[#101114]">
+                          {feature.title}
+                        </h3>
+                        <p className="text-[11px] sm:text-xs text-[#6b7280] leading-snug">
+                          {feature.desc}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Section 3: Rich Article Content */}
+            <section id="floor-plan-specs" className="space-y-6 pt-4">
               <RichHtmlContent content={cleanedHtml} />
             </section>
 
-            {/* Pull Quote Callout Box */}
-            <div className="p-6 sm:p-8 bg-[#fffdfa] rounded-[20px] border border-[#fef3c7] relative overflow-hidden my-8">
-              <Quote className="w-12 h-12 text-[#fcb907]/25 absolute -right-2 -bottom-2 pointer-events-none" />
-              <div className="space-y-2 relative z-10">
-                <p className="text-base sm:text-lg font-bold text-[#101114] italic leading-relaxed">
-                  &ldquo;Factory-engineered modular construction allows luxury residences like this model to be built indoors with zero weather exposure, strict code compliance, and up to 50% faster build timelines.&rdquo;
-                </p>
-                <div className="text-xs font-black uppercase tracking-wider text-[#d97706]">
-                  — ModularHome Engineering &amp; Design Standards
-                </div>
-              </div>
-            </div>
-
-            {/* Interactive Blueprint & Estimate In-Article Card */}
-            <section id="pricing-quote" className="p-6 sm:p-8 bg-gradient-to-br from-[#101114] to-[#1c1f26] text-white rounded-[22px] shadow-xl space-y-4 border border-[#fcb907]/30">
+            {/* In-Article Blueprint & Estimate Card */}
+            <section id="pricing-customization" className="p-6 sm:p-8 bg-gradient-to-br from-[#101114] to-[#1c1f26] text-white rounded-[20px] shadow-xl space-y-4 border border-[#fcb907]/30">
               <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#fcb907]">
                 <ShieldCheck className="w-4 h-4" />
                 <span>Precision Factory Engineering &amp; Nationwide Delivery</span>
               </div>
               <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white font-display">
-                Love This Floor Plan &amp; Want Itemized Pricing?
+                Ready to Price or Customize This Plan?
               </h3>
               <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-2xl">
-                Get an instant estimate for this exact model or customize room dimensions, finish tiers, and foundation schematics with our licensed engineering team. We deliver nationwide with full structural engineering stamps and permit support.
+                Get an instant estimate for this exact model or customize room dimensions, finish tiers, and foundation schematics with our licensed engineering team.
               </p>
               <div className="pt-2 flex flex-wrap gap-3">
                 <Link
                   href="/quote"
-                  className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black text-xs uppercase tracking-wider py-3.5 px-6 rounded-[10px] transition-all flex items-center gap-2 shadow-sm"
+                  className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black text-xs uppercase tracking-wider py-3 px-5 rounded-[10px] transition-all flex items-center gap-2 shadow-sm"
                 >
                   <span>Request Custom Build Quote</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   href="/floor-plans"
-                  className="bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider py-3.5 px-6 rounded-[10px] transition-all"
+                  className="bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider py-3 px-5 rounded-[10px] transition-all"
                 >
                   Browse Similar Floor Plans
                 </Link>
@@ -514,207 +491,172 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
               <div className="pt-4 border-t border-[#e7e9ee] flex flex-wrap items-center gap-2">
                 <span className="text-xs font-bold text-[#6b7280] flex items-center gap-1 mr-2">
                   <Tag className="w-3.5 h-3.5 text-[#d97706]" />
-                  <span>Tagged:</span>
+                  <span>Tags:</span>
                 </span>
                 {article.tags.map((tag: string, idx: number) => (
                   <span
                     key={idx}
-                    className="px-3.5 py-1.5 bg-[#f4f5f7] hover:bg-[#e7e9ee] text-[#101114] text-xs font-semibold rounded-full transition-colors"
+                    className="px-3 py-1 bg-white hover:bg-[#e7e9ee] border border-[#e7e9ee] text-[#101114] text-xs font-semibold rounded-full transition-colors"
                   >
                     #{tag}
                   </span>
                 ))}
               </div>
             )}
-
-            {/* Author Profile Footer Box */}
-            <div className="p-6 sm:p-7 bg-[#f8f9fa] border border-[#e7e9ee] rounded-[22px] flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-2xs">
-              <div className="w-16 h-16 rounded-2xl bg-[#101114] text-[#fcb907] font-black text-2xl flex items-center justify-center shrink-0 shadow-md ring-2 ring-[#fcb907]/40">
-                {article.author ? article.author[0].toUpperCase() : "M"}
-              </div>
-              <div className="space-y-1.5">
-                <div className="text-xs font-bold text-[#d97706] uppercase tracking-wider">
-                  Published By
-                </div>
-                <div className="text-base font-black text-[#101114]">
-                  {article.author || "ModularHome Editorial & Engineering Board"}
-                </div>
-                <p className="text-xs text-[#6b7280] leading-relaxed">
-                  Specializing in precision light-gauge steel framing, turnkey Amish log cabins, modern prefab residences, and residential energy efficiency standards.
-                </p>
-              </div>
-            </div>
-
-            {/* Back to Blog Listing */}
-            <div className="pt-2">
-              <Link
-                href="/blogs"
-                className="inline-flex items-center gap-2 text-xs font-bold text-[#d97706] hover:text-[#b45309] transition-colors uppercase tracking-wider"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Return to All Modular Home Articles</span>
-              </Link>
-            </div>
           </main>
 
-          {/* Sticky Right Editorial Sidebar (4 Columns) */}
+          {/* ===================================================================== */}
+          {/* RIGHT COLUMN: Sidebar                                                 */}
+          {/* ===================================================================== */}
           <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-20">
             
-            {/* Table of Contents Widget */}
-            <ArticleTableOfContents defaultItems={tocItems} />
-
-            {/* Planning Your Build Widget */}
-            <div className="bg-[#101114] text-white p-6 sm:p-7 rounded-[22px] shadow-xl space-y-4 border border-white/10">
-              <div className="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-[#fcb907] text-[#101114] rounded-full shadow-xs">
-                Turnkey Prefab Models
-              </div>
-              <h3 className="text-xl font-black uppercase tracking-tight font-display text-white">
-                Planning Your Build?
-              </h3>
-              <p className="text-xs text-white/75 leading-relaxed">
-                Explore our full catalog of 50+ modular residences, barndominiums, and cabin floor plans with transparent factory pricing.
-              </p>
-              <div className="space-y-2.5 pt-2">
-                <Link
-                  href="/buildings"
-                  className="w-full py-3.5 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider rounded-[12px] transition-all flex items-center justify-center gap-2 shadow-sm"
-                >
-                  <span>Browse Home Models</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link
-                  href="/pricing"
-                  className="w-full py-3 bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider rounded-[12px] transition-all flex items-center justify-center gap-2"
-                >
-                  <span>View Pricing &amp; Packages</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Speak With An Engineer */}
-            <div className="p-6 bg-[#f8f9fa] border border-[#e7e9ee] rounded-[20px] space-y-3">
-              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#101114]">
-                <Phone className="w-4 h-4 text-[#d97706]" />
-                <span>Speak With An Engineer</span>
+            {/* Card 1: Get a Personalized Quote */}
+            <div className="bg-white border border-[#e7e9ee] rounded-[20px] p-6 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#fef3c7] text-[#d97706] flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-black text-[#101114] leading-tight">
+                    Get a Personalized Quote
+                  </h3>
+                  <p className="text-[11px] text-[#6b7280] mt-0.5">
+                    Fast turnkey estimates
+                  </p>
+                </div>
               </div>
               <p className="text-xs text-[#6b7280] leading-relaxed">
-                Have specific questions about zoning, foundation types, snow loads, or crane delivery for your building site?
+                Interested in the {displayTitle} or a custom design? Our team can help you plan and price your build.
               </p>
-              <div className="pt-1">
+              <div className="space-y-2 pt-1">
                 <Link
-                  href="/contact"
-                  className="w-full py-2.5 bg-white hover:bg-gray-50 text-[#101114] border border-[#e7e9ee] text-xs font-bold rounded-[10px] transition-all flex items-center justify-center gap-1.5 shadow-2xs"
+                  href="/quote"
+                  className="w-full py-3 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider rounded-[10px] transition-all flex items-center justify-center gap-1.5 shadow-xs"
                 >
-                  <span>Request Free Consultation</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-[#d97706]" />
+                  <span>Request a Quote</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+                <Link
+                  href="/floor-plans"
+                  className="w-full py-2.5 bg-white hover:bg-gray-50 text-[#101114] border border-[#e7e9ee] text-xs font-bold rounded-[10px] transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5 text-[#6b7280]" />
+                  <span>Download Brochure</span>
                 </Link>
               </div>
             </div>
 
-            {/* Explore Popular Categories */}
-            <div className="p-6 bg-white border border-[#e7e9ee] rounded-[20px] space-y-3">
-              <h4 className="text-xs font-black uppercase tracking-wider text-[#101114]">
-                Architectural Categories
-              </h4>
-              <div className="flex flex-wrap gap-1.5">
-                {[
-                  { name: "Modular Homes", href: "/modular-homes" },
-                  { name: "Cabins", href: "/cabins" },
-                  { name: "Barndominiums", href: "/barndominiums" },
-                  { name: "Tiny Homes", href: "/tiny-homes" },
-                  { name: "ADUs", href: "/adus" },
-                  { name: "House Kits", href: "/house-kits" },
-                ].map((cat) => (
-                  <Link
-                    key={cat.name}
-                    href={cat.href}
-                    className="text-[11px] font-semibold px-3 py-1.5 bg-[#f8f9fa] hover:bg-[#fcb907]/20 border border-[#e7e9ee] rounded-lg text-[#374151] hover:text-[#101114] transition-colors"
-                  >
-                    {cat.name}
-                  </Link>
-                ))}
+            {/* Card 2: Key Specs Table */}
+            <div className="bg-white border border-[#e7e9ee] rounded-[20px] p-6 shadow-xs space-y-3">
+              <h3 className="text-sm font-black text-[#101114] uppercase tracking-wider border-b border-[#f1f3f7] pb-2.5">
+                Key Specs
+              </h3>
+              <div className="divide-y divide-[#f1f3f7] text-xs">
+                <div className="py-2 flex items-center justify-between">
+                  <span className="text-[#6b7280]">Square Footage</span>
+                  <span className="font-bold text-[#101114]">{specs.sqft || "1,856 sq ft"}</span>
+                </div>
+                <div className="py-2 flex items-center justify-between">
+                  <span className="text-[#6b7280]">Bedrooms</span>
+                  <span className="font-bold text-[#101114]">{specs.bedrooms?.replace(/bed/i, "").trim() || "3"}</span>
+                </div>
+                <div className="py-2 flex items-center justify-between">
+                  <span className="text-[#6b7280]">Bathrooms</span>
+                  <span className="font-bold text-[#101114]">{specs.bathrooms?.replace(/bath/i, "").trim() || "2"}</span>
+                </div>
+                <div className="py-2 flex items-center justify-between">
+                  <span className="text-[#6b7280]">Stories</span>
+                  <span className="font-bold text-[#101114]">{specs.hasLoft ? "1 + Loft" : "1 Story"}</span>
+                </div>
+                <div className="py-2 flex items-center justify-between">
+                  <span className="text-[#6b7280]">Style</span>
+                  <span className="font-bold text-[#101114]">{specs.buildingType || "Cabin / Lodge"}</span>
+                </div>
+                <div className="py-2 flex items-center justify-between">
+                  <span className="text-[#6b7280]">Build Type</span>
+                  <span className="font-bold text-[#101114]">Modular / Prefab</span>
+                </div>
+                <div className="py-2.5 flex items-center justify-between font-black text-sm">
+                  <span className="text-[#101114]">Starting Price</span>
+                  <span className="text-[#d97706] text-base">{specs.price || "$285,000"}</span>
+                </div>
               </div>
+            </div>
+
+            {/* Card 3: Related Articles */}
+            {relatedArticles.length > 0 && (
+              <div className="bg-white border border-[#e7e9ee] rounded-[20px] p-6 shadow-xs space-y-3.5">
+                <div className="flex items-center justify-between border-b border-[#f1f3f7] pb-2.5">
+                  <h3 className="text-sm font-black text-[#101114] uppercase tracking-wider">
+                    Related Articles
+                  </h3>
+                  <Link href="/blogs" className="text-[11px] font-bold text-[#d97706] hover:underline">
+                    View All →
+                  </Link>
+                </div>
+
+                <div className="space-y-3">
+                  {relatedArticles.map((rel: any) => {
+                    const relCat = (
+                      rel.category_slug ||
+                      (rel.category || "modular-construction").toLowerCase().replace(/[^a-z0-9]+/g, "-")
+                    ).replace(/^blogs-/, "");
+                    const relTitle = formatEditorialTitle(rel.title);
+
+                    return (
+                      <Link
+                        key={rel.id || rel.slug}
+                        href={`/blogs/${relCat}/${rel.slug}`}
+                        className="flex items-center gap-3 p-2 rounded-xl hover:bg-[#f8f9fa] transition-all group"
+                      >
+                        <div className="relative w-16 h-14 rounded-lg overflow-hidden bg-gray-100 shrink-0 border border-[#e7e9ee]">
+                          <Image
+                            src={rel.image || "/newmodularlogo.png"}
+                            alt={relTitle}
+                            fill
+                            sizes="64px"
+                            className="object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-black text-[#101114] group-hover:text-[#d97706] transition-colors leading-snug line-clamp-2">
+                            {relTitle}
+                          </h4>
+                          <div className="text-[10px] text-[#6b7280] mt-0.5">
+                            {rel.date} • {rel.readTime || "5 min read"}
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-[#9ca3af] group-hover:text-[#d97706] group-hover:translate-x-0.5 transition-all shrink-0" />
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Card 4: Planning Your Dream Cabin? */}
+            <div className="bg-[#101114] text-white p-6 sm:p-7 rounded-[22px] shadow-xl space-y-4 border border-white/10 relative overflow-hidden">
+              <div className="w-10 h-10 rounded-xl bg-[#fcb907]/20 text-[#fcb907] flex items-center justify-center">
+                <Home className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-white leading-snug">
+                  Planning Your Dream Cabin?
+                </h3>
+                <p className="text-xs text-white/75 mt-1.5 leading-relaxed">
+                  Get expert guidance, customization options, and a detailed quote from our team.
+                </p>
+              </div>
+              <Link
+                href="/contact"
+                className="w-full py-3 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider rounded-[10px] transition-all flex items-center justify-center gap-1.5 shadow-xs"
+              >
+                <span>Speak with Our Experts</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
           </aside>
         </div>
-
-        {/* Curated Related Architectural Guides Grid */}
-        {relatedArticles.length > 0 && (
-          <section className="mt-20 pt-12 border-t border-[#e7e9ee]">
-            <div className="flex items-center justify-between gap-4 mb-8">
-              <div>
-                <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#101114] font-display m-0">
-                  Related Architectural Guides &amp; Tours
-                </h3>
-                <p className="text-xs sm:text-sm text-[#6b7280] mt-1 m-0">
-                  Continue exploring our comprehensive library of modular home guides.
-                </p>
-              </div>
-              <Link
-                href="/blogs"
-                className="text-xs font-bold uppercase tracking-wider text-[#d97706] hover:underline"
-              >
-                Browse All Guides →
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {relatedArticles.map((rel: any) => {
-                const relCat = (
-                  rel.category_slug ||
-                  (rel.category || "modular-construction").toLowerCase().replace(/[^a-z0-9]+/g, "-")
-                ).replace(/^blogs-/, "");
-
-                const relCleanTitle = formatEditorialTitle(rel.title);
-
-                return (
-                  <Link
-                    key={rel.id || rel.slug}
-                    href={`/blogs/${relCat}/${rel.slug}`}
-                    className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between bg-white rounded-[18px] border border-[#e7e9ee] shadow-2xs hover:shadow-md"
-                  >
-                    <div>
-                      <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
-                        <Image
-                          src={rel.image || "/newmodularlogo.png"}
-                          alt={relCleanTitle}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute top-3 left-3 bg-[#fcb907] text-[#101114] text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-xs tracking-wider">
-                          {rel.category || "Guide"}
-                        </div>
-                      </div>
-
-                      <div className="p-5 space-y-2">
-                        <div className="flex items-center gap-2 text-[11px] text-[#6b7280]">
-                          <Clock className="w-3 h-3 text-[#d97706]" />
-                          <span>{rel.readTime || "4 min read"}</span>
-                        </div>
-
-                        <h4 className="text-sm font-black text-[#101114] group-hover:text-[#d97706] transition-colors leading-snug line-clamp-2 font-display">
-                          {relCleanTitle}
-                        </h4>
-
-                        <p className="text-xs text-[#6b7280] line-clamp-2 leading-relaxed font-body">
-                          {rel.excerpt}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="p-5 pt-0">
-                      <span className="text-xs font-bold text-[#d97706] inline-flex items-center gap-1 group-hover:underline">
-                        <span>Read Architectural Guide</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-        )}
       </div>
     </div>
   );
