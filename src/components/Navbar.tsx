@@ -224,17 +224,37 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
     "/upload-floor-plan",
   ].some((path) => pathname.startsWith(path)) || currentCategory === "Custom Homes" || publishedPages.some((p) => pathname === `/${p.slug}`);
 
-  // Toggles the mega-menu for a category
-  const handleCategoryClick = (categoryLabel: string) => {
-    setOpenMegaCategory((prev) => (prev === categoryLabel ? null : categoryLabel));
-    setMoreDropdownOpen(false);
-    setUserMenuOpen(false);
+  const megaMenuCloseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearMegaMenuTimer = () => {
+    if (megaMenuCloseTimeoutRef.current) {
+      clearTimeout(megaMenuCloseTimeoutRef.current);
+      megaMenuCloseTimeoutRef.current = null;
+    }
   };
 
-  // Hover transition if already opened
-  const handleCategoryMouseEnter = (categoryLabel: string) => {
-    if (openMegaCategory && openMegaCategory !== categoryLabel && megaMenuCatalog[categoryLabel]) {
+  const scheduleMegaMenuClose = (delay = 200) => {
+    clearMegaMenuTimer();
+    megaMenuCloseTimeoutRef.current = setTimeout(() => {
+      setOpenMegaCategory(null);
+      setMoreDropdownOpen(false);
+    }, delay);
+  };
+
+  useEffect(() => {
+    return () => {
+      clearMegaMenuTimer();
+    };
+  }, []);
+
+  // Hover opens the mega-menu for a category immediately
+  const handleCategoryMouseEnter = (categoryLabel: string, href?: string) => {
+    clearMegaMenuTimer();
+    if (href) router.prefetch(href);
+    if (megaMenuCatalog && megaMenuCatalog[categoryLabel]) {
       setOpenMegaCategory(categoryLabel);
+      setMoreDropdownOpen(false);
+      setUserMenuOpen(false);
     }
   };
 
@@ -622,19 +642,16 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                   
                   if (hasMegaMenu) {
                     return (
-                      <button
+                      <Link
                         key={item.label}
-                        type="button"
-                        onClick={() => handleCategoryClick(item.label)}
-                        onDoubleClick={() => {
+                        href={item.href}
+                        prefetch={true}
+                        onClick={() => {
                           setOpenMegaCategory(null);
                           setMoreDropdownOpen(false);
-                          router.push(item.href);
                         }}
-                        onMouseEnter={() => {
-                          router.prefetch(item.href);
-                          handleCategoryMouseEnter(item.label);
-                        }}
+                        onMouseEnter={() => handleCategoryMouseEnter(item.label, item.href)}
+                        onMouseLeave={() => scheduleMegaMenuClose(180)}
                         aria-expanded={isMegaOpen}
                         aria-controls="mega-menu-panel"
                         aria-haspopup="true"
@@ -654,7 +671,7 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                           </span>
                         )}
                         <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${isMegaOpen ? "rotate-180 text-[#b45309]" : ""}`} />
-                      </button>
+                      </Link>
                     );
                   }
 
@@ -665,6 +682,10 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                       href={item.href}
                       prefetch={true}
                       onClick={() => setOpenMegaCategory(null)}
+                      onMouseEnter={() => {
+                        clearMegaMenuTimer();
+                        setOpenMegaCategory(null);
+                      }}
                       className={`inline-flex items-center gap-1 px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-[12px] xl:text-[12.5px] 2xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 shrink-0 ${
                         activeRoute
                           ? "bg-amber-50/90 text-[#b45309] font-black"
@@ -687,10 +708,11 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                   ref={dropdownRef}
                   className="relative inline-block shrink-0"
                   onMouseEnter={() => {
+                    clearMegaMenuTimer();
                     setMoreDropdownOpen(true);
                     setOpenMegaCategory(null);
                   }}
-                  onMouseLeave={() => setMoreDropdownOpen(false)}
+                  onMouseLeave={() => scheduleMegaMenuClose(180)}
                 >
                   <button
                     type="button"
@@ -699,11 +721,6 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                       e.stopPropagation();
                       setMoreDropdownOpen(!moreDropdownOpen);
                       setOpenMegaCategory(null);
-                    }}
-                    onDoubleClick={() => {
-                      setMoreDropdownOpen(false);
-                      setOpenMegaCategory(null);
-                      router.push("/buildings");
                     }}
                     className={`inline-flex items-center gap-1 px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-[12px] xl:text-[12.5px] 2xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 cursor-pointer ${
                       isMoreActive || moreDropdownOpen
@@ -721,7 +738,8 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                   {moreDropdownOpen && (
                     <div 
                       className="absolute left-1/2 -translate-x-1/2 top-full pt-1.5 w-92 z-[100] animate-in fade-in zoom-in-95 duration-150 max-h-[80vh] overflow-y-auto"
-                      onMouseEnter={() => setMoreDropdownOpen(true)}
+                      onMouseEnter={clearMegaMenuTimer}
+                      onMouseLeave={() => scheduleMegaMenuClose(180)}
                     >
                       <div className="bg-white border border-[#e5e7eb] rounded-2xl p-2.5 shadow-2xl ring-1 ring-black/5 space-y-2">
                         <div>
@@ -803,6 +821,8 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
           <div
             id="mega-menu-panel"
             ref={megaMenuPanelRef}
+            onMouseEnter={clearMegaMenuTimer}
+            onMouseLeave={() => scheduleMegaMenuClose(150)}
             className="hidden lg:block absolute top-full left-0 right-0 w-full bg-white border-b border-gray-200/90 shadow-2xl z-50 animate-in fade-in slide-in-from-top-1 duration-150"
             style={{ fontFamily: "var(--font-manrope), sans-serif" }}
           >
