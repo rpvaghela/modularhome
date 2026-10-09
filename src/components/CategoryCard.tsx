@@ -13,7 +13,7 @@ interface CategoryCardProps {
 }
 
 export default function CategoryCard({ id, title, tagline, image, href, cta }: CategoryCardProps) {
-  const targetHref = href || `/buildings?category=${encodeURIComponent(id)}`;
+  const targetHref = href || `/${id.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`;
   const ctaText = cta || `View ${title}`;
 
   return (

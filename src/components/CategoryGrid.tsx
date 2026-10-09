@@ -48,7 +48,7 @@ export default function CategoryGrid({ categories, collections }: CategoryGridPr
         id: col.id,
         name: col.name,
         image: img,
-        href: `/buildings?category=${encodeURIComponent(col.slug || col.name)}`,
+        href: `/${(col.slug || col.name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`,
         productCount: col.productCount,
       };
     });

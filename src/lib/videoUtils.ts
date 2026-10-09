@@ -56,14 +56,27 @@ export function resolveVideoEmbedUrl(
   return rawUrl;
 }
 
-/**
- * Generates an SEO-optimized slug from video title
- */
-export function getVideoSlug(video?: Partial<VideoItem> | null): string {
+export function getVideoSlug(video?: Partial<VideoItem> | null, allVideos?: Partial<VideoItem>[]): string {
   if (!video) return "";
   const rawTitle = (video.title || "video")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
-  return rawTitle || `video-${video.youtubeVideoId || video.id || "tour"}`;
+  const baseSlug = rawTitle || `video-${video.youtubeVideoId || video.id || "tour"}`;
+
+  if (allVideos && Array.isArray(allVideos)) {
+    const duplicates = allVideos.filter((v) => {
+      const s = (v.title || "video")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      return (s || `video-${v.youtubeVideoId || v.id}`) === baseSlug;
+    });
+    if (duplicates.length > 1) {
+      const ytId = (video.youtubeVideoId || video.id || "").toLowerCase();
+      return `${baseSlug}-${ytId}`;
+    }
+  }
+
+  return baseSlug;
 }
