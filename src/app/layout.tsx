@@ -11,6 +11,7 @@ import { ConfirmDialogProvider } from "@/context/ConfirmDialogContext";
 import { getPublicGlobalSettings } from "@/lib/settings";
 import { getPublicPages, getMegaMenuCatalog } from "@/lib/publicData";
 import { getRobotsMetadata, PRODUCTION_CANONICAL_HOST } from "@/lib/seo";
+import LocomotiveScrollProvider from "@/components/LocomotiveScrollProvider";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -106,7 +107,7 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang="en" className={`scroll-smooth ${playfair.variable} ${manrope.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${manrope.variable}`}>
       <head>
         <link rel="icon" type="image/png" href={settings.faviconUrl || "/favicon.png?v=4"} />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=4" />
@@ -118,13 +119,15 @@ export default async function RootLayout({
         <CustomerAuthProvider>
           <CartProvider>
             <ConfirmDialogProvider>
-              <Navbar initialSettings={settings} customPages={pages} megaMenuCatalog={megaMenuCatalog} />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer initialSettings={settings} customPages={pages} />
-              <CartDrawer />
-              <AIBuildAssistant />
+              <LocomotiveScrollProvider>
+                <Navbar initialSettings={settings} customPages={pages} megaMenuCatalog={megaMenuCatalog} />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Footer initialSettings={settings} customPages={pages} />
+                <CartDrawer />
+                <AIBuildAssistant />
+              </LocomotiveScrollProvider>
             </ConfirmDialogProvider>
           </CartProvider>
         </CustomerAuthProvider>
