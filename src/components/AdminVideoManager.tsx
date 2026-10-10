@@ -21,7 +21,8 @@ import {
   Edit2,
   Link2,
   Copy,
-  Check
+  Check,
+  Globe
 } from "lucide-react";
 import { VideoItem, SyncStats } from "@/types/video";
 import { useConfirm } from "@/context/ConfirmDialogContext";
@@ -55,6 +56,16 @@ export default function AdminVideoManager() {
   const [slugError, setSlugError] = useState("");
   const [isSavingSlug, setIsSavingSlug] = useState(false);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+
+  // Dynamic Domain configuration for copying SEO links
+  const [currentDomain, setCurrentDomain] = useState("https://modularhome.com");
+  const [copyDomainMode, setCopyDomainMode] = useState<"current" | "production" | "relative">("current");
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.origin) {
+      setCurrentDomain(window.location.origin);
+    }
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -284,11 +295,24 @@ export default function AdminVideoManager() {
     setSlugError("");
   };
 
-  const handleCopySlug = (slugText: string) => {
+  const getFullVideoUrl = (slugText: string, mode: "current" | "production" | "relative" = copyDomainMode) => {
+    const clean = slugText || "tour";
+    if (mode === "relative") return `/videos/${clean}`;
+    if (mode === "production") return `https://modularhome.com/videos/${clean}`;
+    return `${currentDomain}/videos/${clean}`;
+  };
+
+  const handleCopySlug = (slugText: string, customMode?: "current" | "production" | "relative") => {
+    const mode = customMode || copyDomainMode;
+    const url = getFullVideoUrl(slugText, mode);
     if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(`https://modularhome.com/videos/${slugText}`);
+      navigator.clipboard.writeText(url);
       setCopiedSlug(slugText);
-      setTimeout(() => setCopiedSlug(null), 2000);
+      setSyncMessage({
+        type: "success",
+        text: `Copied to clipboard: ${url}`,
+      });
+      setTimeout(() => setCopiedSlug(null), 2500);
     }
   };
 
@@ -474,19 +498,36 @@ export default function AdminVideoManager() {
         </div>
       </div>
 
-      {/* 3. SEARCH STRIP */}
-      <div className="p-5 bg-white border border-[#e7e9ee] rounded-[18px] flex items-center justify-between gap-4 shadow-[0_12px_35px_rgba(16,24,40,0.04)]">
-        <div className="text-xs font-bold text-[#101114]">
-          Video Catalog ({filteredVideos.length} {filteredVideos.length === 1 ? "video" : "videos"})
+      {/* 3. SEARCH & DOMAIN STRIP */}
+      <div className="p-4 sm:p-5 bg-white border border-[#e7e9ee] rounded-[18px] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-[0_12px_35px_rgba(16,24,40,0.04)]">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="text-xs font-bold text-[#101114]">
+            Video Catalog ({filteredVideos.length} {filteredVideos.length === 1 ? "video" : "videos"})
+          </div>
+
+          {/* Domain copy selector */}
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#f6f7f9] border border-[#d5d9e0] rounded-xl text-xs text-[#6b7280]">
+            <Globe className="w-3.5 h-3.5 text-[#d97706] shrink-0" />
+            <span className="font-semibold text-[#101114]">Domain:</span>
+            <select
+              value={copyDomainMode}
+              onChange={(e) => setCopyDomainMode(e.target.value as any)}
+              className="bg-transparent font-medium text-[#101114] focus:outline-none cursor-pointer pr-1"
+            >
+              <option value="current">Current Host ({currentDomain.replace(/^https?:\/\//, "")})</option>
+              <option value="production">Production (modularhome.com)</option>
+              <option value="relative">Relative Path (/videos/...)</option>
+            </select>
+          </div>
         </div>
 
-        <div className="relative w-full sm:w-80">
+        <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-[#6b7280] absolute left-3.5 top-3" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by title or video ID..."
+            placeholder="Search by title, slug, or ID..."
             className="w-full bg-[#f6f7f9] border border-[#d5d9e0] pl-10 pr-4 py-2.5 text-xs text-[#101114] font-medium rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
           />
         </div>
@@ -551,25 +592,38 @@ export default function AdminVideoManager() {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-1.5 max-w-[280px]">
-                          <span className="font-mono text-[11px] text-[#101114] bg-[#f6f7f9] border border-[#e7e9ee] px-2 py-1 rounded-lg truncate" title={`/videos/${currentSlug}`}>
+                        <div className="flex items-center gap-1.5 max-w-[320px]">
+                          <span
+                            className="font-mono text-[11px] text-[#101114] bg-[#f6f7f9] border border-[#e7e9ee] px-2.5 py-1 rounded-lg truncate select-all"
+                            title={getFullVideoUrl(currentSlug)}
+                          >
                             /{currentSlug}
                           </span>
                           <button
                             onClick={() => handleCopySlug(currentSlug)}
-                            title="Copy URL"
-                            className="p-1 text-[#6b7280] hover:text-[#101114] hover:bg-[#f6f7f9] rounded-md transition-colors shrink-0 cursor-pointer"
+                            title={`Copy URL according to domain: ${getFullVideoUrl(currentSlug)}`}
+                            className={`px-2 py-1 rounded-lg border transition-all shrink-0 cursor-pointer inline-flex items-center gap-1 text-[11px] ${
+                              copiedSlug === currentSlug
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-300 font-bold"
+                                : "bg-white text-[#6b7280] hover:text-[#101114] hover:bg-[#f6f7f9] border-[#d5d9e0]"
+                            }`}
                           >
                             {copiedSlug === currentSlug ? (
-                              <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              <>
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                <span className="text-[10px] text-emerald-700 font-bold">Copied</span>
+                              </>
                             ) : (
-                              <Copy className="w-3.5 h-3.5" />
+                              <>
+                                <Copy className="w-3.5 h-3.5 text-[#6b7280]" />
+                                <span className="text-[10px]">Copy</span>
+                              </>
                             )}
                           </button>
                           <button
                             onClick={() => handleOpenEditSlug(video)}
                             title="Edit SEO Slug"
-                            className="p-1 text-[#b45309] hover:bg-amber-50 rounded-md transition-colors shrink-0 cursor-pointer"
+                            className="p-1.5 text-[#b45309] hover:bg-amber-50 rounded-lg border border-transparent hover:border-amber-200 transition-colors shrink-0 cursor-pointer"
                           >
                             <Edit2 className="w-3.5 h-3.5 text-[#d97706]" />
                           </button>
@@ -629,8 +683,24 @@ export default function AdminVideoManager() {
                             <span className="hidden md:inline">AI Blog</span>
                           </button>
 
+                          <button
+                            onClick={() => handleCopySlug(currentSlug)}
+                            title={`Copy SEO URL: ${getFullVideoUrl(currentSlug)}`}
+                            className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+                              copiedSlug === currentSlug
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                                : "text-[#101114] hover:text-[#d97706] hover:bg-[#f6f7f9] border-[#d5d9e0]"
+                            }`}
+                          >
+                            {copiedSlug === currentSlug ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            ) : (
+                              <Link2 className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+
                           <Link
-                            href={`/videos/${video.slug || video.youtubeVideoId}`}
+                            href={getFullVideoUrl(currentSlug, "relative")}
                             target="_blank"
                             title="View on Website"
                             className="p-2 text-[#101114] hover:text-[#d97706] hover:bg-[#f6f7f9] border border-[#d5d9e0] rounded-xl transition-colors"
@@ -821,12 +891,37 @@ export default function AdminVideoManager() {
                 placeholder="descriptive-video-title-slug"
                 className="w-full bg-[#f6f7f9] border border-[#d5d9e0] px-4 py-2.5 text-xs text-[#101114] font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907] rounded-xl"
               />
-              <div className="text-[11px] text-[#6b7280] flex items-center gap-1">
-                <span>Live URL:</span>
-                <span className="font-mono text-[#101114] font-bold truncate">
-                  https://modularhome.com/videos/{newSlugInput.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "..."}
-                </span>
+              <div className="p-3 bg-[#f6f7f9] border border-[#e7e9ee] rounded-xl space-y-2">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="font-bold text-[#101114] flex items-center gap-1.5">
+                    <Globe className="w-3.5 h-3.5 text-[#d97706]" />
+                    Full Link According to Domain:
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleCopySlug(newSlugInput, "current")}
+                      className="px-2 py-0.5 rounded-md bg-white border border-[#d5d9e0] hover:bg-amber-50 hover:border-amber-300 text-[10px] font-bold text-[#101114] cursor-pointer inline-flex items-center gap-1 transition-colors"
+                    >
+                      <Copy className="w-3 h-3 text-[#d97706]" />
+                      <span>Copy Current ({currentDomain.replace(/^https?:\/\//, "")})</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopySlug(newSlugInput, "production")}
+                      className="px-2 py-0.5 rounded-md bg-white border border-[#d5d9e0] hover:bg-amber-50 hover:border-amber-300 text-[10px] font-bold text-[#101114] cursor-pointer inline-flex items-center gap-1 transition-colors"
+                    >
+                      <Copy className="w-3 h-3 text-[#d97706]" />
+                      <span>Copy Production</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="font-mono text-[11px] text-[#101114] font-medium break-all select-all bg-white p-2 rounded-lg border border-[#e7e9ee]">
+                  {getFullVideoUrl(newSlugInput.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "slug", "current")}
+                </div>
               </div>
+
               <p className="text-[10px] text-[#6b7280] leading-relaxed">
                 Note: Updating this slug automatically creates permanent 301 redirects from the YouTube ID and any previous slug.
               </p>
