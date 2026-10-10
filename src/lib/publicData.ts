@@ -22,6 +22,9 @@ export async function withDbTimeout<T = any>(promise: PromiseLike<T> | Promise<T
   const timeoutPromise = new Promise<never>((_, reject) => {
     timer = setTimeout(() => reject(new Error('DB Timeout')), timeoutMs);
   });
+  if (promise && typeof (promise as any).catch === "function") {
+    (promise as any).catch(() => {});
+  }
   try {
     return await Promise.race([Promise.resolve(promise), timeoutPromise]);
   } finally {
@@ -48,6 +51,12 @@ export function clearPublicDataCache(): void {
   LOCAL_PRODUCTS_CACHE = null;
   SLUG_TO_PRODUCT_INDEX.clear();
   clearSettingsCache();
+  try {
+    const { revalidatePath } = require("next/cache");
+    if (typeof revalidatePath === "function") {
+      revalidatePath("/", "layout");
+    }
+  } catch {}
 }
 
 /**
