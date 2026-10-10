@@ -1,14 +1,17 @@
 import { Metadata } from "next";
+import { headers } from "next/headers";
 import { getPublicProducts, getPublicCollections } from "@/lib/publicData";
 import { CATEGORIES } from "@/data/models";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import { matchProductCategory } from "@/utils/categoryMatching";
 import CategoryCollectionRenderer from "@/components/CategoryCollectionRenderer";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const robots = getRobotsMetadata();
+  const reqHeaders = await headers();
+  const host = reqHeaders.get("host") || "";
+  const robots = getRobotsMetadata(host);
 
   const title = "Modular Cabins & Prefab Log Cabin Models";
   const description =

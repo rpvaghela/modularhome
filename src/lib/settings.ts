@@ -69,11 +69,6 @@ export const DEFAULT_SETTINGS: PublicGlobalSettings = {
 };
 
 let inMemorySettings: PublicGlobalSettings = { ...DEFAULT_SETTINGS };
-let cachedSettingsResult: { data: PublicGlobalSettings; expiry: number } | null = null;
-
-export function clearSettingsCache(): void {
-  cachedSettingsResult = null;
-}
 
 export function readSettingsFromStore(): PublicGlobalSettings {
   try {
@@ -108,7 +103,6 @@ export function writeSettingsToStore(settings: Partial<PublicGlobalSettings>): P
       },
     };
     inMemorySettings = updated;
-    clearSettingsCache();
     if (typeof window === "undefined") {
       const fs = require("fs");
       const path = require("path");
@@ -127,15 +121,10 @@ export function writeSettingsToStore(settings: Partial<PublicGlobalSettings>): P
 }
 
 export async function getPublicGlobalSettings(): Promise<PublicGlobalSettings> {
-  if (cachedSettingsResult && Date.now() < cachedSettingsResult.expiry) {
-    return cachedSettingsResult.data;
-  }
-
   const localSettings = readSettingsFromStore();
 
   try {
     if (!isSupabaseConfigured()) {
-      cachedSettingsResult = { data: localSettings, expiry: Date.now() + 300000 };
       return localSettings;
     }
 
@@ -193,11 +182,9 @@ export async function getPublicGlobalSettings(): Promise<PublicGlobalSettings> {
       ctaLink: raw.cta_link || raw.ctaLink || localSettings.ctaLink,
     };
 
-    cachedSettingsResult = { data: merged, expiry: Date.now() + 300000 };
     return merged;
   } catch (error) {
     console.warn("Could not fetch global settings from Supabase, using local settings:", error);
-    cachedSettingsResult = { data: localSettings, expiry: Date.now() + 60000 };
     return localSettings;
   }
 }

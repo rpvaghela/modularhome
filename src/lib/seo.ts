@@ -33,13 +33,7 @@ export function getCanonicalUrl(path: string = "/"): string {
  * Can be explicitly disabled via DISALLOW_ROBOTS="true" environment variable.
  */
 export function getRobotsMetadata(host?: string | null): Metadata["robots"] {
-  const isStaging =
-    process.env.DISALLOW_ROBOTS === "true" ||
-    process.env.IS_STAGING === "true" ||
-    process.env.NEXT_PUBLIC_IS_STAGING === "true" ||
-    Boolean(host && (host.includes("siteground.net") || host.includes("staging") || host.includes("preview")));
-
-  if (isStaging) {
+  if (process.env.DISALLOW_ROBOTS === "true") {
     return {
       index: false,
       follow: false,

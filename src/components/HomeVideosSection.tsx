@@ -3,12 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import dynamicImport from "next/dynamic";
+import VideoModal from "@/components/VideoModal";
 import { VideoItem, VIDEOS_DATA } from "@/data/videos";
 import { Play, ArrowRight } from "lucide-react";
-
-// Lazy-load the heavy YouTube iframe video modal only when a video is clicked
-const VideoModal = dynamicImport(() => import("@/components/VideoModal"), { ssr: false });
 
 interface HomeVideosSectionProps {
   videos?: VideoItem[];
@@ -48,10 +45,7 @@ export default function HomeVideosSection({ videos }: HomeVideosSectionProps) {
   const [videoList, setVideoList] = useState<VideoItem[]>(videos && videos.length > 0 ? videos : VIDEOS_DATA);
   const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
 
-  // If initial videos were provided by the server, skip the client-side fetch waterfall
   useEffect(() => {
-    if (videos && videos.length > 0) return;
-
     let isMounted = true;
     async function loadVideos() {
       try {
@@ -70,7 +64,7 @@ export default function HomeVideosSection({ videos }: HomeVideosSectionProps) {
     return () => {
       isMounted = false;
     };
-  }, [videos]);
+  }, []);
 
   // Filter 8 distinct videos for a clean 2x4 grid
   const distinctVideos: VideoItem[] = [];
@@ -182,10 +176,8 @@ export default function HomeVideosSection({ videos }: HomeVideosSectionProps) {
         </div>
       </section>
 
-      {/* Video Modal Player (Mounted on demand only) */}
-      {selectedVideo && (
-        <VideoModal video={selectedVideo} onClose={() => setSelectedVideo(null)} />
-      )}
+      {/* Video Modal Player */}
+      <VideoModal video={selectedVideo} onClose={() => setSelectedVideo(null)} />
     </>
   );
 }

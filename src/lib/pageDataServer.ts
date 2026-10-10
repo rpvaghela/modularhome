@@ -1,7 +1,7 @@
 import { query } from "./db";
 import { supabaseAdmin, isSupabaseConfigured } from "./supabase";
 import { readPagesFromStore, getCustomPageBySlug as getLocalPage } from "./pageStore";
-import { formatCmsPage, CmsPage, withDbTimeout } from "./publicData";
+import { formatCmsPage, CmsPage } from "./publicData";
 
 /**
  * Server-only: Fetches a single published page by slug (or ID) directly from PostgreSQL, Supabase, or pageStore.
@@ -42,32 +42,26 @@ export async function getPublicPageBySlug(slugParam: string): Promise<CmsPage | 
         ? `handle.eq.${cleanSlug},slug.eq.${cleanSlug},id.eq.${cleanSlug}`
         : `handle.eq.${cleanSlug},slug.eq.${cleanSlug}`;
 
-      const { data: pages, error: pageError } = await withDbTimeout(
-        supabaseAdmin
-          .from("pages")
-          .select("*")
-          .or(orFilter),
-        1200
-      );
+      const { data: pages, error: pageError } = await supabaseAdmin
+        .from("pages")
+        .select("*")
+        .or(orFilter);
 
       if (!pageError && pages && pages.length > 0) {
-        const page = (pages as any[]).find((p: any) => {
+        const page = pages.find((p) => {
           const st = String(p.status || (p.published === false ? "DRAFT" : "PUBLISHED")).toUpperCase();
           return st === "PUBLISHED" || st === "ACTIVE";
-        }) || (pages as any[])[0];
+        }) || pages[0];
 
         let dbSections: any[] = [];
         if (page.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(page.id)) {
-          const { data } = await withDbTimeout(
-            supabaseAdmin
-              .from("page_sections")
-              .select("*")
-              .eq("page_id", page.id)
-              .eq("is_visible", true)
-              .order("display_order", { ascending: true })
-              .order("created_at", { ascending: true }),
-            1000
-          );
+          const { data } = await supabaseAdmin
+            .from("page_sections")
+            .select("*")
+            .eq("page_id", page.id)
+            .eq("is_visible", true)
+            .order("display_order", { ascending: true })
+            .order("created_at", { ascending: true });
           if (data) dbSections = data;
         }
 

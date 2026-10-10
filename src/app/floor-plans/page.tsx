@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
 import FloorPlansClient from "./FloorPlansClient";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPublicPageBySlug("floor-plans");

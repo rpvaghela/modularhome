@@ -305,7 +305,6 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
                     alt={companyName}
                     width={220}
                     height={46}
-                    unoptimized
                     className="h-8 sm:h-9 w-auto object-contain"
                   />
                 </Link>

@@ -1,7 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
+import { headers } from "next/headers";
 import ModelDetailClient from "@/app/models/[slug]/ModelDetailClient";
-import { getPublicProductBySlug, getRelatedProducts } from "@/lib/publicData";
+import { getPublicProductBySlug, getPublicProducts } from "@/lib/publicData";
 import { getPublicGlobalSettings } from "@/lib/settings";
 import { truncateText } from "@/utils/text";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
@@ -12,7 +13,7 @@ import {
   isCategorySlug,
 } from "@/utils/productUrls";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 interface CategoryProductPageProps {
   params: Promise<{ slug: string; modelSlug: string }>;
@@ -50,7 +51,9 @@ export async function generateMetadata({
     return { title: "Product Not Found | ModularHome.com" };
   }
 
-  const robots = getRobotsMetadata();
+  const reqHeaders = await headers();
+  const host = reqHeaders.get("host") || "";
+  const robots = getRobotsMetadata(host);
 
   const canonicalCategory = getProductCategorySlug(model);
   const canonicalUrl = getCanonicalUrl(`/${canonicalCategory}/${model.slug}`);
@@ -111,10 +114,16 @@ export default async function CategoryProductPage({ params }: CategoryProductPag
   const canonicalCatSlug = getProductCategorySlug(model);
   const effectiveCat = isCategorySlug(cleanCat) ? cleanCat : canonicalCatSlug;
 
-  const [relatedModels, settings] = await Promise.all([
-    getRelatedProducts(model.category || effectiveCat, model.slug, 3),
+  const [allProducts, settings] = await Promise.all([
+    getPublicProducts(),
     getPublicGlobalSettings(),
   ]);
+
+  const relatedModels = allProducts
+    .filter(
+      (m) => m.id !== model.id && (m.category === model.category || m.series === model.series)
+    )
+    .slice(0, 3);
 
   const categoryName = getCategoryDisplayName(effectiveCat);
   const canonicalUrl = getCanonicalUrl(`/${effectiveCat}/${model.slug}`);

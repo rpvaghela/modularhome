@@ -16,7 +16,7 @@ import { getPublicPageBySlug } from "@/lib/pageDataServer";
 import DynamicPageRenderer from "@/components/DynamicPageRenderer";
 import { getCanonicalUrl } from "@/lib/seo";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPublicPageBySlug("warranty");

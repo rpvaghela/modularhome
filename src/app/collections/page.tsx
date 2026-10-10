@@ -1,14 +1,17 @@
 import { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Layers, Sparkles } from "lucide-react";
 import { getPublicCollections, getHomeTypeCategories, getCategoryFallbackImage } from "@/lib/publicData";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const robots = getRobotsMetadata();
+  const reqHeaders = await headers();
+  const host = reqHeaders.get("host") || "";
+  const robots = getRobotsMetadata(host);
 
   const title = "Modular & Prefab Home Collections | ModularHome.com";
   const description =

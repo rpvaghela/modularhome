@@ -3,7 +3,7 @@ import { FloorPlan, INITIAL_FLOOR_PLANS } from "@/data/floorPlans";
 import { BuildingModel, BUILDING_MODELS, CATEGORIES } from "@/data/models";
 import ALL_PRODUCTS_CATALOG from "@/data/all_products_catalog.json";
 import { ResourceArticle, RESOURCE_ARTICLES } from "@/data/resources";
-import { getPublicGlobalSettings, clearSettingsCache } from "./settings";
+import { getPublicGlobalSettings } from "./settings";
 import { matchProductCategory, getBaseModelName } from "@/utils/categoryMatching";
 import { getProductUrl } from "@/utils/productUrls";
 import { readProductsFromStore } from "./productStore";
@@ -22,9 +22,6 @@ export async function withDbTimeout<T = any>(promise: PromiseLike<T> | Promise<T
   const timeoutPromise = new Promise<never>((_, reject) => {
     timer = setTimeout(() => reject(new Error('DB Timeout')), timeoutMs);
   });
-  if (promise && typeof (promise as any).catch === "function") {
-    (promise as any).catch(() => {});
-  }
   try {
     return await Promise.race([Promise.resolve(promise), timeoutPromise]);
   } finally {
@@ -50,13 +47,6 @@ export function clearPublicDataCache(): void {
   MEMORY_CACHE.clear();
   LOCAL_PRODUCTS_CACHE = null;
   SLUG_TO_PRODUCT_INDEX.clear();
-  clearSettingsCache();
-  try {
-    const { revalidatePath } = require("next/cache");
-    if (typeof revalidatePath === "function") {
-      revalidatePath("/", "layout");
-    }
-  } catch {}
 }
 
 /**
@@ -453,15 +443,12 @@ export async function getPublicFloorPlans(params?: {
       let dbPlans: FloorPlan[] = [];
       if (isSupabaseConfigured()) {
         try {
-          const { data, error } = await withDbTimeout(
-            supabaseAdmin
-              .from("floor_plans")
-              .select("*")
-              .eq("status", "PUBLISHED")
-              .order("display_order", { ascending: true })
-              .order("created_at", { ascending: false }),
-            1200
-          );
+          const { data, error } = await supabaseAdmin
+            .from("floor_plans")
+            .select("*")
+            .eq("status", "PUBLISHED")
+            .order("display_order", { ascending: true })
+            .order("created_at", { ascending: false });
 
           if (!error && data && data.length > 0) {
             dbPlans = data.map(formatFloorPlan);
@@ -646,14 +633,11 @@ export function getLocalProducts(): BuildingModel[] {
 export async function fetchSupabaseProducts(): Promise<BuildingModel[]> {
   if (!isSupabaseConfigured()) return [];
   try {
-    const { data: dbProducts, error } = await withDbTimeout(
-      supabaseAdmin
-        .from("products")
-        .select("*, product_variants(*), product_media(*), product_collections(collection_id, collections(id, handle, title))")
-        .or("status.eq.active,status.is.null,status.neq.draft")
-        .order("created_at", { ascending: false }),
-      1200
-    );
+    const { data: dbProducts, error } = await supabaseAdmin
+      .from("products")
+      .select("*, product_variants(*), product_media(*), product_collections(collection_id, collections(id, handle, title))")
+      .or("status.eq.active,status.is.null,status.neq.draft")
+      .order("created_at", { ascending: false });
 
     if (error || !dbProducts) return [];
 
@@ -748,7 +732,7 @@ export async function getPublicProducts(params?: {
       }
 
       formattedAll = merged.length > 0 ? merged : localProducts;
-      setCached(cacheKey, formattedAll, 300000);
+      setCached(cacheKey, formattedAll, 60000);
     }
 
     let formatted = [...formattedAll];
@@ -1018,13 +1002,16 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
       // 2. Database blogs from Supabase
       if (isSupabaseConfigured()) {
         try {
-          const { data: dbPosts, error } = await withDbTimeout(
-            supabaseAdmin
-              .from("blog_posts")
-              .select("*")
-              .order("published_at", { ascending: false }),
-            1200
-          );
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 1200);
+
+          const { data: dbPosts, error } = await supabaseAdmin
+            .from("blog_posts")
+            .select("*")
+            .abortSignal(controller.signal)
+            .order("published_at", { ascending: false });
+
+          clearTimeout(timer);
 
           if (!error && dbPosts && dbPosts.length > 0) {
             for (const raw of dbPosts) {
@@ -1436,16 +1423,13 @@ export async function getPublicPageBySlug(slugParam: string): Promise<CmsPage | 
 
         let dbSections: any[] = [];
         if (page.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(page.id)) {
-          const { data } = await withDbTimeout(
-            supabaseAdmin
-              .from("page_sections")
-              .select("*")
-              .eq("page_id", page.id)
-              .eq("is_visible", true)
-              .order("display_order", { ascending: true })
-              .order("created_at", { ascending: true }),
-            800
-          );
+          const { data } = await supabaseAdmin
+            .from("page_sections")
+            .select("*")
+            .eq("page_id", page.id)
+            .eq("is_visible", true)
+            .order("display_order", { ascending: true })
+            .order("created_at", { ascending: true });
           if (data) dbSections = data;
         }
 
@@ -1519,13 +1503,10 @@ export async function getPublicPages(): Promise<CmsPage[]> {
 
   try {
     if (isSupabaseConfigured()) {
-      const { data: dbPages, error } = await withDbTimeout(
-        supabaseAdmin
-          .from("pages")
-          .select("*")
-          .order("created_at", { ascending: false }),
-        1200
-      );
+      const { data: dbPages, error } = await supabaseAdmin
+        .from("pages")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (!error && dbPages && dbPages.length > 0) {
         for (const p of dbPages) {
@@ -1625,19 +1606,16 @@ export async function getPublicCollections(): Promise<PublicCollection[]> {
 
     if (!collectionsList) {
       if (isSupabaseConfigured()) {
-        const { data: dbCollections, error } = await withDbTimeout(
-          supabaseAdmin
-            .from("collections")
-            .select(`
-              *,
-              product_collections (
-                product_id
-              )
-            `)
-            .eq("published", true)
-            .order("title", { ascending: true }),
-          1200
-        );
+        const { data: dbCollections, error } = await supabaseAdmin
+          .from("collections")
+          .select(`
+            *,
+            product_collections (
+              product_id
+            )
+          `)
+          .eq("published", true)
+          .order("title", { ascending: true });
 
         if (!error && dbCollections && dbCollections.length > 0) {
           collectionsList = dbCollections.map((col: any) => {
@@ -1728,15 +1706,12 @@ export async function getPublicReviews(): Promise<PublicReview[]> {
       let cachedReviews = getCached<PublicReview[]>(cacheKey);
 
       if (!cachedReviews) {
-        const { data, error } = await withDbTimeout(
-          supabaseAdmin
-            .from("reviews")
-            .select("*")
-            .eq("status", "PUBLISHED")
-            .order("display_order", { ascending: true })
-            .order("created_at", { ascending: false }),
-          1200
-        );
+        const { data, error } = await supabaseAdmin
+          .from("reviews")
+          .select("*")
+          .eq("status", "PUBLISHED")
+          .order("display_order", { ascending: true })
+          .order("created_at", { ascending: false });
 
         if (!error && data && data.length > 0) {
           cachedReviews = data.map((r: any) => ({
@@ -1784,7 +1759,7 @@ export async function getPublicFaqs(category?: string): Promise<PublicFaq[]> {
           query = query.eq("category", category);
         }
 
-        const { data, error } = await withDbTimeout(query, 1200);
+        const { data, error } = await query;
         if (!error && data && data.length > 0) {
           cachedFaqs = data.map((f: any) => ({
             id: f.id,
@@ -1986,51 +1961,12 @@ export async function getMegaMenuCatalog(): Promise<MegaMenuCatalog> {
         featuredProduct: featured,
       };
     }
-    setCached(cacheKey, catalog, 3600000);
+    setCached(cacheKey, catalog, 60000);
   } catch (error) {
     console.error("Error building mega menu catalog:", error);
   }
 
   return catalog;
-}
-
-/**
- * Fast loader for related models in the same category without redundant catalog hydration
- */
-export async function getRelatedProducts(
-  category: string,
-  currentSlug: string,
-  limit: number = 4
-): Promise<BuildingModel[]> {
-  const all = await getPublicProducts();
-  const cleanCurrent = (currentSlug || "").toLowerCase().trim();
-  const cleanCat = (category || "").toLowerCase().trim();
-
-  const matches: BuildingModel[] = [];
-  for (const p of all) {
-    if ((p.slug || "").toLowerCase().trim() === cleanCurrent) continue;
-    if (
-      matchProductCategory(p, cleanCat) ||
-      (p.category && p.category.toLowerCase().includes(cleanCat)) ||
-      (p.series && p.series.toLowerCase().includes(cleanCat))
-    ) {
-      matches.push(p);
-      if (matches.length >= limit) break;
-    }
-  }
-
-  // Fallback to any models if category matches are fewer than limit
-  if (matches.length < limit) {
-    for (const p of all) {
-      if ((p.slug || "").toLowerCase().trim() === cleanCurrent) continue;
-      if (!matches.some((m) => m.slug === p.slug)) {
-        matches.push(p);
-        if (matches.length >= limit) break;
-      }
-    }
-  }
-
-  return matches;
 }
 
 export interface HomeTypeCategoryItem {
