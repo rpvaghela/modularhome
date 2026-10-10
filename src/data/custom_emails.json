@@ -1,5 +1,140 @@
 [
   {
+    "id": "eml-1791610117212-fn36q",
+    "recipient": "verify_store_1791610113996@modularhome.com",
+    "template_type": "EMAIL_VERIFICATION",
+    "subject": "Verify your ModularHome.com customer account",
+    "customer_id": "04f05f74-36dd-4aeb-9f9c-04ee750f6014",
+    "status": "FAILED",
+    "metadata": {
+      "error": "You can only send testing emails to your own email address (modularhome.admin@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain.",
+      "callbackUrl": "https://modularhome.vercel.app/auth/callback?token=bcc912819a231e9dbfeed591db13e229f0b1b1d72c9c3b78a918aed09137c300",
+      "directVerifyUrl": "https://modularhome.vercel.app/verify-email?token=bcc912819a231e9dbfeed591db13e229f0b1b1d72c9c3b78a918aed09137c300",
+      "name": "Verification Test User"
+    },
+    "created_at": "2026-10-10T05:28:37.212Z"
+  },
+  {
+    "id": "eml-1791609445080-ui4hp",
+    "recipient": "madhouseco4i@gmail.com",
+    "template_type": "EMAIL_VERIFICATION",
+    "subject": "Verify your ModularHome.com customer account",
+    "customer_id": "cust-1791608790690-5d1a937b",
+    "status": "FAILED",
+    "metadata": {
+      "error": "You can only send testing emails to your own email address (modularhome.admin@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain.",
+      "callbackUrl": "https://modularhome.vercel.app/auth/callback?token=43201e7b4919f283e7765ee3066ff97df11cd9b6e3baec4197c895558682a314",
+      "directVerifyUrl": "https://modularhome.vercel.app/verify-email?token=43201e7b4919f283e7765ee3066ff97df11cd9b6e3baec4197c895558682a314",
+      "name": "Rushi Dhane"
+    },
+    "created_at": "2026-10-10T05:17:25.080Z"
+  },
+  {
+    "id": "eml-1791608888510-flsij",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_AI_CHAT_LEAD",
+    "subject": "New AI Build Request — AI Chat Prospect",
+    "status": "SENT",
+    "metadata": {
+      "lead_id": "lead_chat_1791608887530",
+      "customer_name": "AI Chat Prospect",
+      "customer_email": "john.doe@example.com",
+      "reply_to": "john.doe@example.com",
+      "resend_id": "01a12436-26fc-77eb-b4f9-a69965f55ae0"
+    },
+    "created_at": "2026-10-10T05:08:08.510Z"
+  },
+  {
+    "id": "eml-1791608792053-m1b45",
+    "recipient": "madhouseco4i@gmail.com",
+    "template_type": "EMAIL_VERIFICATION",
+    "subject": "Verify your ModularHome.com customer account",
+    "customer_id": "cust-1791608790690-5d1a937b",
+    "status": "FAILED",
+    "metadata": {
+      "error": "You can only send testing emails to your own email address (modularhome.admin@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain.",
+      "callbackUrl": "https://modularhome.vercel.app/auth/callback?token=01d4134dca0230960167d5737b5e2414ecf6c7b1e58ec3dc1ddbf09289efc778",
+      "directVerifyUrl": "https://modularhome.vercel.app/verify-email?token=01d4134dca0230960167d5737b5e2414ecf6c7b1e58ec3dc1ddbf09289efc778",
+      "name": "Rushi Dhane"
+    },
+    "created_at": "2026-10-10T05:06:32.053Z"
+  },
+  {
+    "id": "eml-1791608624332-6kxos",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_AI_CHAT_LEAD",
+    "subject": "New AI Build Request — AI Chat Prospect",
+    "status": "SENT",
+    "metadata": {
+      "lead_id": "lead_chat_1791608623315",
+      "customer_name": "AI Chat Prospect",
+      "customer_email": "john.doe@example.com",
+      "reply_to": "john.doe@example.com",
+      "resend_id": "01a12432-1f00-77d1-8e30-8f442e304ea0"
+    },
+    "created_at": "2026-10-10T05:03:44.332Z"
+  },
+  {
+    "id": "eml-1791608423802-x26zk",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_AI_CHAT_LEAD",
+    "subject": "New AI Build Request — AI Chat Prospect",
+    "status": "SENT",
+    "metadata": {
+      "lead_id": "lead_chat_1791608422813",
+      "customer_name": "AI Chat Prospect",
+      "customer_email": "john.doe@example.com",
+      "reply_to": "john.doe@example.com",
+      "resend_id": "01a1242f-0fc0-7750-8b8c-699246751cc3"
+    },
+    "created_at": "2026-10-10T05:00:23.802Z"
+  },
+  {
+    "id": "eml-1791607969284-m3zha",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_AI_CHAT_LEAD",
+    "subject": "New AI Build Request — CHETAN SONAWANE",
+    "status": "SENT",
+    "metadata": {
+      "lead_id": "lead_chat_1791607968166",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "resend_id": "01a12428-2037-77b9-bab3-c9fa52d7ba43"
+    },
+    "created_at": "2026-10-10T04:52:49.284Z"
+  },
+  {
+    "id": "eml-1791607853313-6k56s",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_AI_CHAT_LEAD",
+    "subject": "New AI Build Request — CHETAN SONAWANE",
+    "status": "SENT",
+    "metadata": {
+      "lead_id": "lead_chat_1791607852318",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "resend_id": "01a12426-5b43-7b5c-ac91-623e9f6d20fe"
+    },
+    "created_at": "2026-10-10T04:50:53.313Z"
+  },
+  {
+    "id": "eml-1791607822381-ccr3w",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_AI_CHAT_LEAD",
+    "subject": "New AI Build Request — CHETAN SONAWANE",
+    "status": "SENT",
+    "metadata": {
+      "lead_id": "lead_chat_1791607821261",
+      "customer_name": "CHETAN SONAWANE",
+      "customer_email": "chetansonawane2006@gmail.com",
+      "reply_to": "chetansonawane2006@gmail.com",
+      "resend_id": "01a12425-e26c-7869-9096-4028d5f42ea1"
+    },
+    "created_at": "2026-10-10T04:50:22.381Z"
+  },
+  {
     "id": "eml-1791488476910-hqbsf",
     "recipient": "modularhome.admin@gmail.com",
     "template_type": "ADMIN_AI_CHAT_LEAD",

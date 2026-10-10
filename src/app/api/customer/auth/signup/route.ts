@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import {
   getCustomerByEmail,
   saveCustomer,
@@ -173,7 +174,7 @@ export async function POST(request: NextRequest) {
     const passwordHash = await hashCustomerPassword(password);
     const verificationToken = generateSecureToken();
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-    const customerId = `cust-${Date.now()}-${generateSecureToken().substring(0, 8)}`;
+    const customerId = authUserId || crypto.randomUUID();
     const nowIso = new Date().toISOString();
 
     // 9. Save Customer Record

@@ -22,6 +22,7 @@ import {
   Send,
   Ban,
   Check,
+  Trash2,
 } from "lucide-react";
 
 export default function AdminCustomerDetailPage() {
@@ -38,6 +39,31 @@ export default function AdminCustomerDetailPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
+
+  // Delete Customer Modal
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteCustomer = async () => {
+    setIsDeleting(true);
+    setActionMessage(null);
+    try {
+      const res = await fetch(`/api/admin/customers/${customerId}`, {
+        method: "DELETE",
+      });
+      const json = await res.json();
+      if (json.success) {
+        router.push("/admin/customers");
+      } else {
+        throw new Error(json.error?.message || "Failed to delete customer.");
+      }
+    } catch (err: any) {
+      setActionMessage({ text: err?.message || "Delete failed.", isError: true });
+      setDeleteModalOpen(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const fetchCustomerDetail = async () => {
     setIsLoading(true);
@@ -314,12 +340,22 @@ export default function AdminCustomerDetailPage() {
             disabled={actionLoading === "toggle-status"}
             className={`text-xs font-bold px-3.5 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ml-auto ${
               customer.status === "ACTIVE"
-                ? "bg-red-50 hover:bg-red-100 text-red-700 border border-red-200"
+                ? "bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200"
                 : "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200"
             }`}
           >
             <Ban className="w-3.5 h-3.5" />
             <span>{customer.status === "ACTIVE" ? "Disable Account" : "Enable Account"}</span>
+          </button>
+
+          <button
+            onClick={() => setDeleteModalOpen(true)}
+            disabled={actionLoading !== null || isDeleting}
+            className="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold px-3.5 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            title="Permanently Delete Customer"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-red-600" />
+            <span>Delete Customer</span>
           </button>
         </div>
       </div>
@@ -611,6 +647,60 @@ export default function AdminCustomerDetailPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+              <Trash2 className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="text-base font-black text-gray-900">
+                Permanently Delete Customer?
+              </h3>
+              <p className="text-xs text-gray-500">
+                Are you sure you want to delete <span className="font-semibold text-gray-800">{customer.name || customer.email}</span>?
+                This will permanently remove their profile, authentication, and active sessions. This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[11px] text-amber-800">
+              Associated orders and leads will remain intact in historical reports, but will no longer be linked to an active account.
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteModalOpen(false)}
+                disabled={isDeleting}
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs py-2.5 rounded-xl transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteCustomer}
+                disabled={isDeleting}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2.5 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm shadow-red-200"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Yes, Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -3,6 +3,7 @@ import { requireAdminRole } from "@/lib/auth";
 import {
   getCustomerById,
   saveCustomer,
+  deleteCustomer,
   getCustomerEvents,
 } from "@/lib/customerStore";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
@@ -148,6 +149,49 @@ export async function PUT(
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: { message: error?.message || "Failed to update customer." } },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const authResult = await requireAdminRole(["SUPER_ADMIN", "SALES"]);
+    if (authResult instanceof NextResponse) return authResult;
+
+    const { id } = await params;
+    const customer = await getCustomerById(id);
+
+    if (!customer) {
+      return NextResponse.json(
+        { success: false, error: { message: "Customer not found", code: "NOT_FOUND" } },
+        { status: 404 }
+      );
+    }
+
+    await deleteCustomer(customer.id);
+
+    await logActivity({
+      user_id: authResult.id,
+      user_name: authResult.name,
+      user_role: authResult.role,
+      action: "DELETE_CUSTOMER",
+      entity_type: "customers",
+      entity_id: customer.id,
+      description: `Admin permanently deleted customer ${customer.name} (${customer.email})`,
+      details: { email: customer.email, name: customer.name },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Customer ${customer.name} (${customer.email}) has been permanently deleted.`,
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: { message: error?.message || "Failed to delete customer." } },
       { status: 500 }
     );
   }

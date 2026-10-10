@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { supabaseAdmin, isSupabaseConfigured } from "./supabase";
 
 export interface Customer {
@@ -205,6 +206,16 @@ export async function getCustomerByResetToken(token: string): Promise<Customer |
 }
 
 export async function saveCustomer(customer: Customer): Promise<Customer> {
+  // Ensure valid UUID for customer.id (required by Supabase PostgreSQL UUID column)
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(customer.id);
+  if (!isUuid) {
+    if (customer.auth_user_id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(customer.auth_user_id)) {
+      customer.id = customer.auth_user_id;
+    } else {
+      customer.id = crypto.randomUUID();
+    }
+  }
+
   // Always update local fallback
   const locals = readLocalCustomers();
   const idx = locals.findIndex((c) => c.id === customer.id || c.email === customer.email);
@@ -217,18 +228,110 @@ export async function saveCustomer(customer: Customer): Promise<Customer> {
 
   if (isSupabaseConfigured()) {
     try {
+      // Map columns exactly matching Supabase customers table schema
+      const supabasePayload: any = {
+        id: customer.id,
+        email: customer.email,
+        name: customer.name,
+        password_hash: customer.password_hash,
+        phone: customer.phone || null,
+        status: customer.status || "ACTIVE",
+        email_verified: Boolean(customer.email_verified),
+        verification_token: customer.verification_token || null,
+        reset_token: customer.reset_token || null,
+        reset_token_expires_at: customer.reset_token_expires_at || null,
+        provider: customer.provider || "EMAIL",
+        last_login_at: customer.last_login_at || null,
+        created_at: customer.created_at || new Date().toISOString(),
+        updated_at: customer.updated_at || new Date().toISOString(),
+      };
+
       const { data, error } = await supabaseAdmin
         .from("customers")
-        .upsert(customer)
+        .upsert(supabasePayload)
         .select()
         .single();
-      if (!error && data) return data as Customer;
+      if (!error && data) return { ...customer, ...data };
       if (error) console.warn("Supabase saveCustomer error note:", error.message);
     } catch (e) {
       console.warn("Supabase customer upsert fallback to local:", e);
     }
   }
   return customer;
+}
+
+export async function deleteCustomer(idOrEmail: string): Promise<boolean> {
+  const locals = readLocalCustomers();
+  const customer = locals.find(
+    (c) => c.id === idOrEmail || c.email.toLowerCase() === idOrEmail.toLowerCase()
+  );
+  const targetId = customer?.id || idOrEmail;
+  const targetEmail = customer?.email || idOrEmail;
+  const authUserId = customer?.auth_user_id;
+
+  // 1. Remove from local customers
+  const filtered = locals.filter(
+    (c) => c.id !== targetId && c.email.toLowerCase() !== targetEmail.toLowerCase()
+  );
+  writeLocalCustomers(filtered);
+
+  // 2. Revoke all active sessions
+  await revokeAllCustomerSessions(targetId);
+
+  // 3. Clean up events locally
+  ensureFile(EVENTS_FILE);
+  try {
+    const rawEvents = fs.readFileSync(EVENTS_FILE, "utf-8");
+    const events: CustomerEvent[] = JSON.parse(rawEvents) || [];
+    const filteredEvents = events.filter((e) => e.customer_id !== targetId);
+    fs.writeFileSync(EVENTS_FILE, JSON.stringify(filteredEvents, null, 2), "utf-8");
+  } catch {}
+
+  // 4. Clean up terms consents locally
+  ensureFile(TERMS_FILE);
+  try {
+    const rawTerms = fs.readFileSync(TERMS_FILE, "utf-8");
+    const terms: TermsConsent[] = JSON.parse(rawTerms) || [];
+    const filteredTerms = terms.filter(
+      (t) => t.customer_id !== targetId && t.email.toLowerCase() !== targetEmail.toLowerCase()
+    );
+    fs.writeFileSync(TERMS_FILE, JSON.stringify(filteredTerms, null, 2), "utf-8");
+  } catch {}
+
+  // 5. Delete from Supabase Database & Supabase Auth if configured
+  if (isSupabaseConfigured()) {
+    try {
+      const isTargetIdUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetId);
+      
+      // Delete from customers table
+      if (isTargetIdUuid) {
+        await supabaseAdmin.from("customers").delete().eq("id", targetId);
+      }
+      if (targetEmail && targetEmail.includes("@")) {
+        await supabaseAdmin.from("customers").delete().eq("email", targetEmail.toLowerCase().trim());
+      }
+
+      // Delete customer sessions
+      await supabaseAdmin.from("customer_sessions").delete().eq("customer_id", targetId);
+
+      // Delete customer events
+      try {
+        await supabaseAdmin.from("customer_events").delete().eq("customer_id", targetId);
+      } catch {}
+
+      // Delete from Supabase Auth
+      const userToDelete = authUserId || (isTargetIdUuid ? targetId : null);
+      if (userToDelete && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userToDelete)) {
+        try {
+          await supabaseAdmin.auth.admin.deleteUser(userToDelete);
+        } catch {}
+      }
+    } catch (e) {
+      console.warn("Supabase deleteCustomer note:", e);
+    }
+  }
+
+  return true;
 }
 
 export async function getAllCustomers(params?: {

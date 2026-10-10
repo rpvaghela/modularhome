@@ -17,6 +17,7 @@ import {
   RefreshCw,
   Mail,
   Phone,
+  Trash2,
 } from "lucide-react";
 
 export default function AdminCustomersPage() {
@@ -27,7 +28,31 @@ export default function AdminCustomersPage() {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [verifiedFilter, setVerifiedFilter] = useState("ALL");
   const [quickVerifyingId, setQuickVerifyingId] = useState<string | null>(null);
+  const [customerToDelete, setCustomerToDelete] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [notification, setNotification] = useState<{ text: string; isError?: boolean } | null>(null);
+
+  const handleDeleteCustomer = async () => {
+    if (!customerToDelete) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/customers/${customerToDelete.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setNotification({ text: `Customer ${customerToDelete.name} (${customerToDelete.email}) was permanently deleted.` });
+        setCustomerToDelete(null);
+        fetchCustomers();
+      } else {
+        throw new Error(data.error?.message || "Failed to delete customer.");
+      }
+    } catch (err: any) {
+      setNotification({ text: err.message || "Failed to delete customer.", isError: true });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const fetchCustomers = async () => {
     setIsLoading(true);
@@ -297,12 +322,58 @@ export default function AdminCustomersPage() {
                           <span>Manage</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
+                        <button
+                          onClick={() => setCustomerToDelete(c)}
+                          title="Delete customer account"
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Customer Confirmation Modal */}
+      {customerToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-gray-100 space-y-5 animate-in fade-in zoom-in-95">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 border border-red-200 text-red-600 flex items-center justify-center">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="text-lg font-black text-[#101114]">Delete Customer Account?</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Are you sure you want to permanently delete <strong className="text-gray-900">{customerToDelete.name}</strong> (<span className="font-mono text-gray-700">{customerToDelete.email}</span>)?
+              </p>
+              <div className="p-3 bg-red-50/70 border border-red-200/80 rounded-xl text-[11px] text-red-700 mt-2">
+                This will delete their customer profile, revoke all active login sessions, and remove their account from both Supabase and the CRM database. This action cannot be undone.
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setCustomerToDelete(null)}
+                disabled={isDeleting}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteCustomer}
+                disabled={isDeleting}
+                className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black transition-all shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                <span>{isDeleting ? "Deleting..." : "Permanently Delete"}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

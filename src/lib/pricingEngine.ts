@@ -52,20 +52,35 @@ export interface DeterministicQuotationResult {
   disclaimer: string;
 }
 
-// Built-in default rules fallback
+function safeJsonParse(val: any, fallback: any = {}) {
+  if (!val) return fallback;
+  if (typeof val === "object") return val;
+  if (typeof val === "string") {
+    try {
+      return JSON.parse(val);
+    } catch {
+      return fallback;
+    }
+  }
+  return fallback;
+}
+
+// Built-in default rules fallback (aligned with approved catalog & quotation specs)
 const DEFAULT_RULES: PricingRule[] = [
   { id: "def-1", code: "MODULAR_BASE", category: "BASE_MODEL", label: "Precision Steel Modular Base Shell", base_rate: 35000, multiplier: 0, is_active: true },
   { id: "def-2", code: "BARNDO_BASE", category: "BASE_MODEL", label: "Structural Barndominium Steel Truss Base", base_rate: 42000, multiplier: 0, is_active: true },
   { id: "def-3", code: "CABIN_BASE", category: "BASE_MODEL", label: "Engineered Cabin Kit Base Framing", base_rate: 28000, multiplier: 0, is_active: true },
   { id: "def-4", code: "ADU_BASE", category: "BASE_MODEL", label: "ADU / Compact Modular Suite Base", base_rate: 32000, multiplier: 0, is_active: true },
   { id: "def-5", code: "SQFT_STANDARD", category: "SQFT_RATE", label: "Floor Area Rate (Per SqFt)", base_rate: 0, multiplier: 85, is_active: true },
-  { id: "def-6", code: "SOLAR_PREP", category: "UPGRADE", label: "Solar Energy Ready Electrical & Roof Conduit", base_rate: 3500, multiplier: 0, is_active: true },
-  { id: "def-7", code: "TRIPLE_PANE", category: "UPGRADE", label: "High-Efficiency Triple-Pane Low-E Windows", base_rate: 5200, multiplier: 0, is_active: true },
-  { id: "def-8", code: "PREMIUM_INSULATION", category: "UPGRADE", label: "Closed-Cell Spray Foam Thermal Package (R-38)", base_rate: 4800, multiplier: 0, is_active: true },
-  { id: "def-9", code: "SMART_HOME", category: "UPGRADE", label: "Smart Home Energy & HVAC Automation Hub", base_rate: 2200, multiplier: 0, is_active: true },
-  { id: "def-10", code: "HEAVY_SNOW_WIND", category: "UPGRADE", label: "Extreme Zone Wind & Snow Load Engineering", base_rate: 3900, multiplier: 0, is_active: true },
-  { id: "def-11", code: "ENG_SEALED_PLANS", category: "FEE", label: "State-Specific Architectural Engineer Stamped Plans", base_rate: 1850, multiplier: 0, is_active: true },
-  { id: "def-12", code: "FREIGHT_LOGISTICS", category: "FEE", label: "Flatbed Nationwide Factory Transportation Logistics", base_rate: 2500, multiplier: 0, is_active: true },
+  { id: "def-6", code: "TIMBER_DECK", category: "UPGRADE", label: "Covered Wrap-Around Timber Deck", base_rate: 12500, multiplier: 0, is_active: true },
+  { id: "def-7", code: "PREMIUM_INSULATION", category: "UPGRADE", label: "Closed-Cell Spray Foam Thermal Package (R-38)", base_rate: 6800, multiplier: 0, is_active: true },
+  { id: "def-8", code: "PANORAMIC_GLASS", category: "UPGRADE", label: "16ft Multi-Slide Panoramic Glass Wall", base_rate: 9400, multiplier: 0, is_active: true },
+  { id: "def-9", code: "SOLAR_PREP", category: "UPGRADE", label: "Solar Energy Ready Electrical & Roof Conduit", base_rate: 3500, multiplier: 0, is_active: true },
+  { id: "def-10", code: "TRIPLE_PANE", category: "UPGRADE", label: "High-Efficiency Triple-Pane Low-E Windows", base_rate: 5200, multiplier: 0, is_active: true },
+  { id: "def-11", code: "SMART_HOME", category: "UPGRADE", label: "Smart Home Energy & HVAC Automation Hub", base_rate: 2200, multiplier: 0, is_active: true },
+  { id: "def-12", code: "HEAVY_SNOW_WIND", category: "UPGRADE", label: "Extreme Zone Wind & Snow Load Engineering", base_rate: 3900, multiplier: 0, is_active: true },
+  { id: "def-13", code: "ENG_SEALED_PLANS", category: "FEE", label: "State-Specific Architectural Engineer Stamped Plans", base_rate: 1850, multiplier: 0, is_active: true },
+  { id: "def-14", code: "FREIGHT_LOGISTICS", category: "FEE", label: "Flatbed Nationwide Factory Transportation Logistics", base_rate: 2500, multiplier: 0, is_active: true },
 ];
 
 export const STANDARD_DISCLAIMER =
@@ -105,7 +120,7 @@ export async function getActivePricingRules(): Promise<PricingRule[]> {
         max_sqft: r.max_sqft ? Number(r.max_sqft) : undefined,
         description: r.description,
         is_active: r.is_active,
-        metadata: typeof r.metadata === "string" ? JSON.parse(r.metadata) : r.metadata || {},
+        metadata: safeJsonParse(r.metadata, {}),
       }));
     }
   } catch (dbErr) {
@@ -132,7 +147,7 @@ export async function getActivePricingRules(): Promise<PricingRule[]> {
           max_sqft: r.max_sqft ? Number(r.max_sqft) : undefined,
           description: r.description,
           is_active: r.is_active,
-          metadata: typeof r.metadata === "string" ? JSON.parse(r.metadata) : r.metadata || {},
+          metadata: safeJsonParse(r.metadata, {}),
         }));
       }
     } catch {}
@@ -229,8 +244,22 @@ export async function calculateQuotation(input: PricingEngineInput): Promise<Det
       const codeLower = (upRule.code || "").toLowerCase().trim();
       const labelLower = (upRule.label || "").toLowerCase().trim();
       const idLower = (upRule.id || "").toLowerCase().trim();
+      const isPorchOrDeck = (valLower.includes("porch") || valLower.includes("deck")) && (codeLower.includes("porch") || codeLower.includes("deck") || labelLower.includes("porch") || labelLower.includes("deck"));
+      const isInsulation = (valLower.includes("insul") || valLower.includes("thermal") || valLower.includes("r-38") || valLower.includes("foam")) && (codeLower.includes("insul") || labelLower.includes("insul") || labelLower.includes("envelope") || labelLower.includes("foam"));
+      const isGlass = (valLower.includes("glass") || valLower.includes("panoramic") || valLower.includes("slide")) && (codeLower.includes("glass") || labelLower.includes("glass"));
+      const isGarage = valLower.includes("garage") && (codeLower.includes("garage") || labelLower.includes("garage"));
+      const isLoft = (valLower.includes("loft") || valLower.includes("mezzanine")) && (codeLower.includes("loft") || labelLower.includes("loft"));
+      const isSolar = valLower.includes("solar") && (codeLower.includes("solar") || labelLower.includes("solar"));
+      const isWindow = (valLower.includes("window") || valLower.includes("triple")) && (codeLower.includes("triple") || codeLower.includes("window") || labelLower.includes("window"));
 
       return (
+        isPorchOrDeck ||
+        isInsulation ||
+        isGlass ||
+        isGarage ||
+        isLoft ||
+        isSolar ||
+        isWindow ||
         valLower === codeLower ||
         valLower === labelLower ||
         valLower === idLower ||
