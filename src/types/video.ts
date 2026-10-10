@@ -10,6 +10,7 @@ export type VideoCategory =
 export interface VideoItem {
   id: string; // Internal unique ID or youtubeVideoId
   youtubeVideoId: string;
+  slug?: string; // Unique SEO-friendly URL slug derived from title
   title: string;
   category: VideoCategory | string;
   duration: string;

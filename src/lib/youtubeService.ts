@@ -1,5 +1,6 @@
 import { VideoItem, YouTubeSyncResult, SyncStats } from "@/types/video";
 import { batchUpsertVideos, readVideosFromStore, writeVideosToStore, saveSyncStats, upsertVideo } from "./videoStore";
+import { slugifyVideoTitle } from "./videoSlug";
 
 // Helper to convert ISO 8601 duration (e.g. PT5M12S) to seconds
 export function parseISO8601DurationInSeconds(isoDuration: string): number {
@@ -162,6 +163,7 @@ export async function fetchYouTubeVideoByUrl(urlOrId: string): Promise<Partial<V
 
     return {
       youtubeVideoId: videoId,
+      slug: slugifyVideoTitle(snippet.title || "YouTube Video", videoId),
       title: snippet.title || "YouTube Video",
       description: snippet.description || "",
       thumbnail,

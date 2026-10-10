@@ -83,7 +83,7 @@ export default async function VideoDetailPage({ params }: VideoDetailPageProps) 
     "@context": "https://schema.org",
     "@type": "VideoObject",
     "name": video.title,
-    "description": video.description,
+    "description": video.description || `Official architectural walkthrough and video tour of ${video.title} by ModularHome.com.`,
     "thumbnailUrl": [video.thumbnail],
     "uploadDate": video.publishedAt,
     "duration": video.duration ? `PT${video.duration.replace(":", "M")}S` : "PT5M",

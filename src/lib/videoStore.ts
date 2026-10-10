@@ -3,6 +3,7 @@ import { VIDEOS_DATA } from "@/data/videos";
 import syncedVideosFallback from "@/data/synced_videos.json";
 import syncStatsFallback from "@/data/sync_stats.json";
 import { supabaseAdmin, isSupabaseConfigured } from "./supabase";
+import { slugifyVideoTitle, generateUniqueSlug } from "./videoSlug";
 
 let fs: any = null;
 let path: any = null;
@@ -17,6 +18,7 @@ if (typeof window === "undefined") {
 const DATA_DIR = path ? path.join(process.cwd(), "src", "data") : "";
 const FILE_PATH = path ? path.join(DATA_DIR, "synced_videos.json") : "";
 const STATS_FILE_PATH = path ? path.join(DATA_DIR, "sync_stats.json") : "";
+const REDIRECTS_FILE_PATH = path ? path.join(DATA_DIR, "shopify_redirects.json") : "";
 
 // In-memory cache
 let memoryVideosCache: VideoItem[] | null = null;
@@ -38,10 +40,14 @@ export function normalizeVideo(v: any): VideoItem {
     v.youtube_video_id ||
     (v.id && !v.id.startsWith("vid-") ? v.id : v.id ? v.id.replace("vid-", "") : "MHWHDE87Pp4");
   const embed = v.embedUrl || v.embed_url || `https://www.youtube-nocookie.com/embed/${ytId}`;
+  const title = v.title || "Modular Home & Cabin Tour";
+  const slug = v.slug || slugifyVideoTitle(title, ytId);
+
   return {
     id: v.id || `vid-${ytId}`,
     youtubeVideoId: ytId,
-    title: v.title || "Modular Home & Cabin Tour",
+    slug,
+    title,
     category: v.category || "Building Tours",
     duration: v.duration || "4:00",
     description: v.description || "",
@@ -189,35 +195,23 @@ export function getAllVideos(params?: { category?: string; search?: string }): V
 
 export function getVideoSlug(video: VideoItem, allVideos?: VideoItem[]): string {
   if (!video) return "";
-  const list = allVideos || readVideosFromStore();
-  const rawTitle = (video.title || "video")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-  const baseSlug = rawTitle || `video-${video.youtubeVideoId || video.id}`;
-
-  const duplicates = list.filter((v) => {
-    const s = (v.title || "video")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-    return (s || `video-${v.youtubeVideoId || v.id}`) === baseSlug;
-  });
-
-  if (duplicates.length > 1) {
-    const ytId = (video.youtubeVideoId || video.id || "").toLowerCase();
-    return `${baseSlug}-${ytId}`;
-  }
-
-  return baseSlug;
+  if (video.slug && video.slug.trim()) return video.slug.trim();
+  return slugifyVideoTitle(video.title, video.youtubeVideoId);
 }
 
 export function getVideoByIdOrSlug(idOrSlug: string): VideoItem | null {
   if (!idOrSlug) return null;
   const videos = readVideosFromStore();
-  const lower = decodeURIComponent(idOrSlug).toLowerCase().trim().replace(/^vid-/, "");
+  const raw = decodeURIComponent(idOrSlug).trim();
+  const lower = raw.toLowerCase().replace(/^vid-/, "");
 
-  // 1. Direct ID / YouTube ID match
+  // 1. Exact slug match (primary for SEO URLs)
+  const slugMatch = videos.find(
+    (v) => (v.slug || "").toLowerCase() === raw.toLowerCase() || (v.slug || "").toLowerCase() === lower
+  );
+  if (slugMatch) return slugMatch;
+
+  // 2. Direct ID / YouTube ID match
   const directMatch = videos.find(
     (v) =>
       v.id.toLowerCase() === `vid-${lower}` ||
@@ -227,20 +221,17 @@ export function getVideoByIdOrSlug(idOrSlug: string): VideoItem | null {
   );
   if (directMatch) return directMatch;
 
-  // 2. Match by computed video slug
+  // 3. Match by computed video slug
   for (const v of videos) {
-    if (getVideoSlug(v, videos) === lower) {
+    if (getVideoSlug(v, videos).toLowerCase() === lower) {
       return v;
     }
   }
 
-  // 3. Fallback normalized title match
+  // 4. Fallback normalized title match
   return (
     videos.find((v) => {
-      const titleSlug = (v.title || "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
+      const titleSlug = slugifyVideoTitle(v.title, v.youtubeVideoId);
       return titleSlug === lower || lower.startsWith(titleSlug);
     }) || null
   );
@@ -259,17 +250,35 @@ export function upsertVideo(videoData: Partial<VideoItem> & { youtubeVideoId: st
 
   if (existingIdx >= 0) {
     const existing = videos[existingIdx];
+    const slug =
+      videoData.slug ||
+      existing.slug ||
+      slugifyVideoTitle(videoData.title || existing.title, videoData.youtubeVideoId);
+
     finalVideo = normalizeVideo({
       ...existing,
       ...videoData,
+      slug,
       updatedAt: now,
     });
     videos[existingIdx] = finalVideo;
     isNew = false;
   } else {
+    const existingSlugs = new Set<string>(
+      videos.map((v) => v.slug).filter((s): s is string => typeof s === "string" && s.length > 0)
+    );
+    const slug =
+      videoData.slug ||
+      generateUniqueSlug(
+        videoData.title || "Untitled Cabin Video",
+        videoData.youtubeVideoId,
+        existingSlugs
+      );
+
     finalVideo = normalizeVideo({
       id: `vid-${videoData.youtubeVideoId}`,
       youtubeVideoId: videoData.youtubeVideoId,
+      slug,
       title: videoData.title || "Untitled Cabin Video",
       category: videoData.category || "Building Tours",
       duration: videoData.duration || "4:00",
@@ -293,6 +302,17 @@ export function upsertVideo(videoData: Partial<VideoItem> & { youtubeVideoId: st
 
   writeVideosToStore(videos);
 
+  // Maintain permanent 301 legacy redirects
+  try {
+    if (fs && fs.existsSync(REDIRECTS_FILE_PATH)) {
+      const redirects = JSON.parse(fs.readFileSync(REDIRECTS_FILE_PATH, "utf-8"));
+      const targetUrl = `/videos/${finalVideo.slug}`;
+      redirects[`/videos/${finalVideo.youtubeVideoId}`] = targetUrl;
+      redirects[`/videos/${finalVideo.youtubeVideoId.toLowerCase()}`] = targetUrl;
+      fs.writeFileSync(REDIRECTS_FILE_PATH, JSON.stringify(redirects, null, 2), "utf-8");
+    }
+  } catch (e) {}
+
   // Background sync to Supabase `videos` table if configured
   if (isSupabaseConfigured()) {
     (async () => {
@@ -301,11 +321,13 @@ export function upsertVideo(videoData: Partial<VideoItem> & { youtubeVideoId: st
           {
             id: finalVideo.id,
             youtube_video_id: finalVideo.youtubeVideoId,
+            slug: finalVideo.slug,
             title: finalVideo.title,
             category: finalVideo.category,
             duration: finalVideo.duration,
             description: finalVideo.description,
             thumbnail: finalVideo.thumbnail,
+            model_slug: finalVideo.modelSlug || null,
             views: finalVideo.views,
             date: finalVideo.date,
             published_at: finalVideo.publishedAt,
@@ -325,6 +347,67 @@ export function upsertVideo(videoData: Partial<VideoItem> & { youtubeVideoId: st
   }
 
   return { video: finalVideo, isNew };
+}
+
+export function updateVideoSlug(
+  id: string,
+  newSlug: string
+): { success: boolean; message: string; video?: VideoItem } {
+  const videos = readVideosFromStore();
+  const idx = videos.findIndex((v) => v.id === id || v.youtubeVideoId === id || v.slug === id);
+  if (idx < 0) {
+    return { success: false, message: "Video not found" };
+  }
+
+  const cleanSlug = newSlug
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  if (!cleanSlug || cleanSlug.length < 2) {
+    return { success: false, message: "Slug must contain at least 2 characters (letters, numbers, hyphens)." };
+  }
+
+  // Check uniqueness across other videos
+  const existing = videos.find((v, i) => i !== idx && v.slug && v.slug.toLowerCase() === cleanSlug);
+  if (existing) {
+    return { success: false, message: `Slug '${cleanSlug}' is already taken by another video.` };
+  }
+
+  const oldSlug = videos[idx].slug;
+  videos[idx].slug = cleanSlug;
+  videos[idx].updatedAt = new Date().toISOString();
+  writeVideosToStore(videos);
+
+  // Update 301 redirects
+  try {
+    if (fs && fs.existsSync(REDIRECTS_FILE_PATH)) {
+      const redirects = JSON.parse(fs.readFileSync(REDIRECTS_FILE_PATH, "utf-8"));
+      const newTarget = `/videos/${cleanSlug}`;
+      if (oldSlug && oldSlug !== cleanSlug) {
+        redirects[`/videos/${oldSlug}`] = newTarget;
+        redirects[`/videos/${oldSlug.toLowerCase()}`] = newTarget;
+      }
+      redirects[`/videos/${videos[idx].youtubeVideoId}`] = newTarget;
+      redirects[`/videos/${videos[idx].youtubeVideoId.toLowerCase()}`] = newTarget;
+      fs.writeFileSync(REDIRECTS_FILE_PATH, JSON.stringify(redirects, null, 2), "utf-8");
+    }
+  } catch (e) {}
+
+  // Update Supabase
+  if (isSupabaseConfigured()) {
+    (async () => {
+      try {
+        await supabaseAdmin
+          .from("videos")
+          .update({ slug: cleanSlug, updated_at: videos[idx].updatedAt })
+          .eq("id", videos[idx].id);
+      } catch (e) {}
+    })();
+  }
+
+  return { success: true, message: "Slug updated successfully", video: videos[idx] };
 }
 
 export function batchUpsertVideos(videosData: Partial<VideoItem>[]): {

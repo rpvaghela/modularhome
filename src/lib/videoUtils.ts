@@ -58,6 +58,7 @@ export function resolveVideoEmbedUrl(
 
 export function getVideoSlug(video?: Partial<VideoItem> | null, allVideos?: Partial<VideoItem>[]): string {
   if (!video) return "";
+  if (video.slug && video.slug.trim()) return video.slug.trim();
   const rawTitle = (video.title || "video")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")

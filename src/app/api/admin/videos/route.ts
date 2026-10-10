@@ -5,6 +5,7 @@ import {
   toggleVideoPublish, 
   deleteLocalVideo, 
   upsertVideo, 
+  updateVideoSlug,
   readSyncStats 
 } from "@/lib/videoStore";
 import { requireAdminAuth } from "@/lib/auth";
@@ -50,7 +51,18 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { action, id, category, isPublished, videoData } = body;
+    const { action, id, category, isPublished, videoData, slug } = body;
+
+    if (action === "updateSlug") {
+      if (!id || !slug) {
+        return NextResponse.json({ success: false, message: "ID and Slug are required" }, { status: 400 });
+      }
+      const res = updateVideoSlug(id, slug);
+      if (!res.success) {
+        return NextResponse.json({ success: false, message: res.message }, { status: 400 });
+      }
+      return NextResponse.json({ success: true, message: res.message, video: res.video });
+    }
 
     if (action === "updateCategory") {
       if (!id || !category) {

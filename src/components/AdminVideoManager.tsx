@@ -17,7 +17,11 @@ import {
   Search,
   X,
   FileText,
-  Loader2
+  Loader2,
+  Edit2,
+  Link2,
+  Copy,
+  Check
 } from "lucide-react";
 import { VideoItem, SyncStats } from "@/types/video";
 import { useConfirm } from "@/context/ConfirmDialogContext";
@@ -44,6 +48,13 @@ export default function AdminVideoManager() {
   const [fetchedVideo, setFetchedVideo] = useState<Partial<VideoItem> | null>(null);
   const [manualPublish, setManualPublish] = useState(true);
   const [fetchError, setFetchError] = useState("");
+
+  // Modal for Edit SEO Slug
+  const [editingSlugVideo, setEditingSlugVideo] = useState<VideoItem | null>(null);
+  const [newSlugInput, setNewSlugInput] = useState("");
+  const [slugError, setSlugError] = useState("");
+  const [isSavingSlug, setIsSavingSlug] = useState(false);
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -267,6 +278,71 @@ export default function AdminVideoManager() {
     }
   };
 
+  const handleOpenEditSlug = (video: VideoItem) => {
+    setEditingSlugVideo(video);
+    setNewSlugInput(video.slug || video.youtubeVideoId);
+    setSlugError("");
+  };
+
+  const handleCopySlug = (slugText: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(`https://modularhome.com/videos/${slugText}`);
+      setCopiedSlug(slugText);
+      setTimeout(() => setCopiedSlug(null), 2000);
+    }
+  };
+
+  const handleSaveSlug = async () => {
+    if (!editingSlugVideo) return;
+    const clean = newSlugInput
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    if (!clean || clean.length < 2) {
+      setSlugError("Slug must contain at least 2 characters (letters, numbers, hyphens).");
+      return;
+    }
+
+    setIsSavingSlug(true);
+    setSlugError("");
+
+    try {
+      const vId = editingSlugVideo.id || editingSlugVideo.youtubeVideoId;
+      const res = await fetch("/api/admin/videos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "updateSlug",
+          id: vId,
+          slug: clean,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setVideos((prev) =>
+          prev.map((v) =>
+            v.id === editingSlugVideo.id || v.youtubeVideoId === editingSlugVideo.youtubeVideoId
+              ? { ...v, slug: clean }
+              : v
+          )
+        );
+        setEditingSlugVideo(null);
+        setSyncMessage({
+          type: "success",
+          text: `SEO Slug updated to "/videos/${clean}". Old URLs will 301 permanently redirect to this address.`,
+        });
+      } else {
+        setSlugError(data.message || "Failed to update slug.");
+      }
+    } catch (err: any) {
+      setSlugError(err.message || "Failed to update slug.");
+    } finally {
+      setIsSavingSlug(false);
+    }
+  };
+
   const filteredVideos = videos.filter((v) => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return true;
@@ -437,6 +513,7 @@ export default function AdminVideoManager() {
               <thead>
                 <tr className="bg-[#f6f7f9] border-b border-[#e7e9ee] text-[#6b7280] uppercase text-[10px] font-bold tracking-wider">
                   <th className="py-3.5 px-4">Video</th>
+                  <th className="py-3.5 px-4">SEO Slug / URL</th>
                   <th className="py-3.5 px-4">YouTube ID</th>
                   <th className="py-3.5 px-4">Published Date</th>
                   <th className="py-3.5 px-4 text-center">Website Visibility</th>
@@ -446,6 +523,7 @@ export default function AdminVideoManager() {
               <tbody className="divide-y divide-[#e7e9ee]">
                 {filteredVideos.map((video) => {
                   const vId = video.id || (video as any)._id;
+                  const currentSlug = video.slug || video.youtubeVideoId;
                   return (
                     <tr key={vId} className="hover:bg-[#f6f7f9]/60 transition-colors">
                       <td className="py-3.5 px-4">
@@ -469,6 +547,32 @@ export default function AdminVideoManager() {
                               {video.views} • {video.date}
                             </div>
                           </div>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-1.5 max-w-[280px]">
+                          <span className="font-mono text-[11px] text-[#101114] bg-[#f6f7f9] border border-[#e7e9ee] px-2 py-1 rounded-lg truncate" title={`/videos/${currentSlug}`}>
+                            /{currentSlug}
+                          </span>
+                          <button
+                            onClick={() => handleCopySlug(currentSlug)}
+                            title="Copy URL"
+                            className="p-1 text-[#6b7280] hover:text-[#101114] hover:bg-[#f6f7f9] rounded-md transition-colors shrink-0 cursor-pointer"
+                          >
+                            {copiedSlug === currentSlug ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleOpenEditSlug(video)}
+                            title="Edit SEO Slug"
+                            className="p-1 text-[#b45309] hover:bg-amber-50 rounded-md transition-colors shrink-0 cursor-pointer"
+                          >
+                            <Edit2 className="w-3.5 h-3.5 text-[#d97706]" />
+                          </button>
                         </div>
                       </td>
 
@@ -526,7 +630,7 @@ export default function AdminVideoManager() {
                           </button>
 
                           <Link
-                            href={`/videos/${video.youtubeVideoId}`}
+                            href={`/videos/${video.slug || video.youtubeVideoId}`}
                             target="_blank"
                             title="View on Website"
                             className="p-2 text-[#101114] hover:text-[#d97706] hover:bg-[#f6f7f9] border border-[#d5d9e0] rounded-xl transition-colors"
@@ -665,6 +769,98 @@ export default function AdminVideoManager() {
                 className="px-5 py-2 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider rounded-xl transition-all disabled:opacity-50 cursor-pointer shadow-xs"
               >
                 Publish To Website
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. EDIT VIDEO SEO SLUG MODAL */}
+      {editingSlugVideo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="relative max-w-lg w-full bg-white border border-[#e7e9ee] rounded-[22px] p-6 sm:p-7 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#e7e9ee]">
+              <h3 className="text-base font-serif font-bold text-[#101114] flex items-center gap-2">
+                <Edit2 className="w-4 h-4 text-[#fcb907]" />
+                Edit Video SEO Slug
+              </h3>
+              <button
+                onClick={() => setEditingSlugVideo(null)}
+                className="p-1.5 rounded-xl text-[#6b7280] hover:text-[#101114] hover:bg-[#f6f7f9] cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 bg-[#f6f7f9] border border-[#e7e9ee] rounded-xl">
+              <div className="relative w-16 aspect-[16/10] bg-gray-200 rounded-lg overflow-hidden shrink-0 border border-[#e7e9ee]">
+                <Image
+                  src={editingSlugVideo.thumbnail}
+                  alt={editingSlugVideo.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-[#101114] line-clamp-1">{editingSlugVideo.title}</div>
+                <div className="text-[11px] text-[#6b7280] font-mono">YouTube ID: {editingSlugVideo.youtubeVideoId}</div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[#101114]">
+                Custom URL Slug (Kebab-case)
+              </label>
+              <input
+                type="text"
+                value={newSlugInput}
+                onChange={(e) => {
+                  setNewSlugInput(e.target.value);
+                  setSlugError("");
+                }}
+                placeholder="descriptive-video-title-slug"
+                className="w-full bg-[#f6f7f9] border border-[#d5d9e0] px-4 py-2.5 text-xs text-[#101114] font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907] rounded-xl"
+              />
+              <div className="text-[11px] text-[#6b7280] flex items-center gap-1">
+                <span>Live URL:</span>
+                <span className="font-mono text-[#101114] font-bold truncate">
+                  https://modularhome.com/videos/{newSlugInput.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "..."}
+                </span>
+              </div>
+              <p className="text-[10px] text-[#6b7280] leading-relaxed">
+                Note: Updating this slug automatically creates permanent 301 redirects from the YouTube ID and any previous slug.
+              </p>
+            </div>
+
+            {slugError && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-900 text-xs rounded-xl flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                <span>{slugError}</span>
+              </div>
+            )}
+
+            <div className="pt-3 flex items-center justify-end gap-2 border-t border-[#e7e9ee]">
+              <button
+                type="button"
+                onClick={() => setEditingSlugVideo(null)}
+                className="px-4 py-2 bg-white hover:bg-[#f6f7f9] text-[#101114] border border-[#d5d9e0] text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveSlug}
+                disabled={isSavingSlug || !newSlugInput.trim()}
+                className="px-5 py-2 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider rounded-xl transition-all disabled:opacity-50 cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+              >
+                {isSavingSlug ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <span>Save SEO Slug</span>
+                )}
               </button>
             </div>
           </div>

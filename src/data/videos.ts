@@ -16,6 +16,7 @@ export const VIDEO_CATEGORIES = [
 export const VIDEOS_DATA: VideoItem[] = (syncedVideosData as any[]).map((v) => ({
   id: v.id || `vid-${v.youtubeVideoId}`,
   youtubeVideoId: v.youtubeVideoId,
+  slug: v.slug || v.youtubeVideoId,
   title: v.title || "Modular Home & Cabin Tour",
   category: v.category || "Building Tours",
   duration: v.duration || "4:00",

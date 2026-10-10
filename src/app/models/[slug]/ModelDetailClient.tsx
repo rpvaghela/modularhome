@@ -180,6 +180,7 @@ export default function ModelDetailClient({
     setActiveVideo({
       id: `vid-${model?.id || "preview"}`,
       youtubeVideoId: "MHWHDE87Pp4",
+      slug: model?.slug ? `${model.slug}-video-tour` : "modular-cabin-tour",
       title: model?.videoTitle || `${model?.name || "Model"} Architectural Walkthrough`,
       category: "Building Tours",
       duration: model?.videoDuration || "4:30 min",
