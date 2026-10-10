@@ -136,13 +136,14 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* 1. PROFESSIONAL ARCHITECTURAL HERO SECTION */}
-      <section className="min-h-[580px] sm:min-h-[640px] lg:min-h-[690px] text-white flex items-center relative overflow-hidden pb-8 sm:pb-12">
-        {/* Next.js Preloaded Hero Image for Optimized LCP */}
+      <section className="min-h-[580px] sm:min-h-[640px] lg:min-h-[690px] bg-[#0b0f17] text-white flex items-center relative overflow-hidden pb-8 sm:pb-12">
+        {/* Next.js Preloaded Hero Image - Unoptimized to load directly from Unsplash CDN and bypass proxy */}
         <Image
           src={heroBgImage}
           alt={heroHeading || "ModularHome.com Architectural Models"}
           fill
           priority
+          unoptimized
           sizes="100vw"
           className="object-cover object-center -z-20"
         />

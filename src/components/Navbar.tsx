@@ -457,6 +457,7 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                   width={400}
                   height={85}
                   priority
+                  unoptimized
                   className="h-8.5 xs:h-9.5 sm:h-12 md:h-14 lg:h-[58px] xl:h-[64px] w-auto max-w-[185px] xs:max-w-[235px] sm:max-w-[310px] md:max-w-[360px] lg:max-w-[420px] xl:max-w-none object-contain hover:opacity-90 transition-opacity"
                 />
               </Link>
@@ -1020,6 +1021,7 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                   alt="ModularHome.com"
                   width={300}
                   height={65}
+                  unoptimized
                   className="h-10 sm:h-12 w-auto max-w-[200px] object-contain"
                 />
               </Link>
