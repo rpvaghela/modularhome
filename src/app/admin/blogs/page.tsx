@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -16,6 +16,9 @@ import {
   EyeOff,
   Calendar,
   RefreshCw,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { useConfirm } from "@/context/ConfirmDialogContext";
 
@@ -24,6 +27,7 @@ export default function AdminBlogsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState<"latest" | "oldest" | "title-asc" | "title-desc">("latest");
   const confirm = useConfirm();
 
   const fetchBlogs = async () => {
@@ -97,23 +101,47 @@ export default function AdminBlogsPage() {
     }
   };
 
-  const filteredBlogs = (blogs || []).filter((blog) => {
-    if (statusFilter !== "ALL" && (blog.status || "").toUpperCase() !== statusFilter.toUpperCase()) {
-      return false;
-    }
-    if (search.trim()) {
-      const q = search.toLowerCase().trim();
-      const titleMatch = (blog.title || "").toLowerCase().includes(q);
-      const slugMatch = (blog.slug || "").toLowerCase().includes(q);
-      const catMatch = (blog.category || "").toLowerCase().includes(q);
-      const authorMatch = (blog.author || "").toLowerCase().includes(q);
-      const excerptMatch = (blog.excerpt || "").toLowerCase().includes(q);
-      if (!titleMatch && !slugMatch && !catMatch && !authorMatch && !excerptMatch) {
+  const filteredAndSortedBlogs = useMemo(() => {
+    const list = (blogs || []).filter((blog) => {
+      if (statusFilter !== "ALL" && (blog.status || "").toUpperCase() !== statusFilter.toUpperCase()) {
         return false;
       }
-    }
-    return true;
-  });
+      if (search.trim()) {
+        const q = search.toLowerCase().trim();
+        const titleMatch = (blog.title || "").toLowerCase().includes(q);
+        const slugMatch = (blog.slug || "").toLowerCase().includes(q);
+        const catMatch = (blog.category || "").toLowerCase().includes(q);
+        const authorMatch = (blog.author || "").toLowerCase().includes(q);
+        const excerptMatch = (blog.excerpt || "").toLowerCase().includes(q);
+        if (!titleMatch && !slugMatch && !catMatch && !authorMatch && !excerptMatch) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    return [...list].sort((a, b) => {
+      const getTimestamp = (item: any) => {
+        const val = item.publishedAt || item.published_at || item.date || item.createdAt || "";
+        const time = new Date(val).getTime();
+        return isNaN(time) ? 0 : time;
+      };
+
+      if (sortBy === "latest") {
+        return getTimestamp(b) - getTimestamp(a);
+      }
+      if (sortBy === "oldest") {
+        return getTimestamp(a) - getTimestamp(b);
+      }
+      if (sortBy === "title-asc") {
+        return (a.title || "").localeCompare(b.title || "");
+      }
+      if (sortBy === "title-desc") {
+        return (b.title || "").localeCompare(a.title || "");
+      }
+      return 0;
+    });
+  }, [blogs, statusFilter, search, sortBy]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300 pb-12">
@@ -138,8 +166,8 @@ export default function AdminBlogsPage() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-[20px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-80">
+      <div className="bg-white p-4 sm:p-5 rounded-[20px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <form onSubmit={handleSearchSubmit} className="relative w-full md:w-80">
           <input
             type="text"
             value={search}
@@ -150,18 +178,34 @@ export default function AdminBlogsPage() {
           <Search className="w-4 h-4 text-[#6b7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
         </form>
 
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-[#101114] font-bold uppercase tracking-wider font-mono">Status:</span>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3.5 py-2 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none cursor-pointer"
-          >
-            <option value="ALL">All Articles ({blogs.length})</option>
-            <option value="PUBLISHED">Published</option>
-            <option value="DRAFT">Drafts</option>
-            <option value="ARCHIVED">Archived</option>
-          </select>
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[#101114] font-bold uppercase tracking-wider font-mono">Sort:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="px-3.5 py-2 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none cursor-pointer"
+            >
+              <option value="latest">Latest Date First (Newest)</option>
+              <option value="oldest">Oldest Date First</option>
+              <option value="title-asc">Title (A - Z)</option>
+              <option value="title-desc">Title (Z - A)</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[#101114] font-bold uppercase tracking-wider font-mono">Status:</span>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3.5 py-2 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none cursor-pointer"
+            >
+              <option value="ALL">All Articles ({blogs.length})</option>
+              <option value="PUBLISHED">Published</option>
+              <option value="DRAFT">Drafts</option>
+              <option value="ARCHIVED">Archived</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -172,7 +216,7 @@ export default function AdminBlogsPage() {
             <Loader2 className="w-6 h-6 animate-spin text-[#fcb907]" />
             <span>Loading articles...</span>
           </div>
-        ) : filteredBlogs.length === 0 ? (
+        ) : filteredAndSortedBlogs.length === 0 ? (
           <div className="py-20 text-center text-[#6b7280] text-xs font-medium space-y-2">
             <div>No articles match your search or filter criteria.</div>
             {search && (
@@ -188,20 +232,53 @@ export default function AdminBlogsPage() {
         ) : (
           <div className="overflow-x-auto">
             <div className="px-5 py-3 bg-[#fbfbfc] border-b border-[#e7e9ee] text-xs text-[#6b7280] font-medium flex items-center justify-between">
-              <span>Showing <strong>{filteredBlogs.length}</strong> of {blogs.length} articles</span>
+              <span>Showing <strong>{filteredAndSortedBlogs.length}</strong> of {blogs.length} articles</span>
+              <span className="text-[11px] text-[#9ca3af]">
+                Sorted: <strong className="text-[#101114]">{sortBy === "latest" ? "Latest Date First" : sortBy === "oldest" ? "Oldest Date First" : sortBy === "title-asc" ? "Title A-Z" : "Title Z-A"}</strong>
+              </span>
             </div>
             <table className="w-full text-left border-collapse text-xs min-w-[750px]">
               <thead>
                 <tr className="bg-[#f8f9fa] border-b border-[#e7e9ee] text-[#6b7280] font-bold uppercase tracking-wider text-[10px] font-mono">
-                  <th className="py-4 px-5">Article Details</th>
+                  <th 
+                    onClick={() => setSortBy(sortBy === "title-asc" ? "title-desc" : "title-asc")}
+                    className="py-4 px-5 cursor-pointer hover:text-[#101114] transition-colors select-none"
+                    title="Click to sort by Title"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span>Article Details</span>
+                      {sortBy === "title-asc" ? (
+                        <ArrowUp className="w-3.5 h-3.5 text-[#d97706]" />
+                      ) : sortBy === "title-desc" ? (
+                        <ArrowDown className="w-3.5 h-3.5 text-[#d97706]" />
+                      ) : (
+                        <ArrowUpDown className="w-3.5 h-3.5 text-[#9ca3af] opacity-60" />
+                      )}
+                    </div>
+                  </th>
                   <th className="py-4 px-5">Author</th>
-                  <th className="py-4 px-5">Published Date</th>
+                  <th 
+                    onClick={() => setSortBy(sortBy === "latest" ? "oldest" : "latest")}
+                    className="py-4 px-5 cursor-pointer hover:text-[#101114] transition-colors select-none"
+                    title="Click to sort by Published Date"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span>Published Date</span>
+                      {sortBy === "latest" ? (
+                        <ArrowDown className="w-3.5 h-3.5 text-[#d97706]" />
+                      ) : sortBy === "oldest" ? (
+                        <ArrowUp className="w-3.5 h-3.5 text-[#d97706]" />
+                      ) : (
+                        <ArrowUpDown className="w-3.5 h-3.5 text-[#9ca3af] opacity-60" />
+                      )}
+                    </div>
+                  </th>
                   <th className="py-4 px-5">Status</th>
                   <th className="py-4 px-5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#e7e9ee]">
-                {filteredBlogs.map((blog) => {
+                {filteredAndSortedBlogs.map((blog) => {
                   const targetSlug = blog.slug || (blog.id ? String(blog.id).replace(/[^a-zA-Z0-9_-]/g, "-") : "article");
                   const editUrl = `/admin/blogs/${encodeURIComponent(targetSlug)}`;
                   const previewUrl = `/resources/${blog.slug || targetSlug}`;

@@ -117,6 +117,13 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Sort latest date first (newest publication date at top)
+    merged.sort((a, b) => {
+      const timeA = new Date(a.publishedAt || a.published_at || a.date || a.createdAt || a.created_at || 0).getTime();
+      const timeB = new Date(b.publishedAt || b.published_at || b.date || b.createdAt || b.created_at || 0).getTime();
+      return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+    });
+
     let filtered = merged;
     if (status && status !== "ALL") {
       filtered = filtered.filter((b) => (b.status || "").toUpperCase() === status.toUpperCase());
