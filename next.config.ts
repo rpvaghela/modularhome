@@ -2,8 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // Sharp is installed in dependencies. Enabled by default; can be opted-out via NEXT_IMAGE_UNOPTIMIZED=true.
-    unoptimized: process.env.NEXT_IMAGE_UNOPTIMIZED === "true",
+    // On SiteGround Phusion Passenger hosting, Nginx reverse proxy blocks /_next/image (403 Forbidden).
+    // Serving direct CDN URLs (Shopify CDN, Unsplash, Supabase) bypasses the origin proxy, ensures 100% image availability, and prevents server CPU spikes.
+    unoptimized: process.env.NEXT_IMAGE_OPTIMIZATION === "true" ? false : true,
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
