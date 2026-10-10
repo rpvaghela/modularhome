@@ -253,15 +253,25 @@ export default function HomeSearchBox({
   };
 
   const handleQuickFilter = (type: string, val: string) => {
-    if (type === "category") setHomeType(val);
-    if (type === "budget") setBudget(val);
-    if (type === "beds") setBedrooms(val);
+    if (type === "category") {
+      setHomeType(val);
+      if (val === "Modular Homes") router.push("/modular-homes");
+      else if (val === "Barndominiums") router.push("/barndominiums");
+      else if (val === "Cabins") router.push("/cabins");
+      else router.push(`/buildings?category=${encodeURIComponent(val)}`);
+    } else if (type === "budget") {
+      setBudget(val);
+      router.push(`/buildings?budget=${encodeURIComponent(val)}`);
+    } else if (type === "beds") {
+      setBedrooms(val);
+      router.push(`/buildings?beds=${encodeURIComponent(val)}`);
+    }
   };
 
   return (
     <section className="py-8 sm:py-12 bg-white">
       <div className="wrap">
-        <div className="card p-4 sm:p-7 shadow-sm border border-[#e7e9ee]">
+        <div className="card p-4 sm:p-7 pb-5 sm:pb-7 shadow-sm border border-[#e7e9ee]">
           {/* Header & Badges */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4 sm:mb-6">
             <div>
@@ -373,15 +383,17 @@ export default function HomeSearchBox({
           </form>
 
           {/* Quick Filter Suggestion Pills & Trust Badge */}
-          <div className="mt-4 pt-3.5 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2.5 text-xs text-[#6b7280]">
-            <div className="flex flex-wrap items-center gap-1.5 font-bold">
-              <span className="text-[11px] text-[#9ca3af] uppercase tracking-wider mr-1">Popular:</span>
+          <div className="mt-4 pt-3.5 border-t border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs text-[#6b7280]">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth py-1 -mx-1 px-1 md:flex-wrap md:overflow-visible">
+              <span className="text-[10.5px] font-black text-[#9ca3af] uppercase tracking-wider shrink-0 mr-1">
+                Popular:
+              </span>
               <button
                 type="button"
                 onClick={() => handleQuickFilter("category", "Modular Homes")}
-                className={`px-2.5 py-1 rounded-full text-[11px] transition-colors cursor-pointer ${
+                className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   homeType === "Modular Homes"
-                    ? "bg-[#fcb907] text-[#101114] font-black"
+                    ? "bg-[#fcb907] text-[#101114] font-black shadow-xs"
                     : "bg-gray-100 hover:bg-gray-200 text-[#4b5563]"
                 }`}
               >
@@ -390,9 +402,9 @@ export default function HomeSearchBox({
               <button
                 type="button"
                 onClick={() => handleQuickFilter("category", "Barndominiums")}
-                className={`px-2.5 py-1 rounded-full text-[11px] transition-colors cursor-pointer ${
+                className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   homeType === "Barndominiums"
-                    ? "bg-[#fcb907] text-[#101114] font-black"
+                    ? "bg-[#fcb907] text-[#101114] font-black shadow-xs"
                     : "bg-gray-100 hover:bg-gray-200 text-[#4b5563]"
                 }`}
               >
@@ -401,9 +413,9 @@ export default function HomeSearchBox({
               <button
                 type="button"
                 onClick={() => handleQuickFilter("category", "Cabins")}
-                className={`px-2.5 py-1 rounded-full text-[11px] transition-colors cursor-pointer ${
+                className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   homeType === "Cabins"
-                    ? "bg-[#fcb907] text-[#101114] font-black"
+                    ? "bg-[#fcb907] text-[#101114] font-black shadow-xs"
                     : "bg-gray-100 hover:bg-gray-200 text-[#4b5563]"
                 }`}
               >
@@ -412,9 +424,9 @@ export default function HomeSearchBox({
               <button
                 type="button"
                 onClick={() => handleQuickFilter("budget", "under-75k")}
-                className={`px-2.5 py-1 rounded-full text-[11px] transition-colors cursor-pointer ${
+                className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   budget === "under-75k"
-                    ? "bg-[#fcb907] text-[#101114] font-black"
+                    ? "bg-[#fcb907] text-[#101114] font-black shadow-xs"
                     : "bg-gray-100 hover:bg-gray-200 text-[#4b5563]"
                 }`}
               >
@@ -423,9 +435,9 @@ export default function HomeSearchBox({
               <button
                 type="button"
                 onClick={() => handleQuickFilter("beds", "3")}
-                className={`px-2.5 py-1 rounded-full text-[11px] transition-colors cursor-pointer ${
+                className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   bedrooms === "3"
-                    ? "bg-[#fcb907] text-[#101114] font-black"
+                    ? "bg-[#fcb907] text-[#101114] font-black shadow-xs"
                     : "bg-gray-100 hover:bg-gray-200 text-[#4b5563]"
                 }`}
               >
@@ -433,8 +445,8 @@ export default function HomeSearchBox({
               </button>
             </div>
 
-            <div className="flex items-center gap-1.5 text-[11.5px] font-bold text-[#4b5563] ml-auto">
-              <ShieldCheck className="w-4 h-4 text-[#d97706]" />
+            <div className="flex items-center justify-center md:justify-end gap-1.5 text-[11.5px] font-bold text-[#4b5563] pt-2 md:pt-0 border-t md:border-t-0 border-gray-100 shrink-0 w-full md:w-auto">
+              <ShieldCheck className="w-4 h-4 text-[#d97706] shrink-0" />
               <span>50-State IRC Certified &amp; Turnkey Delivery</span>
             </div>
           </div>
