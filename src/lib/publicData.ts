@@ -930,7 +930,14 @@ export function formatBlogArticle(b: any): ResourceArticle {
     slug: cleanSlug,
     handle: cleanSlug,
     excerpt: b.excerpt || b.seo_description || b.meta_description || b.metaDescription || "",
-    content: typeof b.body_html === "string" ? [b.body_html] : (Array.isArray(b.content) ? b.content : (b.content ? [b.content] : [])),
+    introduction: b.introduction || b.intro || b.intro_text || "",
+    content: typeof b.body_html === "string" && b.body_html.trim()
+      ? [b.body_html]
+      : (Array.isArray(b.content) && b.content.length > 0
+          ? b.content
+          : (typeof b.content === "string" && b.content.trim()
+              ? [b.content]
+              : (b.introduction ? [`<p>${b.introduction}</p>`] : []))),
     category: cat,
     category_slug: catSlug,
     readTime: b.readTime || b.read_time || "5 min read",
@@ -978,7 +985,7 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
         const customStored = readBlogsFromStore();
         for (const raw of customStored) {
           if (!raw || (!raw.slug && !raw.id)) continue;
-          if (raw.status === "DRAFT") continue;
+          if ((raw.status || "").toUpperCase() === "DRAFT" || (raw.status || "").toUpperCase() === "ARCHIVED") continue;
           const art = formatBlogArticle(raw);
           if (art && art.slug) {
             const clean = art.slug.toLowerCase().trim();
@@ -1008,6 +1015,7 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
 
           if (!error && dbPosts && dbPosts.length > 0) {
             for (const raw of dbPosts) {
+              if ((raw.status || "").toUpperCase() === "DRAFT" || (raw.status || "").toUpperCase() === "ARCHIVED") continue;
               const art = formatBlogArticle(raw);
               if (art && art.slug) {
                 const clean = art.slug.toLowerCase().trim();
@@ -1035,6 +1043,13 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
           }
         }
       }
+
+      // Sort newest published articles to the top
+      merged.sort((a, b) => {
+        const timeA = new Date(a.published_at || a.created_at || a.date || 0).getTime();
+        const timeB = new Date(b.published_at || b.created_at || b.date || 0).getTime();
+        return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+      });
 
       blogsList = merged.length > 0 ? merged : [...RESOURCE_ARTICLES].map(formatBlogArticle);
       setCached(cacheKey, blogsList, 60000);

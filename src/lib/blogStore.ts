@@ -108,16 +108,44 @@ export function writeBlogsToStore(blogs: StoredBlog[]): void {
   }
 }
 
-export function saveCustomBlog(blogData: Partial<StoredBlog> & { title: string; slug: string }): StoredBlog {
+export function saveCustomBlog(blogData: Partial<StoredBlog> & { title?: string; slug?: string }): StoredBlog {
   const blogs = readBlogsFromStore();
-  const cleanSlug = blogData.slug.toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-");
+  const inputSlug = (blogData.slug || "").toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-");
   
   const existingIdx = blogs.findIndex(
-    (b) => (blogData.id && b.id === blogData.id) || b.slug.toLowerCase() === cleanSlug
+    (b) =>
+      (blogData.id && (b.id === blogData.id || b.id.toLowerCase() === blogData.id.toLowerCase())) ||
+      (inputSlug && b.slug.toLowerCase() === inputSlug)
   );
+  const existing = existingIdx >= 0 ? blogs[existingIdx] : null;
 
   const now = new Date().toISOString();
-  const rawDate = blogData.publishedAt || blogData.published_at || (existingIdx >= 0 ? blogs[existingIdx].publishedAt : now);
+  
+  // Resolve clean slug
+  const cleanSlug =
+    inputSlug ||
+    existing?.slug ||
+    (blogData.title ? blogData.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") : `article-${Date.now()}`);
+
+  // Resolve publication date
+  let rawDate =
+    blogData.publishedAt ||
+    blogData.published_at ||
+    blogData.date ||
+    existing?.publishedAt ||
+    existing?.published_at ||
+    now;
+
+  if (typeof rawDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawDate.trim())) {
+    rawDate = new Date(`${rawDate.trim()}T12:00:00.000Z`).toISOString();
+  } else {
+    try {
+      const d = new Date(rawDate);
+      if (!isNaN(d.getTime())) {
+        rawDate = d.toISOString();
+      }
+    } catch {}
+  }
   
   let formattedDisplayDate = "Recent";
   try {
@@ -128,55 +156,93 @@ export function saveCustomBlog(blogData: Partial<StoredBlog> & { title: string; 
     }
   } catch {}
 
+  const title = blogData.title !== undefined ? blogData.title : (existing?.title || "Untitled Article");
+  const content = blogData.content !== undefined ? blogData.content : (existing?.content || "");
+  const image =
+    blogData.featuredImage ||
+    blogData.featured_image ||
+    blogData.image ||
+    existing?.featuredImage ||
+    existing?.featured_image ||
+    existing?.image ||
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80";
+
   const fullBlog: StoredBlog = {
-    id: blogData.id || (existingIdx >= 0 ? blogs[existingIdx].id : `blog_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`),
+    id: blogData.id || existing?.id || `blog_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
     slug: cleanSlug,
-    title: blogData.title,
-    category: blogData.category || (Array.isArray(blogData.categories) && blogData.categories.length > 0 ? blogData.categories[0] : "Building Guides"),
-    readTime: blogData.readTime || "5 min read",
-    excerpt: blogData.excerpt || blogData.metaDescription || blogData.meta_description || "",
-    content: blogData.content || "",
-    image: blogData.featuredImage || blogData.featured_image || blogData.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    featuredImage: blogData.featuredImage || blogData.featured_image || blogData.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    featured_image: blogData.featuredImage || blogData.featured_image || blogData.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+    title,
+    category:
+      blogData.category ||
+      (Array.isArray(blogData.categories) && blogData.categories.length > 0 ? blogData.categories[0] : existing?.category || "Building Guides"),
+    readTime: blogData.readTime || existing?.readTime || "5 min read",
+    excerpt:
+      blogData.excerpt !== undefined
+        ? blogData.excerpt
+        : (blogData.metaDescription || existing?.excerpt || existing?.metaDescription || ""),
+    content,
+    image,
+    featuredImage: image,
+    featured_image: image,
     date: formattedDisplayDate,
     publishedAt: rawDate,
     published_at: rawDate,
-    author: blogData.author || blogData.author_name || "ModularHome Engineering Team",
-    author_name: blogData.author || blogData.author_name || "ModularHome Engineering Team",
-    status: (blogData.status as any) || "PUBLISHED",
-    categories: Array.isArray(blogData.categories) ? blogData.categories : (blogData.category ? [blogData.category] : ["Building Guides"]),
-    tags: Array.isArray(blogData.tags) ? blogData.tags : [],
-    embeddedVideoUrl: blogData.embeddedVideoUrl || blogData.embedded_video_url,
-    embedded_video_url: blogData.embeddedVideoUrl || blogData.embedded_video_url,
-    seoTitle: blogData.seoTitle || blogData.seo_title || `${blogData.title} | ModularHome.com Guide`,
-    seo_title: blogData.seoTitle || blogData.seo_title || `${blogData.title} | ModularHome.com Guide`,
-    metaDescription: blogData.metaDescription || blogData.meta_description || blogData.excerpt,
-    meta_description: blogData.metaDescription || blogData.meta_description || blogData.excerpt,
-    imageAltText: blogData.imageAltText || blogData.image_alt_text || blogData.title,
-    image_alt_text: blogData.imageAltText || blogData.image_alt_text || blogData.title,
-    canonicalUrl: blogData.canonicalUrl || blogData.canonical_url,
-    canonical_url: blogData.canonicalUrl || blogData.canonical_url,
-    keyTakeaways: Array.isArray(blogData.keyTakeaways) ? blogData.keyTakeaways : (Array.isArray(blogData.key_takeaways) ? blogData.key_takeaways : []),
-    key_takeaways: Array.isArray(blogData.keyTakeaways) ? blogData.keyTakeaways : (Array.isArray(blogData.key_takeaways) ? blogData.key_takeaways : []),
+    author: blogData.author || blogData.author_name || existing?.author || "ModularHome Engineering Team",
+    author_name: blogData.author || blogData.author_name || existing?.author || "ModularHome Engineering Team",
+    status: (blogData.status as any) || existing?.status || "PUBLISHED",
+    categories: Array.isArray(blogData.categories)
+      ? blogData.categories
+      : (blogData.category ? [blogData.category] : existing?.categories || ["Building Guides"]),
+    tags: Array.isArray(blogData.tags) ? blogData.tags : (existing?.tags || []),
+    embeddedVideoUrl: blogData.embeddedVideoUrl || blogData.embedded_video_url || existing?.embeddedVideoUrl,
+    embedded_video_url: blogData.embeddedVideoUrl || blogData.embedded_video_url || existing?.embedded_video_url,
+    seoTitle: blogData.seoTitle || blogData.seo_title || existing?.seoTitle || `${title} | ModularHome.com Guide`,
+    seo_title: blogData.seoTitle || blogData.seo_title || existing?.seo_title || `${title} | ModularHome.com Guide`,
+    metaDescription:
+      blogData.metaDescription ||
+      blogData.meta_description ||
+      blogData.excerpt ||
+      existing?.metaDescription ||
+      existing?.excerpt,
+    meta_description:
+      blogData.metaDescription ||
+      blogData.meta_description ||
+      blogData.excerpt ||
+      existing?.meta_description ||
+      existing?.excerpt,
+    imageAltText: blogData.imageAltText || blogData.image_alt_text || existing?.imageAltText || title,
+    image_alt_text: blogData.imageAltText || blogData.image_alt_text || existing?.image_alt_text || title,
+    canonicalUrl: blogData.canonicalUrl || blogData.canonical_url || existing?.canonicalUrl,
+    canonical_url: blogData.canonicalUrl || blogData.canonical_url || existing?.canonical_url,
+    keyTakeaways: Array.isArray(blogData.keyTakeaways)
+      ? blogData.keyTakeaways
+      : (Array.isArray(blogData.key_takeaways) ? blogData.key_takeaways : existing?.keyTakeaways || []),
+    key_takeaways: Array.isArray(blogData.keyTakeaways)
+      ? blogData.keyTakeaways
+      : (Array.isArray(blogData.key_takeaways) ? blogData.key_takeaways : existing?.key_takeaways || []),
     // Extended fields
-    introduction: blogData.introduction || (blogData as any).intro || (blogData as any).intro_text || "",
-    sqft: blogData.sqft,
-    bedrooms: blogData.bedrooms,
-    bathrooms: blogData.bathrooms,
-    stories: blogData.stories,
-    hasLoft: blogData.hasLoft,
-    buildingStyle: blogData.buildingStyle,
-    buildType: blogData.buildType,
-    price: blogData.price || blogData.startingPrice,
-    startingPrice: blogData.startingPrice || blogData.price,
-    qualityBadge: blogData.qualityBadge,
-    pullQuote: blogData.pullQuote,
-    pullQuoteAuthor: blogData.pullQuoteAuthor,
-    customFeatures: Array.isArray(blogData.customFeatures) ? blogData.customFeatures : undefined,
-    heroBackground: blogData.heroBackground,
-    createdAt: blogData.createdAt || (existingIdx >= 0 ? blogs[existingIdx].createdAt : now),
-    created_at: blogData.createdAt || (existingIdx >= 0 ? blogs[existingIdx].createdAt : now),
+    introduction:
+      blogData.introduction !== undefined
+        ? blogData.introduction
+        : ((blogData as any).intro || (blogData as any).intro_text || existing?.introduction || ""),
+    sqft: blogData.sqft !== undefined ? blogData.sqft : existing?.sqft,
+    bedrooms: blogData.bedrooms !== undefined ? blogData.bedrooms : existing?.bedrooms,
+    bathrooms: blogData.bathrooms !== undefined ? blogData.bathrooms : existing?.bathrooms,
+    stories: blogData.stories !== undefined ? blogData.stories : existing?.stories,
+    hasLoft: blogData.hasLoft !== undefined ? blogData.hasLoft : existing?.hasLoft,
+    buildingStyle: blogData.buildingStyle !== undefined ? blogData.buildingStyle : existing?.buildingStyle,
+    buildType: blogData.buildType !== undefined ? blogData.buildType : existing?.buildType,
+    price: blogData.price !== undefined ? blogData.price : (blogData.startingPrice || existing?.price),
+    startingPrice: blogData.startingPrice !== undefined ? blogData.startingPrice : (blogData.price || existing?.startingPrice),
+    qualityBadge: blogData.qualityBadge !== undefined ? blogData.qualityBadge : existing?.qualityBadge,
+    pullQuote: blogData.pullQuote !== undefined ? blogData.pullQuote : existing?.pullQuote,
+    pullQuoteAuthor: blogData.pullQuoteAuthor !== undefined ? blogData.pullQuoteAuthor : existing?.pullQuoteAuthor,
+    customFeatures:
+      blogData.customFeatures !== undefined
+        ? blogData.customFeatures
+        : existing?.customFeatures,
+    heroBackground: blogData.heroBackground !== undefined ? blogData.heroBackground : existing?.heroBackground,
+    createdAt: blogData.createdAt || existing?.createdAt || now,
+    created_at: blogData.createdAt || existing?.created_at || now,
     updatedAt: now,
     updated_at: now,
   };

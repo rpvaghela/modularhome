@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import crypto from "crypto";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { readBlogsFromStore, saveCustomBlog } from "@/lib/blogStore";
@@ -152,11 +154,15 @@ export async function POST(request: NextRequest) {
       title,
       slug,
       excerpt,
+      introduction,
       content,
       featuredImage,
+      heroBackground,
       author,
       publishedAt,
+      date,
       status,
+      category,
       categories,
       tags,
       embeddedVideoUrl,
@@ -178,24 +184,31 @@ export async function POST(request: NextRequest) {
       pullQuote,
       pullQuoteAuthor,
       customFeatures,
-      heroBackground,
     } = body;
 
-    if (!title || !slug || !content) {
+    if (!title || (!content && !introduction)) {
       return NextResponse.json(
-        { success: false, error: { message: "Title, slug, and content are required.", code: "VALIDATION_ERROR" } },
+        { success: false, error: { message: "Title and content (or introduction) are required.", code: "VALIDATION_ERROR" } },
         { status: 400 }
       );
     }
 
-    const cleanSlug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-");
+    const cleanSlug = (slug || title)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9_-]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+    const effectiveContent = content || (introduction ? `<p>${introduction}</p>` : "");
+    const effectiveIntro = introduction || "";
 
     // 1. Always save to local persistent custom_blogs.json
     const savedLocal = saveCustomBlog({
-      title,
+      title: title.trim(),
       slug: cleanSlug,
-      excerpt: excerpt || null,
-      content,
+      excerpt: excerpt || metaDescription || null,
+      introduction: effectiveIntro,
+      content: effectiveContent,
       featuredImage:
         featuredImage ||
         "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
@@ -203,11 +216,12 @@ export async function POST(request: NextRequest) {
         featuredImage ||
         "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
       author: author || "ModularHome Editorial Team",
-      publishedAt: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
-      published_at: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
+      publishedAt: publishedAt || date || new Date().toISOString(),
+      published_at: publishedAt || date || new Date().toISOString(),
+      date: date || publishedAt || undefined,
       status: status || "PUBLISHED",
-      categories: Array.isArray(categories) ? categories : (body.category ? [body.category] : []),
-      category: Array.isArray(categories) && categories.length > 0 ? categories[0] : (body.category || "Building Guides"),
+      categories: Array.isArray(categories) ? categories : (category ? [category] : ["Building Guides"]),
+      category: Array.isArray(categories) && categories.length > 0 ? categories[0] : (category || "Building Guides"),
       tags: Array.isArray(tags) ? tags : [],
       embeddedVideoUrl: embeddedVideoUrl || null,
       embedded_video_url: embeddedVideoUrl || null,
@@ -236,34 +250,52 @@ export async function POST(request: NextRequest) {
       heroBackground: heroBackground || null,
     });
 
-    // 2. Also save to Supabase if configured
+    // 2. Also save to Supabase blog_posts if configured
     if (isSupabaseConfigured()) {
       try {
-        const newBlogDb = {
-          title,
-          slug: cleanSlug,
-          excerpt: excerpt || null,
-          content,
-          featured_image: savedLocal.featuredImage,
+        const catStr = Array.isArray(categories) && categories.length > 0 ? categories[0] : (category || "Building Guides");
+        const tagsStr = Array.isArray(tags) ? tags.join(", ") : (tags || "");
+
+        const { data: existingPost } = await supabaseAdmin
+          .from("blog_posts")
+          .select("id")
+          .eq("handle", cleanSlug)
+          .maybeSingle();
+
+        const dbPostPayload: any = {
+          handle: cleanSlug,
+          title: title.trim(),
+          excerpt: excerpt || metaDescription || null,
+          body_html: effectiveContent,
+          thumbnail_url: savedLocal.featuredImage,
           author: savedLocal.author,
           published_at: savedLocal.publishedAt,
           status: savedLocal.status,
-          categories: savedLocal.categories,
-          tags: savedLocal.tags,
-          embedded_video_url: savedLocal.embeddedVideoUrl,
+          tags: tagsStr,
+          blog_handle: catStr.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "news",
           seo_title: savedLocal.seoTitle,
-          meta_description: savedLocal.metaDescription,
-          image_alt_text: savedLocal.imageAltText,
-          canonical_url: savedLocal.canonicalUrl,
+          seo_description: savedLocal.metaDescription,
+          video_embed_url: savedLocal.embeddedVideoUrl,
+          updated_at: new Date().toISOString(),
         };
 
-        await supabaseAdmin.from("blogs").upsert(newBlogDb, { onConflict: "slug" });
+        if (existingPost?.id) {
+          await supabaseAdmin.from("blog_posts").update(dbPostPayload).eq("id", existingPost.id);
+        } else {
+          dbPostPayload.id = crypto.randomUUID();
+          dbPostPayload.created_at = new Date().toISOString();
+          await supabaseAdmin.from("blog_posts").insert(dbPostPayload);
+        }
       } catch (dbErr) {
-        console.warn("Supabase upsert warning:", dbErr);
+        console.warn("Supabase blog_posts upsert warning:", dbErr);
       }
     }
 
     clearPublicDataCache();
+    try {
+      revalidatePath("/blogs");
+      revalidatePath(`/blogs/${cleanSlug}`);
+    } catch {}
 
     return NextResponse.json({
       success: true,

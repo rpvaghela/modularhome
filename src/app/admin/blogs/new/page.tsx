@@ -23,6 +23,7 @@ import {
   Plus,
   Trash2,
   Sliders,
+  Calendar,
 } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
 
@@ -50,6 +51,7 @@ export default function AdminNewBlogPage() {
     featuredImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345",
     heroBackground: "",
     author: "ModularHome Editorial Team",
+    publishedAt: new Date().toISOString().split("T")[0],
     status: "PUBLISHED",
     category: "Modular Cabins",
     categories: "Modular Cabins",
@@ -544,6 +546,23 @@ Amish-built with high-quality materials and expert craftsmanship, the New Home d
                 <option value="PUBLISHED">Published (Live on Site)</option>
                 <option value="DRAFT">Draft</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5 flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-[#d97706]" />
+                <span>Publication Date</span>
+              </label>
+              <input
+                type="date"
+                required
+                value={form.publishedAt}
+                onChange={(e) => setForm({ ...form, publishedAt: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907] cursor-pointer"
+              />
+              <p className="text-[10px] text-[#6b7280] mt-1">
+                Sets the display date and chronological sorting on the live website.
+              </p>
             </div>
 
             <div>

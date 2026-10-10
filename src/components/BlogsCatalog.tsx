@@ -66,8 +66,13 @@ export default function BlogsCatalog({ initialArticles }: BlogsCatalogProps) {
       list.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
     } else if (sortBy === "title-desc") {
       list.sort((a, b) => (b.title || "").localeCompare(a.title || ""));
+    } else if (sortBy === "newest") {
+      list.sort((a, b) => {
+        const timeA = new Date(a.published_at || a.created_at || a.date || 0).getTime();
+        const timeB = new Date(b.published_at || b.created_at || b.date || 0).getTime();
+        return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+      });
     }
-    // "newest" preserves original order from database / custom store
 
     return list;
   }, [initialArticles, selectedTopic, searchQuery, sortBy]);

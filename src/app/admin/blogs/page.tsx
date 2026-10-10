@@ -57,7 +57,7 @@ export default function AdminBlogsPage() {
   const handleTogglePublish = async (id: string, currentStatus: string) => {
     const nextStatus = currentStatus === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
     try {
-      const res = await fetch(`/api/admin/blogs/${id}`, {
+      const res = await fetch(`/api/admin/blogs/${encodeURIComponent(id)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: nextStatus }),
@@ -85,7 +85,7 @@ export default function AdminBlogsPage() {
     if (!ok) return;
 
     try {
-      const res = await fetch(`/api/admin/blogs/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/blogs/${encodeURIComponent(id)}`, { method: "DELETE" });
       const json = await res.json();
       if (json.success) {
         setBlogs((prev) => prev.filter((b) => b.id !== id));

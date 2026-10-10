@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { getCustomBlogByIdOrSlug, saveCustomBlog, deleteCustomBlog } from "@/lib/blogStore";
@@ -140,83 +141,121 @@ export async function PUT(
   if (authResult instanceof NextResponse) return authResult;
 
   try {
-    const { id } = await params;
+    const rawId = (await params).id;
+    const id = decodeURIComponent(rawId).trim();
     const body = await request.json();
 
-    const cleanSlug = body.slug
-      ? body.slug.toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-")
-      : id.toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-");
+    // 1. Fetch existing blog from local store or Supabase
+    const existingLocal = getCustomBlogByIdOrSlug(id);
+    let existingDb: any = null;
 
-    // 1. Update in local store
-    const savedLocal = saveCustomBlog({
-      id,
-      slug: cleanSlug,
-      title: body.title || "Untitled Article",
-      excerpt: body.excerpt,
-      content: body.content,
-      featuredImage: body.featuredImage || body.featured_image,
-      featured_image: body.featuredImage || body.featured_image,
-      author: body.author || body.author_name,
-      publishedAt: body.publishedAt || body.published_at,
-      status: body.status || "PUBLISHED",
-      categories: Array.isArray(body.categories) ? body.categories : (body.category ? [body.category] : []),
-      category: body.category || (Array.isArray(body.categories) && body.categories.length > 0 ? body.categories[0] : "Building Guides"),
-      tags: Array.isArray(body.tags) ? body.tags : [],
-      embeddedVideoUrl: body.embeddedVideoUrl || body.embedded_video_url,
-      seoTitle: body.seoTitle || body.seo_title,
-      metaDescription: body.metaDescription || body.meta_description,
-      imageAltText: body.imageAltText || body.image_alt_text,
-      canonicalUrl: body.canonicalUrl || body.canonical_url,
-      keyTakeaways: body.keyTakeaways || body.key_takeaways,
-      sqft: body.sqft,
-      bedrooms: body.bedrooms,
-      bathrooms: body.bathrooms,
-      stories: body.stories,
-      hasLoft: body.hasLoft,
-      buildingStyle: body.buildingStyle,
-      buildType: body.buildType,
-      price: body.price || body.startingPrice,
-      startingPrice: body.startingPrice || body.price,
-      qualityBadge: body.qualityBadge,
-      pullQuote: body.pullQuote,
-      pullQuoteAuthor: body.pullQuoteAuthor,
-      customFeatures: Array.isArray(body.customFeatures) ? body.customFeatures : undefined,
-      heroBackground: body.heroBackground,
-    });
-
-    // 2. Also update in Supabase if configured
     if (isSupabaseConfigured()) {
       try {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        const { data } = await supabaseAdmin
+          .from("blog_posts")
+          .select("*")
+          .or(isUuid ? `id.eq.${id},handle.eq.${id}` : `handle.eq.${id}`)
+          .maybeSingle();
+        existingDb = data;
+      } catch {}
+    }
+
+    // Determine clean slug (preserve existing if not explicitly changed)
+    const cleanSlug = body.slug
+      ? body.slug.toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-")
+      : (existingLocal?.slug || existingDb?.handle || id.toLowerCase().trim().replace(/[^a-z0-9_-]+/g, "-"));
+
+    const effectiveDate = body.publishedAt !== undefined
+      ? body.publishedAt
+      : (body.published_at !== undefined ? body.published_at : (body.date !== undefined ? body.date : existingLocal?.publishedAt || existingDb?.published_at));
+
+    // 2. Save in local store with merge
+    const savedLocal = saveCustomBlog({
+      id: existingLocal?.id || existingDb?.id || id,
+      slug: cleanSlug,
+      title: body.title !== undefined ? body.title : (existingLocal?.title || existingDb?.title || "Untitled Article"),
+      excerpt: body.excerpt !== undefined ? body.excerpt : (existingLocal?.excerpt || existingDb?.excerpt),
+      introduction: body.introduction !== undefined ? body.introduction : existingLocal?.introduction,
+      content: body.content !== undefined ? body.content : (existingLocal?.content || existingDb?.body_html),
+      featuredImage: body.featuredImage !== undefined ? body.featuredImage : (body.featured_image !== undefined ? body.featured_image : existingLocal?.featuredImage || existingDb?.thumbnail_url),
+      featured_image: body.featuredImage !== undefined ? body.featuredImage : (body.featured_image !== undefined ? body.featured_image : existingLocal?.featuredImage || existingDb?.thumbnail_url),
+      author: body.author !== undefined ? body.author : (existingLocal?.author || existingDb?.author),
+      publishedAt: effectiveDate,
+      published_at: effectiveDate,
+      date: effectiveDate,
+      status: body.status !== undefined ? body.status : (existingLocal?.status || existingDb?.status || "PUBLISHED"),
+      category: body.category !== undefined ? body.category : existingLocal?.category,
+      categories: body.categories !== undefined ? body.categories : existingLocal?.categories,
+      tags: body.tags !== undefined ? body.tags : existingLocal?.tags,
+      embeddedVideoUrl: body.embeddedVideoUrl !== undefined ? body.embeddedVideoUrl : (existingLocal?.embeddedVideoUrl || existingDb?.video_embed_url),
+      embedded_video_url: body.embeddedVideoUrl !== undefined ? body.embeddedVideoUrl : (existingLocal?.embeddedVideoUrl || existingDb?.video_embed_url),
+      seoTitle: body.seoTitle !== undefined ? body.seoTitle : (existingLocal?.seoTitle || existingDb?.seo_title),
+      seo_title: body.seoTitle !== undefined ? body.seoTitle : (existingLocal?.seoTitle || existingDb?.seo_title),
+      metaDescription: body.metaDescription !== undefined ? body.metaDescription : (existingLocal?.metaDescription || existingDb?.seo_description),
+      meta_description: body.metaDescription !== undefined ? body.metaDescription : (existingLocal?.metaDescription || existingDb?.seo_description),
+      imageAltText: body.imageAltText !== undefined ? body.imageAltText : existingLocal?.imageAltText,
+      canonicalUrl: body.canonicalUrl !== undefined ? body.canonicalUrl : existingLocal?.canonicalUrl,
+      keyTakeaways: body.keyTakeaways !== undefined ? body.keyTakeaways : existingLocal?.keyTakeaways,
+      sqft: body.sqft !== undefined ? body.sqft : existingLocal?.sqft,
+      bedrooms: body.bedrooms !== undefined ? body.bedrooms : existingLocal?.bedrooms,
+      bathrooms: body.bathrooms !== undefined ? body.bathrooms : existingLocal?.bathrooms,
+      stories: body.stories !== undefined ? body.stories : existingLocal?.stories,
+      hasLoft: body.hasLoft !== undefined ? body.hasLoft : existingLocal?.hasLoft,
+      buildingStyle: body.buildingStyle !== undefined ? body.buildingStyle : existingLocal?.buildingStyle,
+      buildType: buildTypeOrFallback(body.buildType, existingLocal?.buildType),
+      price: body.price !== undefined ? body.price : existingLocal?.price,
+      startingPrice: body.startingPrice !== undefined ? body.startingPrice : existingLocal?.startingPrice,
+      qualityBadge: body.qualityBadge !== undefined ? body.qualityBadge : existingLocal?.qualityBadge,
+      pullQuote: body.pullQuote !== undefined ? body.pullQuote : existingLocal?.pullQuote,
+      pullQuoteAuthor: body.pullQuoteAuthor !== undefined ? body.pullQuoteAuthor : existingLocal?.pullQuoteAuthor,
+      customFeatures: body.customFeatures !== undefined ? body.customFeatures : existingLocal?.customFeatures,
+      heroBackground: body.heroBackground !== undefined ? body.heroBackground : existingLocal?.heroBackground,
+    });
+
+    // 3. Update in Supabase blog_posts
+    if (isSupabaseConfigured()) {
+      try {
+        const targetDbId = existingDb?.id || (existingLocal?.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(existingLocal.id) ? existingLocal.id : null);
+
         const updates: Record<string, any> = {
           updated_at: new Date().toISOString(),
         };
 
         if (body.title !== undefined) updates.title = body.title;
-        if (cleanSlug !== undefined) updates.slug = cleanSlug;
+        if (cleanSlug !== undefined) updates.handle = cleanSlug;
         if (body.excerpt !== undefined) updates.excerpt = body.excerpt;
-        if (body.content !== undefined) updates.content = body.content;
-        if (body.featuredImage !== undefined) updates.featured_image = body.featuredImage;
+        if (body.content !== undefined || body.introduction !== undefined) {
+          updates.body_html = body.content || (body.introduction ? `<p>${body.introduction}</p>` : "");
+        }
+        if (body.featuredImage !== undefined || body.featured_image !== undefined) {
+          updates.thumbnail_url = body.featuredImage || body.featured_image;
+        }
         if (body.author !== undefined) updates.author = body.author;
-        if (body.publishedAt !== undefined) updates.published_at = new Date(body.publishedAt).toISOString();
+        if (effectiveDate !== undefined) updates.published_at = savedLocal.publishedAt;
         if (body.status !== undefined) updates.status = body.status;
-        if (body.categories !== undefined) updates.categories = Array.isArray(body.categories) ? body.categories : [];
-        if (body.tags !== undefined) updates.tags = Array.isArray(body.tags) ? body.tags : [];
-        if (body.embeddedVideoUrl !== undefined) updates.embedded_video_url = body.embeddedVideoUrl;
+        if (body.tags !== undefined) {
+          updates.tags = Array.isArray(body.tags) ? body.tags.join(", ") : String(body.tags);
+        }
+        if (body.embeddedVideoUrl !== undefined) updates.video_embed_url = body.embeddedVideoUrl;
         if (body.seoTitle !== undefined) updates.seo_title = body.seoTitle;
-        if (body.metaDescription !== undefined) updates.meta_description = body.metaDescription;
-        if (body.imageAltText !== undefined) updates.image_alt_text = body.imageAltText;
-        if (body.canonicalUrl !== undefined) updates.canonical_url = body.canonicalUrl;
+        if (body.metaDescription !== undefined) updates.seo_description = body.metaDescription;
 
-        await supabaseAdmin
-          .from("blogs")
-          .update(updates)
-          .or(`id.eq.${id},slug.eq.${cleanSlug}`);
+        if (targetDbId) {
+          await supabaseAdmin.from("blog_posts").update(updates).eq("id", targetDbId);
+        } else {
+          await supabaseAdmin.from("blog_posts").update(updates).eq("handle", cleanSlug);
+        }
       } catch (dbErr) {
-        console.warn("Supabase update warning:", dbErr);
+        console.warn("Supabase blog_posts update note:", dbErr);
       }
     }
 
     clearPublicDataCache();
+    try {
+      revalidatePath("/blogs");
+      revalidatePath(`/blogs/${cleanSlug}`);
+    } catch {}
 
     return NextResponse.json({
       success: true,
@@ -232,6 +271,10 @@ export async function PUT(
   }
 }
 
+function buildTypeOrFallback(val: any, fallback: any) {
+  return val !== undefined ? val : fallback;
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -240,23 +283,30 @@ export async function DELETE(
   if (authResult instanceof NextResponse) return authResult;
 
   try {
-    const { id } = await params;
+    const rawId = (await params).id;
+    const id = decodeURIComponent(rawId).trim();
 
     // 1. Delete from local store
     deleteCustomBlog(id);
 
-    // 2. Delete from Supabase
+    // 2. Delete from Supabase blog_posts
     if (isSupabaseConfigured()) {
       try {
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-        const orFilter = isUuid ? `id.eq.${id},slug.eq.${id}` : `slug.eq.${id}`;
-        await supabaseAdmin.from("blogs").delete().or(orFilter);
+        if (isUuid) {
+          await supabaseAdmin.from("blog_posts").delete().eq("id", id);
+        } else {
+          await supabaseAdmin.from("blog_posts").delete().eq("handle", id);
+        }
       } catch (dbErr) {
-        console.warn("Supabase delete warning:", dbErr);
+        console.warn("Supabase delete note:", dbErr);
       }
     }
 
     clearPublicDataCache();
+    try {
+      revalidatePath("/blogs");
+    } catch {}
 
     return NextResponse.json({
       success: true,

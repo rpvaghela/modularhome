@@ -24,6 +24,7 @@ import {
   Trash2,
   Sliders,
   ExternalLink,
+  Calendar,
 } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
 
@@ -75,8 +76,23 @@ export default function AdminEditBlogPage() {
             ];
           }
 
+          const rawPubDate = b.publishedAt || b.published_at || b.date;
+          let parsedPubDate = "";
+          try {
+            if (rawPubDate) {
+              const d = new Date(rawPubDate);
+              if (!isNaN(d.getTime())) {
+                parsedPubDate = d.toISOString().split("T")[0];
+              }
+            }
+          } catch {}
+          if (!parsedPubDate) {
+            parsedPubDate = new Date().toISOString().split("T")[0];
+          }
+
           setBlog({
             ...b,
+            publishedAt: parsedPubDate,
             category: b.category || "Modular Cabins",
             introduction: b.introduction || "",
             sqft: b.sqft || "1,750 Sq Ft",
@@ -596,6 +612,23 @@ Amish-built with high-quality materials and expert craftsmanship, the New Home d
                 <option value="DRAFT">Draft</option>
                 <option value="ARCHIVED">Archived</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5 flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-[#d97706]" />
+                <span>Publication Date</span>
+              </label>
+              <input
+                type="date"
+                required
+                value={blog.publishedAt || ""}
+                onChange={(e) => setBlog({ ...blog, publishedAt: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907] cursor-pointer"
+              />
+              <p className="text-[10px] text-[#6b7280] mt-1">
+                Displayed on the article hero, card grids, and search results.
+              </p>
             </div>
 
             <div>
