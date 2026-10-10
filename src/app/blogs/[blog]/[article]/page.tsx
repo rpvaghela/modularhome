@@ -38,7 +38,7 @@ import ArticleReadingBar from "@/components/ArticleReadingBar";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import { formatEditorialTitle, extractArticleSpecs, cleanBlogHtml } from "@/utils/text";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 interface BlogArticlePageProps {
   params: Promise<{ blog: string; article: string }>;
@@ -57,9 +57,7 @@ export async function generateMetadata({
     return { title: "Article Not Found | ModularHome.com" };
   }
 
-  const reqHeaders = await headers();
-  const host = reqHeaders.get("host") || "";
-  const robots = getRobotsMetadata(host);
+  const robots = getRobotsMetadata();
 
   const cleanTitle = formatEditorialTitle(article.title);
   const title = article.seoTitle || `${cleanTitle} | ModularHome.com`;

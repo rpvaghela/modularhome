@@ -1,6 +1,5 @@
 import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
-import { headers } from "next/headers";
 import Link from "next/link";
 import Image from "next/image";
 import { 
@@ -17,7 +16,7 @@ import CategoryFilteredCatalog from "@/components/CategoryFilteredCatalog";
 import { getPublicCollections, getPublicProducts, getCategoryFallbackImage } from "@/lib/publicData";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 interface CollectionPageProps {
   params: Promise<{ slug: string }>;
@@ -32,9 +31,7 @@ export async function generateMetadata({
     return { title: "Collection Not Found | ModularHome.com" };
   }
 
-  const reqHeaders = await headers();
-  const host = reqHeaders.get("host") || "";
-  const robots = getRobotsMetadata(host);
+  const robots = getRobotsMetadata();
 
   if (slug === "all") {
     const title = "All Modular Home Models & Floor Plans | ModularHome.com";

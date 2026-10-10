@@ -68,7 +68,16 @@ export async function query<T extends QueryResultRow = any>(
   if (!p) return null;
 
   try {
-    return await p.query<T>(text, params);
+    const queryPromise = p.query<T>(text, params);
+    let timer: any;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error("ETIMEDOUT: Postgres query timeout")), 1200);
+    });
+    try {
+      return await Promise.race([queryPromise, timeoutPromise]);
+    } finally {
+      clearTimeout(timer);
+    }
   } catch (error: any) {
     const errorMsg = error?.message || String(error);
     const now = Date.now();

@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import ModelsCatalog from "../models/ModelsCatalog";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPublicPageBySlug("buildings");

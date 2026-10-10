@@ -1,7 +1,7 @@
 import { permanentRedirect } from "next/navigation";
 import { getPublicBlogBySlug } from "@/lib/publicData";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 interface ResourceDetailPageProps {
   params: Promise<{ slug: string }>;

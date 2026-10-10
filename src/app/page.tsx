@@ -17,9 +17,9 @@ import HomeArticlesSection from "@/components/HomeArticlesSection";
 import CTASection from "@/components/CTASection";
 import { getPublicProducts, getPublicReviews, getPublicSettings, getPublicCollections, getHomeTypeCategories, getPublicBlogs, getCategoryFallbackImage } from "@/lib/publicData";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
+import { getPublishedVideos } from "@/lib/videoStore";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 60;
+export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPublicPageBySlug("home");
@@ -54,6 +54,7 @@ export default async function HomePage() {
     getPublicBlogs(),
     getPublicPageBySlug("home"),
   ]);
+  const videos = getPublishedVideos();
 
   // Deduplicate products by root model name so the showcase displays distinct architectural models
   const seenModels = new Set<string>();
@@ -135,12 +136,23 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* 1. PROFESSIONAL ARCHITECTURAL HERO SECTION */}
-      <section 
-        className="min-h-[580px] sm:min-h-[640px] lg:min-h-[690px] text-white flex items-center relative overflow-hidden bg-cover bg-center pb-8 sm:pb-12"
-        style={{
-          backgroundImage: `linear-gradient(105deg, rgba(11,15,23,0.93) 0%, rgba(11,15,23,0.80) 46%, rgba(11,15,23,0.38) 100%), url('${heroBgImage}')`
-        }}
-      >
+      <section className="min-h-[580px] sm:min-h-[640px] lg:min-h-[690px] text-white flex items-center relative overflow-hidden pb-8 sm:pb-12">
+        {/* Next.js Preloaded Hero Image for Optimized LCP */}
+        <Image
+          src={heroBgImage}
+          alt={heroHeading || "ModularHome.com Architectural Models"}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center -z-20"
+        />
+        {/* High-Contrast Luxury Gradient Overlay */}
+        <div 
+          className="absolute inset-0 -z-10" 
+          style={{
+            background: "linear-gradient(105deg, rgba(11,15,23,0.93) 0%, rgba(11,15,23,0.80) 46%, rgba(11,15,23,0.38) 100%)"
+          }} 
+        />
         {/* Subtle Ambient Radial Lighting */}
         <div className="absolute -top-24 left-10 w-96 h-96 bg-[#fcb907]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-10 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -304,7 +316,7 @@ export default async function HomePage() {
       <FinancingSection />
 
       {/* 12. WATCH OUR HOME TOURS (Asymmetric 5-Video Showcase) */}
-      <HomeVideosSection />
+      <HomeVideosSection videos={videos} />
 
       {/* 13. WHAT OUR CUSTOMERS SAY (Live Testimonials) */}
       <HomeTestimonialsSection initialReviews={reviews} />

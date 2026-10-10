@@ -1,16 +1,13 @@
 import { Metadata } from "next";
-import { headers } from "next/headers";
 import { BookOpen } from "lucide-react";
 import { getPublicBlogs } from "@/lib/publicData";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import BlogsCatalog from "@/components/BlogsCatalog";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const reqHeaders = await headers();
-  const host = reqHeaders.get("host") || "";
-  const robots = getRobotsMetadata(host);
+  const robots = getRobotsMetadata();
 
   const title = "Modular Home Blog, News & Construction Guides | ModularHome.com";
   const description =

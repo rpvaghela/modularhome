@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { headers } from "next/headers";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
 import { getPublicProducts, getPublicCollections, getPublicCollectionBySlug, getCategoryFallbackImage } from "@/lib/publicData";
 import { CATEGORIES } from "@/data/models";
@@ -10,7 +9,7 @@ import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import DynamicPageRenderer from "@/components/DynamicPageRenderer";
 import CategoryCollectionRenderer from "@/components/CategoryCollectionRenderer";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 interface DynamicSlugPageProps {
   params: Promise<{ slug: string }>;

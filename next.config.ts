@@ -2,8 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // When hosted on Node.js / shared hosting / VPS / custom server, unoptimized avoids internal proxy failures and serves direct fast CDN URLs.
-    unoptimized: process.env.NEXT_IMAGE_OPTIMIZATION === "true" ? false : true,
+    // Sharp is installed in dependencies. Enabled by default; can be opted-out via NEXT_IMAGE_UNOPTIMIZED=true.
+    unoptimized: process.env.NEXT_IMAGE_UNOPTIMIZED === "true",
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 86400,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       // Supabase Storage & CDNs
       {

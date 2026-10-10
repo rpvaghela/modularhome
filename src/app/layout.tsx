@@ -1,20 +1,17 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Playfair_Display, Manrope } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import AIBuildAssistant from "@/components/AIBuildAssistant";
-import CartDrawer from "@/components/CartDrawer";
 import { CartProvider } from "@/context/CartContext";
 import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
 import { ConfirmDialogProvider } from "@/context/ConfirmDialogContext";
+import ClientInteractiveLayer from "@/components/ClientInteractiveLayer";
 import { getPublicGlobalSettings } from "@/lib/settings";
 import { getPublicPages, getMegaMenuCatalog } from "@/lib/publicData";
 import { getRobotsMetadata, PRODUCTION_CANONICAL_HOST } from "@/lib/seo";
 import "./globals.css";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 300;
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -32,12 +29,8 @@ const manrope = Manrope({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [settings, reqHeaders] = await Promise.all([
-    getPublicGlobalSettings(),
-    headers(),
-  ]);
-  const host = reqHeaders.get("host") || "";
-  const robots = getRobotsMetadata(host);
+  const settings = await getPublicGlobalSettings();
+  const robots = getRobotsMetadata();
 
   const title = settings.defaultSeoTitle || `${settings.companyName || "ModularHome.com"} | Modern Homes. A Smarter Way to Build.`;
   const description = settings.defaultMetaDescription || "Explore modular homes, prefab homes, cabins, ADUs, barndominiums, floor plans and custom home options.";
@@ -123,8 +116,7 @@ export default async function RootLayout({
                 {children}
               </main>
               <Footer initialSettings={settings} customPages={pages} />
-              <CartDrawer />
-              <AIBuildAssistant />
+              <ClientInteractiveLayer />
             </ConfirmDialogProvider>
           </CartProvider>
         </CustomerAuthProvider>
