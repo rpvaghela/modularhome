@@ -233,3 +233,202 @@ export function getCategoryDisplayName(slug: string): string {
       return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   }
 }
+
+/**
+ * Classifies an unknown URL, slug, page title, or search term to its most relevant
+ * category of models or floor plans.
+ * Guaranteed to return one of:
+ * - "/cabins"
+ * - "/barndominiums"
+ * - "/tiny-homes"
+ * - "/park-models"
+ * - "/adus"
+ * - "/a-frame-homes"
+ * - "/house-kits"
+ * - "/commercial-modular-buildings"
+ * - "/custom-homes"
+ * - "/prefab-homes"
+ * - "/floor-plans"
+ * - "/modular-homes"
+ */
+export function resolveSimilarCategoryPath(
+  input?: string | { slug?: string; title?: string; text?: string; category?: string } | null
+): string {
+  if (!input) return "/modular-homes";
+
+  const raw = typeof input === "string"
+    ? input
+    : `${input.category || ""} ${input.slug || ""} ${input.title || ""} ${input.text || ""}`;
+
+  const stripped = raw
+    .replace(/[–-]\s*modular homes.*$/i, "")
+    .replace(/\|\s*modularhome\.com.*$/i, "")
+    .replace(/[–-]\s*modularhome\.com.*$/i, "")
+    .trim();
+
+  const clean = stripped
+    .toLowerCase()
+    .replace(/^https?:\/\/[^\/]+/i, "")
+    .replace(/^\/(?:collections|pages|products|buildings|models|blogs)\//i, "")
+    .replace(/[-_&+/|]/g, " ")
+    .trim();
+
+  const slugClean = clean.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
+  // 1. Exact or direct recognized category check
+  if (CATEGORY_SLUG_MAP[slugClean]) {
+    const mapped = CATEGORY_SLUG_MAP[slugClean];
+    return mapped === "commercial-buildings" ? "/commercial-modular-buildings" : `/${mapped}`;
+  }
+
+  // 2. Floor plans / bedroom / bathroom counts / dimensions
+  if (
+    /(\d+[\s_-]?(bed|bath|br|ba))|(floor-?plans?)|(blueprints?)|(house-?plans?)|(\d+\s*x\s*\d+)|(sqft)|(sq-?ft)|(square-?feet)/i.test(clean) &&
+    !clean.includes("cabin") &&
+    !clean.includes("barndo") &&
+    !clean.includes("tiny") &&
+    !clean.includes("adu") &&
+    !clean.includes("a frame") &&
+    !clean.includes("aframe") &&
+    !clean.includes("park")
+  ) {
+    return "/floor-plans";
+  }
+
+  // 3. A-Frame Homes
+  if (clean.includes("a frame") || clean.includes("aframe") || clean.includes("triangular")) {
+    return "/a-frame-homes";
+  }
+
+  // 4. Barndominiums & Steel buildings
+  if (
+    clean.includes("barndo") ||
+    clean.includes("barndominium") ||
+    clean.includes("clear span") ||
+    clean.includes("shop home") ||
+    clean.includes("metal home") ||
+    clean.includes("metal house") ||
+    clean.includes("steel home") ||
+    clean.includes("steel house") ||
+    clean.includes("steel building") ||
+    clean.includes("barn")
+  ) {
+    return "/barndominiums";
+  }
+
+  // 5. Cabins & Log Homes
+  if (
+    clean.includes("cabin") ||
+    clean.includes("log") ||
+    clean.includes("timber") ||
+    clean.includes("rustic") ||
+    clean.includes("bertha") ||
+    clean.includes("appalachian") ||
+    clean.includes("gatlinburg") ||
+    clean.includes("ponderosa") ||
+    clean.includes("muchacho") ||
+    clean.includes("sparrow") ||
+    clean.includes("grizzly") ||
+    clean.includes("retreat") ||
+    clean.includes("driftwood") ||
+    clean.includes("sunnyside") ||
+    clean.includes("azteca") ||
+    clean.includes("amish") ||
+    clean.includes("woodland") ||
+    clean.includes("smoky") ||
+    clean.includes("blue ridge")
+  ) {
+    return "/cabins";
+  }
+
+  // 6. Tiny Homes & Micro living
+  if (
+    clean.includes("tiny") ||
+    clean.includes("micro") ||
+    clean.includes("small space") ||
+    clean.includes("firefly") ||
+    clean.includes("maddy")
+  ) {
+    return "/tiny-homes";
+  }
+
+  // 7. Park Models & RVs
+  if (
+    clean.includes("park model") ||
+    clean.includes("parkmodel") ||
+    clean.includes("rv") ||
+    clean.includes("resort") ||
+    clean.includes("aspen") ||
+    clean.includes("recreational")
+  ) {
+    return "/park-models";
+  }
+
+  // 8. ADUs & Granny Pods
+  if (
+    clean.includes("adu") ||
+    clean.includes("granny") ||
+    clean.includes("in law") ||
+    clean.includes("backyard") ||
+    clean.includes("pod") ||
+    clean.includes("guest house")
+  ) {
+    return "/adus";
+  }
+
+  // 9. House Kits & SIP Panels
+  if (
+    clean.includes("kit") ||
+    clean.includes("sip") ||
+    clean.includes("panelized") ||
+    clean.includes("shell") ||
+    clean.includes("diy") ||
+    clean.includes("flat pack") ||
+    clean.includes("precut")
+  ) {
+    return "/house-kits";
+  }
+
+  // 10. Commercial Modular Buildings
+  if (
+    clean.includes("commercial") ||
+    clean.includes("government") ||
+    clean.includes("retail") ||
+    clean.includes("office") ||
+    clean.includes("warehouse") ||
+    clean.includes("duplex") ||
+    clean.includes("triplex") ||
+    clean.includes("multi family") ||
+    clean.includes("multifamily") ||
+    clean.includes("apartment") ||
+    clean.includes("clinic") ||
+    clean.includes("school") ||
+    clean.includes("hospital")
+  ) {
+    return "/commercial-modular-buildings";
+  }
+
+  // 11. Custom Homes
+  if (
+    clean.includes("custom") ||
+    clean.includes("bespoke") ||
+    clean.includes("design your dream") ||
+    clean.includes("dream home")
+  ) {
+    return "/custom-homes";
+  }
+
+  // 12. Prefab Homes
+  if (
+    clean.includes("prefab") ||
+    clean.includes("pre fab") ||
+    clean.includes("manufactured") ||
+    clean.includes("factory built")
+  ) {
+    return "/prefab-homes";
+  }
+
+  // 13. Default to Modular Homes
+  return "/modular-homes";
+}
+

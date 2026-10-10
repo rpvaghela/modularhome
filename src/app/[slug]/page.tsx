@@ -1,11 +1,11 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
 import { headers } from "next/headers";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
 import { getPublicProducts, getPublicCollections, getPublicCollectionBySlug, getCategoryFallbackImage } from "@/lib/publicData";
 import { CATEGORIES } from "@/data/models";
 import { matchProductCategory } from "@/utils/categoryMatching";
-import { isCategorySlug, getCategoryDisplayName } from "@/utils/productUrls";
+import { isCategorySlug, getCategoryDisplayName, resolveSimilarCategoryPath } from "@/utils/productUrls";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import DynamicPageRenderer from "@/components/DynamicPageRenderer";
 import CategoryCollectionRenderer from "@/components/CategoryCollectionRenderer";
@@ -134,7 +134,11 @@ export async function generateMetadata({
     };
   }
 
-  return { title: "Page Not Found | ModularHome.com" };
+  const targetCategory = resolveSimilarCategoryPath(cleanSlug);
+  return {
+    title: "Models & Floor Plans | ModularHome.com",
+    alternates: { canonical: getCanonicalUrl(targetCategory) },
+  };
 }
 
 export default async function DynamicSlugPage({ params }: DynamicSlugPageProps) {
@@ -251,6 +255,11 @@ export default async function DynamicSlugPage({ params }: DynamicSlugPageProps) 
     );
   }
 
-  // 3. Fallback to 404
-  notFound();
+  // 3. Fallback: Redirect to similar category of models or floor plans
+  const targetCategory = resolveSimilarCategoryPath(cleanSlug);
+  if (targetCategory !== `/${cleanSlug}`) {
+    permanentRedirect(targetCategory);
+  }
+
+  permanentRedirect("/modular-homes");
 }

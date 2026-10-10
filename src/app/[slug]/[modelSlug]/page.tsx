@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect, redirect } from "next/navigation";
 import { Metadata } from "next";
 import { headers } from "next/headers";
 import ModelDetailClient from "@/app/models/[slug]/ModelDetailClient";
@@ -11,6 +11,7 @@ import {
   getProductUrl,
   getCategoryDisplayName,
   isCategorySlug,
+  resolveSimilarCategoryPath,
 } from "@/utils/productUrls";
 
 export const dynamic = "force-dynamic";
@@ -48,7 +49,11 @@ export async function generateMetadata({
 
   const model = await getPublicProductBySlug(modelSlug);
   if (!model) {
-    return { title: "Product Not Found | ModularHome.com" };
+    const targetCategory = resolveSimilarCategoryPath(`${category} ${modelSlug}`);
+    return {
+      title: "Models & Floor Plans | ModularHome.com",
+      alternates: { canonical: getCanonicalUrl(targetCategory) },
+    };
   }
 
   const reqHeaders = await headers();
@@ -102,12 +107,12 @@ export default async function CategoryProductPage({ params }: CategoryProductPag
   const { slug: category, modelSlug } = await params;
 
   if (!modelSlug || !category || RESERVED_FIRST_SEGMENTS.has(category.toLowerCase())) {
-    notFound();
+    permanentRedirect("/modular-homes");
   }
 
   const model = await getPublicProductBySlug(modelSlug);
   if (!model) {
-    notFound();
+    permanentRedirect(resolveSimilarCategoryPath(`${category} ${modelSlug}`));
   }
 
   const cleanCat = category.toLowerCase().trim();

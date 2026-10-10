@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import SHOPIFY_REDIRECTS_DATA from "@/data/shopify_redirects.json";
+import { resolveSimilarCategoryPath, isCategorySlug } from "@/utils/productUrls";
 
 // Explicit static legacy redirects mapping
 const LEGACY_REDIRECTS: Record<string, string> = {
@@ -94,20 +95,38 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2b. Collections Category Redirect: /collections/barndominiums -> /barndominiums (301)
+  // If not a recognized canonical category, redirect to similar category of models or floor plans!
   if (lowerPath.startsWith("/collections/") && lowerPath !== "/collections/all") {
     const colSlug = lowerPath.replace(/^\/collections\//, "").replace(/\/+$/, "");
     if (colSlug && !colSlug.includes("/")) {
-      destinationPath = colSlug === "commercial-buildings" ? "/commercial-modular-buildings" : `/${colSlug}`;
+      if (isCategorySlug(colSlug)) {
+        destinationPath = colSlug === "commercial-buildings" ? "/commercial-modular-buildings" : `/${colSlug}`;
+      } else {
+        destinationPath = resolveSimilarCategoryPath(colSlug);
+      }
     }
   }
 
-  // 2c. Direct /commercial-buildings/* to /commercial-modular-buildings/* redirect (301)
+  // 2c. Pages Redirect: legacy Shopify /pages/* URLs redirect to target or similar category
+  if (lowerPath.startsWith("/pages/")) {
+    const pageSlug = lowerPath.replace(/^\/pages\//, "").replace(/\/+$/, "");
+    if (pageSlug && !pageSlug.includes("/")) {
+      if (pageSlug === "contact") destinationPath = "/quote";
+      else if (pageSlug.includes("finance")) destinationPath = "/financing";
+      else if (pageSlug.includes("pricing") || pageSlug.includes("cost")) destinationPath = "/pricing";
+      else if (pageSlug.includes("privacy")) destinationPath = "/privacy-policy";
+      else if (pageSlug.includes("about")) destinationPath = "/how-it-works";
+      else destinationPath = resolveSimilarCategoryPath(pageSlug);
+    }
+  }
+
+  // 2d. Direct /commercial-buildings/* to /commercial-modular-buildings/* redirect (301)
   if (lowerPath.startsWith("/commercial-buildings/")) {
     const sub = lowerPath.replace(/^\/commercial-buildings\//, "");
     destinationPath = `/commercial-modular-buildings/${sub}`;
   }
 
-  // 2d. Dynamic category redirect for any remaining /buildings/, /models/, or /products/ paths
+  // 2e. Dynamic category redirect for any remaining /buildings/, /models/, or /products/ paths
   if (
     destinationPath === normalizedPath &&
     (lowerPath.startsWith("/buildings/") ||
@@ -119,30 +138,7 @@ export async function middleware(request: NextRequest) {
       .replace(/\/+$/, "");
 
     if (slug && !slug.includes("/")) {
-      let cat = "modular-homes";
-      if (slug.includes("barndo")) cat = "barndominiums";
-      else if (
-        slug.includes("cabin") ||
-        slug.includes("muchacho") ||
-        slug.includes("sparrow") ||
-        slug.includes("bertha") ||
-        slug.includes("lodge") ||
-        slug.includes("gatlinburg") ||
-        slug.includes("appalachian")
-      )
-        cat = "cabins";
-      else if (slug.includes("tiny")) cat = "tiny-homes";
-      else if (slug.includes("park-model") || slug.includes("rv"))
-        cat = "park-models";
-      else if (slug.includes("adu") || slug.includes("granny")) cat = "adus";
-      else if (slug.includes("a-frame") || slug.includes("aframe"))
-        cat = "a-frame-homes";
-      else if (slug.includes("house-kit") || slug.includes("sip-panel"))
-        cat = "house-kits";
-      else if (slug.includes("duplex") || slug.includes("commercial"))
-        cat = "commercial-modular-buildings";
-
-      destinationPath = `/${cat}/${slug}`;
+      destinationPath = resolveSimilarCategoryPath(slug);
     }
   }
 

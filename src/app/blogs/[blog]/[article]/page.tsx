@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { headers } from "next/headers";
 import { 
   Clock, 
@@ -37,6 +37,7 @@ import BlogTableOfContents from "@/components/BlogTableOfContents";
 import ArticleReadingBar from "@/components/ArticleReadingBar";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import { formatEditorialTitle, extractArticleSpecs, cleanBlogHtml } from "@/utils/text";
+import { resolveSimilarCategoryPath } from "@/utils/productUrls";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +55,11 @@ export async function generateMetadata({
 
   const article = await getPublicBlogBySlug(articleSlug);
   if (!article) {
-    return { title: "Article Not Found | ModularHome.com" };
+    const targetCategory = resolveSimilarCategoryPath(`${blog} ${articleSlug}`);
+    return {
+      title: "Articles & Models | ModularHome.com",
+      alternates: { canonical: getCanonicalUrl(targetCategory) },
+    };
   }
 
   const reqHeaders = await headers();
@@ -120,7 +125,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
   const article = await getPublicBlogBySlug(articleSlug);
 
   if (!article) {
-    notFound();
+    permanentRedirect(resolveSimilarCategoryPath(`${blog} ${articleSlug}`));
   }
 
   const allArticles = await getPublicBlogs();

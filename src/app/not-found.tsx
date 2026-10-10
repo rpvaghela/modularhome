@@ -42,12 +42,42 @@ export default function NotFound() {
             <span>Return Home</span>
           </Link>
           <Link
-            href="/buildings"
+            href="/floor-plans"
             className="w-full sm:w-auto px-6 py-3.5 bg-[var(--soft)] hover:bg-[#0f1218] hover:text-white text-[var(--ink)] border border-[var(--line)] text-xs font-bold uppercase tracking-wider rounded-[14px] transition-all flex items-center justify-center gap-2 shadow-xs"
           >
             <span>Explore Floor Plans</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
+        </div>
+
+        {/* Quick Category Directory */}
+        <div className="pt-8 border-t border-gray-100 w-full text-left">
+          <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 text-center">
+            Or browse by building category & model series:
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
+            {[
+              { label: "Modular Homes", href: "/modular-homes" },
+              { label: "Cabins", href: "/cabins" },
+              { label: "Barndominiums", href: "/barndominiums" },
+              { label: "House Kits", href: "/house-kits" },
+              { label: "Tiny Homes", href: "/tiny-homes" },
+              { label: "Park Models", href: "/park-models" },
+              { label: "ADUs", href: "/adus" },
+              { label: "A-Frame Homes", href: "/a-frame-homes" },
+              { label: "Commercial", href: "/commercial-modular-buildings" },
+              { label: "Custom Homes", href: "/custom-homes" },
+              { label: "All Models", href: "/buildings" },
+            ].map((cat) => (
+              <Link
+                key={cat.href}
+                href={cat.href}
+                className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-[#fcb907] hover:text-black font-semibold text-gray-700 transition-colors"
+              >
+                {cat.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>

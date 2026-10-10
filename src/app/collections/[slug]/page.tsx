@@ -16,6 +16,7 @@ import ShareButton from "@/components/ShareButton";
 import CategoryFilteredCatalog from "@/components/CategoryFilteredCatalog";
 import { getPublicCollections, getPublicProducts, getCategoryFallbackImage } from "@/lib/publicData";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
+import { resolveSimilarCategoryPath } from "@/utils/productUrls";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +56,8 @@ export async function generateMetadata({
     };
   }
 
-  const canonical = getCanonicalUrl(`/${slug}`);
+  const targetPath = resolveSimilarCategoryPath(slug);
+  const canonical = getCanonicalUrl(targetPath);
   return {
     alternates: { canonical },
   };
@@ -64,12 +66,12 @@ export async function generateMetadata({
 export default async function CollectionDetailPage({ params }: CollectionPageProps) {
   const { slug } = await params;
   if (!slug || slug === "undefined" || slug === "null") {
-    notFound();
+    permanentRedirect("/modular-homes");
   }
 
   // 301 Permanent Redirect specific collection URLs to top-level canonical category URLs
   if (slug !== "all") {
-    permanentRedirect(`/${slug}`);
+    permanentRedirect(resolveSimilarCategoryPath(slug));
   }
 
   const allProducts = await getPublicProducts();

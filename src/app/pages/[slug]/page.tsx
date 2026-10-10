@@ -1,9 +1,10 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
 import { headers } from "next/headers";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
 import DynamicPageRenderer from "@/components/DynamicPageRenderer";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
+import { resolveSimilarCategoryPath } from "@/utils/productUrls";
 
 export const dynamic = "force-dynamic";
 
@@ -22,8 +23,10 @@ export async function generateMetadata({
   const page = await getPublicPageBySlug(slug);
 
   if (!page || page.status === "DRAFT" || page.status === "ARCHIVED") {
+    const targetPath = resolveSimilarCategoryPath(slug);
     return {
-      title: "Page Not Found | ModularHome.com",
+      title: "Models & Floor Plans | ModularHome.com",
+      alternates: { canonical: getCanonicalUrl(targetPath) },
     };
   }
 
@@ -61,13 +64,13 @@ export async function generateMetadata({
 export default async function PagesSlugPage({ params }: PagesSlugProps) {
   const { slug } = await params;
   if (!slug || slug === "undefined" || slug === "null") {
-    notFound();
+    permanentRedirect("/modular-homes");
   }
 
   const page = await getPublicPageBySlug(slug);
 
   if (!page || page.status === "DRAFT" || page.status === "ARCHIVED") {
-    notFound();
+    permanentRedirect(resolveSimilarCategoryPath(slug));
   }
 
   const canonical = getCanonicalUrl(`/pages/${page.slug}`);
