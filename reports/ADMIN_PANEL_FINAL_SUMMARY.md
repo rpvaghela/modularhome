@@ -48,7 +48,7 @@
 ## 4. Git, Remotes, and Deliverables
 
 - **Audit Branch:** `fix/admin-panel-audit`
-- **Audit Commit Hash:** `a39a0c1`
+- **Audit Commit Hash:** `a473547`
 - **Tracked Remotes:**
   - `origin`: `https://github.com/chetan9130/modularhome.git` (Pushed)
   - `digiwell`: `https://github.com/digiwellinfotech07-hue/modularhome.git` (Pushed)
