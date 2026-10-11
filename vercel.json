@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/youtube/cron",
+      "schedule": "0 * * * *"
+    },
+    {
       "path": "/api/youtube/auto-blog-sync",
       "schedule": "0 6 * * *"
     }

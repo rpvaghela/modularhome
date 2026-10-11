@@ -25,6 +25,7 @@ export default function AIBuildAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   if (pathname?.startsWith("/admin")) {
@@ -47,8 +48,15 @@ export default function AIBuildAssistant() {
     },
   ]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior,
+      });
+    } else {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }
   };
 
   useEffect(() => {
@@ -282,7 +290,15 @@ export default function AIBuildAssistant() {
 
       {/* Slide-over Drawer / Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-[74px] sm:bottom-22 right-3 sm:right-6 z-[999] w-[calc(100vw-24px)] sm:w-[410px] md:w-[430px] h-[520px] sm:h-[560px] max-h-[calc(100dvh-95px)] bg-white border border-stone-200/90 rounded-2xl sm:rounded-[22px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div
+          onWheel={(e) => {
+            // Forward mouse wheel scrolling from anywhere in the chat modal to the messages feed
+            if (messagesContainerRef.current && !messagesContainerRef.current.contains(e.target as Node)) {
+              messagesContainerRef.current.scrollTop += e.deltaY;
+            }
+          }}
+          className="fixed bottom-[74px] sm:bottom-22 right-3 sm:right-6 z-[999] w-[calc(100vw-24px)] sm:w-[410px] md:w-[430px] h-[520px] sm:h-[560px] max-h-[calc(100dvh-95px)] bg-white border border-stone-200/90 rounded-2xl sm:rounded-[22px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200"
+        >
           {/* Header */}
           <div className="bg-[#111317] text-white px-4 sm:px-5 py-3.5 border-b border-white/10 flex items-center justify-between shadow-xs shrink-0">
             <div className="flex items-center gap-3">
@@ -316,7 +332,13 @@ export default function AIBuildAssistant() {
           </div>
 
           {/* Messages Feed */}
-          <div className="flex-1 p-3.5 sm:p-4 overflow-y-auto space-y-3.5 bg-[#F9F9FB]">
+          <div
+            ref={messagesContainerRef}
+            tabIndex={0}
+            role="region"
+            aria-label="Chat messages conversation history"
+            className="flex-1 p-3.5 sm:p-4 overflow-y-auto overscroll-contain space-y-3.5 bg-[#F9F9FB] custom-chat-scrollbar focus:outline-none"
+          >
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -376,7 +398,19 @@ export default function AIBuildAssistant() {
           </div>
 
           {/* Quick suggestions strip */}
-          <div className="px-3 py-2 bg-white border-t border-stone-200 flex items-center gap-1.5 overflow-x-auto text-[10px] text-stone-500 no-scrollbar shrink-0">
+          <div
+            onWheel={(e) => {
+              // If user scrolls horizontally or Shift is held, allow horizontal scroll
+              if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                return;
+              }
+              // Otherwise delegate vertical mouse wheel scroll to the messages feed
+              if (messagesContainerRef.current) {
+                messagesContainerRef.current.scrollTop += e.deltaY;
+              }
+            }}
+            className="px-3 py-2 bg-white border-t border-stone-200 flex items-center gap-1.5 overflow-x-auto text-[10px] text-stone-500 no-scrollbar shrink-0"
+          >
             <span className="shrink-0 font-bold text-stone-900">Ask:</span>
             <button
               onClick={() => handleSend("Estimate 1,500 sq ft build quotation")}

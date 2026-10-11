@@ -142,6 +142,59 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // 2f. Dynamic Video 301 Redirects (/videos/*)
+  // Ensure that older video slugs and legacy YouTube IDs return a permanent 301 redirect in one hop
+  if (destinationPath === normalizedPath && lowerPath.startsWith("/videos/")) {
+    const videoParam = lowerPath.replace(/^\/videos\//i, "").replace(/\/+$/, "");
+    if (videoParam) {
+      try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://tbaxtdecjznpqmccldnz.supabase.co";
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiYXh0ZGVjanpucHFtY2NsZG56Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM5NTk4OSwiZXhwIjoyMTA1OTcxOTg5fQ.GNehoYPf4LpW79g5wPntE6m_s1UqJzrONoaCLy-7pSo";
+
+        // 1. Check dynamic redirects table for historical or replaced slugs
+        const redirUrl = `${supabaseUrl}/rest/v1/redirects?from_path=eq.${encodeURIComponent(lowerPath)}&select=to_path&limit=1`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1200);
+
+        const rRes = await fetch(redirUrl, {
+          headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (rRes.ok) {
+          const rData = await rRes.json();
+          if (Array.isArray(rData) && rData.length > 0 && rData[0].to_path) {
+            destinationPath = rData[0].to_path;
+          }
+        }
+
+        // 2. If not matched and videoParam looks like a YouTube ID or vid- ID
+        if (destinationPath === normalizedPath && (/^[a-zA-Z0-9_-]{11}$/.test(videoParam) || videoParam.startsWith("vid-"))) {
+          const cleanId = videoParam.replace(/^vid-/, "");
+          const vUrl = `${supabaseUrl}/rest/v1/videos?or=(youtube_video_id.ilike.${cleanId},id.ilike.vid-${cleanId})&select=slug&limit=1`;
+          const controller2 = new AbortController();
+          const timeoutId2 = setTimeout(() => controller2.abort(), 1200);
+
+          const vRes = await fetch(vUrl, {
+            headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+            signal: controller2.signal,
+          });
+          clearTimeout(timeoutId2);
+
+          if (vRes.ok) {
+            const vData = await vRes.json();
+            if (Array.isArray(vData) && vData.length > 0 && vData[0].slug) {
+              destinationPath = `/videos/${vData[0].slug}`;
+            }
+          }
+        }
+      } catch (e) {
+        // Fallback gracefully on network timeout
+      }
+    }
+  }
+
   // 3. Execute Single-Hop 301 Permanent Redirect (Consolidates WWW, HTTP, and Path Changes)
   const pathNeedsRedirect = destinationPath !== pathname || (categoryParam && preserveSearch !== search);
 

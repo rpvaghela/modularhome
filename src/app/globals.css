@@ -241,6 +241,51 @@ body::-webkit-scrollbar-thumb:hover {
   background: #b45309;
 }
 
+/* Custom Chat Scrollbar for AI Housing Advisor & floating widgets */
+.custom-chat-scrollbar {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Firefox */
+@supports (scrollbar-color: auto) {
+  .custom-chat-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8f9fa;
+  }
+}
+
+/* Chromium (Chrome, Edge, Opera) & Safari */
+.custom-chat-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-chat-scrollbar::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.custom-chat-scrollbar::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 9999px;
+}
+
+.custom-chat-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+  border: 2px solid #f1f3f5;
+}
+
+.custom-chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #fcb907;
+}
+
+.custom-chat-scrollbar::-webkit-scrollbar-thumb:active {
+  background-color: #d97706;
+}
+
 /* Hide scrollbars completely for horizontal tabs and containers */
 .no-scrollbar::-webkit-scrollbar,
 .scrollbar-none::-webkit-scrollbar,

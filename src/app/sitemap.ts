@@ -193,10 +193,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 3. Published Video Tours with Descriptive SEO URLs (/videos/[title-slug])
   try {
     const { getPublishedVideos, getVideoSlug } = require("@/lib/videoStore");
-    const publishedVideos = getPublishedVideos();
+    let publishedVideos: any[] = [];
+
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from("videos")
+          .select("slug, youtube_video_id, title, published_at")
+          .or("is_published.eq.true,is_published.is.null")
+          .order("published_at", { ascending: false });
+
+        if (!error && Array.isArray(data) && data.length > 0) {
+          publishedVideos = data.map((v) => ({
+            ...v,
+            youtubeVideoId: v.youtube_video_id,
+            publishedAt: v.published_at,
+          }));
+        }
+      } catch (err) {}
+    }
+
+    if (publishedVideos.length === 0) {
+      publishedVideos = getPublishedVideos();
+    }
+
     if (Array.isArray(publishedVideos)) {
       publishedVideos.forEach((v: any) => {
-        const vSlug = getVideoSlug(v, publishedVideos);
+        const vSlug = v.slug || getVideoSlug(v, publishedVideos);
         if (vSlug) {
           const videoUrl = `${baseUrl}/videos/${vSlug}`;
           if (!seenUrls.has(videoUrl)) {

@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       if (!id || !slug) {
         return NextResponse.json({ success: false, message: "ID and Slug are required" }, { status: 400 });
       }
-      const res = updateVideoSlug(id, slug);
+      const res = await updateVideoSlug(id, slug);
       if (!res.success) {
         return NextResponse.json({ success: false, message: res.message }, { status: 400 });
       }

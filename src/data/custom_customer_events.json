@@ -1,5 +1,30 @@
 [
   {
+    "id": "evt-1791705823571-6bvsn",
+    "customer_id": "917d6e8a-0acb-4d80-bc23-7a101f04fabc",
+    "event_type": "VERIFICATION_RESENT",
+    "actor_type": "CUSTOMER",
+    "actor_name": "CHETAN SONAWANE",
+    "details": {
+      "email": "chetansonawane1260@gmail.com"
+    },
+    "created_at": "2026-10-11T08:03:43.571Z"
+  },
+  {
+    "id": "evt-1791705818041-rgpmu",
+    "customer_id": "917d6e8a-0acb-4d80-bc23-7a101f04fabc",
+    "event_type": "ACCOUNT_CREATED",
+    "actor_type": "CUSTOMER",
+    "actor_name": "CHETAN SONAWANE",
+    "details": {
+      "email": "chetansonawane1260@gmail.com",
+      "phone": "1234567890",
+      "terms_version": "v1.0",
+      "auth_user_id": "917d6e8a-0acb-4d80-bc23-7a101f04fabc"
+    },
+    "created_at": "2026-10-11T08:03:38.042Z"
+  },
+  {
     "id": "evt-1791608792378-d840v",
     "customer_id": "cust-1791608790690-5d1a937b",
     "event_type": "ACCOUNT_CREATED",

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { ArrowRight, Calendar, Clock, Play, ShieldCheck, Tag, Eye } from "lucide-react";
 import { getVideoByIdOrSlug, getPublishedVideos, getVideoSlug } from "@/lib/videoStore";
+import { formatVideoMetaTitle, formatVideoMetaDescription } from "@/lib/videoSlug";
 import { getCanonicalUrl } from "@/lib/seo";
 
 interface VideoDetailPageProps {
@@ -14,7 +15,7 @@ export const dynamicParams = true;
 
 export async function generateMetadata({ params }: VideoDetailPageProps) {
   const { slug } = await params;
-  const video = getVideoByIdOrSlug(slug);
+  const video = await getVideoByIdOrSlug(slug);
 
   if (!video) {
     return {
@@ -25,16 +26,18 @@ export async function generateMetadata({ params }: VideoDetailPageProps) {
   const allVideos = getPublishedVideos();
   const canonicalSlug = getVideoSlug(video, allVideos);
   const canonical = getCanonicalUrl(`/videos/${canonicalSlug}`);
+  const metaTitle = formatVideoMetaTitle(video.title);
+  const metaDescription = formatVideoMetaDescription(video.description, video.title);
 
   return {
-    title: `${video.title} | ModularHome.com Video Tour`,
-    description: video.description || `Watch official video tour of ${video.title} by ModularHome.com.`,
+    title: metaTitle,
+    description: metaDescription,
     alternates: {
       canonical,
     },
     openGraph: {
-      title: video.title,
-      description: video.description,
+      title: `${metaTitle} | ModularHome.com`,
+      description: metaDescription,
       url: canonical,
       siteName: "ModularHome.com",
       images: [{ url: video.thumbnail }],
@@ -42,8 +45,8 @@ export async function generateMetadata({ params }: VideoDetailPageProps) {
     },
     twitter: {
       card: "summary_large_image",
-      title: video.title,
-      description: video.description,
+      title: `${metaTitle} | ModularHome.com`,
+      description: metaDescription,
       images: [video.thumbnail],
     },
   };
@@ -58,7 +61,7 @@ export async function generateStaticParams() {
 
 export default async function VideoDetailPage({ params }: VideoDetailPageProps) {
   const { slug } = await params;
-  const video = getVideoByIdOrSlug(slug);
+  const video = await getVideoByIdOrSlug(slug);
 
   if (!video) {
     notFound();

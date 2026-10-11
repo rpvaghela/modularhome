@@ -355,7 +355,7 @@ export async function syncYouTubeChannel(): Promise<YouTubeSyncResult> {
     writeVideosToStore(cleanedStore);
 
     // 6. Upsert the genuine main videos
-    const { newCount, updatedCount } = batchUpsertVideos(mainVideos);
+    const { newCount, updatedCount } = await batchUpsertVideos(mainVideos);
     const finalStored = readVideosFromStore();
 
     const stats: SyncStats = {

@@ -89,3 +89,71 @@ export function generateUniqueSlug(
   }
   return `${base}-${counter}`;
 }
+
+/**
+ * Format video description for SEO meta tag (<= 155 chars, stripped of URLs, markdown, hashtags)
+ */
+export function formatVideoMetaDescription(rawDescription?: string, videoTitle?: string): string {
+  if (!rawDescription || typeof rawDescription !== "string") {
+    const title = (videoTitle || "modular home and cabin").replace(/#/g, "").trim();
+    return `Watch official video tour of ${title} by ModularHome.com. Explore floor plans, specs, and prefab construction.`.slice(0, 155);
+  }
+
+  let text = rawDescription
+    // Strip markdown links: [label](url) -> label
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    // Strip URLs
+    .replace(/https?:\/\/\S+/gi, "")
+    // Strip hashtags: #modularhomes
+    .replace(/#[a-zA-Z0-9_]+/g, "")
+    // Strip phone numbers like Call Now: 812-595-4033
+    .replace(/Call Now:?\s*[\d-() ]+/gi, "")
+    // Normalize whitespace and line breaks to single space
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // If text became too short after stripping
+  if (text.length < 30) {
+    const title = (videoTitle || "modular home and cabin").replace(/#/g, "").trim();
+    text = `Watch official video tour of ${title} by ModularHome.com. Explore floor plans, turnkey pricing, and modular home features.`;
+  }
+
+  // Truncate at word boundary to <= 155 chars
+  if (text.length > 155) {
+    const truncated = text.substring(0, 150);
+    const lastSpace = truncated.lastIndexOf(" ");
+    if (lastSpace > 100) {
+      return `${truncated.substring(0, lastSpace).trim()}...`;
+    }
+    return `${truncated.trim()}...`;
+  }
+
+  return text;
+}
+
+/**
+ * Format video title for SEO <title> tag to prevent duplication with root layout template
+ */
+export function formatVideoMetaTitle(videoTitle: string): string {
+  if (!videoTitle) return "Modular Home & Cabin Video Tour";
+
+  let clean = videoTitle
+    .replace(/#([a-zA-Z0-9]+)/g, "$1")
+    .replace(/\s*\|\s*ModularHome\.com.*$/i, "")
+    .replace(/\s*\|\s*Amish Modular.*$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // Keep short so "{title} | ModularHome.com" stays under 60-70 characters
+  if (clean.length > 55) {
+    const cut = clean.substring(0, 52);
+    const lastSpace = cut.lastIndexOf(" ");
+    if (lastSpace > 35) {
+      clean = cut.substring(0, lastSpace).trim();
+    } else {
+      clean = cut.trim();
+    }
+  }
+
+  return clean;
+}

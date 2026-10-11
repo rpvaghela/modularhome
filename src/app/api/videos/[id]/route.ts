@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const video = getVideoByIdOrSlug(id);
+    const video = await getVideoByIdOrSlug(id);
 
     if (!video) {
       return NextResponse.json(

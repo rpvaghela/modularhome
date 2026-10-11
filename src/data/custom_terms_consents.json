@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "tc-1791705816772-nodw6",
+    "customer_id": "917d6e8a-0acb-4d80-bc23-7a101f04fabc",
+    "email": "chetansonawane1260@gmail.com",
+    "policy_version": "v1.0",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "accepted_at": "2026-10-11T08:03:36.466Z"
+  }
+]
