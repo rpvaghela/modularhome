@@ -27,21 +27,11 @@ export async function GET(
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
       const orFilter = isUuid ? `id.eq.${id},handle.eq.${id}` : `handle.eq.${id}`;
 
-      let { data: blog, error } = await supabaseAdmin
+      const { data: blog } = await supabaseAdmin
         .from("blog_posts")
         .select("*")
         .or(orFilter)
         .maybeSingle();
-
-      if (error || !blog) {
-        const legacyFilter = isUuid ? `id.eq.${id},slug.eq.${id}` : `slug.eq.${id}`;
-        const { data: legacy } = await supabaseAdmin
-          .from("blogs")
-          .select("*")
-          .or(legacyFilter)
-          .maybeSingle();
-        blog = legacy;
-      }
 
       if (blog) {
         return NextResponse.json({

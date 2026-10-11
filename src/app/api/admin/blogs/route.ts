@@ -29,15 +29,7 @@ export async function GET(request: NextRequest) {
         }
 
         let { data, error } = await query;
-        if (error || !data || data.length === 0) {
-          const { data: legacy } = await supabaseAdmin
-            .from("blogs")
-            .select("*")
-            .order("published_at", { ascending: false });
-          data = legacy || [];
-        }
-
-        if (data) {
+        if (!error && data) {
           dbBlogs = data;
         }
       } catch (err) {

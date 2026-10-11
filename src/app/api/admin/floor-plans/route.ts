@@ -5,6 +5,9 @@ import { clearPublicDataCache } from "@/lib/publicData";
 import { readFloorPlansFromStore, saveCustomFloorPlan } from "@/lib/floorPlanStore";
 
 export async function GET(request: NextRequest) {
+  const authResult = await requireAdminAuth();
+  if (authResult instanceof NextResponse) return authResult;
+
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
