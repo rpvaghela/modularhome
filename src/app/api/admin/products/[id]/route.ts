@@ -27,11 +27,14 @@ export async function GET(
       );
     }
 
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const filter = isUuid ? `id.eq.${id},handle.eq.${id}` : `handle.eq.${id}`;
+
     const { data: p, error } = await supabaseAdmin
       .from("products")
       .select("*, product_variants(*), product_media(*), product_collections(collection_id)")
-      .or(`id.eq.${id},handle.eq.${id}`)
-      .single();
+      .or(filter)
+      .maybeSingle();
 
     if (error || !p) {
       return NextResponse.json(
@@ -217,10 +220,13 @@ export async function PUT(
         if (body.tagline !== undefined) updatePayload.tagline = body.tagline;
         if (body.primaryImage !== undefined) updatePayload.primary_image_url = body.primaryImage;
 
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        const updateFilter = isUuid ? `id.eq.${id},handle.eq.${cleanSlug || id}` : `handle.eq.${cleanSlug || id}`;
+
         const { data: updatedProd } = await supabaseAdmin
           .from("products")
           .update(updatePayload)
-          .or(`id.eq.${id},handle.eq.${cleanSlug || id}`)
+          .or(updateFilter)
           .select("id")
           .maybeSingle();
 
@@ -279,7 +285,9 @@ export async function DELETE(
     // 2. Delete from Supabase
     if (isSupabaseConfigured()) {
       try {
-        await supabaseAdmin.from("products").delete().or(`id.eq.${id},handle.eq.${id}`);
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        const deleteFilter = isUuid ? `id.eq.${id},handle.eq.${id}` : `handle.eq.${id}`;
+        await supabaseAdmin.from("products").delete().or(deleteFilter);
       } catch (sbErr) {
         console.warn("Supabase delete product warning:", sbErr);
       }

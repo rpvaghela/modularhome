@@ -20,6 +20,9 @@ export async function GET(
       );
     }
 
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const filter = isUuid ? `id.eq.${id},handle.eq.${id}` : `handle.eq.${id}`;
+
     const { data: collection, error } = await supabaseAdmin
       .from("collections")
       .select(`
@@ -28,8 +31,8 @@ export async function GET(
           product_id
         )
       `)
-      .or(`id.eq.${id},handle.eq.${id}`)
-      .single();
+      .or(filter)
+      .maybeSingle();
 
     if (error || !collection) {
       return NextResponse.json(
@@ -132,20 +135,31 @@ export async function PUT(
     }
 
     if (isSupabaseConfigured()) {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      let targetId = id;
+      if (!isUuid) {
+        const { data: colMatch } = await supabaseAdmin
+          .from("collections")
+          .select("id")
+          .eq("handle", id)
+          .maybeSingle();
+        if (colMatch?.id) targetId = colMatch.id;
+      }
+
       const { data: updated, error } = await supabaseAdmin
         .from("collections")
         .update(updates)
-        .eq("id", id)
+        .eq("id", targetId)
         .select()
         .single();
 
       if (error) throw error;
 
       if (Array.isArray(body.productIds)) {
-        await supabaseAdmin.from("product_collections").delete().eq("collection_id", id);
+        await supabaseAdmin.from("product_collections").delete().eq("collection_id", targetId);
         if (body.productIds.length > 0) {
           const mappings = body.productIds.map((pId: string) => ({
-            collection_id: id,
+            collection_id: targetId,
             product_id: pId,
           }));
           await supabaseAdmin.from("product_collections").insert(mappings);
@@ -195,7 +209,9 @@ export async function DELETE(
     const { id } = await params;
 
     if (isSupabaseConfigured()) {
-      const { error } = await supabaseAdmin.from("collections").delete().eq("id", id);
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      const deleteFilter = isUuid ? `id.eq.${id},handle.eq.${id}` : `handle.eq.${id}`;
+      const { error } = await supabaseAdmin.from("collections").delete().or(deleteFilter);
       if (error) throw error;
     }
 

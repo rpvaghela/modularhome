@@ -20,6 +20,11 @@ export async function GET(
 
     const cleanToken = decodeURIComponent(token).trim();
 
+    // Reject tokens with path traversal or illegal characters
+    if (!/^[a-zA-Z0-9_\-\.]+$/.test(cleanToken) || cleanToken.includes("..") || cleanToken.includes("/") || cleanToken.includes("\\")) {
+      return new NextResponse("Invalid download token format.", { status: 400 });
+    }
+
     let targetFilePath = "";
     let downloadFilename = "modularhome-architectural-blueprint-kit.pdf";
     let isAuthorized = false;
@@ -80,23 +85,13 @@ export async function GET(
       }
     }
 
-    // 3. Fallback check: Direct floor plan slug, ID, or file name
+    // 3. Fallback check: Valid floor plan slug catalog demo access
     if (!isAuthorized) {
       const plan = await getPublicFloorPlanBySlug(cleanToken);
-      if (plan) {
+      if (plan && plan.filePath) {
         isAuthorized = true;
-        targetFilePath = plan.filePath || "";
+        targetFilePath = plan.filePath;
         downloadFilename = `${plan.slug}-blueprint.pdf`;
-      } else if (
-        cleanToken.toLowerCase().endsWith(".pdf") ||
-        cleanToken.toLowerCase().endsWith(".zip") ||
-        cleanToken.toLowerCase().endsWith(".dwg") ||
-        cleanToken.length >= 24
-      ) {
-        // Direct file name or direct session token
-        isAuthorized = true;
-        targetFilePath = cleanToken;
-        downloadFilename = cleanToken.split("/").pop() || "architectural-blueprint.pdf";
       }
     }
 
@@ -140,19 +135,22 @@ export async function GET(
       }
     }
 
-    // 5. Resolve and deliver file from Local File System
+    // 5. Resolve and deliver file from Local File System (safely constrained to public directory)
+    const safeBaseDir = path.resolve(process.cwd(), "public");
+    const sanitizedTarget = targetFilePath.replace(/^[/\\]+/, "").replace(/\.\.[/\\]/g, "");
+
     const possiblePaths = [
-      targetFilePath,
-      path.join(process.cwd(), "public", targetFilePath.replace(/^\/+/, "")),
-      path.join(process.cwd(), "public", "uploads", targetFilePath.replace(/^\/+/, "")),
-      path.join(process.cwd(), "public", "uploads", "floor-plans", "packages", targetFilePath.replace(/^\/+/, "")),
-      path.join(process.cwd(), "public", "uploads", "floor-plans", targetFilePath.replace(/^\/+/, "")),
-      path.join(process.cwd(), "public", "uploads", "general", targetFilePath.replace(/^\/+/, "")),
-      path.join(process.cwd(), "public", path.basename(targetFilePath)),
+      path.resolve(safeBaseDir, sanitizedTarget),
+      path.resolve(safeBaseDir, "uploads", sanitizedTarget),
+      path.resolve(safeBaseDir, "uploads", "floor-plans", "packages", path.basename(sanitizedTarget)),
+      path.resolve(safeBaseDir, "uploads", "floor-plans", path.basename(sanitizedTarget)),
+      path.resolve(safeBaseDir, "uploads", "general", path.basename(sanitizedTarget)),
+      path.resolve(safeBaseDir, path.basename(sanitizedTarget)),
     ];
 
     for (const testPath of possiblePaths) {
-      if (testPath && fs.existsSync(testPath) && fs.statSync(testPath).isFile()) {
+      // Strict path traversal defense: verify testPath starts with safeBaseDir
+      if (testPath.startsWith(safeBaseDir) && fs.existsSync(testPath) && fs.statSync(testPath).isFile()) {
         try {
           const fileBuffer = fs.readFileSync(testPath);
           const ext = path.extname(testPath).toLowerCase();

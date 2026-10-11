@@ -8,6 +8,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await requireAdminAuth();
+  if (authResult instanceof NextResponse) return authResult;
+
   try {
     const { id } = await params;
 
@@ -24,10 +27,13 @@ export async function GET(
       );
     }
 
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const filter = isUuid ? `id.eq.${id},slug.eq.${id}` : `slug.eq.${id}`;
+
     const { data: plan, error } = await supabaseAdmin
       .from("floor_plans")
       .select("*")
-      .or(`id.eq.${id},slug.eq.${id}`)
+      .or(filter)
       .maybeSingle();
 
     if (error || !plan) {
@@ -142,10 +148,13 @@ export async function PUT(
         if (body.metaDescription !== undefined) updatePayload.meta_description = body.metaDescription;
         if (body.meta_description !== undefined) updatePayload.meta_description = body.meta_description;
 
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        const updateFilter = isUuid ? `id.eq.${id},slug.eq.${cleanSlug}` : `slug.eq.${cleanSlug}`;
+
         await supabaseAdmin
           .from("floor_plans")
           .update(updatePayload)
-          .or(`id.eq.${id},slug.eq.${cleanSlug}`);
+          .or(updateFilter);
       } catch (sbErr) {
         console.warn("Supabase floor plan update warning:", sbErr);
       }
@@ -186,10 +195,13 @@ export async function DELETE(
     // 2. Delete from Supabase
     if (isSupabaseConfigured()) {
       try {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        const deleteFilter = isUuid ? `id.eq.${id},slug.eq.${id}` : `slug.eq.${id}`;
+
         await supabaseAdmin
           .from("floor_plans")
           .delete()
-          .or(`id.eq.${id},slug.eq.${id}`);
+          .or(deleteFilter);
       } catch (sbErr) {
         console.warn("Supabase floor plan delete warning:", sbErr);
       }

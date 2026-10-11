@@ -106,9 +106,6 @@ export async function GET() {
 
         if (spBlogs && spBlogs.length > 0) {
           rawDbBlogs = spBlogs;
-        } else {
-          const { data: legacyBlogs } = await supabaseAdmin.from("blogs").select("id, slug, handle, status");
-          if (legacyBlogs) rawDbBlogs = legacyBlogs;
         }
 
         const { count: spNewLeads } = await supabaseAdmin
