@@ -100,14 +100,23 @@ export function formatVideoMetaDescription(rawDescription?: string, videoTitle?:
   }
 
   let text = rawDescription
+    // Clean up domain references in markdown links or URLs to readable brand domain names
+    .replace(/\[https?:\/\/(?:www\.)?amishbuiltcabins\.com\/?\]\([^)]+\)/gi, "AmishBuiltCabins.com.")
+    .replace(/\[https?:\/\/(?:www\.)?modularhome\.com\/?\]\([^)]+\)/gi, "ModularHome.com.")
+    .replace(/https?:\/\/(?:www\.)?amishbuiltcabins\.com\/?/gi, "AmishBuiltCabins.com.")
+    .replace(/https?:\/\/(?:www\.)?modularhome\.com\/?/gi, "ModularHome.com.")
     // Strip markdown links: [label](url) -> label
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    // Strip URLs
+    // Strip remaining raw URLs
     .replace(/https?:\/\/\S+/gi, "")
     // Strip hashtags: #modularhomes
     .replace(/#[a-zA-Z0-9_]+/g, "")
     // Strip phone numbers like Call Now: 812-595-4033
     .replace(/Call Now:?\s*[\d-() ]+/gi, "")
+    // Fix dangling 'at Welcome' -> 'Welcome'
+    .replace(/\bat\s+Welcome\b/gi, "Welcome")
+    // Fix double periods
+    .replace(/([.,])\s*\./g, ".")
     // Normalize whitespace and line breaks to single space
     .replace(/\s+/g, " ")
     .trim();

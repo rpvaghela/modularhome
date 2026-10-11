@@ -9,6 +9,7 @@ import {
   readSyncStats 
 } from "@/lib/videoStore";
 import { requireAdminAuth } from "@/lib/auth";
+import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -22,7 +23,21 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || undefined;
 
     const videos = getAllVideos({ category, search });
-    const stats = readSyncStats();
+    let stats = readSyncStats();
+
+    if (isSupabaseConfigured()) {
+      try {
+        const { data: gs } = await supabaseAdmin
+          .from("global_settings")
+          .select("custom_scripts")
+          .eq("id", "primary")
+          .maybeSingle();
+
+        if (gs?.custom_scripts?.video_sync_stats) {
+          stats = gs.custom_scripts.video_sync_stats;
+        }
+      } catch (e) {}
+    }
 
     return NextResponse.json(
       {

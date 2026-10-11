@@ -141,6 +141,31 @@ export function saveSyncStats(stats: SyncStats): void {
     ensureDataDirectory();
     fs.writeFileSync(STATS_FILE_PATH, JSON.stringify(stats, null, 2), "utf-8");
   } catch (error) {}
+
+  if (isSupabaseConfigured()) {
+    (async () => {
+      try {
+        const { data: curr } = await supabaseAdmin
+          .from("global_settings")
+          .select("custom_scripts")
+          .eq("id", "primary")
+          .maybeSingle();
+
+        const existingScripts = curr?.custom_scripts || {};
+        await supabaseAdmin
+          .from("global_settings")
+          .update({
+            custom_scripts: {
+              ...existingScripts,
+              video_sync_stats: stats,
+            },
+          })
+          .eq("id", "primary");
+      } catch (e) {
+        console.error("Failed to persist sync stats to global_settings:", e);
+      }
+    })();
+  }
 }
 
 export function getPublishedVideos(params?: { category?: string; search?: string }): VideoItem[] {
@@ -486,6 +511,23 @@ export async function updateVideoSlug(
         .or(`id.eq.${targetVideo.id},youtube_video_id.eq.${targetVideo.youtubeVideoId}`);
 
       const newTarget = `/videos/${cleanSlug}`;
+
+      // 1. Delete/remove any existing redirect rule whose source (from_path) is the new slug
+      // This prevents infinite redirect loops when changing a slug back to a previous value
+      await supabaseAdmin
+        .from("redirects")
+        .delete()
+        .or(`from_path.ilike./videos/${cleanSlug},from_path.eq./videos/${cleanSlug}`);
+
+      // 2. Flatten older redirects pointing to the previous slug -> point them directly to newTarget (eliminates 2-hop chains)
+      if (oldSlug && oldSlug.toLowerCase() !== cleanSlug.toLowerCase()) {
+        await supabaseAdmin
+          .from("redirects")
+          .update({ to_path: newTarget })
+          .or(`to_path.ilike./videos/${oldSlug},to_path.eq./videos/${oldSlug}`);
+      }
+
+      // 3. Upsert new direct 301 redirects for previous slug and YouTube ID
       const redirectsToUpsert: any[] = [];
 
       if (oldSlug && oldSlug.toLowerCase() !== cleanSlug.toLowerCase()) {
@@ -495,12 +537,14 @@ export async function updateVideoSlug(
           http_status: 301,
           source: "video_slug_update",
         });
-        redirectsToUpsert.push({
-          from_path: `/videos/${oldSlug.toLowerCase()}`,
-          to_path: newTarget,
-          http_status: 301,
-          source: "video_slug_update",
-        });
+        if (oldSlug !== oldSlug.toLowerCase()) {
+          redirectsToUpsert.push({
+            from_path: `/videos/${oldSlug.toLowerCase()}`,
+            to_path: newTarget,
+            http_status: 301,
+            source: "video_slug_update",
+          });
+        }
       }
 
       redirectsToUpsert.push({
@@ -509,12 +553,14 @@ export async function updateVideoSlug(
         http_status: 301,
         source: "video_slug_update",
       });
-      redirectsToUpsert.push({
-        from_path: `/videos/${targetVideo.youtubeVideoId.toLowerCase()}`,
-        to_path: newTarget,
-        http_status: 301,
-        source: "video_slug_update",
-      });
+      if (targetVideo.youtubeVideoId !== targetVideo.youtubeVideoId.toLowerCase()) {
+        redirectsToUpsert.push({
+          from_path: `/videos/${targetVideo.youtubeVideoId.toLowerCase()}`,
+          to_path: newTarget,
+          http_status: 301,
+          source: "video_slug_update",
+        });
+      }
 
       for (const r of redirectsToUpsert) {
         await supabaseAdmin.from("redirects").upsert(r, { onConflict: "from_path" });
@@ -529,10 +575,22 @@ export async function updateVideoSlug(
     if (fs && fs.existsSync(REDIRECTS_FILE_PATH)) {
       const redirects = JSON.parse(fs.readFileSync(REDIRECTS_FILE_PATH, "utf-8"));
       const newTarget = `/videos/${cleanSlug}`;
-      if (oldSlug && oldSlug !== cleanSlug) {
+
+      // Remove any redirect rule whose from_path matches the new slug
+      delete redirects[`/videos/${cleanSlug}`];
+      delete redirects[`/videos/${cleanSlug.toLowerCase()}`];
+
+      // Flatten existing entries pointing to oldSlug
+      if (oldSlug && oldSlug.toLowerCase() !== cleanSlug.toLowerCase()) {
+        for (const k of Object.keys(redirects)) {
+          if (redirects[k]?.toLowerCase() === `/videos/${oldSlug.toLowerCase()}`) {
+            redirects[k] = newTarget;
+          }
+        }
         redirects[`/videos/${oldSlug}`] = newTarget;
         redirects[`/videos/${oldSlug.toLowerCase()}`] = newTarget;
       }
+
       redirects[`/videos/${targetVideo.youtubeVideoId}`] = newTarget;
       redirects[`/videos/${targetVideo.youtubeVideoId.toLowerCase()}`] = newTarget;
       fs.writeFileSync(REDIRECTS_FILE_PATH, JSON.stringify(redirects, null, 2), "utf-8");

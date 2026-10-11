@@ -165,7 +165,34 @@ export async function middleware(request: NextRequest) {
         if (rRes.ok) {
           const rData = await rRes.json();
           if (Array.isArray(rData) && rData.length > 0 && rData[0].to_path) {
-            destinationPath = rData[0].to_path;
+            let candidate = rData[0].to_path;
+            // Prevent redirect loop: ignore redirect if candidate matches current path
+            if (candidate.toLowerCase() !== lowerPath) {
+              // Flatten redirect chain (prevent 2-hop redirects like A -> B -> C)
+              if (candidate.toLowerCase().startsWith("/videos/")) {
+                try {
+                  const chainUrl = `${supabaseUrl}/rest/v1/redirects?from_path=eq.${encodeURIComponent(candidate.toLowerCase())}&select=to_path&limit=1`;
+                  const cController = new AbortController();
+                  const cTimeout = setTimeout(() => cController.abort(), 600);
+                  const cRes = await fetch(chainUrl, {
+                    headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+                    signal: cController.signal,
+                  });
+                  clearTimeout(cTimeout);
+                  if (cRes.ok) {
+                    const cData = await cRes.json();
+                    if (Array.isArray(cData) && cData.length > 0 && cData[0].to_path) {
+                      const secondHop = cData[0].to_path;
+                      // Guard against loop back to current lowerPath
+                      if (secondHop.toLowerCase() !== lowerPath) {
+                        candidate = secondHop;
+                      }
+                    }
+                  }
+                } catch (e) {}
+              }
+              destinationPath = candidate;
+            }
           }
         }
 
@@ -185,7 +212,10 @@ export async function middleware(request: NextRequest) {
           if (vRes.ok) {
             const vData = await vRes.json();
             if (Array.isArray(vData) && vData.length > 0 && vData[0].slug) {
-              destinationPath = `/videos/${vData[0].slug}`;
+              const targetCandidate = `/videos/${vData[0].slug}`;
+              if (targetCandidate.toLowerCase() !== lowerPath) {
+                destinationPath = targetCandidate;
+              }
             }
           }
         }
