@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { 
   Landmark, 
   CreditCard, 
@@ -10,19 +11,23 @@ import {
   Percent, 
   BadgeDollarSign, 
   Sparkles,
-  HelpCircle
+  HelpCircle,
+  PhoneCall,
+  Home
 } from "lucide-react";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
-import DynamicPageRenderer from "@/components/DynamicPageRenderer";
 import { getCanonicalUrl } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+const ACCURATE_MODULAR_FINANCING_IMAGE = "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545";
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPublicPageBySlug("financing");
   const title = page?.seoTitle || "Modular Home Financing & Loan Programs | ModularHome.com";
   const description = page?.metaDescription || "Explore flexible financing options for your modular home or prefab cabin. Construction-to-permanent loans, land-home packages, and FHA/VA options.";
   const canonical = getCanonicalUrl("/financing");
+  const metaImage = page?.featuredImage || ACCURATE_MODULAR_FINANCING_IMAGE;
 
   return {
     title,
@@ -33,14 +38,14 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       url: canonical,
       siteName: "ModularHome.com",
-      images: [{ url: "/newmodularlogo.png", alt: "Modular Home Financing" }],
+      images: [{ url: metaImage, alt: "Modular Home Financing & Loans" }],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: ["/newmodularlogo.png"],
+      images: [metaImage],
     },
   };
 }
@@ -135,18 +140,16 @@ const FAQS = [
 ];
 
 export default async function FinancingPage() {
-  const page = await getPublicPageBySlug("financing");
-
-  if (page && ((page.sections && page.sections.length > 0) || (page.content && page.content.trim().length > 50))) {
-    return <DynamicPageRenderer page={page} />;
-  }
-
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
     name: "Modular Home Financing",
     description: "Financing guides, loan structures, and construction-to-permanent mortgages for modular homes.",
     url: "https://modularhome.com/financing",
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: ACCURATE_MODULAR_FINANCING_IMAGE,
+    },
     publisher: {
       "@type": "Organization",
       name: "ModularHome.com",
@@ -166,31 +169,104 @@ export default async function FinancingPage() {
         <div className="wrap py-3 text-xs text-[#6b7280] flex items-center gap-2">
           <Link href="/" className="hover:text-[#101114] transition-colors">Home</Link>
           <span>/</span>
-          <span className="text-[#d97706] font-bold">Financing</span>
+          <span className="text-[#d97706] font-bold">Financing &amp; Loans</span>
         </div>
       </div>
 
-      {/* Hero */}
+      {/* Hero Section with Accurate Modular Home Picture */}
       <section className="py-12 sm:py-16 bg-gradient-to-b from-[#f8f9fa] to-white border-b border-[#e7e9ee]">
-        <div className="wrap max-w-4xl text-center mx-auto">
-          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] mb-3 bg-[#fef3c7] px-3 py-1 rounded-full">
-            <Percent className="w-3.5 h-3.5 text-[#d97706]" />
-            <span>Smart Home Lending</span>
+        <div className="wrap">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Left Content */}
+            <div className="lg:col-span-7 space-y-5">
+              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] bg-[#fef3c7] px-3.5 py-1.5 rounded-full">
+                <Percent className="w-3.5 h-3.5 text-[#d97706]" />
+                <span>Smart Home Lending</span>
+              </div>
+
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-[-1.5px] text-[#101114] leading-[1.05] font-display">
+                Modular Home Financing &amp; Loan Programs
+              </h1>
+
+              <p className="text-base sm:text-lg text-[#4b5563] leading-relaxed font-body">
+                Turn your dream home into an affordable reality. Because our homes are built to state residential building codes and installed on permanent concrete foundations, they qualify 100% for standard 30-year conventional, FHA, VA, and USDA mortgages.
+              </p>
+
+              {/* Value Highlights */}
+              <div className="grid grid-cols-3 gap-3 pt-2">
+                <div className="p-3.5 rounded-xl bg-white border border-[#e7e9ee] shadow-2xs">
+                  <div className="text-xl sm:text-2xl font-black text-emerald-700 font-display">3.5%</div>
+                  <div className="text-[11px] font-semibold text-[#6b7280]">Down Payment (FHA)</div>
+                </div>
+                <div className="p-3.5 rounded-xl bg-white border border-[#e7e9ee] shadow-2xs">
+                  <div className="text-xl sm:text-2xl font-black text-[#101114] font-display">0% Down</div>
+                  <div className="text-[11px] font-semibold text-[#6b7280]">For Eligible VA &amp; USDA</div>
+                </div>
+                <div className="p-3.5 rounded-xl bg-white border border-[#e7e9ee] shadow-2xs">
+                  <div className="text-xl sm:text-2xl font-black text-[#d97706] font-display">1-Close</div>
+                  <div className="text-[11px] font-semibold text-[#6b7280]">Construction-to-Perm</div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link
+                  href="/quote"
+                  className="px-6 py-3.5 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black text-xs uppercase tracking-wider transition-all shadow-md inline-flex items-center gap-2"
+                >
+                  <span>Check Loan Pre-Approval</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="px-6 py-3.5 rounded-xl bg-white hover:bg-stone-50 border border-[#d5d9e0] text-[#101114] font-bold text-xs uppercase tracking-wider transition-all"
+                >
+                  <span>View Pricing &amp; Packages</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Right: Accurate Modular Home Picture */}
+            <div className="lg:col-span-5 relative">
+              <div className="relative aspect-[4/3] rounded-[22px] overflow-hidden border border-[#e7e9ee] shadow-2xl group">
+                <Image
+                  src={ACCURATE_MODULAR_FINANCING_IMAGE}
+                  alt="Precision Factory-Built Modular Residence with Permanent Foundation — ModularHome.com Financing"
+                  fill
+                  priority
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  sizes="(max-width: 1024px) 100vw, 45vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                <div className="absolute top-4 left-4">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-black/70 backdrop-blur-md text-white border border-white/20">
+                    Real Modular Home Model
+                  </span>
+                </div>
+                <div className="absolute bottom-4 left-4 right-4 p-4 rounded-xl bg-black/75 backdrop-blur-md text-white border border-white/15">
+                  <div className="text-xs uppercase font-extrabold tracking-wider text-[#fcb907]">
+                    100% Mortgage Eligible
+                  </div>
+                  <div className="text-sm font-bold mt-0.5 text-white/95">
+                    Permanent Foundation • Conventional, FHA, VA &amp; USDA Loans
+                  </div>
+                  <div className="text-[11px] text-white/70 mt-1">
+                    Appraises Identically to Site-Built Real Estate
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-[-1.5px] text-[#101114] leading-[1.05]">
-            Modular Home Financing & Loan Programs
-          </h1>
-          <p className="mt-4 text-base sm:text-lg text-[#6b7280] max-w-2xl mx-auto leading-relaxed">
-            Turn your dream home into an affordable reality. We partner with leading nationwide lenders who specialize in construction-to-permanent modular loans and land packages.
-          </p>
         </div>
       </section>
 
       {/* Loan Types */}
-      <section className="py-14 bg-white">
+      <section className="py-16 bg-white">
         <div className="wrap">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="text-2xl sm:text-3xl font-black text-[#101114] tracking-tight">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#d97706]">
+              Modular Mortgage Solutions
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#101114] tracking-tight font-display mt-1">
               Flexible Loan Solutions Tailored to You
             </h2>
             <p className="text-xs sm:text-sm text-[#6b7280] mt-2">
@@ -202,10 +278,10 @@ export default async function FinancingPage() {
             {LOAN_TYPES.map((loan, idx) => {
               const Icon = loan.icon;
               return (
-                <div key={idx} className="bg-[#f8f9fa] border border-[#e7e9ee] p-6 sm:p-8 rounded-[18px] flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div key={idx} className="bg-[#f8f9fa] border border-[#e7e9ee] p-6 sm:p-8 rounded-[20px] flex flex-col justify-between hover:shadow-md transition-shadow">
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <div className="w-10 h-10 rounded-xl bg-[#fcb907]/20 text-[#d97706] flex items-center justify-center">
+                      <div className="w-11 h-11 rounded-xl bg-[#fcb907]/20 text-[#d97706] flex items-center justify-center">
                         <Icon className="w-5 h-5" />
                       </div>
                       <span className="text-[11px] font-bold uppercase tracking-wider bg-white px-3 py-1 rounded-full border border-[#e7e9ee] text-[#101114]">
@@ -216,7 +292,7 @@ export default async function FinancingPage() {
                     <p className="text-xs text-[#6b7280] leading-relaxed mb-6">{loan.description}</p>
                     <div className="space-y-2.5">
                       {loan.features.map((f, fIdx) => (
-                        <div key={fIdx} className="flex items-start gap-2 text-xs text-[#374151]">
+                        <div key={fIdx} className="flex items-start gap-2.5 text-xs text-[#374151]">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                           <span>{f}</span>
                         </div>
@@ -231,10 +307,13 @@ export default async function FinancingPage() {
       </section>
 
       {/* 4-Step Process */}
-      <section className="py-14 bg-[#f8f9fa] border-y border-[#e7e9ee]">
+      <section className="py-16 bg-[#f8f9fa] border-y border-[#e7e9ee]">
         <div className="wrap">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="text-2xl sm:text-3xl font-black text-[#101114] tracking-tight">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#d97706]">
+              Clear Milestone Roadmap
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#101114] tracking-tight font-display mt-1">
               The 4-Step Financing Journey
             </h2>
             <p className="text-xs sm:text-sm text-[#6b7280] mt-2">
@@ -244,8 +323,8 @@ export default async function FinancingPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {FINANCING_STEPS.map((step) => (
-              <div key={step.num} className="bg-white p-6 rounded-[16px] border border-[#e7e9ee] relative">
-                <div className="text-3xl font-black text-[#fcb907] mb-3">{step.num}</div>
+              <div key={step.num} className="bg-white p-6 rounded-[18px] border border-[#e7e9ee] relative shadow-2xs hover:shadow-md transition-shadow">
+                <div className="text-3xl font-black text-[#fcb907] mb-3 font-mono">{step.num}</div>
                 <h3 className="text-sm font-black text-[#101114] mb-2">{step.title}</h3>
                 <p className="text-xs text-[#6b7280] leading-relaxed">{step.desc}</p>
               </div>
@@ -255,22 +334,25 @@ export default async function FinancingPage() {
       </section>
 
       {/* FAQs */}
-      <section className="py-14 bg-white">
+      <section className="py-16 bg-white">
         <div className="wrap max-w-3xl">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl sm:text-3xl font-black text-[#101114] tracking-tight">
+          <div className="text-center mb-10">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#d97706]">
+              Buyer Knowledge
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#101114] tracking-tight font-display mt-1">
               Financing Frequently Asked Questions
             </h2>
           </div>
 
           <div className="space-y-4">
             {FAQS.map((faq, idx) => (
-              <div key={idx} className="p-5 bg-[#f8f9fa] rounded-[14px] border border-[#e7e9ee]">
-                <h3 className="font-bold text-sm text-[#101114] flex items-center gap-2 mb-2">
+              <div key={idx} className="p-6 bg-[#f8f9fa] rounded-[18px] border border-[#e7e9ee]">
+                <h3 className="font-bold text-sm text-[#101114] flex items-center gap-2.5 mb-2">
                   <HelpCircle className="w-4 h-4 text-[#d97706] shrink-0" />
                   <span>{faq.q}</span>
                 </h3>
-                <p className="text-xs text-[#6b7280] leading-relaxed pl-6">{faq.a}</p>
+                <p className="text-xs text-[#4b5563] leading-relaxed pl-6.5 font-body">{faq.a}</p>
               </div>
             ))}
           </div>
@@ -278,28 +360,35 @@ export default async function FinancingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-12 bg-[#101114] text-white">
-        <div className="wrap max-w-4xl text-center space-y-4">
-          <h2 className="text-2xl sm:text-4xl font-black tracking-tight">
+      <section className="py-16 bg-[#101114] text-white">
+        <div className="wrap max-w-4xl text-center space-y-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#fcb907] text-xs font-black uppercase tracking-widest">
+            <span>Approved Lending Network</span>
+          </div>
+
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight font-display">
             Get Connected with an Approved Modular Lender
           </h2>
-          <p className="text-xs sm:text-sm text-gray-300 max-w-xl mx-auto">
+
+          <p className="text-xs sm:text-base text-gray-300 max-w-xl mx-auto leading-relaxed">
             Our financing specialists can pair you with loan officers experienced in off-site modular home mortgages in your specific state.
           </p>
+
           <div className="pt-2 flex flex-wrap justify-center gap-3">
             <Link
               href="/quote"
-              className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black text-xs uppercase tracking-wider py-3.5 px-6 rounded-[10px] transition-all flex items-center gap-2"
+              className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black text-xs uppercase tracking-wider py-4 px-7 rounded-[12px] transition-all flex items-center gap-2 shadow-lg hover:scale-105"
             >
               <span>Request Pre-Approval Assistance</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link
-              href="/contact"
-              className="bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider py-3.5 px-6 rounded-[10px] transition-all"
+            <a
+              href="tel:8125954033"
+              className="bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider py-4 px-7 rounded-[12px] transition-all border border-white/20 inline-flex items-center gap-2"
             >
-              Speak with a Advisor
-            </Link>
+              <PhoneCall className="w-4 h-4 text-[#fcb907]" />
+              <span>Call 812-595-4033</span>
+            </a>
           </div>
         </div>
       </section>

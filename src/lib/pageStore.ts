@@ -305,7 +305,7 @@ const SEED_PAGES: CmsPage[] = [
   <li><strong>Interior Finishes:</strong> Standard vs premium architectural upgrades, appliances, and fixtures.</li>
 </ul>`,
     status: "PUBLISHED",
-    featuredImage: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=80",
+    featuredImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691",
     seoTitle: "Pricing & Packages | ModularHome.com",
     metaDescription: "Explore transparent modular home pricing, cost per square foot, shell kits, and turnkey move-in ready packages.",
     sections: [
@@ -354,7 +354,7 @@ const SEED_PAGES: CmsPage[] = [
   <li><strong>Permanent Conversion:</strong> Final walkthrough is completed, and your loan converts to your fixed monthly mortgage.</li>
 </ol>`,
     status: "PUBLISHED",
-    featuredImage: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1600&q=80",
+    featuredImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545",
     seoTitle: "Modular Home Financing & Construction Loans | ModularHome.com",
     metaDescription: "Learn how to finance your modular home with construction-to-permanent loans, FHA/VA options, and preferred lenders.",
     sections: [

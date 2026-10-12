@@ -71,7 +71,7 @@ const SEED_ARTICLES = [
     readTime: "6 min read",
     author: "Elena Rostova, Mortgage Specialist",
     excerpt: "Everything you need to know about securing a construction-to-permanent loan, land equity rollover, and FHA/VA modular financing.",
-    image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1200&q=80",
+    image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545",
     date: "Feb 18, 2026",
     published_at: "2026-02-18T14:15:00.000Z",
     status: "PUBLISHED",

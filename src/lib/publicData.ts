@@ -892,7 +892,7 @@ function resolveBlogImage(b: any): string {
     return "https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=1200&q=80";
   }
   if (titleLower.includes("financing") || titleLower.includes("cost") || titleLower.includes("loan")) {
-    return "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1200&q=80";
+    return "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545";
   }
   if (titleLower.includes("permit") || titleLower.includes("zoning")) {
     return "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80";
