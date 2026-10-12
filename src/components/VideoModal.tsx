@@ -13,6 +13,8 @@ interface VideoModalProps {
 import { extractYouTubeId, resolveVideoEmbedUrl, getVideoSlug } from "@/lib/videoUtils";
 export { extractYouTubeId, resolveVideoEmbedUrl, getVideoSlug };
 
+import ShareButton from "@/components/ShareButton";
+
 export default function VideoModal({ video, onClose }: VideoModalProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -36,6 +38,15 @@ export default function VideoModal({ video, onClose }: VideoModalProps) {
   const isDirectVideo = embedSrc.endsWith(".mp4") || embedSrc.endsWith(".webm") || embedSrc.endsWith(".mov");
   const watchUrl = video.youtubeUrl || (video.youtubeVideoId ? `https://www.youtube.com/watch?v=${video.youtubeVideoId}` : "");
   const detailSlug = getVideoSlug(video);
+  const canonicalUrl = `https://modularhome.com/videos/${detailSlug}`;
+
+  const shareItem = {
+    title: `${video.title} | ModularHome.com Video Tour`,
+    url: canonicalUrl,
+    description: video.description || `Watch this official video tour on ModularHome.com`,
+    image: video.thumbnail,
+    category: video.category,
+  };
 
   return (
     <div
@@ -114,6 +125,16 @@ export default function VideoModal({ video, onClose }: VideoModalProps) {
           </div>
 
           <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+            <ShareButton
+              item={shareItem}
+              variant="button"
+              label="Share"
+              buttonTitle="Share video tour with SEO link"
+              modalTitle="Share Video Tour"
+              modalSubtitle="Share this video tour with canonical ModularHome.com link"
+              className="!bg-[var(--r)] hover:!bg-[var(--r-dark)] !text-white text-xs font-bold px-3.5 py-1.5 rounded-lg transition-colors inline-flex items-center gap-1.5"
+              iconClassName="w-3.5 h-3.5"
+            />
             {detailSlug && (
               <Link
                 href={`/videos/${detailSlug}`}
@@ -128,7 +149,7 @@ export default function VideoModal({ video, onClose }: VideoModalProps) {
                 href={watchUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3.5 py-1.5 rounded-lg bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-bold transition-colors inline-flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5"
               >
                 <span>YouTube</span>
                 <ExternalLink className="w-3 h-3" />

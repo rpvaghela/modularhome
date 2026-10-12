@@ -28,6 +28,8 @@ interface ShareButtonProps {
   className?: string;
   iconClassName?: string;
   buttonTitle?: string;
+  modalTitle?: string;
+  modalSubtitle?: string;
 }
 
 // ─── Social network definitions ───────────────────────────────────────────────
@@ -100,10 +102,12 @@ const SOCIAL_LINKS = [
 interface ShareModalProps {
   item: ShareData;
   shareUrl: string;
+  modalTitle?: string;
+  modalSubtitle?: string;
   onClose: () => void;
 }
 
-function ShareModal({ item, shareUrl, onClose }: ShareModalProps) {
+function ShareModal({ item, shareUrl, modalTitle, modalSubtitle, onClose }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
   const [canNativeShare, setCanNativeShare] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -202,10 +206,10 @@ function ShareModal({ item, shareUrl, onClose }: ShareModalProps) {
                 id="share-modal-title"
                 className="text-base sm:text-lg font-black tracking-tight text-[#101114]"
               >
-                Share This Model
+                {modalTitle || "Share This Model"}
               </h3>
               <p className="text-[11px] text-[#6b7280] font-medium">
-                Send to a friend, contractor, or save for later
+                {modalSubtitle || "Send to a friend, contractor, or save for later"}
               </p>
             </div>
           </div>
@@ -227,6 +231,7 @@ function ShareModal({ item, shareUrl, onClose }: ShareModalProps) {
                 src={item.image}
                 alt={item.title}
                 fill
+                unoptimized
                 className="object-cover"
                 sizes="64px"
               />
@@ -352,6 +357,8 @@ export default function ShareButton({
   className = "",
   iconClassName = "w-4 h-4",
   buttonTitle = "Share this model",
+  modalTitle,
+  modalSubtitle,
 }: ShareButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
@@ -466,7 +473,13 @@ export default function ShareButton({
     <>
       {trigger}
       {isOpen && (
-        <ShareModal item={item} shareUrl={shareUrl} onClose={handleClose} />
+        <ShareModal
+          item={item}
+          shareUrl={shareUrl}
+          modalTitle={modalTitle}
+          modalSubtitle={modalSubtitle}
+          onClose={handleClose}
+        />
       )}
     </>
   );

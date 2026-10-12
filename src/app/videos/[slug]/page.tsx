@@ -5,6 +5,7 @@ import { ArrowRight, Calendar, Clock, Play, ShieldCheck, Tag, Eye } from "lucide
 import { getVideoByIdOrSlug, getPublishedVideos, getVideoSlug } from "@/lib/videoStore";
 import { formatVideoMetaTitle, formatVideoMetaDescription } from "@/lib/videoSlug";
 import { getCanonicalUrl } from "@/lib/seo";
+import ShareButton from "@/components/ShareButton";
 
 interface VideoDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -136,19 +137,39 @@ export default async function VideoDetailPage({ params }: VideoDetailPageProps) 
 
             {/* Video Header Info */}
             <div className="space-y-4 pt-2">
-              <div className="flex flex-wrap items-center gap-3 text-xs">
-                <span className="px-3 py-1 bg-[var(--r)] text-white font-bold uppercase tracking-wider rounded-full shadow-xs">
-                  {video.category}
-                </span>
-                <span className="flex items-center gap-1.5 text-[var(--muted)]">
-                  <Clock className="w-3.5 h-3.5 text-[var(--r)]" />
-                  <span>{video.duration}</span>
-                </span>
-                <span className="flex items-center gap-1.5 text-[var(--muted)]">
-                  <Calendar className="w-3.5 h-3.5 text-[var(--r)]" />
-                  <span>{video.date}</span>
-                </span>
-                <span className="text-[var(--muted)]">• {video.views}</span>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-3 text-xs">
+                  <span className="px-3 py-1 bg-[var(--r)] text-white font-bold uppercase tracking-wider rounded-full shadow-xs">
+                    {video.category}
+                  </span>
+                  <span className="flex items-center gap-1.5 text-[var(--muted)]">
+                    <Clock className="w-3.5 h-3.5 text-[var(--r)]" />
+                    <span>{video.duration}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 text-[var(--muted)]">
+                    <Calendar className="w-3.5 h-3.5 text-[var(--r)]" />
+                    <span>{video.date}</span>
+                  </span>
+                  <span className="text-[var(--muted)]">• {video.views}</span>
+                </div>
+
+                {/* Share Button with proper SEO */}
+                <ShareButton
+                  item={{
+                    title: `${video.title} | ModularHome.com Video Tour`,
+                    url: canonicalUrl,
+                    description: video.description || `Official architectural walkthrough and video tour of ${video.title} by ModularHome.com.`,
+                    image: video.thumbnail,
+                    category: video.category,
+                  }}
+                  variant="button"
+                  label="Share Tour"
+                  buttonTitle="Share this video tour"
+                  modalTitle="Share Video Tour"
+                  modalSubtitle="Share this video tour with canonical ModularHome.com SEO link"
+                  className="!bg-[var(--r)] hover:!bg-[var(--r-dark)] !text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm"
+                  iconClassName="w-3.5 h-3.5"
+                />
               </div>
 
               <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[var(--ink)] font-display">
