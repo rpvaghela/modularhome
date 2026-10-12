@@ -89,6 +89,12 @@ const MORE_BUYER_GUIDES = [
     desc: "5-step factory build to move-in day",
     icon: Compass 
   },
+  { 
+    label: "Blogs", 
+    href: "/blogs", 
+    desc: "Educational articles, tours & build guides",
+    icon: BookOpen 
+  },
 ];
 
 const MORE_SERVICES_RESOURCES = [
@@ -115,12 +121,6 @@ const MORE_SERVICES_RESOURCES = [
     href: "/videos", 
     desc: "Watch indoor precision build walk-throughs",
     icon: Play 
-  },
-  { 
-    label: "Modular Knowledge Blog", 
-    href: "/blogs", 
-    desc: "Educational articles, tours & build guides",
-    icon: BookOpen 
   },
   { 
     label: "About ModularHome", 
@@ -153,6 +153,19 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
   const [openMegaCategory, setOpenMegaCategory] = useState<string | null>(null);
   const [mobileExpandedCategory, setMobileExpandedCategory] = useState<string | null>(null);
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
+  const [isPinnedMore, setIsPinnedMore] = useState(false);
+  const moreDropdownOpenRef = useRef(false);
+  const isPinnedMoreRef = useRef(false);
+  const isInteractingDropdownRef = useRef(false);
+
+  useEffect(() => {
+    moreDropdownOpenRef.current = moreDropdownOpen;
+  }, [moreDropdownOpen]);
+
+  useEffect(() => {
+    isPinnedMoreRef.current = isPinnedMore;
+  }, [isPinnedMore]);
+
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -208,31 +221,86 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
     setMobileMenuOpen(false);
     setOpenMegaCategory(null);
     setMoreDropdownOpen(false);
+    setIsPinnedMore(false);
     setUserMenuOpen(false);
   }, [pathname, searchParams]);
 
-  // Handle outside clicks and Escape key
+  // Handle outside clicks, scrollbar interactions, and Escape key
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (headerContainerRef.current && !headerContainerRef.current.contains(event.target as Node)) {
-        setOpenMegaCategory(null);
-        setMoreDropdownOpen(false);
-        setUserMenuOpen(false);
+      // If user is currently dragging or interacting with the dropdown scrollbar, do not close!
+      if (isInteractingDropdownRef.current) return;
+
+      const target = event.target as Node | null;
+
+      // Check if click was on or inside the header or dropdown
+      if (target) {
+        if (headerContainerRef.current?.contains(target) || dropdownRef.current?.contains(target)) {
+          return;
+        }
       }
+
+      // Check if click coordinates fall within the More dropdown card rect (including scrollbar area)
+      if (dropdownRef.current && moreDropdownOpenRef.current) {
+        const card = dropdownRef.current.querySelector("[data-dropdown-card]");
+        const button = dropdownRef.current.querySelector("button");
+        const { clientX, clientY } = event;
+
+        if (button) {
+          const btnRect = button.getBoundingClientRect();
+          if (
+            clientX >= btnRect.left &&
+            clientX <= btnRect.right &&
+            clientY >= btnRect.top &&
+            clientY <= btnRect.bottom
+          ) {
+            return;
+          }
+        }
+
+        if (card) {
+          const rect = card.getBoundingClientRect();
+          if (
+            clientX >= rect.left - 5 &&
+            clientX <= rect.right + 25 &&
+            clientY >= rect.top - 5 &&
+            clientY <= rect.bottom + 25
+          ) {
+            isInteractingDropdownRef.current = true;
+            clearMegaMenuTimer();
+            return;
+          }
+        }
+      }
+
+      setOpenMegaCategory(null);
+      setMoreDropdownOpen(false);
+      setIsPinnedMore(false);
+      setUserMenuOpen(false);
+    }
+
+    function handleGlobalMouseUp() {
+      // Release interacting flag slightly after mouseup
+      setTimeout(() => {
+        isInteractingDropdownRef.current = false;
+      }, 80);
     }
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setOpenMegaCategory(null);
         setMoreDropdownOpen(false);
+        setIsPinnedMore(false);
         setUserMenuOpen(false);
       }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("mouseup", handleGlobalMouseUp);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("mouseup", handleGlobalMouseUp);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
@@ -281,8 +349,14 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
   };
 
   const scheduleMegaMenuClose = (delay = 200) => {
+    if (isPinnedMoreRef.current || isInteractingDropdownRef.current) {
+      return;
+    }
     clearMegaMenuTimer();
     megaMenuCloseTimeoutRef.current = setTimeout(() => {
+      if (isPinnedMoreRef.current || isInteractingDropdownRef.current) {
+        return;
+      }
       setOpenMegaCategory(null);
       setMoreDropdownOpen(false);
     }, delay);
@@ -679,58 +753,19 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
             >
               <div className="flex items-center justify-between w-full max-w-full gap-0.5 xl:gap-1.5 2xl:gap-2 flex-nowrap overflow-visible">
                 {menuItems.map((item) => {
-                  const hasMegaMenu = Boolean(megaMenuCatalog && megaMenuCatalog[item.label]);
-                  const isMegaOpen = openMegaCategory === item.label;
                   const activeRoute = Boolean(
                     currentCategory === item.categoryQuery ||
                     pathname === item.href ||
                     (item.href !== "/" && pathname?.startsWith(`${item.href}/`))
                   );
-                  
-                  if (hasMegaMenu) {
-                    return (
-                      <Link
-                        key={item.label}
-                        href={item.href}
-                        prefetch={true}
-                        onClick={() => {
-                          setOpenMegaCategory(null);
-                          setMoreDropdownOpen(false);
-                        }}
-                        onMouseEnter={() => handleCategoryMouseEnter(item.label, item.href)}
-                        onMouseLeave={() => scheduleMegaMenuClose(180)}
-                        aria-expanded={isMegaOpen}
-                        aria-controls="mega-menu-panel"
-                        aria-haspopup="true"
-                        className={`inline-flex items-center gap-1 px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-[12px] xl:text-[12.5px] 2xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 cursor-pointer shrink-0 ${
-                          isMegaOpen
-                            ? "bg-amber-50/90 text-[#b45309] font-black"
-                            : activeRoute
-                            ? "bg-gray-100 text-[#101114] font-black"
-                            : "text-gray-700 hover:text-[#101114] hover:bg-gray-50/80"
-                        }`}
-                        style={{ fontFamily: "var(--font-manrope), sans-serif" }}
-                      >
-                        <span>{item.label}</span>
-                        {item.badge && (
-                          <span className="px-1.5 py-0.5 rounded bg-[#fcb907] text-[#101114] text-[8.5px] font-black tracking-tight leading-none">
-                            {item.badge}
-                          </span>
-                        )}
-                        <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${isMegaOpen ? "rotate-180 text-[#b45309]" : ""}`} />
-                      </Link>
-                    );
-                  }
 
-                  // Direct link
                   return (
                     <Link
                       key={item.label}
                       href={item.href}
                       prefetch={true}
-                      onClick={() => setOpenMegaCategory(null)}
-                      onMouseEnter={() => {
-                        clearMegaMenuTimer();
+                      onClick={() => {
+                        setMoreDropdownOpen(false);
                         setOpenMegaCategory(null);
                       }}
                       className={`inline-flex items-center gap-1 px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-[12px] xl:text-[12.5px] 2xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 shrink-0 ${
@@ -757,17 +792,26 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                   onMouseEnter={() => {
                     clearMegaMenuTimer();
                     setMoreDropdownOpen(true);
-                    setOpenMegaCategory(null);
                   }}
-                  onMouseLeave={() => scheduleMegaMenuClose(180)}
+                  onMouseLeave={() => {
+                    if (!isPinnedMore && !isInteractingDropdownRef.current) {
+                      scheduleMegaMenuClose(350);
+                    }
+                  }}
                 >
                   <button
                     type="button"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setMoreDropdownOpen(!moreDropdownOpen);
-                      setOpenMegaCategory(null);
+                      clearMegaMenuTimer();
+                      if (moreDropdownOpen && isPinnedMore) {
+                        setMoreDropdownOpen(false);
+                        setIsPinnedMore(false);
+                      } else {
+                        setMoreDropdownOpen(true);
+                        setIsPinnedMore(true);
+                      }
                     }}
                     className={`inline-flex items-center gap-1 px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-[12px] xl:text-[12.5px] 2xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 cursor-pointer ${
                       isMoreActive || moreDropdownOpen
@@ -784,113 +828,151 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                   {/* Dropdown Floating Card */}
                   {moreDropdownOpen && (
                     <div 
-                      className="absolute right-0 xl:right-auto xl:left-1/2 xl:-translate-x-1/2 top-full pt-2 w-[94vw] max-w-[640px] sm:w-[640px] z-[100] animate-in fade-in zoom-in-95 duration-150"
+                      className="absolute right-0 top-full pt-2 w-[94vw] max-w-[640px] sm:w-[640px] z-[100] animate-in fade-in zoom-in-95 duration-150"
                       onMouseEnter={clearMegaMenuTimer}
-                      onMouseLeave={() => scheduleMegaMenuClose(180)}
+                      onMouseLeave={() => {
+                        if (!isPinnedMore && !isInteractingDropdownRef.current) {
+                          scheduleMegaMenuClose(350);
+                        }
+                      }}
                     >
-                      <div className="bg-white border border-[#e5e7eb] rounded-2xl p-3.5 sm:p-4 shadow-2xl ring-1 ring-black/5 max-h-[min(74vh,540px)] overflow-y-auto overscroll-contain space-y-3">
-                        {/* 2-Column Responsive Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3">
-                          {/* Column 1: Essential Buyer Guides */}
-                          <div>
-                            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[#d97706] px-2 py-1 border-b border-gray-100 mb-1.5 flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#fcb907]" />
-                              <span>Buyer Guides & Logistics</span>
+                      <div 
+                        data-dropdown-card="true"
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          clearMegaMenuTimer();
+                          isInteractingDropdownRef.current = true;
+                        }}
+                        className="bg-white border border-[#e5e7eb] rounded-2xl shadow-2xl ring-1 ring-black/5 overflow-hidden flex flex-col"
+                      >
+                        <div 
+                          onScroll={clearMegaMenuTimer}
+                          onWheel={(e) => {
+                            const el = e.currentTarget;
+                            const atTop = el.scrollTop === 0;
+                            const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+                            if ((atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) {
+                              // at boundary — do nothing (let the event be consumed but don't propagate)
+                            }
+                            e.stopPropagation();
+                          }}
+                          className="max-h-[min(74vh,540px)] overflow-y-auto overscroll-contain p-3.5 sm:p-4 space-y-3 dropdown-menu-scrollbar"
+                        >
+                          {/* 2-Column Responsive Grid */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3">
+                            {/* Column 1: Essential Buyer Guides */}
+                            <div>
+                              <div className="text-[10px] font-extrabold uppercase tracking-wider text-[#d97706] px-2 py-1 border-b border-gray-100 mb-1.5 flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#fcb907]" />
+                                <span>Buyer Guides & Logistics</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                {MORE_BUYER_GUIDES.map((option) => (
+                                  <Link
+                                    key={option.label}
+                                    href={option.href}
+                                    onClick={() => {
+                                      setMoreDropdownOpen(false);
+                                      setIsPinnedMore(false);
+                                    }}
+                                    className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-[#f6f7f9] text-[#101114] hover:text-[#d97706] transition-colors group"
+                                  >
+                                    <div className="p-1.5 rounded-lg bg-[#fcb907]/15 text-[#d97706] group-hover:bg-[#fcb907] group-hover:text-[#101114] transition-colors shrink-0 mt-0.5">
+                                      <option.icon className="w-3.5 h-3.5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <div className="text-xs font-bold leading-snug group-hover:text-[#d97706]">
+                                        {option.label}
+                                      </div>
+                                      <div className="text-[10.5px] text-[#6b7280] font-normal leading-tight mt-0.5 truncate">
+                                        {option.desc}
+                                      </div>
+                                    </div>
+                                  </Link>
+                                ))}
+                              </div>
                             </div>
-                            <div className="space-y-0.5">
-                              {MORE_BUYER_GUIDES.map((option) => (
-                                <Link
-                                  key={option.label}
-                                  href={option.href}
-                                  onClick={() => setMoreDropdownOpen(false)}
-                                  className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-[#f6f7f9] text-[#101114] hover:text-[#d97706] transition-colors group"
-                                >
-                                  <div className="p-1.5 rounded-lg bg-[#fcb907]/15 text-[#d97706] group-hover:bg-[#fcb907] group-hover:text-[#101114] transition-colors shrink-0 mt-0.5">
-                                    <option.icon className="w-3.5 h-3.5" />
-                                  </div>
-                                  <div className="min-w-0">
-                                    <div className="text-xs font-bold leading-snug group-hover:text-[#d97706]">
-                                      {option.label}
+
+                            {/* Column 2: Design & Planning Resources */}
+                            <div>
+                              <div className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 px-2 py-1 border-b border-gray-100 mb-1.5 flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                                <span>Services & Planning</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                {MORE_SERVICES_RESOURCES.map((option) => (
+                                  <Link
+                                    key={option.label}
+                                    href={option.href}
+                                    onClick={() => {
+                                      setMoreDropdownOpen(false);
+                                      setIsPinnedMore(false);
+                                    }}
+                                    className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-[#f6f7f9] text-[#101114] hover:text-[#d97706] transition-colors group"
+                                  >
+                                    <div className="p-1.5 rounded-lg bg-gray-100 text-gray-700 group-hover:bg-[#fcb907] group-hover:text-[#101114] transition-colors shrink-0 mt-0.5">
+                                      <option.icon className="w-3.5 h-3.5" />
                                     </div>
-                                    <div className="text-[10.5px] text-[#6b7280] font-normal leading-tight mt-0.5 truncate">
-                                      {option.desc}
+                                    <div className="min-w-0">
+                                      <div className="text-xs font-bold leading-snug group-hover:text-[#d97706]">
+                                        {option.label}
+                                      </div>
+                                      <div className="text-[10.5px] text-[#6b7280] font-normal leading-tight mt-0.5 truncate">
+                                        {option.desc}
+                                      </div>
                                     </div>
-                                  </div>
-                                </Link>
-                              ))}
+                                  </Link>
+                                ))}
+                              </div>
                             </div>
                           </div>
 
-                          {/* Column 2: Design & Planning Resources */}
-                          <div>
-                            <div className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 px-2 py-1 border-b border-gray-100 mb-1.5 flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-                              <span>Services & Planning</span>
-                            </div>
-                            <div className="space-y-0.5">
-                              {MORE_SERVICES_RESOURCES.map((option) => (
-                                <Link
-                                  key={option.label}
-                                  href={option.href}
-                                  onClick={() => setMoreDropdownOpen(false)}
-                                  className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-[#f6f7f9] text-[#101114] hover:text-[#d97706] transition-colors group"
-                                >
-                                  <div className="p-1.5 rounded-lg bg-gray-100 text-gray-700 group-hover:bg-[#fcb907] group-hover:text-[#101114] transition-colors shrink-0 mt-0.5">
-                                    <option.icon className="w-3.5 h-3.5" />
-                                  </div>
-                                  <div className="min-w-0">
-                                    <div className="text-xs font-bold leading-snug group-hover:text-[#d97706]">
-                                      {option.label}
+                          {/* Extra Custom Pages (if any exist that are not core) */}
+                          {publishedPages.length > 0 && (
+                            <div className="border-t border-[#f0f2f5] pt-2.5">
+                              <div className="text-[10px] font-extrabold uppercase tracking-wider text-[#d97706] px-2 py-1 border-b border-gray-100 mb-1 flex items-center justify-between">
+                                <span>Additional Resources & Pages</span>
+                                <span className="px-1.5 py-0.2 rounded-full bg-amber-100 text-[#b45309] text-[9px]">
+                                  {publishedPages.length}
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                                {publishedPages.map((page) => (
+                                  <Link
+                                    key={page.id}
+                                    href={`/${page.slug}`}
+                                    onClick={() => {
+                                      setMoreDropdownOpen(false);
+                                      setIsPinnedMore(false);
+                                    }}
+                                    className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-amber-50/70 text-[#101114] hover:text-[#d97706] transition-colors group"
+                                  >
+                                    <div className="p-1 rounded bg-[#f6f7f9] text-[#6b7280] group-hover:bg-[#fcb907] group-hover:text-[#101114] transition-colors shrink-0">
+                                      <FileText className="w-3 h-3" />
                                     </div>
-                                    <div className="text-[10.5px] text-[#6b7280] font-normal leading-tight mt-0.5 truncate">
-                                      {option.desc}
-                                    </div>
-                                  </div>
-                                </Link>
-                              ))}
+                                    <span className="text-[11px] font-bold truncate flex-1">{page.title}</span>
+                                    <ChevronRight className="w-3 h-3 text-gray-300 group-hover:text-[#d97706] shrink-0" />
+                                  </Link>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        </div>
+                          )}
 
-                        {/* Extra Custom Pages (if any exist that are not core) */}
-                        {publishedPages.length > 0 && (
-                          <div className="border-t border-[#f0f2f5] pt-2.5">
-                            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[#d97706] px-2 py-1 border-b border-gray-100 mb-1 flex items-center justify-between">
-                              <span>Additional Resources & Pages</span>
-                              <span className="px-1.5 py-0.2 rounded-full bg-amber-100 text-[#b45309] text-[9px]">
-                                {publishedPages.length}
-                              </span>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-                              {publishedPages.map((page) => (
-                                <Link
-                                  key={page.id}
-                                  href={`/${page.slug}`}
-                                  onClick={() => setMoreDropdownOpen(false)}
-                                  className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-amber-50/70 text-[#101114] hover:text-[#d97706] transition-colors group"
-                                >
-                                  <div className="p-1 rounded bg-[#f6f7f9] text-[#6b7280] group-hover:bg-[#fcb907] group-hover:text-[#101114] transition-colors shrink-0">
-                                    <FileText className="w-3 h-3" />
-                                  </div>
-                                  <span className="text-[11px] font-bold truncate flex-1">{page.title}</span>
-                                  <ChevronRight className="w-3 h-3 text-gray-300 group-hover:text-[#d97706] shrink-0" />
-                                </Link>
-                              ))}
-                            </div>
+                          {/* Bottom Quick Help Bar */}
+                          <div className="border-t border-gray-100 pt-2.5 flex items-center justify-between text-[11px] px-1">
+                            <span className="text-gray-500 font-medium">Have questions about site requirements or building codes?</span>
+                            <Link
+                              href="/quote"
+                              onClick={() => {
+                                setMoreDropdownOpen(false);
+                                setIsPinnedMore(false);
+                              }}
+                              className="text-[#d97706] font-extrabold hover:underline flex items-center gap-1 shrink-0 ml-2"
+                            >
+                              <span>Get Free Estimate</span>
+                              <ArrowRight className="w-3 h-3 stroke-[2.5]" />
+                            </Link>
                           </div>
-                        )}
-
-                        {/* Bottom Quick Help Bar */}
-                        <div className="border-t border-gray-100 pt-2.5 flex items-center justify-between text-[11px] px-1">
-                          <span className="text-gray-500 font-medium">Have questions about site requirements or building codes?</span>
-                          <Link
-                            href="/quote"
-                            onClick={() => setMoreDropdownOpen(false)}
-                            className="text-[#d97706] font-extrabold hover:underline flex items-center gap-1 shrink-0 ml-2"
-                          >
-                            <span>Get Free Estimate</span>
-                            <ArrowRight className="w-3 h-3 stroke-[2.5]" />
-                          </Link>
                         </div>
                       </div>
                     </div>
@@ -901,10 +983,8 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* --- DESKTOP FULL-WIDTH PRODUCT MEGA-MENU DROPDOWN PANEL --- */}
-        {/* ========================================================================= */}
-        {openMegaCategory && activeCategoryData && (
+        {/* Desktop category mega-menu disabled: direct navigation on click; only More has options */}
+        {Boolean(false) && activeCategoryData && (
           <div
             id="mega-menu-panel"
             ref={megaMenuPanelRef}
@@ -1137,95 +1217,27 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
               <div>
                 <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">
                   Building Categories
-                </div>
-                <div className="space-y-1">
-                  {menuItems.map((item) => {
-                    const catData = megaMenuCatalog[item.label];
-                    const hasSubItems = Boolean(catData && catData.products && catData.products.length > 0);
-                    const isExpanded = mobileExpandedCategory === item.label;
-
-                    if (!hasSubItems) {
-                      return (
-                        <div key={item.label} className="border-b border-gray-50 last:border-none pb-0.5">
-                          <Link
-                            href={item.href}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-[#101114] hover:bg-[#f6f7f9] hover:text-[#d97706]"
-                          >
-                            <span className="flex items-center gap-1.5">
-                              {item.label}
-                              {item.badge && (
-                                <span className="px-1.5 py-0.5 rounded-md bg-[#fcb907] text-[#101114] text-[9px] font-black">
-                                  {item.badge}
-                                </span>
-                              )}
+                          <div className="space-y-1">
+                  {menuItems.map((item) => (
+                    <div key={item.label} className="border-b border-gray-50 last:border-none pb-0.5">
+                      <Link
+                        href={item.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-[#101114] hover:bg-[#f6f7f9] hover:text-[#d97706]"
+                      >
+                        <span className="flex items-center gap-1.5">
+                          {item.label}
+                          {item.badge && (
+                            <span className="px-1.5 py-0.5 rounded-md bg-[#fcb907] text-[#101114] text-[9px] font-black">
+                              {item.badge}
                             </span>
-                            <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-                          </Link>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div key={item.label} className="border-b border-gray-50 last:border-none pb-0.5">
-                        <div className="flex items-center justify-between">
-                          <Link
-                            href={item.href}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="flex-1 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-[#101114] hover:bg-[#f6f7f9] hover:text-[#d97706]"
-                          >
-                            <span>{item.label}</span>
-                            {item.badge && (
-                              <span className="px-1.5 py-0.5 rounded-md bg-[#fcb907] text-[#101114] text-[9px] font-black">
-                                {item.badge}
-                              </span>
-                            )}
-                          </Link>
-                          <button
-                            type="button"
-                            onClick={() => setMobileExpandedCategory(isExpanded ? null : item.label)}
-                            aria-label={`Toggle featured models for ${item.label}`}
-                            className="p-2 text-gray-400 hover:text-[#d97706] rounded-lg transition-colors cursor-pointer"
-                          >
-                            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? "rotate-180 text-[#d97706]" : ""}`} />
-                          </button>
-                        </div>
-
-                        {/* Accordion Content */}
-                        {isExpanded && (
-                          <div className="pl-4 pr-2 py-1.5 space-y-1 bg-amber-50/40 rounded-xl my-1">
-                            {catData.products.slice(0, 4).map((p) => (
-                              <Link
-                                key={p.id}
-                                href={p.href}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="flex items-center justify-between py-1.5 px-2 text-[11.5px] font-semibold text-gray-700 hover:text-[#d97706]"
-                              >
-                                <span className="truncate">{p.name}</span>
-                                {p.startingPrice ? (
-                                  <span className="text-[10px] text-gray-500 font-bold shrink-0 ml-2">
-                                    ${new Intl.NumberFormat("en-US").format(p.startingPrice)}
-                                  </span>
-                                ) : null}
-                              </Link>
-                            ))}
-
-                            <div className="pt-1 border-t border-amber-200/50">
-                              <Link
-                                href={catData.viewAllHref}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="inline-flex items-center gap-1 py-1.5 px-2 text-xs font-black text-[#d97706] hover:underline"
-                              >
-                                <span>Explore All {item.label}</span>
-                                <ArrowRight className="w-3 h-3 stroke-[2.5]" />
-                              </Link>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                          )}
+                        </span>
+                        <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                      </Link>
+                    </div>
+                  ))}
+                </div>        </div>
               </div>
 
               {/* Buyer Guides & Resources on Mobile */}

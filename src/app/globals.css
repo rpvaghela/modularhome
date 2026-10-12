@@ -244,7 +244,9 @@ body::-webkit-scrollbar-thumb:hover {
 /* Custom Chat Scrollbar for AI Housing Advisor & floating widgets */
 .custom-chat-scrollbar {
   overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
 /* Firefox */
@@ -283,6 +285,49 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .custom-chat-scrollbar::-webkit-scrollbar-thumb:active {
+  background-color: #d97706;
+}
+
+/* Dropdown Menu Scrollbar (More Menu & popups) */
+.dropdown-menu-scrollbar {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@supports (scrollbar-color: auto) {
+  .dropdown-menu-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
+  }
+}
+
+.dropdown-menu-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdown-menu-scrollbar::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.dropdown-menu-scrollbar::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 9999px;
+  margin: 6px 0;
+}
+
+.dropdown-menu-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+  border: 1px solid #f8fafc;
+}
+
+.dropdown-menu-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #fcb907;
+}
+
+.dropdown-menu-scrollbar::-webkit-scrollbar-thumb:active {
   background-color: #d97706;
 }
 
@@ -503,5 +548,42 @@ body::-webkit-scrollbar-thumb:hover {
   margin: 1.5rem 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
+
+/* Custom modern scrollbar for More Dropdown Menu */
+.dropdown-menu-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+.dropdown-menu-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdown-menu-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 6px 0;
+}
+
+.dropdown-menu-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.dropdown-menu-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+.dropdown-menu-scrollbar::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 
 

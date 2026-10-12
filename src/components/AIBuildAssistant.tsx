@@ -292,7 +292,9 @@ export default function AIBuildAssistant() {
       {isOpen && (
         <div
           onWheel={(e) => {
-            // Forward mouse wheel scrolling from anywhere in the chat modal to the messages feed
+            e.stopPropagation();
+            // Also prevent the page from scrolling when wheeling anywhere in the chat panel
+            e.nativeEvent.stopImmediatePropagation();
             if (messagesContainerRef.current && !messagesContainerRef.current.contains(e.target as Node)) {
               messagesContainerRef.current.scrollTop += e.deltaY;
             }

@@ -9,7 +9,10 @@ export const revalidate = 0;
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPublicPageBySlug("videos");
   if (page) {
-    const title = page.seoTitle || `${page.title} | ModularHome.com`;
+    const title =
+      page.seoTitle && !page.seoTitle.includes("Video Gallery & Home Tours")
+        ? page.seoTitle
+        : "Modular Home & Prefab Home Video Tours | ModularHome.com";
     const description = page.metaDescription || page.subtitle || "Watch in-depth walkthroughs of our modular homes, prefabs, barndominiums, cabins, and customer project stories.";
     return {
       title,
@@ -25,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: "Modular Home & Prefab Home Video Tours | ModularHome.com",
-    description: "Watch in-depth walkthroughs of our modular homes, prefabs, barndominiums, cabins, and customer project stories.",
+    description: "Watch factory walkthroughs, crane assembly days, and customer build walkthroughs of our modular homes, prefabs, barndominiums, cabins, and customer project stories.",
   };
 }
 

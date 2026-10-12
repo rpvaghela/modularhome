@@ -167,13 +167,16 @@ export default function VideosClient({ pageData }: VideosClientProps) {
   }, [videos]);
 
   // Client Requirement #12: Video Gallery Title must be "Modular Home & Prefab Home Video Tours"
-  const heroTitle = pageData?.title || "Modular Home & Prefab Home Video Tours";
+  const heroTitle =
+    pageData?.title && pageData.title !== "Video Gallery & Home Tours"
+      ? pageData.title
+      : "Modular Home & Prefab Home Video Tours";
   const heroSubtitle =
     pageData?.subtitle ||
-    "Watch high-definition architectural walkthroughs of our precision-built modular homes, prefab cabins, barndominiums, and tiny home estates.";
+    "Watch factory walkthroughs, crane assembly days, and customer build walkthroughs";
   const heroDesc =
     pageData?.content ||
-    "See genuine model floor plans, interiors, crane installations, and building craftsmanship to inspire your next custom project.";
+    "Watch in-depth walkthroughs of our modular homes, prefabs, barndominiums, cabins, and customer project stories.";
 
   // Generate numbered pages array
   const pageNumbers = useMemo(() => {
