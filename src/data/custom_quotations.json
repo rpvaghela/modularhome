@@ -260,9 +260,9 @@
     "assigned_to": null,
     "follow_up_date": null,
     "source": "QUOTE_WIZARD",
-    "status": "PENDING",
+    "status": "REVIEWED",
     "created_at": "2026-10-07T16:03:36.365Z",
-    "updated_at": "2026-10-07T16:03:36.366Z"
+    "updated_at": "2026-10-12T13:13:07.312Z"
   },
   {
     "id": "e59e07a8-42d2-4940-b242-e1b4b321d684",

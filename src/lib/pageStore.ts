@@ -407,7 +407,7 @@ const SEED_PAGES: CmsPage[] = [
   <li>Permits obtained for crane staging on local roadways if required by your municipality.</li>
 </ul>`,
     status: "PUBLISHED",
-    featuredImage: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1600&q=80",
+    featuredImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545",
     seoTitle: "Modular Home Delivery & Installation Guide | ModularHome.com",
     metaDescription: "Discover how modular homes are shipped nationwide, crane-set onto foundations in 1 day, and finished for move-in.",
     sections: [
@@ -456,7 +456,7 @@ const SEED_PAGES: CmsPage[] = [
   <p>Your modules arrive on-site and are crane-lifted onto your foundation. The button-up crew seals marriage lines, connects utilities, and finishes trim work. Receive your keys in a fraction of the time of standard stick-building!</p>
 </div>`,
     status: "PUBLISHED",
-    featuredImage: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1600&q=80",
+    featuredImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/prefabdua1.jpg?v=1737512098",
     seoTitle: "How It Works: Modular Home Building Process | ModularHome.com",
     metaDescription: "Learn how the 5-step modular home building process works: from design selection and engineering to rapid factory build and move-in.",
     sections: [
@@ -513,7 +513,7 @@ const SEED_PAGES: CmsPage[] = [
   <p>ModularHome.com provides full state-stamped architectural and structural engineering blueprint packages for your local building department. Your local general contractor or our turnkey build partner will submit these plans to your county permitting office.</p>
 </div>`,
     status: "PUBLISHED",
-    featuredImage: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=1600&q=80",
+    featuredImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691",
     seoTitle: "Frequently Asked Questions (FAQs) | ModularHome.com",
     metaDescription: "Find answers to top questions about modular homes vs manufactured homes, construction timelines, costs, and customization.",
     sections: [

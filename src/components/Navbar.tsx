@@ -25,7 +25,12 @@ import {
   LogOut,
   LayoutDashboard,
   Download,
-  Home
+  Home,
+  Truck,
+  HelpCircle,
+  DollarSign,
+  CreditCard,
+  Compass
 } from "lucide-react";
 import { PublicGlobalSettings } from "@/lib/settings";
 import { CmsPage, MegaMenuCatalog } from "@/lib/publicData";
@@ -53,7 +58,40 @@ const PRIMARY_MENU_OPTIONS: CategoryNavOption[] = [
   { label: "Commercial", href: "/commercial-modular-buildings", categoryQuery: "Commercial Buildings" },
 ];
 
-const CORE_MORE_OPTIONS = [
+const MORE_BUYER_GUIDES = [
+  { 
+    label: "Delivery & Crane Setting", 
+    href: "/delivery", 
+    desc: "Nationwide freight, cranes & site prep",
+    icon: Truck 
+  },
+  { 
+    label: "Frequently Asked Questions", 
+    href: "/faqs", 
+    desc: "Clear answers to top buyer questions",
+    icon: HelpCircle 
+  },
+  { 
+    label: "Pricing & Packages", 
+    href: "/pricing", 
+    desc: "Turnkey cost tiers & square foot rates",
+    icon: DollarSign 
+  },
+  { 
+    label: "Financing & Mortgages", 
+    href: "/financing", 
+    desc: "FHA, VA, USDA & construction loans",
+    icon: CreditCard 
+  },
+  { 
+    label: "How It Works", 
+    href: "/how-it-works", 
+    desc: "5-step factory build to move-in day",
+    icon: Compass 
+  },
+];
+
+const MORE_SERVICES_RESOURCES = [
   { 
     label: "Floor Plan Store", 
     href: "/floor-plans", 
@@ -69,7 +107,7 @@ const CORE_MORE_OPTIONS = [
   { 
     label: "Upload Floor Plan", 
     href: "/upload-floor-plan", 
-    desc: "Submit your sketch or CAD for instant estimate",
+    desc: "Submit sketch or CAD for instant estimate",
     icon: FileText 
   },
   { 
@@ -79,7 +117,7 @@ const CORE_MORE_OPTIONS = [
     icon: Play 
   },
   { 
-    label: "Blog", 
+    label: "Modular Knowledge Blog", 
     href: "/blogs", 
     desc: "Educational articles, tours & build guides",
     icon: BookOpen 
@@ -87,7 +125,7 @@ const CORE_MORE_OPTIONS = [
   { 
     label: "About ModularHome", 
     href: "/about", 
-    desc: "Our story, engineering standards & warranty",
+    desc: "Our story, IRC standards & warranty",
     icon: Info 
   },
   { 
@@ -99,7 +137,7 @@ const CORE_MORE_OPTIONS = [
   { 
     label: "Contact & Consultations", 
     href: "/contact", 
-    desc: "Speak with an architectural housing advisor",
+    desc: "Speak with an architectural advisor",
     icon: PhoneCall 
   },
 ];
@@ -131,11 +169,19 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
 
   const currentCategory = searchParams ? searchParams.get("category") : null;
 
-  // Published custom pages (excluding home and blank/invalid slugs)
+  // Set of all core/featured slugs so they are never duplicated under "Special Guides & Pages"
+  const KNOWN_NAV_SLUGS = new Set([
+    "delivery", "faqs", "faq", "pricing", "financing", "how-it-works",
+    "floor-plans", "custom-homes", "upload-floor-plan", "videos", 
+    "blogs", "blog", "about", "contact", "home", "index", "quote",
+    "cabins", "adus", "a-frame-homes", "commercial-modular-buildings", "buildings"
+  ]);
+
+  // Published custom pages (excluding core duplicates and home/index)
   const publishedPages = (customPages || []).filter((p) => {
     if (!p || p.status !== "PUBLISHED") return false;
     const cleanSlug = (p.slug || "").toLowerCase().trim().replace(/^\/+|\/+$/g, "");
-    return cleanSlug !== "" && cleanSlug !== "home" && cleanSlug !== "index";
+    return cleanSlug !== "" && !KNOWN_NAV_SLUGS.has(cleanSlug);
   });
 
   const phone = initialSettings?.phone || "+1 (812) 595-4033";
@@ -738,74 +784,114 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                   {/* Dropdown Floating Card */}
                   {moreDropdownOpen && (
                     <div 
-                      className="absolute left-1/2 -translate-x-1/2 top-full pt-1.5 w-92 z-[100] animate-in fade-in zoom-in-95 duration-150 max-h-[80vh] overflow-y-auto"
+                      className="absolute right-0 xl:right-auto xl:left-1/2 xl:-translate-x-1/2 top-full pt-2 w-[94vw] max-w-[640px] sm:w-[640px] z-[100] animate-in fade-in zoom-in-95 duration-150"
                       onMouseEnter={clearMegaMenuTimer}
                       onMouseLeave={() => scheduleMegaMenuClose(180)}
                     >
-                      <div className="bg-white border border-[#e5e7eb] rounded-2xl p-2.5 shadow-2xl ring-1 ring-black/5 space-y-2">
-                        <div>
-                          <div className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 px-3 py-1 border-b border-gray-100 mb-1">
-                            Explore Services & Resources
+                      <div className="bg-white border border-[#e5e7eb] rounded-2xl p-3.5 sm:p-4 shadow-2xl ring-1 ring-black/5 max-h-[min(74vh,540px)] overflow-y-auto overscroll-contain space-y-3">
+                        {/* 2-Column Responsive Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3">
+                          {/* Column 1: Essential Buyer Guides */}
+                          <div>
+                            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[#d97706] px-2 py-1 border-b border-gray-100 mb-1.5 flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#fcb907]" />
+                              <span>Buyer Guides & Logistics</span>
+                            </div>
+                            <div className="space-y-0.5">
+                              {MORE_BUYER_GUIDES.map((option) => (
+                                <Link
+                                  key={option.label}
+                                  href={option.href}
+                                  onClick={() => setMoreDropdownOpen(false)}
+                                  className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-[#f6f7f9] text-[#101114] hover:text-[#d97706] transition-colors group"
+                                >
+                                  <div className="p-1.5 rounded-lg bg-[#fcb907]/15 text-[#d97706] group-hover:bg-[#fcb907] group-hover:text-[#101114] transition-colors shrink-0 mt-0.5">
+                                    <option.icon className="w-3.5 h-3.5" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <div className="text-xs font-bold leading-snug group-hover:text-[#d97706]">
+                                      {option.label}
+                                    </div>
+                                    <div className="text-[10.5px] text-[#6b7280] font-normal leading-tight mt-0.5 truncate">
+                                      {option.desc}
+                                    </div>
+                                  </div>
+                                </Link>
+                              ))}
+                            </div>
                           </div>
-                          <div className="space-y-0.5">
-                            {CORE_MORE_OPTIONS.map((option) => (
-                              <Link
-                                key={option.label}
-                                href={option.href}
-                                onClick={() => setMoreDropdownOpen(false)}
-                                className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#f6f7f9] text-[#101114] hover:text-[#d97706] transition-colors group"
-                              >
-                                <div className="p-2 rounded-lg bg-[#fcb907]/15 text-[#d97706] group-hover:bg-[#fcb907] group-hover:text-[#101114] transition-colors shrink-0 mt-0.5">
-                                  <option.icon className="w-4 h-4" />
-                                </div>
-                                <div>
-                                  <div className="text-xs font-bold leading-snug">
-                                    {option.label}
+
+                          {/* Column 2: Design & Planning Resources */}
+                          <div>
+                            <div className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 px-2 py-1 border-b border-gray-100 mb-1.5 flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                              <span>Services & Planning</span>
+                            </div>
+                            <div className="space-y-0.5">
+                              {MORE_SERVICES_RESOURCES.map((option) => (
+                                <Link
+                                  key={option.label}
+                                  href={option.href}
+                                  onClick={() => setMoreDropdownOpen(false)}
+                                  className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-[#f6f7f9] text-[#101114] hover:text-[#d97706] transition-colors group"
+                                >
+                                  <div className="p-1.5 rounded-lg bg-gray-100 text-gray-700 group-hover:bg-[#fcb907] group-hover:text-[#101114] transition-colors shrink-0 mt-0.5">
+                                    <option.icon className="w-3.5 h-3.5" />
                                   </div>
-                                  <div className="text-[11px] text-[#6b7280] font-normal leading-tight mt-0.5">
-                                    {option.desc}
+                                  <div className="min-w-0">
+                                    <div className="text-xs font-bold leading-snug group-hover:text-[#d97706]">
+                                      {option.label}
+                                    </div>
+                                    <div className="text-[10.5px] text-[#6b7280] font-normal leading-tight mt-0.5 truncate">
+                                      {option.desc}
+                                    </div>
                                   </div>
-                                </div>
-                              </Link>
-                            ))}
+                                </Link>
+                              ))}
+                            </div>
                           </div>
                         </div>
 
+                        {/* Extra Custom Pages (if any exist that are not core) */}
                         {publishedPages.length > 0 && (
-                          <div className="border-t border-[#f0f2f5] pt-2">
-                            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[#d97706] px-3 py-1 border-b border-gray-100 mb-1 flex items-center justify-between">
-                              <span>Special Guides & Pages</span>
+                          <div className="border-t border-[#f0f2f5] pt-2.5">
+                            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[#d97706] px-2 py-1 border-b border-gray-100 mb-1 flex items-center justify-between">
+                              <span>Additional Resources & Pages</span>
                               <span className="px-1.5 py-0.2 rounded-full bg-amber-100 text-[#b45309] text-[9px]">
                                 {publishedPages.length}
                               </span>
                             </div>
-                            <div className="space-y-0.5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                               {publishedPages.map((page) => (
                                 <Link
                                   key={page.id}
                                   href={`/${page.slug}`}
                                   onClick={() => setMoreDropdownOpen(false)}
-                                  className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-amber-50/70 text-[#101114] hover:text-[#d97706] transition-colors group"
+                                  className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-amber-50/70 text-[#101114] hover:text-[#d97706] transition-colors group"
                                 >
-                                  <div className="p-1.5 rounded-lg bg-[#f6f7f9] text-[#6b7280] group-hover:bg-[#fcb907] group-hover:text-[#101114] transition-colors shrink-0">
-                                    <FileText className="w-3.5 h-3.5" />
+                                  <div className="p-1 rounded bg-[#f6f7f9] text-[#6b7280] group-hover:bg-[#fcb907] group-hover:text-[#101114] transition-colors shrink-0">
+                                    <FileText className="w-3 h-3" />
                                   </div>
-                                  <div className="min-w-0 flex-1">
-                                    <div className="text-xs font-bold truncate">
-                                      {page.title}
-                                    </div>
-                                    {page.subtitle && (
-                                      <div className="text-[10px] text-[#6b7280] truncate font-normal">
-                                        {page.subtitle}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <ChevronRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-[#d97706] shrink-0" />
+                                  <span className="text-[11px] font-bold truncate flex-1">{page.title}</span>
+                                  <ChevronRight className="w-3 h-3 text-gray-300 group-hover:text-[#d97706] shrink-0" />
                                 </Link>
                               ))}
                             </div>
                           </div>
                         )}
+
+                        {/* Bottom Quick Help Bar */}
+                        <div className="border-t border-gray-100 pt-2.5 flex items-center justify-between text-[11px] px-1">
+                          <span className="text-gray-500 font-medium">Have questions about site requirements or building codes?</span>
+                          <Link
+                            href="/quote"
+                            onClick={() => setMoreDropdownOpen(false)}
+                            className="text-[#d97706] font-extrabold hover:underline flex items-center gap-1 shrink-0 ml-2"
+                          >
+                            <span>Get Free Estimate</span>
+                            <ArrowRight className="w-3 h-3 stroke-[2.5]" />
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1142,12 +1228,61 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                 </div>
               </div>
 
+              {/* Buyer Guides & Resources on Mobile */}
+              <div className="pt-2 border-t border-[#e7e9ee] space-y-3">
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-[#d97706] mb-1.5 flex items-center gap-1.5">
+                    <Truck className="w-3.5 h-3.5" />
+                    <span>Buyer Guides & Logistics</span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-1">
+                    {MORE_BUYER_GUIDES.map((guide) => (
+                      <Link
+                        key={guide.label}
+                        href={guide.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-[#101114] hover:bg-amber-50 hover:text-[#d97706]"
+                      >
+                        <span className="flex items-center gap-2">
+                          <guide.icon className="w-3.5 h-3.5 text-[#d97706]" />
+                          <span>{guide.label}</span>
+                        </span>
+                        <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Services & Planning</span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-1">
+                    {MORE_SERVICES_RESOURCES.map((res) => (
+                      <Link
+                        key={res.label}
+                        href={res.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-[#101114] hover:bg-gray-100 hover:text-[#d97706]"
+                      >
+                        <span className="flex items-center gap-2">
+                          <res.icon className="w-3.5 h-3.5 text-gray-500" />
+                          <span>{res.label}</span>
+                        </span>
+                        <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               {/* Dynamic Pages on Mobile */}
               {publishedPages.length > 0 && (
                 <div className="pt-2 border-t border-[#e7e9ee]">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-[#d97706] mb-2 flex items-center gap-1.5">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Company Pages & Guides</span>
+                    <span>Additional Resources</span>
                   </div>
                   <div className="space-y-1">
                     {publishedPages.map((page) => (
