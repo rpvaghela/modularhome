@@ -361,12 +361,12 @@ export const BUILDING_MODELS: BuildingModel[] = [
   {
     "id": "mod-grandview-estate",
     "slug": "the-grandview-two-story-modular-estate",
-    "name": "The Grandview Two-Story Modular Estate",
-    "series": "Estate Series",
-    "category": "Modular Homes",
-    "architecturalStyle": "Traditional Luxury",
-    "tagline": "3,200 SQ FT • 5 Bed 4 Bath Two-Story Modular Home",
-    "description": "<p><strong>The Grandview Two-Story Modular Estate</strong> provides abundant space for growing families with 5 bedrooms, 4 bathrooms, dedicated bonus room, and formal dining.</p>",
+    "name": "The Grandview Two-Story Barndominium Kit",
+    "series": "Barndominium Series",
+    "category": "Barndominiums",
+    "architecturalStyle": "Two-Story Barndominium Kit",
+    "tagline": "3,200 SQ FT • 5 Bed 4 Bath Two-Story Barndominium Kit",
+    "description": "<p><strong>The Grandview Two-Story Barndominium Kit</strong> provides abundant space with rugged steel post-frame durability for growing families, offering 5 bedrooms, 4 bathrooms, dedicated bonus room, and formal dining.</p>",
     "sqft": 3200,
     "bedrooms": 5,
     "bathrooms": 4,
@@ -385,7 +385,7 @@ export const BUILDING_MODELS: BuildingModel[] = [
     ],
     "floorPlanImage": "",
     "features": [
-      "Two-Story Precision Modular Engineering",
+      "Two-Story Precision Barndominium Kit Engineering",
       "5 Generous Bedrooms with Dedicated Upper Media Suite",
       "Heavy-Gauge Galvanized Steel Floor & Roof Trusses",
       "Turnkey Factory-Built Crane Set Installation"
@@ -398,8 +398,8 @@ export const BUILDING_MODELS: BuildingModel[] = [
       { "label": "Warranty", "value": "50-Year Structural Warranty" }
     ],
     "customizableOptions": [],
-    "tags": ["Featured", "Modular", "Turnkey"],
-    "collections": ["Modular Homes", "modular-homes"]
+    "tags": ["Featured", "Barndominium", "Barndominium Kit", "House Kits", "Turnkey"],
+    "collections": ["Barndominiums", "barndominiums", "house-kits"]
   },
   {
     "id": "mod-cascade-valley",

@@ -46,5 +46,7 @@ export interface YouTubeSyncResult {
   newVideosCount: number;
   updatedVideosCount: number;
   stats: SyncStats;
+  nextPageToken?: string | null;
+  hasMore?: boolean;
   errors?: string[];
 }

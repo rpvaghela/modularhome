@@ -19,15 +19,12 @@ export const revalidate = 0;
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["600", "700", "800", "900"],
-  style: ["normal", "italic"],
   variable: "--font-playfair-next",
   display: "swap",
 });
 
 const manrope = Manrope({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-manrope-next",
   display: "swap",
 });

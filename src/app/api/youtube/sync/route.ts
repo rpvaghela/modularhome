@@ -6,7 +6,28 @@ export const revalidate = 0;
 
 export async function POST(request: NextRequest) {
   try {
-    const result = await syncYouTubeChannel();
+    let pageToken: string | undefined;
+    let maxPages: number | undefined;
+
+    // Check search params
+    if (request.nextUrl?.searchParams) {
+      pageToken = request.nextUrl.searchParams.get("pageToken") || undefined;
+      const mp = request.nextUrl.searchParams.get("maxPages");
+      if (mp) maxPages = parseInt(mp, 10);
+    }
+
+    // Check body if JSON
+    try {
+      const body = await request.json();
+      if (body) {
+        if (body.pageToken) pageToken = body.pageToken;
+        if (body.maxPages) maxPages = parseInt(body.maxPages, 10);
+      }
+    } catch (e) {
+      // Body might be empty, ignore
+    }
+
+    const result = await syncYouTubeChannel({ pageToken, maxPages });
 
     if (!result.success) {
       return NextResponse.json(
@@ -28,6 +49,8 @@ export async function POST(request: NextRequest) {
         newVideosCount: result.newVideosCount,
         updatedVideosCount: result.updatedVideosCount,
         stats: result.stats,
+        nextPageToken: result.nextPageToken,
+        hasMore: result.hasMore,
       },
       {
         headers: {

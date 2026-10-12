@@ -92,7 +92,9 @@ export function matchProductCategory(
       mCat.includes("barndo") ||
       mName.includes("barndo") ||
       mSlug.includes("barndo") ||
-      mName.includes("pole barn")
+      mName.includes("pole barn") ||
+      mName.includes("grandview") ||
+      mSlug.includes("grandview")
     );
   }
 
@@ -268,6 +270,8 @@ export function matchProductCategory(
       mName.includes("kit") ||
       mName.includes("duplex") ||
       mName.includes("barndo") ||
+      mName.includes("grandview") ||
+      mSlug.includes("grandview") ||
       mName.includes("a-frame") ||
       mName.includes("park model") ||
       mName.includes("tiny") ||
@@ -289,7 +293,6 @@ export function matchProductCategory(
         mName.includes("modern craftsman") ||
         mName.includes("aspen ridge") ||
         mName.includes("prairie modern") ||
-        mName.includes("grandview") ||
         mName.includes("cascade valley") ||
         mName.includes("copper house") ||
         mName.includes("rancher") ||

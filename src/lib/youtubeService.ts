@@ -190,9 +190,14 @@ export async function fetchYouTubeVideoByUrl(urlOrId: string): Promise<Partial<V
   }
 }
 
-export async function syncYouTubeChannel(): Promise<YouTubeSyncResult> {
+export async function syncYouTubeChannel(options?: {
+  customChannelId?: string;
+  maxPages?: number;
+  pageToken?: string;
+}): Promise<YouTubeSyncResult> {
   const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyDtb7876TeTWSXHH14xqH0QVir-rEYm6R0";
-  const channelId = process.env.YOUTUBE_CHANNEL_ID || "UCe8Cs76lnVixGuymeoyExKg";
+  const channelId = options?.customChannelId || process.env.YOUTUBE_CHANNEL_ID || "UCe8Cs76lnVixGuymeoyExKg";
+  const maxPagesToFetch = options?.maxPages && options.maxPages > 0 ? options.maxPages : 10;
 
   if (!apiKey || !channelId) {
     throw new Error("YOUTUBE_API_KEY and YOUTUBE_CHANNEL_ID must be configured in environment variables.");
@@ -215,11 +220,12 @@ export async function syncYouTubeChannel(): Promise<YouTubeSyncResult> {
       throw new Error(`Uploads playlist not found for channel ${channelId}`);
     }
 
-    // 2. Fetch playlist items across pages (up to 300 videos to capture all main uploads)
+    // 2. Fetch playlist items across pages with configurable depth and pagination token
     let allPlaylistItems: any[] = [];
-    let pageToken = "";
+    let pageToken = options?.pageToken || "";
+    let lastNextPageToken: string | null = null;
 
-    for (let page = 0; page < 6; page++) {
+    for (let page = 0; page < maxPagesToFetch; page++) {
       const pageParam = pageToken ? `&pageToken=${pageToken}` : "";
       const playlistUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${uploadsPlaylistId}&maxResults=50${pageParam}&key=${apiKey}`;
       const playlistRes = await fetch(playlistUrl);
@@ -231,6 +237,7 @@ export async function syncYouTubeChannel(): Promise<YouTubeSyncResult> {
         break;
       }
       allPlaylistItems.push(...playlistData.items);
+      lastNextPageToken = playlistData.nextPageToken || null;
       pageToken = playlistData.nextPageToken || "";
       if (!pageToken) break;
     }
@@ -374,6 +381,8 @@ export async function syncYouTubeChannel(): Promise<YouTubeSyncResult> {
       newVideosCount: newCount,
       updatedVideosCount: updatedCount,
       stats,
+      nextPageToken: lastNextPageToken,
+      hasMore: Boolean(lastNextPageToken),
     };
   } catch (err: any) {
     console.error("YouTube Channel Sync Failed:", err);

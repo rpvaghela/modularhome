@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   return {
-    title: "Video Gallery & Home Tours | ModularHome.com",
+    title: "Modular Home & Prefab Home Video Tours | ModularHome.com",
     description: "Watch in-depth walkthroughs of our modular homes, prefabs, barndominiums, cabins, and customer project stories.",
   };
 }

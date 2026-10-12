@@ -1082,25 +1082,28 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
 
                     return (
                       <div key={item.label} className="border-b border-gray-50 last:border-none pb-0.5">
-                        <button
-                          type="button"
-                          onClick={() => setMobileExpandedCategory(isExpanded ? null : item.label)}
-                          onDoubleClick={() => {
-                            setMobileMenuOpen(false);
-                            router.push(item.href);
-                          }}
-                          className="w-full text-left flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-[#101114] hover:bg-[#f6f7f9] hover:text-[#d97706] cursor-pointer"
-                        >
-                          <span className="flex items-center gap-1.5">
-                            {item.label}
+                        <div className="flex items-center justify-between">
+                          <Link
+                            href={item.href}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="flex-1 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-[#101114] hover:bg-[#f6f7f9] hover:text-[#d97706]"
+                          >
+                            <span>{item.label}</span>
                             {item.badge && (
                               <span className="px-1.5 py-0.5 rounded-md bg-[#fcb907] text-[#101114] text-[9px] font-black">
                                 {item.badge}
                               </span>
                             )}
-                          </span>
-                          <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isExpanded ? "rotate-180 text-[#d97706]" : ""}`} />
-                        </button>
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => setMobileExpandedCategory(isExpanded ? null : item.label)}
+                            aria-label={`Toggle featured models for ${item.label}`}
+                            className="p-2 text-gray-400 hover:text-[#d97706] rounded-lg transition-colors cursor-pointer"
+                          >
+                            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? "rotate-180 text-[#d97706]" : ""}`} />
+                          </button>
+                        </div>
 
                         {/* Accordion Content */}
                         {isExpanded && (

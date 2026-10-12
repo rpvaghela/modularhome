@@ -5,12 +5,12 @@ export type VideoItem = BaseVideoItem;
 
 export const VIDEO_CATEGORIES = [
   "All",
-  "Building Tours",
-  "Construction",
-  "Delivery",
-  "Interior",
-  "Customer Stories",
+  "Modular Homes",
+  "Prefab Cabins",
+  "Tiny Homes",
   "Barndominiums",
+  "A-Frames",
+  "Building Tours",
 ] as const;
 
 export const VIDEOS_DATA: VideoItem[] = (syncedVideosData as any[]).map((v) => ({

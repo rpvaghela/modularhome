@@ -9,6 +9,7 @@ import { isCategorySlug, getCategoryDisplayName, resolveSimilarCategoryPath } fr
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import DynamicPageRenderer from "@/components/DynamicPageRenderer";
 import CategoryCollectionRenderer from "@/components/CategoryCollectionRenderer";
+import { parseLocationSlug } from "@/lib/locationData";
 
 export const dynamic = "force-dynamic";
 
@@ -104,6 +105,37 @@ export async function generateMetadata({
     };
   }
 
+  // 2. Check Location Landing Pages (e.g. /modular-homes-in-texas, /barndominiums-in-florida)
+  const locMatch = parseLocationSlug(cleanSlug);
+  if (locMatch.isLocation && locMatch.location) {
+    const loc = locMatch.location;
+    const catSlug = locMatch.categorySlug || "modular-homes";
+    const catDisplayName = getCategoryDisplayName(catSlug);
+    const title = `${catDisplayName} in ${loc.state} | Floor Plans & Delivery`;
+    const description = `Build energy-efficient steel-frame ${catDisplayName.toLowerCase()} in ${loc.state}. Serving ${loc.majorCities.slice(0, 4).join(", ")}. ${loc.windRating}. 50-year structural warranty.`;
+    const canonical = getCanonicalUrl(`/${cleanSlug}`);
+    const image = "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691";
+
+    return {
+      title,
+      description,
+      alternates: { canonical },
+      openGraph: {
+        title: `${title} | ModularHome.com`,
+        description,
+        url: canonical,
+        siteName: "ModularHome.com",
+        images: [{ url: image, alt: `${catDisplayName} in ${loc.state}` }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${title} | ModularHome.com`,
+        description,
+        images: [image],
+      },
+    };
+  }
+
   // 2. Check CMS Pages
   const page = await getPublicPageBySlug(cleanSlug);
   if (page && page.status !== "DRAFT" && page.status !== "ARCHIVED") {
@@ -187,7 +219,62 @@ export default async function DynamicSlugPage({ params }: DynamicSlugPageProps) 
     );
   }
 
-  // 2. Try rendering published CMS Page
+  // 2. Check Location Landing Pages (Client Requirement #15)
+  const locMatch = parseLocationSlug(cleanSlug);
+  if (locMatch.isLocation && locMatch.location) {
+    const loc = locMatch.location;
+    const catSlug = locMatch.categorySlug || "modular-homes";
+    const catDisplayName = getCategoryDisplayName(catSlug);
+
+    const [allProducts, allCollections] = await Promise.all([
+      getPublicProducts(),
+      getPublicCollections(),
+    ]);
+
+    const matchedProducts = allProducts.filter((p) => matchProductCategory(p, catSlug));
+    const title = `${catDisplayName} in ${loc.state}`;
+    const tagline = `Precision Steel-Frame Modular Construction Across ${loc.state} (${loc.stateCode})`;
+    const description = `${loc.intro} Full service coverage across ${loc.majorCities.join(", ")}, with ${loc.deliveryTimeWeeks}. ${loc.windRating} & ${loc.snowLoad}.`;
+    const image = matchedProducts[0]?.primaryImage || "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691";
+
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": `Modular Home Construction in ${loc.state}`,
+      "provider": {
+        "@type": "Organization",
+        "name": "ModularHome.com",
+        "url": "https://modularhome.com",
+      },
+      "areaServed": {
+        "@type": "State",
+        "name": loc.state,
+      },
+      "description": description,
+    };
+
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <CategoryCollectionRenderer
+          title={title}
+          tagline={tagline}
+          description={description}
+          image={image}
+          canonicalPath={`/${cleanSlug}`}
+          products={matchedProducts}
+          allProducts={allProducts}
+          allCollections={allCollections}
+          categoryKey={catSlug}
+        />
+      </>
+    );
+  }
+
+  // 3. Try rendering published CMS Page
   const page = await getPublicPageBySlug(cleanSlug);
   if (page && page.status !== "DRAFT" && page.status !== "ARCHIVED") {
     const jsonLd = {

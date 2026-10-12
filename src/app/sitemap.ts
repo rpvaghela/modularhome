@@ -5,6 +5,7 @@ import ALL_PRODUCTS_CATALOG from "@/data/all_products_catalog.json";
 import MIGRATED_ARTICLES from "@/data/migrated_articles.json";
 import { getProductUrl } from "@/utils/productUrls";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
+import { US_STATES_LOCATIONS } from "@/lib/locationData";
 
 export const dynamic = "force-dynamic";
 
@@ -281,7 +282,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  // 5. Try live database updates from Supabase if configured
+  // 5. Location-Based SEO Landing Pages (e.g. /modular-homes-in-texas, /barndominiums-in-florida)
+  Object.keys(US_STATES_LOCATIONS).forEach((stateKey) => {
+    const locRoutes = [
+      `modular-homes-in-${stateKey}`,
+      `prefab-homes-in-${stateKey}`,
+      `barndominiums-in-${stateKey}`,
+      `cabins-in-${stateKey}`,
+    ];
+
+    locRoutes.forEach((routeSlug) => {
+      const fullUrl = `${baseUrl}/${routeSlug}`;
+      if (!seenUrls.has(fullUrl)) {
+        seenUrls.add(fullUrl);
+        dynamicRoutes.push({
+          url: fullUrl,
+          lastModified: now,
+          changeFrequency: "weekly",
+          priority: 0.85,
+        });
+      }
+    });
+  });
+
+  // 6. Try live database updates from Supabase if configured
   if (isSupabaseConfigured()) {
     try {
       const { data: dbPlans } = await supabase

@@ -112,7 +112,12 @@ export function getProductCategorySlug(product?: ProductUrlInput | null): ValidP
   }
 
   // 2. Keyword heuristic matching (ordered by specificity)
-  if (combined.includes("barndo") || combined.includes("barndominium")) {
+  if (
+    combined.includes("barndo") ||
+    combined.includes("barndominium") ||
+    slug.includes("grandview") ||
+    title.includes("grandview")
+  ) {
     return "barndominiums";
   }
 
