@@ -1,47 +1,89 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
-import { getPublishedVideos } from "@/lib/videoStore";
+import { getPaginatedVideos } from "@/lib/videoStore";
 import VideosClient from "./VideosClient";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function generateMetadata(): Promise<Metadata> {
+interface VideosPageProps {
+  searchParams?: Promise<{
+    page?: string;
+    category?: string;
+    q?: string;
+  }>;
+}
+
+export async function generateMetadata({ searchParams }: VideosPageProps): Promise<Metadata> {
+  const sp = searchParams ? await searchParams : {};
+  const pageNum = Math.max(1, parseInt(sp.page || "1", 10) || 1);
+  const category = sp.category && sp.category !== "All" ? sp.category : null;
   const page = await getPublicPageBySlug("videos");
-  if (page) {
-    const title =
-      page.seoTitle && !page.seoTitle.includes("Video Gallery & Home Tours")
-        ? page.seoTitle
-        : "Modular Home & Prefab Home Video Tours | ModularHome.com";
-    const description = page.metaDescription || page.subtitle || "Watch in-depth walkthroughs of our modular homes, prefabs, barndominiums, cabins, and customer project stories.";
-    return {
-      title,
-      description,
-      openGraph: {
-        title: page.ogTitle || title,
-        description: page.ogDescription || description,
-        images: page.ogImage ? [{ url: page.ogImage }] : (page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/newmodularlogo.png" }]),
-      },
-      alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
-    };
+
+  let title =
+    page?.seoTitle && !page.seoTitle.includes("Video Gallery & Home Tours")
+      ? page.seoTitle
+      : "Modular Home & Prefab Home Video Tours | ModularHome.com";
+
+  if (category) {
+    title = `${category} Video Tours | ModularHome.com`;
+  }
+  if (pageNum > 1) {
+    title = `${title} (Page ${pageNum})`;
   }
 
+  const baseDesc = page?.metaDescription || page?.subtitle || "Watch in-depth walkthroughs of our modular homes, prefabs, barndominiums, cabins, and customer project stories.";
+  const description = pageNum > 1 ? `${baseDesc} — Page ${pageNum}` : baseDesc;
+
+  const canonicalParams = new URLSearchParams();
+  if (category) canonicalParams.set("category", category);
+  if (pageNum > 1) canonicalParams.set("page", pageNum.toString());
+  const canonicalQuery = canonicalParams.toString();
+  const canonicalUrl = canonicalQuery ? `https://modularhome.com/videos?${canonicalQuery}` : "https://modularhome.com/videos";
+
   return {
-    title: "Modular Home & Prefab Home Video Tours | ModularHome.com",
-    description: "Watch factory walkthroughs, crane assembly days, and customer build walkthroughs of our modular homes, prefabs, barndominiums, cabins, and customer project stories.",
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: page?.ogImage ? [{ url: page.ogImage }] : (page?.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/newmodularlogo.png" }]),
+    },
+    alternates: {
+      canonical: canonicalUrl,
+    },
   };
 }
 
-export default async function VideosPage() {
-  const [pageData, initialVideos] = await Promise.all([
+export default async function VideosPage({ searchParams }: VideosPageProps) {
+  const sp = searchParams ? await searchParams : {};
+  const page = Math.max(1, parseInt(sp.page || "1", 10) || 1);
+  const category = sp.category || "All";
+  const searchQuery = sp.q || "";
+
+  const [pageData, paginatedData] = await Promise.all([
     getPublicPageBySlug("videos"),
-    Promise.resolve().then(() => getPublishedVideos()),
+    getPaginatedVideos({
+      page,
+      limit: 12,
+      category,
+      search: searchQuery,
+    }),
   ]);
 
   return (
     <Suspense fallback={<div className="min-h-screen bg-white pt-32 text-center text-[#73777A]">Loading videos...</div>}>
-      <VideosClient pageData={pageData} initialVideos={initialVideos} />
+      <VideosClient
+        pageData={pageData}
+        initialVideos={paginatedData.videos}
+        initialTotalCount={paginatedData.totalCount}
+        initialPage={paginatedData.page}
+        initialTotalPages={paginatedData.totalPages}
+        initialCategory={category}
+        initialSearchQuery={searchQuery}
+        initialCategoryCounts={paginatedData.categoryCounts}
+      />
     </Suspense>
   );
 }

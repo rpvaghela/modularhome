@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Search, ChevronLeft, ChevronRight, Play, Film, Sparkles } from "lucide-react";
+import { useState, useEffect, useMemo, useRef, useTransition } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { Search, ChevronLeft, ChevronRight, Film, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { VIDEOS_DATA, VIDEO_CATEGORIES } from "@/data/videos";
+import { VIDEO_CATEGORIES } from "@/data/videos";
 import { VideoItem } from "@/types/video";
 import VideoCard from "@/components/VideoCard";
 import VideoModal from "@/components/VideoModal";
@@ -13,168 +13,104 @@ import { CmsPage } from "@/lib/publicData";
 interface VideosClientProps {
   pageData?: CmsPage | null;
   initialVideos?: VideoItem[];
+  initialTotalCount?: number;
+  initialPage?: number;
+  initialTotalPages?: number;
+  initialCategory?: string;
+  initialSearchQuery?: string;
+  initialCategoryCounts?: Record<string, number>;
 }
 
 const ITEMS_PER_PAGE = 12;
 
-function matchVideoCategory(video: VideoItem, cat: string): boolean {
-  if (!cat || cat === "All") return true;
-  const content = `${video.title} ${video.description} ${video.category || ""}`.toLowerCase();
-  
-  if (cat === "Barndominiums") {
-    return content.includes("barndo") || content.includes("barndominium") || content.includes("pole barn");
-  }
-  if (cat === "Modular Homes") {
-    return (content.includes("modular") && !content.includes("cabin")) || content.includes("modular home") || content.includes("residence");
-  }
-  if (cat === "Prefab Cabins") {
-    return content.includes("cabin") || content.includes("lodge") || content.includes("rustic") || content.includes("log");
-  }
-  if (cat === "Tiny Homes") {
-    return content.includes("tiny") || content.includes("park model");
-  }
-  if (cat === "A-Frames") {
-    return content.includes("a-frame") || content.includes("aframe");
-  }
-  if (cat === "Building Tours") {
-    return content.includes("tour") || content.includes("walkthrough") || content.includes("factory") || content.includes("building");
-  }
-  return (video.category || "").toLowerCase() === cat.toLowerCase();
-}
-
-export default function VideosClient({ pageData, initialVideos = [] }: VideosClientProps) {
+export default function VideosClient({
+  pageData,
+  initialVideos = [],
+  initialTotalCount = 0,
+  initialPage = 1,
+  initialTotalPages = 1,
+  initialCategory = "All",
+  initialSearchQuery = "",
+  initialCategoryCounts = {},
+}: VideosClientProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
-  const seedVideos = (initialVideos && initialVideos.length > 0)
-    ? initialVideos
-    : (VIDEOS_DATA as unknown as VideoItem[]);
-
-  const [videos, setVideos] = useState<VideoItem[]>(seedVideos);
+  // Active video for the popup video player modal
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(seedVideos.length === 0);
 
-  // Read state from URL search params
-  const initialCategory = searchParams.get("category") || "All";
-  const initialPage = parseInt(searchParams.get("page") || "1", 10) || 1;
-  const initialQuery = searchParams.get("q") || "";
-
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
-  const [searchQuery, setSearchQuery] = useState<string>(initialQuery);
-  const [currentPage, setCurrentPage] = useState<number>(initialPage);
+  // Local state for debounced search input typing
+  const [searchInput, setSearchInput] = useState<string>(initialSearchQuery);
+  const [jumpPageInput, setJumpPageInput] = useState<string>("");
 
   const gridRef = useRef<HTMLDivElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Sync state if URL changes externally
+  // Synchronize local search input when server props change
   useEffect(() => {
-    const cat = searchParams.get("category") || "All";
-    const pg = parseInt(searchParams.get("page") || "1", 10) || 1;
-    const q = searchParams.get("q") || "";
-    setSelectedCategory(cat);
-    setCurrentPage(pg);
-    setSearchQuery(q);
-  }, [searchParams]);
+    setSearchInput(initialSearchQuery);
+  }, [initialSearchQuery]);
 
-  useEffect(() => {
-    let isMounted = true;
-    async function loadSyncedVideos() {
-      // If we don't have any videos yet, show loading spinner
-      if (videos.length === 0) {
-        setIsLoading(true);
-      }
-      try {
-        const res = await fetch("/api/videos");
-        const data = await res.json();
-        if (!isMounted) return;
-        if (data.success && Array.isArray(data.videos) && data.videos.length > 0) {
-          setVideos(data.videos);
-        } else if (videos.length === 0) {
-          setVideos(VIDEOS_DATA as unknown as VideoItem[]);
-        }
-      } catch (err) {
-        console.error("Failed to fetch synced videos, using fallback:", err);
-        if (isMounted && videos.length === 0) {
-          setVideos(VIDEOS_DATA as unknown as VideoItem[]);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    }
-    loadSyncedVideos();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // Update URL helper
-  const updateUrl = (cat: string, page: number, query: string) => {
+  // Clean navigation helper using React 19 transition to prevent unmounted updates
+  const navigateTo = (newCategory: string, newPage: number, newQuery: string) => {
     const params = new URLSearchParams();
-    if (cat && cat !== "All") params.set("category", cat);
-    if (page > 1) params.set("page", page.toString());
-    if (query.trim()) params.set("q", query.trim());
-    const newQueryString = params.toString();
-    const targetUrl = newQueryString ? `${pathname}?${newQueryString}` : pathname;
-    router.push(targetUrl, { scroll: false });
-  };
+    if (newCategory && newCategory !== "All") params.set("category", newCategory);
+    if (newPage > 1) params.set("page", newPage.toString());
+    if (newQuery.trim()) params.set("q", newQuery.trim());
+    const qs = params.toString();
+    const targetUrl = qs ? `${pathname}?${qs}` : pathname;
 
-  const handleCategoryChange = (cat: string) => {
-    setSelectedCategory(cat);
-    setCurrentPage(1);
-    updateUrl(cat, 1, searchQuery);
-  };
+    startTransition(() => {
+      router.push(targetUrl, { scroll: false });
+    });
 
-  const handleSearchChange = (query: string) => {
-    setSearchQuery(query);
-    setCurrentPage(1);
-    updateUrl(selectedCategory, 1, query);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    updateUrl(selectedCategory, page, searchQuery);
     if (gridRef.current) {
       gridRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
-  // Filtered dataset
-  const filteredVideos = useMemo(() => {
-    return videos.filter((v) => {
-      if (!matchVideoCategory(v, selectedCategory)) return false;
-      const q = searchQuery.toLowerCase().trim();
-      if (!q) return true;
-      return (
-        v.title.toLowerCase().includes(q) ||
-        v.description.toLowerCase().includes(q) ||
-        (v.category && v.category.toLowerCase().includes(q))
-      );
-    });
-  }, [videos, selectedCategory, searchQuery]);
+  const handleCategoryChange = (cat: string) => {
+    navigateTo(cat, 1, searchInput);
+  };
 
-  // Compute pagination
-  const totalPages = Math.max(1, Math.ceil(filteredVideos.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+  const handleSearchChange = (query: string) => {
+    setSearchInput(query);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => {
+      navigateTo(initialCategory, 1, query);
+    }, 400);
+  };
 
-  const paginatedVideos = useMemo(() => {
-    const start = (safePage - 1) * ITEMS_PER_PAGE;
-    return filteredVideos.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredVideos, safePage]);
+  const handleJumpToPageSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const p = parseInt(jumpPageInput.trim(), 10);
+    if (!isNaN(p) && p >= 1 && p <= initialTotalPages) {
+      navigateTo(initialCategory, p, searchInput);
+      setJumpPageInput("");
+    }
+  };
 
-  // Category counts
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { All: videos.length };
-    VIDEO_CATEGORIES.forEach((cat) => {
-      if (cat !== "All") {
-        counts[cat] = videos.filter((v) => matchVideoCategory(v, cat)).length;
-      }
-    });
-    return counts;
-  }, [videos]);
+  const safePage = Math.min(Math.max(1, initialPage), initialTotalPages);
 
-  // Client Requirement #12: Video Gallery Title must be "Modular Home & Prefab Home Video Tours"
+  // Generate numbered pages array with responsive windowing
+  const pageNumbers = useMemo(() => {
+    const pages: (number | string)[] = [];
+    if (initialTotalPages <= 7) {
+      for (let i = 1; i <= initialTotalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (safePage > 4) pages.push("...");
+      const start = Math.max(2, safePage - 1);
+      const end = Math.min(initialTotalPages - 1, safePage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (safePage < initialTotalPages - 3) pages.push("...");
+      pages.push(initialTotalPages);
+    }
+    return pages;
+  }, [initialTotalPages, safePage]);
+
+  // Video Gallery Title
   const heroTitle =
     pageData?.title && pageData.title !== "Video Gallery & Home Tours"
       ? pageData.title
@@ -186,27 +122,10 @@ export default function VideosClient({ pageData, initialVideos = [] }: VideosCli
     pageData?.content ||
     "Watch in-depth walkthroughs of our modular homes, prefabs, barndominiums, cabins, and customer project stories.";
 
-  // Generate numbered pages array
-  const pageNumbers = useMemo(() => {
-    const pages: (number | string)[] = [];
-    if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (safePage > 3) pages.push("...");
-      const start = Math.max(2, safePage - 1);
-      const end = Math.min(totalPages - 1, safePage + 1);
-      for (let i = start; i <= end; i++) pages.push(i);
-      if (safePage < totalPages - 2) pages.push("...");
-      pages.push(totalPages);
-    }
-    return pages;
-  }, [totalPages, safePage]);
-
   return (
     <div className="min-h-screen bg-white pt-6 pb-24 text-[var(--ink)]">
       <div className="wrap">
-        {/* Header (Requirement #12) */}
+        {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200/80 text-[#b45309] text-[11px] font-black uppercase tracking-wider mb-4">
             <Film className="w-3.5 h-3.5 text-[#d97706]" />
@@ -229,7 +148,7 @@ export default function VideosClient({ pageData, initialVideos = [] }: VideosCli
               <Search className="w-4 h-4 text-[var(--muted)] absolute left-4 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                value={searchQuery}
+                value={searchInput}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 placeholder="Search video tours by keyword or model..."
                 className="w-full bg-[var(--soft)] border border-[var(--line)] pl-11 pr-4 py-3 text-xs text-[var(--ink)] rounded-full focus:outline-none focus:border-[#d97706] shadow-xs transition-all"
@@ -238,12 +157,12 @@ export default function VideosClient({ pageData, initialVideos = [] }: VideosCli
           </div>
         </div>
 
-        {/* Video Categories Bar (Client Requirement #13) */}
+        {/* Video Categories Bar */}
         <div className="mb-8" ref={gridRef}>
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none justify-start sm:justify-center flex-nowrap">
             {VIDEO_CATEGORIES.map((category) => {
-              const isActive = selectedCategory === category;
-              const count = categoryCounts[category] || 0;
+              const isActive = initialCategory === category;
+              const count = initialCategoryCounts[category] ?? (category === "All" ? initialTotalCount : 0);
               return (
                 <button
                   key={category}
@@ -261,7 +180,7 @@ export default function VideosClient({ pageData, initialVideos = [] }: VideosCli
                       isActive ? "bg-[#fcb907] text-[#101114]" : "bg-gray-200/80 text-gray-600"
                     }`}
                   >
-                    {count}
+                    {count.toLocaleString()}
                   </span>
                 </button>
               );
@@ -271,15 +190,27 @@ export default function VideosClient({ pageData, initialVideos = [] }: VideosCli
           {/* Results Summary Info */}
           <div className="flex items-center justify-between text-xs text-[var(--muted)] mt-4 px-1 border-b border-gray-100 pb-3">
             <div>
-              Showing <span className="font-bold text-[#101114]">{filteredVideos.length === 0 ? 0 : (safePage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(safePage * ITEMS_PER_PAGE, filteredVideos.length)}</span> of{" "}
-              <span className="font-bold text-[#101114]">{filteredVideos.length}</span> video tours
-              {selectedCategory !== "All" && <span> in <span className="font-bold text-[#d97706]">{selectedCategory}</span></span>}
+              Showing{" "}
+              <span className="font-bold text-[#101114]">
+                {initialTotalCount === 0 ? 0 : (safePage - 1) * ITEMS_PER_PAGE + 1}–
+                {Math.min(safePage * ITEMS_PER_PAGE, initialTotalCount)}
+              </span>{" "}
+              of <span className="font-bold text-[#101114]">{initialTotalCount.toLocaleString()}</span> video tours
+              {initialCategory !== "All" && (
+                <span>
+                  {" "}
+                  in <span className="font-bold text-[#d97706]">{initialCategory}</span>
+                </span>
+              )}
             </div>
-            {searchQuery && (
+            {searchInput && (
               <button
                 type="button"
-                onClick={() => handleSearchChange("")}
-                className="text-xs text-[#d97706] font-bold hover:underline"
+                onClick={() => {
+                  setSearchInput("");
+                  navigateTo(initialCategory, 1, "");
+                }}
+                className="text-xs text-[#d97706] font-bold hover:underline cursor-pointer"
               >
                 Clear Search Filter
               </button>
@@ -287,69 +218,79 @@ export default function VideosClient({ pageData, initialVideos = [] }: VideosCli
           </div>
         </div>
 
-        {/* Video Grid */}
-        {isLoading ? (
-          <div className="p-16 text-center text-xs text-[var(--muted)]">
-            Loading video tours...
-          </div>
-        ) : filteredVideos.length === 0 ? (
-          <div className="p-16 text-center text-xs text-[var(--muted)] space-y-3 bg-[var(--soft)] rounded-[18px] border border-[var(--line)]">
-            <div className="text-sm font-bold text-gray-700">No videos found matching your filters.</div>
-            <p className="text-gray-500 max-w-sm mx-auto">
-              Try selecting a different category tab or removing search keywords.
-            </p>
-            <button
-              onClick={() => {
-                setSelectedCategory("All");
-                setSearchQuery("");
-                setCurrentPage(1);
-                updateUrl("All", 1, "");
-              }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#fcb907] text-[#101114] text-xs font-black rounded-xl hover:bg-amber-400 transition-colors cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Reset All Filters</span>
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
-            {paginatedVideos.map((video) => (
-              <VideoCard
-                key={video.id}
-                video={video}
-                onPlay={(v: VideoItem) => setActiveVideo(v)}
-              />
-            ))}
-          </div>
-        )}
+        {/* Transition Loading State Indicator */}
+        <div className={`transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : "opacity-100"}`}>
+          {initialVideos.length === 0 ? (
+            <div className="p-16 text-center text-xs text-[var(--muted)] space-y-3 bg-[var(--soft)] rounded-[18px] border border-[var(--line)]">
+              <div className="text-sm font-bold text-gray-700">No videos found matching your filters.</div>
+              <p className="text-gray-500 max-w-sm mx-auto">
+                Try selecting a different category tab or removing search keywords.
+              </p>
+              <button
+                onClick={() => {
+                  setSearchInput("");
+                  navigateTo("All", 1, "");
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#fcb907] text-[#101114] text-xs font-black rounded-xl hover:bg-amber-400 transition-colors cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Reset All Filters</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
+              {initialVideos.map((video) => (
+                <VideoCard
+                  key={video.id || video.youtubeVideoId}
+                  video={video}
+                  onPlay={(v: VideoItem) => setActiveVideo(v)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
 
-        {/* Numbered Pagination (Client Requirement #10) */}
-        {!isLoading && totalPages > 1 && (
+        {/* Numbered Pagination (Crawlable SEO <Link> tags) */}
+        {initialTotalPages > 1 && (
           <nav
             aria-label="Video Gallery Pagination"
-            className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-gray-100"
+            className="mt-12 flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-gray-100"
           >
             <div className="text-xs text-[var(--muted)]">
               Page <span className="font-bold text-[#101114]">{safePage}</span> of{" "}
-              <span className="font-bold text-[#101114]">{totalPages}</span>
+              <span className="font-bold text-[#101114]">{initialTotalPages.toLocaleString()}</span> (
+              {initialTotalCount.toLocaleString()} total videos)
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
               {/* Previous Button */}
-              <button
-                type="button"
-                onClick={() => handlePageChange(safePage - 1)}
-                disabled={safePage === 1}
-                aria-label="Previous Page"
-                className={`inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${
-                  safePage === 1
-                    ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
-                    : "border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-black cursor-pointer bg-white"
-                }`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">Prev</span>
-              </button>
+              {safePage <= 1 ? (
+                <span
+                  aria-disabled="true"
+                  aria-label="Previous Page"
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50 select-none"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Prev</span>
+                </span>
+              ) : (
+                <Link
+                  href={`/videos?${new URLSearchParams({
+                    ...(initialCategory !== "All" && { category: initialCategory }),
+                    ...(safePage > 2 ? { page: (safePage - 1).toString() } : {}),
+                    ...(searchInput ? { q: searchInput } : {}),
+                  }).toString()}`}
+                  prefetch={false}
+                  onClick={() => {
+                    if (gridRef.current) gridRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  aria-label="Previous Page"
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-black cursor-pointer bg-white transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Prev</span>
+                </Link>
+              )}
 
               {/* Numbered Buttons */}
               {pageNumbers.map((p, idx) => {
@@ -363,9 +304,9 @@ export default function VideosClient({ pageData, initialVideos = [] }: VideosCli
 
                 const isCurrent = p === safePage;
                 const linkHref = `/videos?${new URLSearchParams({
-                  ...(selectedCategory !== "All" && { category: selectedCategory }),
+                  ...(initialCategory !== "All" && { category: initialCategory }),
                   ...(p > 1 && { page: p.toString() }),
-                  ...(searchQuery && { q: searchQuery }),
+                  ...(searchInput && { q: searchInput }),
                 }).toString()}`;
 
                 return (
@@ -373,9 +314,8 @@ export default function VideosClient({ pageData, initialVideos = [] }: VideosCli
                     key={p}
                     href={linkHref}
                     prefetch={false}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handlePageChange(p);
+                    onClick={() => {
+                      if (gridRef.current) gridRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
                     }}
                     className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-extrabold transition-all cursor-pointer ${
                       isCurrent
@@ -390,29 +330,62 @@ export default function VideosClient({ pageData, initialVideos = [] }: VideosCli
               })}
 
               {/* Next Button */}
-              <button
-                type="button"
-                onClick={() => handlePageChange(safePage + 1)}
-                disabled={safePage === totalPages}
-                aria-label="Next Page"
-                className={`inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${
-                  safePage === totalPages
-                    ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
-                    : "border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-black cursor-pointer bg-white"
-                }`}
-              >
-                <span className="hidden sm:inline">Next</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
+              {safePage >= initialTotalPages ? (
+                <span
+                  aria-disabled="true"
+                  aria-label="Next Page"
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50 select-none"
+                >
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </span>
+              ) : (
+                <Link
+                  href={`/videos?${new URLSearchParams({
+                    ...(initialCategory !== "All" && { category: initialCategory }),
+                    page: (safePage + 1).toString(),
+                    ...(searchInput ? { q: searchInput } : {}),
+                  }).toString()}`}
+                  prefetch={false}
+                  onClick={() => {
+                    if (gridRef.current) gridRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  aria-label="Next Page"
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-black cursor-pointer bg-white transition-colors"
+                >
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              )}
             </div>
+
+            {/* Jump to Page input for large catalogs */}
+            {initialTotalPages > 5 && (
+              <form onSubmit={handleJumpToPageSubmit} className="flex items-center gap-1 text-xs">
+                <span className="text-[var(--muted)]">Go to:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max={initialTotalPages}
+                  value={jumpPageInput}
+                  onChange={(e) => setJumpPageInput(e.target.value)}
+                  placeholder="#"
+                  className="w-14 px-2 py-1.5 text-xs text-center border border-gray-200 rounded-lg focus:outline-none focus:border-[#fcb907]"
+                />
+                <button
+                  type="submit"
+                  className="px-2.5 py-1.5 bg-[#101114] text-white text-[11px] font-bold rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
+                >
+                  Go
+                </button>
+              </form>
+            )}
           </nav>
         )}
       </div>
 
       {/* Video Lightbox Modal */}
-      {activeVideo && (
-        <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />
-      )}
+      {activeVideo && <VideoModal video={activeVideo} onClose={() => setActiveVideo(null)} />}
     </div>
   );
 }

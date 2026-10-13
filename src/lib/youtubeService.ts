@@ -190,14 +190,37 @@ export async function fetchYouTubeVideoByUrl(urlOrId: string): Promise<Partial<V
   }
 }
 
+export function inferVideoCategory(title: string = "", description: string = ""): string {
+  const content = `${title} ${description}`.toLowerCase();
+  if (content.includes("barndo") || content.includes("barndominium") || content.includes("pole barn")) {
+    return "Barndominiums";
+  }
+  if (content.includes("a-frame") || content.includes("aframe")) {
+    return "A-Frames";
+  }
+  if (content.includes("tiny") || content.includes("park model") || content.includes("granny pod")) {
+    return "Tiny Homes";
+  }
+  if (content.includes("cabin") || content.includes("lodge") || content.includes("rustic") || content.includes("log")) {
+    return "Prefab Cabins";
+  }
+  if (content.includes("modular") || content.includes("residence") || content.includes("prefab home")) {
+    return "Modular Homes";
+  }
+  return "Building Tours";
+}
+
 export async function syncYouTubeChannel(options?: {
   customChannelId?: string;
   maxPages?: number;
   pageToken?: string;
+  includeAllHistorical?: boolean;
+  skipFileWrite?: boolean;
 }): Promise<YouTubeSyncResult> {
   const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyDtb7876TeTWSXHH14xqH0QVir-rEYm6R0";
   const channelId = options?.customChannelId || process.env.YOUTUBE_CHANNEL_ID || "UCe8Cs76lnVixGuymeoyExKg";
   const maxPagesToFetch = options?.maxPages && options.maxPages > 0 ? options.maxPages : 10;
+  const includeAllHistorical = options?.includeAllHistorical ?? true;
 
   if (!apiKey || !channelId) {
     throw new Error("YOUTUBE_API_KEY and YOUTUBE_CHANNEL_ID must be configured in environment variables.");
@@ -259,6 +282,8 @@ export async function syncYouTubeChannel(options?: {
         newVideosCount: 0,
         updatedVideosCount: 0,
         stats,
+        nextPageToken: lastNextPageToken,
+        hasMore: false,
       };
     }
 
@@ -280,7 +305,7 @@ export async function syncYouTubeChannel(options?: {
       }
     }
 
-    // 4. Strictly filter out Shorts and Demo videos: Only keep MAIN videos (> 60s)
+    // 4. Map videos with category inference and metadata
     const mainVideos: Partial<VideoItem>[] = [];
 
     for (const item of detailedItems) {
@@ -294,10 +319,10 @@ export async function syncYouTubeChannel(options?: {
         continue;
       }
 
-      // Check duration and shorts indicators
+      // Check duration and shorts indicators only if NOT importing full historical archive
       const durationSec = parseISO8601DurationInSeconds(contentDetails?.duration || "");
-      if (isYouTubeShort(durationSec, snippet?.title, snippet?.description)) {
-        // Skip all shorts
+      if (!includeAllHistorical && isYouTubeShort(durationSec, snippet?.title, snippet?.description)) {
+        // Skip shorts only if strict non-historical mode requested
         continue;
       }
 
@@ -312,12 +337,16 @@ export async function syncYouTubeChannel(options?: {
         ? `${parseInt(statistics.viewCount, 10).toLocaleString()} views`
         : "Recent Tour";
 
+      const title = snippet?.title || "Modular Home & Cabin Tour";
+      const description = snippet?.description || "";
+      const category = inferVideoCategory(title, description);
+
       mainVideos.push({
         youtubeVideoId: vId,
-        title: snippet?.title || "Modular Home & Cabin Tour",
-        description: snippet?.description || "",
+        title,
+        description,
         thumbnail,
-        duration: parseISO8601Duration(contentDetails?.duration),
+        duration: parseISO8601Duration(contentDetails?.duration) || (durationSec > 0 ? `${Math.floor(durationSec / 60)}:${(durationSec % 60).toString().padStart(2, "0")}` : "4:00"),
         publishedAt: snippet?.publishedAt || new Date().toISOString(),
         views: viewCount,
         date: snippet?.publishedAt
@@ -332,37 +361,26 @@ export async function syncYouTubeChannel(options?: {
         videoUrl: `https://www.youtube-nocookie.com/embed/${vId}`,
         channelId: snippet?.channelId || channelId,
         channelTitle: snippet?.channelTitle || "Amish Built Cabins, Modular Cabins, Modular Homes",
-        category: "Building Tours",
+        category,
         isPublished: true,
       });
     }
 
-    // 5. Clean existing store: Remove all demo videos and remove any existing shorts
+    // 5. Clean existing store: Remove demo IDs
     const existingStore = readVideosFromStore();
     const cleanedStore = existingStore.filter((v) => {
       if (KNOWN_DEMO_VIDEO_IDS.has(v.youtubeVideoId) || KNOWN_DEMO_VIDEO_IDS.has(v.id)) {
         return false;
       }
-      // Check if duration is <= 60s
-      if (v.duration) {
-        const parts = v.duration.split(":").map((p) => parseInt(p, 10));
-        let totalSec = 0;
-        if (parts.length === 2) {
-          totalSec = (parts[0] || 0) * 60 + (parts[1] || 0);
-        } else if (parts.length === 3) {
-          totalSec = (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0);
-        }
-        if (totalSec > 0 && totalSec <= 60) {
-          return false;
-        }
-      }
       return true;
     });
 
-    writeVideosToStore(cleanedStore);
+    if (!options?.skipFileWrite) {
+      writeVideosToStore(cleanedStore);
+    }
 
-    // 6. Upsert the genuine main videos
-    const { newCount, updatedCount } = await batchUpsertVideos(mainVideos);
+    // 6. Upsert the genuine videos
+    const { newCount, updatedCount } = await batchUpsertVideos(mainVideos, { skipFileWrite: options?.skipFileWrite });
     const finalStored = readVideosFromStore();
 
     const stats: SyncStats = {
@@ -376,7 +394,7 @@ export async function syncYouTubeChannel(options?: {
 
     return {
       success: true,
-      message: `Successfully synchronized ${mainVideos.length} main videos from YouTube channel (all Shorts and demo videos excluded).`,
+      message: `Successfully synchronized ${mainVideos.length} videos from YouTube channel.`,
       checkedCount: detailedItems.length,
       newVideosCount: newCount,
       updatedVideosCount: updatedCount,

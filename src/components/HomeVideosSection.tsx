@@ -9,6 +9,7 @@ import { Play, ArrowRight } from "lucide-react";
 
 interface HomeVideosSectionProps {
   videos?: VideoItem[];
+  totalCount?: number;
 }
 
 function cleanVideoTitle(rawTitle: string): string {
@@ -41,19 +42,37 @@ function cleanVideoTitle(rawTitle: string): string {
   return clean;
 }
 
-export default function HomeVideosSection({ videos }: HomeVideosSectionProps) {
+export default function HomeVideosSection({ videos, totalCount }: HomeVideosSectionProps) {
   const [videoList, setVideoList] = useState<VideoItem[]>(videos && videos.length > 0 ? videos : VIDEOS_DATA);
+  const [totalVideosCount, setTotalVideosCount] = useState<number>(totalCount ?? (videos?.length || VIDEOS_DATA.length));
   const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
 
+  // Sync state if server props change
   useEffect(() => {
+    if (videos && videos.length > 0) {
+      setVideoList(videos);
+    }
+    if (typeof totalCount === "number") {
+      setTotalVideosCount(totalCount);
+    }
+  }, [videos, totalCount]);
+
+  // Client-side fallback fetch only if no server videos were supplied
+  useEffect(() => {
+    if (videos && videos.length > 0) {
+      return;
+    }
     let isMounted = true;
     async function loadVideos() {
       try {
-        const res = await fetch("/api/videos");
+        const res = await fetch("/api/videos?limit=8");
         if (res.ok) {
           const data = await res.json();
           if (isMounted && data.success && Array.isArray(data.videos) && data.videos.length > 0) {
             setVideoList(data.videos);
+            if (typeof data.totalCount === "number") {
+              setTotalVideosCount(data.totalCount);
+            }
           }
         }
       } catch (e) {
@@ -64,7 +83,7 @@ export default function HomeVideosSection({ videos }: HomeVideosSectionProps) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [videos]);
 
   // Filter 8 distinct videos for a clean 2x4 grid
   const distinctVideos: VideoItem[] = [];
@@ -108,7 +127,7 @@ export default function HomeVideosSection({ videos }: HomeVideosSectionProps) {
               href="/videos"
               className="font-sans text-[#d97706] hover:text-[#b45309] font-black text-xs sm:text-base hover:underline whitespace-nowrap self-start sm:self-auto flex items-center gap-1 group"
             >
-              <span>View All Videos ({videoList.length})</span>
+              <span>View All Videos ({totalVideosCount.toLocaleString()})</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </Link>
           </div>

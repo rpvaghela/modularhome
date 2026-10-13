@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ mode: "fallback_sync", ...res });
     }
 
-    const channelId = process.env.YOUTUBE_CHANNEL_ID || "UCu_Q38VwYk6_kR1Y2sQcM1A";
+    const channelId = process.env.YOUTUBE_CHANNEL_ID || "UCe8Cs76lnVixGuymeoyExKg";
     const parsedVideos = parseYouTubeAtomFeed(rawXml, channelId);
 
     if (parsedVideos.length === 0) {

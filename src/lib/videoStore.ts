@@ -168,7 +168,7 @@ export function saveSyncStats(stats: SyncStats): void {
   }
 }
 
-export function getPublishedVideos(params?: { category?: string; search?: string }): VideoItem[] {
+export function getPublishedVideos(params?: { category?: string; search?: string; limit?: number }): VideoItem[] {
   const videos = readVideosFromStore();
   let result = videos.filter((v) => v.isPublished !== false);
 
@@ -189,9 +189,176 @@ export function getPublishedVideos(params?: { category?: string; search?: string
   }
 
   // Sort newest first
-  return result.sort(
+  const sorted = result.sort(
     (a, b) => new Date(b.publishedAt || "").getTime() - new Date(a.publishedAt || "").getTime()
   );
+
+  if (params?.limit && params.limit > 0) {
+    return sorted.slice(0, params.limit);
+  }
+
+  return sorted;
+}
+
+export interface PaginatedVideosResult {
+  videos: VideoItem[];
+  totalCount: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  categoryCounts: Record<string, number>;
+}
+
+let cachedCategoryCounts: Record<string, number> | null = null;
+let cachedCategoryCountsTime = 0;
+
+export async function getCategoryCounts(): Promise<Record<string, number>> {
+  const now = Date.now();
+  if (cachedCategoryCounts && cachedCategoryCounts.All > 0 && now - cachedCategoryCountsTime < 300000) {
+    return cachedCategoryCounts;
+  }
+
+  if (isSupabaseConfigured()) {
+    try {
+      const [cAll, cBarndo, cCabin, cTiny, cModular, cAFrame, cTour] = await Promise.all([
+        supabaseAdmin.from("videos").select("id", { count: "exact" }).limit(1),
+        supabaseAdmin.from("videos").select("id", { count: "exact" }).limit(1).or("category.eq.Barndominiums,title.ilike.%barndo%,description.ilike.%barndo%,title.ilike.%pole barn%"),
+        supabaseAdmin.from("videos").select("id", { count: "exact" }).limit(1).or("category.eq.Prefab Cabins,title.ilike.%cabin%,description.ilike.%cabin%,title.ilike.%lodge%,title.ilike.%log%"),
+        supabaseAdmin.from("videos").select("id", { count: "exact" }).limit(1).or("category.eq.Tiny Homes,title.ilike.%tiny%,description.ilike.%tiny%,title.ilike.%park model%"),
+        supabaseAdmin.from("videos").select("id", { count: "exact" }).limit(1).or("category.eq.Modular Homes,title.ilike.%modular%,description.ilike.%modular%,title.ilike.%residence%"),
+        supabaseAdmin.from("videos").select("id", { count: "exact" }).limit(1).or("category.eq.A-Frames,title.ilike.%a-frame%,description.ilike.%aframe%"),
+        supabaseAdmin.from("videos").select("id", { count: "exact" }).limit(1).or("category.eq.Building Tours,title.ilike.%tour%,description.ilike.%tour%,title.ilike.%walkthrough%"),
+      ]);
+
+      const totalAll = cAll.count || 0;
+      const counts = {
+        All: totalAll,
+        Barndominiums: cBarndo.count || 0,
+        "Prefab Cabins": cCabin.count || 0,
+        "Tiny Homes": cTiny.count || 0,
+        "Modular Homes": cModular.count || 0,
+        "A-Frames": cAFrame.count || 0,
+        "Building Tours": cTour.count || totalAll,
+      };
+
+      if (totalAll > 0) {
+        cachedCategoryCounts = counts;
+        cachedCategoryCountsTime = now;
+      }
+      return counts;
+    } catch (e) {
+      console.error("Failed to query category counts from Supabase:", e);
+    }
+  }
+
+  // Fallback to local memory store
+  const videos = readVideosFromStore().filter((v) => v.isPublished !== false);
+  const counts: Record<string, number> = { All: videos.length };
+  const categories = ["Barndominiums", "Modular Homes", "Prefab Cabins", "Tiny Homes", "A-Frames", "Building Tours"];
+  for (const cat of categories) {
+    counts[cat] = videos.filter((v) => {
+      const content = `${v.title} ${v.description} ${v.category || ""}`.toLowerCase();
+      if (cat === "Barndominiums") return content.includes("barndo") || content.includes("barndominium");
+      if (cat === "Modular Homes") return (content.includes("modular") && !content.includes("cabin")) || content.includes("modular home") || content.includes("residence");
+      if (cat === "Prefab Cabins") return content.includes("cabin") || content.includes("lodge") || content.includes("rustic") || content.includes("log");
+      if (cat === "Tiny Homes") return content.includes("tiny") || content.includes("park model");
+      if (cat === "A-Frames") return content.includes("a-frame") || content.includes("aframe");
+      if (cat === "Building Tours") return content.includes("tour") || content.includes("walkthrough") || content.includes("factory") || content.includes("building");
+      return (v.category || "").toLowerCase() === cat.toLowerCase();
+    }).length;
+  }
+  cachedCategoryCounts = counts;
+  cachedCategoryCountsTime = now;
+  return counts;
+}
+
+export async function getTotalVideoCount(): Promise<number> {
+  const counts = await getCategoryCounts();
+  return counts.All || readVideosFromStore().filter((v) => v.isPublished !== false).length;
+}
+
+export async function getPaginatedVideos(params?: {
+  page?: number;
+  limit?: number;
+  category?: string;
+  search?: string;
+}): Promise<PaginatedVideosResult> {
+  const page = Math.max(1, params?.page || 1);
+  const limit = Math.max(1, params?.limit || 12);
+  const offset = (page - 1) * limit;
+  const category = params?.category && params.category !== "All" && params.category !== "ALL" ? params.category : undefined;
+  const search = params?.search?.trim() || undefined;
+
+  // Supabase fast query
+  if (isSupabaseConfigured()) {
+    try {
+      let query = supabaseAdmin
+        .from("videos")
+        .select("*", { count: "exact" })
+        .or("is_published.eq.true,is_published.is.null")
+        .order("published_at", { ascending: false, nullsFirst: false });
+
+      if (category) {
+        if (category === "Barndominiums") {
+          query = query.or("category.eq.Barndominiums,title.ilike.%barndo%,description.ilike.%barndo%,title.ilike.%pole barn%");
+        } else if (category === "Prefab Cabins") {
+          query = query.or("category.eq.Prefab Cabins,title.ilike.%cabin%,description.ilike.%cabin%,title.ilike.%lodge%,title.ilike.%log%");
+        } else if (category === "Tiny Homes") {
+          query = query.or("category.eq.Tiny Homes,title.ilike.%tiny%,description.ilike.%tiny%,title.ilike.%park model%");
+        } else if (category === "A-Frames") {
+          query = query.or("category.eq.A-Frames,title.ilike.%a-frame%,description.ilike.%aframe%");
+        } else if (category === "Modular Homes") {
+          query = query.or("category.eq.Modular Homes,title.ilike.%modular%,description.ilike.%modular%,title.ilike.%residence%");
+        } else if (category === "Building Tours") {
+          query = query.or("category.eq.Building Tours,title.ilike.%tour%,description.ilike.%walkthrough%,title.ilike.%factory%");
+        } else {
+          query = query.ilike("category", `%${category}%`);
+        }
+      }
+
+      if (search) {
+        query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+      }
+
+      query = query.range(offset, offset + limit - 1);
+
+      const { data, count, error } = await query;
+
+      if (!error && data) {
+        const videos = data.map(normalizeVideo);
+        const totalCount = typeof count === "number" ? count : videos.length;
+        const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+        const categoryCounts = await getCategoryCounts();
+
+        return {
+          videos,
+          totalCount,
+          page,
+          limit,
+          totalPages,
+          categoryCounts,
+        };
+      }
+    } catch (e) {
+      console.error("getPaginatedVideos Supabase error, falling back to local store:", e);
+    }
+  }
+
+  // Fallback to local memory store
+  const allFiltered = getPublishedVideos({ category, search });
+  const totalCount = allFiltered.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+  const videos = allFiltered.slice(offset, offset + limit);
+  const categoryCounts = await getCategoryCounts();
+
+  return {
+    videos,
+    totalCount,
+    page,
+    limit,
+    totalPages,
+    categoryCounts,
+  };
 }
 
 export function getAllVideos(params?: { category?: string; search?: string }): VideoItem[] {
@@ -609,10 +776,14 @@ export async function updateVideoSlug(
   return { success: true, message: "Slug updated successfully", video: targetVideo };
 }
 
-export async function batchUpsertVideos(videosData: Partial<VideoItem>[]): Promise<{
+export async function batchUpsertVideos(
+  videosData: Partial<VideoItem>[],
+  options?: { skipFileWrite?: boolean }
+): Promise<{
   newCount: number;
   updatedCount: number;
 }> {
+  cachedCategoryCounts = null;
   const videos = readVideosFromStore();
   const now = new Date().toISOString();
   let newCount = 0;
@@ -717,7 +888,9 @@ export async function batchUpsertVideos(videosData: Partial<VideoItem>[]): Promi
     });
   }
 
-  writeVideosToStore(videos);
+  if (!options?.skipFileWrite) {
+    writeVideosToStore(videos);
+  }
 
   // Batch upsert to Supabase
   if (isSupabaseConfigured() && toUpsertDb.length > 0) {

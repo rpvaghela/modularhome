@@ -1,5 +1,12 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
+if (typeof window === "undefined" && !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("dotenv").config();
+  } catch {}
+}
+
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
   process.env.SUPABASE_URL ||

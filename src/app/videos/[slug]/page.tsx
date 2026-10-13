@@ -54,7 +54,9 @@ export async function generateMetadata({ params }: VideoDetailPageProps) {
 }
 
 export async function generateStaticParams() {
-  const videos = getPublishedVideos();
+  // Prerender the top 100 featured/recent video pages at build time.
+  // All other 20,000+ historical videos are served on-demand via dynamicParams = true.
+  const videos = getPublishedVideos({ limit: 100 });
   return videos.map((v) => ({
     slug: getVideoSlug(v, videos),
   }));

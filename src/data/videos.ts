@@ -13,7 +13,7 @@ export const VIDEO_CATEGORIES = [
   "Building Tours",
 ] as const;
 
-export const VIDEOS_DATA: VideoItem[] = (syncedVideosData as any[]).map((v) => ({
+export const VIDEOS_DATA: VideoItem[] = (syncedVideosData as any[]).slice(0, 50).map((v) => ({
   id: v.id || `vid-${v.youtubeVideoId}`,
   youtubeVideoId: v.youtubeVideoId,
   slug: v.slug || v.youtubeVideoId,

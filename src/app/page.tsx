@@ -17,7 +17,7 @@ import HomeArticlesSection from "@/components/HomeArticlesSection";
 import CTASection from "@/components/CTASection";
 import { getPublicProducts, getPublicReviews, getPublicSettings, getPublicCollections, getHomeTypeCategories, getPublicBlogs, getCategoryFallbackImage } from "@/lib/publicData";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
-import { getPublishedVideos } from "@/lib/videoStore";
+import { getPublishedVideos, getTotalVideoCount } from "@/lib/videoStore";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
@@ -46,7 +46,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [products, reviews, settings, collections, homeCategories, blogs, homePage, videos] = await Promise.all([
+  const [products, reviews, settings, collections, homeCategories, blogs, homePage, videos, totalVideosCount] = await Promise.all([
     getPublicProducts(),
     getPublicReviews(),
     getPublicSettings(),
@@ -54,7 +54,8 @@ export default async function HomePage() {
     getHomeTypeCategories(),
     getPublicBlogs(),
     getPublicPageBySlug("home"),
-    Promise.resolve().then(() => getPublishedVideos()),
+    Promise.resolve().then(() => getPublishedVideos({ limit: 8 })),
+    getTotalVideoCount(),
   ]);
 
   // Deduplicate products by root model name so the showcase displays distinct architectural models
@@ -306,7 +307,7 @@ export default async function HomePage() {
       <FinancingSection />
 
       {/* 12. WATCH OUR HOME TOURS (Asymmetric 5-Video Showcase) */}
-      <HomeVideosSection videos={videos} />
+      <HomeVideosSection videos={videos} totalCount={totalVideosCount} />
 
       {/* 13. WHAT OUR CUSTOMERS SAY (Live Testimonials) */}
       <HomeTestimonialsSection initialReviews={reviews} />
