@@ -50,10 +50,6 @@ export default function AdminVideoManager() {
   const [syncMessage, setSyncMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const confirm = useConfirm();
 
-  // AI Blog generation state
-  const [generatingBlogId, setGeneratingBlogId] = useState<string | null>(null);
-  const [blogGenNotice, setBlogGenNotice] = useState<{ type: "success" | "error" | "duplicate"; text: string; link?: string } | null>(null);
-
   // Server-side Pagination & Filtering State
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
@@ -213,56 +209,6 @@ export default function AdminVideoManager() {
       }
     } catch (err) {
       console.error("Error deleting local record:", err);
-    }
-  };
-
-  const handleGenerateAiBlog = async (video: VideoItem) => {
-    const vId = video.youtubeVideoId;
-    if (!vId) return;
-
-    setGeneratingBlogId(vId);
-    setBlogGenNotice(null);
-
-    try {
-      const res = await fetch("/api/admin/blogs/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          youtubeVideoId: vId,
-          title: video.title,
-          description: video.description,
-          thumbnail: video.thumbnail,
-          channelTitle: video.channelTitle || "ModularHome Video Hub",
-          status: "DRAFT",
-        }),
-      });
-
-      const json = await res.json();
-      if (json.success) {
-        setBlogGenNotice({
-          type: "success",
-          text: `SEO Article draft created: "${json.data?.title}"`,
-          link: `/admin/blogs/${json.data?.id}`,
-        });
-      } else if (json.duplicate) {
-        setBlogGenNotice({
-          type: "duplicate",
-          text: json.error?.message || `A blog article already exists for video ${vId}.`,
-          link: json.existingBlog?.id ? `/admin/blogs/${json.existingBlog.id}` : "/admin/blogs",
-        });
-      } else {
-        setBlogGenNotice({
-          type: "error",
-          text: json.error?.message || "Failed to generate AI blog article.",
-        });
-      }
-    } catch (err: any) {
-      setBlogGenNotice({
-        type: "error",
-        text: err.message || "Network error while generating AI blog.",
-      });
-    } finally {
-      setGeneratingBlogId(null);
     }
   };
 
@@ -450,37 +396,6 @@ export default function AdminVideoManager() {
               <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
             )}
             <span>{syncMessage.text}</span>
-          </div>
-        )}
-
-        {blogGenNotice && (
-          <div
-            className={`p-3.5 rounded-xl border text-xs font-medium flex items-center justify-between gap-3 animate-in fade-in duration-200 ${
-              blogGenNotice.type === "success"
-                ? "bg-emerald-950/80 border-emerald-500 text-emerald-200"
-                : blogGenNotice.type === "duplicate"
-                ? "bg-amber-950/80 border-amber-500 text-amber-200"
-                : "bg-red-950/80 border-red-500 text-red-200"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              {blogGenNotice.type === "success" ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              ) : blogGenNotice.type === "duplicate" ? (
-                <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
-              ) : (
-                <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-              )}
-              <span>{blogGenNotice.text}</span>
-            </div>
-            {blogGenNotice.link && (
-              <Link
-                href={blogGenNotice.link}
-                className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg text-[11px] font-bold uppercase transition-colors shrink-0"
-              >
-                Open Article →
-              </Link>
-            )}
           </div>
         )}
       </div>
@@ -759,20 +674,6 @@ export default function AdminVideoManager() {
 
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => handleGenerateAiBlog(video)}
-                            disabled={generatingBlogId === video.youtubeVideoId}
-                            title="Generate SEO Article from Video"
-                            className="p-2 text-[#b45309] hover:bg-amber-50 border border-amber-200 bg-amber-50/50 rounded-xl transition-all inline-flex items-center gap-1 text-[11px] font-bold cursor-pointer disabled:opacity-50"
-                          >
-                            {generatingBlogId === video.youtubeVideoId ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#d97706]" />
-                            ) : (
-                              <Sparkles className="w-3.5 h-3.5 text-[#d97706]" />
-                            )}
-                            <span className="hidden md:inline">AI Blog</span>
-                          </button>
-
                           <button
                             onClick={() => handleCopySlug(currentSlug)}
                             title={`Copy SEO URL: ${getFullVideoUrl(currentSlug)}`}
