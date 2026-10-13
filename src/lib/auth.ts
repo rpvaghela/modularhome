@@ -11,9 +11,18 @@ const COOKIE_NAME = "admin_session";
 export const SESSION_EXPIRY_HOURS = 1; // Admin session strictly expires after 1 hour of inactivity
 export const SESSION_EXPIRY_MS = SESSION_EXPIRY_HOURS * 60 * 60 * 1000;
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.ADMIN_SESSION_SECRET || "modularhome_secure_jwt_session_secret_key_2026_change_in_production"
-);
+export function getAdminJwtSecret(): Uint8Array {
+  const secret = process.env.ADMIN_SESSION_SECRET || process.env.SUPABASE_JWT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "CRITICAL SECURITY: ADMIN_SESSION_SECRET environment variable must be set in production."
+      );
+    }
+    return new TextEncoder().encode("dev_isolated_session_secret_modularhome");
+  }
+  return new TextEncoder().encode(secret);
+}
 
 export async function hashPassword(plainText: string): Promise<string> {
   return bcrypt.hash(plainText, 10);
@@ -103,7 +112,7 @@ export async function createAdminSession(
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_EXPIRY_HOURS}h`)
-    .sign(JWT_SECRET);
+    .sign(getAdminJwtSecret());
 
   // 2. In-memory cache
   memorySessions.set(sessionToken, { user, expiresAt });
@@ -172,7 +181,7 @@ export async function getAdminSession(): Promise<AdminSessionUser | null> {
 
     // 1. Check JWT verification (Stateless, works on all serverless environments & lambdas)
     try {
-      const { payload } = await jwtVerify(token, JWT_SECRET);
+      const { payload } = await jwtVerify(token, getAdminJwtSecret());
       if (payload && payload.email && payload.role) {
         const verifiedUser: AdminSessionUser = {
           id: (payload.id as string) || (payload.sub as string) || "admin-root",

@@ -1660,6 +1660,26 @@ export async function getPublicCollections(): Promise<PublicCollection[]> {
         collectionsList = [...FALLBACK_COLLECTIONS];
       }
 
+      // Populate product counts dynamically if DB join yields 0
+      try {
+        const allProds = await getPublicProducts();
+        collectionsList = collectionsList.map((col) => {
+          if (!col.productCount || col.productCount === 0) {
+            const count = allProds.filter(
+              (p) =>
+                matchProductCategory(p, col.slug) ||
+                matchProductCategory(p, col.name) ||
+                (Array.isArray(p.collections) &&
+                  p.collections.some(
+                    (c) => typeof c === "string" && c.toLowerCase() === col.slug.toLowerCase()
+                  ))
+            ).length;
+            return { ...col, productCount: count };
+          }
+          return col;
+        });
+      } catch (e) {}
+
       setCached(cacheKey, collectionsList, 60000);
     }
 
@@ -1686,12 +1706,26 @@ export async function getPublicCollectionBySlug(slug: string): Promise<PublicCol
 
   // Retrieve products
   const allProducts = await getPublicProducts();
-  const mappedProducts = matched.productIds && matched.productIds.length > 0
-    ? allProducts.filter((p) => matched.productIds?.includes(p.id))
-    : allProducts.filter((p) => matchProductCategory(p, matched!.slug) || matchProductCategory(p, matched!.name));
+  let mappedProducts = matched.productIds && matched.productIds.length > 0
+    ? allProducts.filter((p) => matched.productIds?.includes(p.id) || (p.slug && matched.productIds?.includes(p.slug)))
+    : [];
+
+  // Fallback to robust category & collection matching if database join has no matching rows
+  if (mappedProducts.length === 0) {
+    mappedProducts = allProducts.filter(
+      (p) =>
+        matchProductCategory(p, matched!.slug) ||
+        matchProductCategory(p, matched!.name) ||
+        (Array.isArray(p.collections) &&
+          p.collections.some(
+            (c) => typeof c === "string" && c.toLowerCase() === cleanSlug
+          ))
+    );
+  }
 
   return {
     ...matched,
+    productCount: mappedProducts.length,
     products: mappedProducts,
   };
 }

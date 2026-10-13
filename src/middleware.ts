@@ -18,9 +18,17 @@ const LEGACY_REDIRECTS: Record<string, string> = {
 // Imported Matrixify Shopify & Product category redirects (2,748 mapped paths)
 const SHOPIFY_REDIRECTS: Record<string, string> = SHOPIFY_REDIRECTS_DATA as Record<string, string>;
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.ADMIN_SESSION_SECRET || "modularhome_secure_jwt_session_secret_key_2026_change_in_production"
-);
+function getAdminJwtSecret(): Uint8Array {
+  const secret = process.env.ADMIN_SESSION_SECRET || process.env.SUPABASE_JWT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      // In production, reject authentication if secret is unconfigured
+      return new TextEncoder().encode("");
+    }
+    return new TextEncoder().encode("dev_isolated_session_secret_modularhome");
+  }
+  return new TextEncoder().encode(secret);
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
@@ -148,18 +156,19 @@ export async function middleware(request: NextRequest) {
     const videoParam = lowerPath.replace(/^\/videos\//i, "").replace(/\/+$/, "");
     if (videoParam) {
       try {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://tbaxtdecjznpqmccldnz.supabase.co";
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiYXh0ZGVjanpucHFtY2NsZG56Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM5NTk4OSwiZXhwIjoyMTA1OTcxOTg5fQ.GNehoYPf4LpW79g5wPntE6m_s1UqJzrONoaCLy-7pSo";
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-        // 1. Check dynamic redirects table for historical or replaced slugs
-        const redirUrl = `${supabaseUrl}/rest/v1/redirects?from_path=eq.${encodeURIComponent(lowerPath)}&select=to_path&limit=1`;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1200);
+        if (supabaseUrl && supabaseKey) {
+          // 1. Check dynamic redirects table for historical or replaced slugs
+          const redirUrl = `${supabaseUrl}/rest/v1/redirects?from_path=eq.${encodeURIComponent(lowerPath)}&select=to_path&limit=1`;
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 1200);
 
-        const rRes = await fetch(redirUrl, {
-          headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
-          signal: controller.signal,
-        });
+          const rRes = await fetch(redirUrl, {
+            headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+            signal: controller.signal,
+          });
         clearTimeout(timeoutId);
 
         if (rRes.ok) {
@@ -219,11 +228,12 @@ export async function middleware(request: NextRequest) {
             }
           }
         }
-      } catch (e) {
-        // Fallback gracefully on network timeout
       }
+    } catch (e) {
+      // Fallback gracefully on network timeout
     }
   }
+}
 
   // 3. Execute Single-Hop 301 Permanent Redirect (Consolidates WWW, HTTP, and Path Changes)
   const pathNeedsRedirect = destinationPath !== pathname || (categoryParam && preserveSearch !== search);
@@ -251,7 +261,7 @@ export async function middleware(request: NextRequest) {
     const sessionCookie = request.cookies.get("admin_session");
     if (sessionCookie && sessionCookie.value) {
       try {
-        const { payload } = await jwtVerify(sessionCookie.value, JWT_SECRET);
+        const { payload } = await jwtVerify(sessionCookie.value, getAdminJwtSecret());
         if (payload && payload.email) {
           return NextResponse.redirect(new URL("/admin", request.url));
         }
@@ -282,7 +292,7 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const { payload } = await jwtVerify(sessionCookie.value, JWT_SECRET);
+      const { payload } = await jwtVerify(sessionCookie.value, getAdminJwtSecret());
       if (!payload || !payload.email) {
         throw new Error("Invalid session payload");
       }
@@ -316,7 +326,7 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const { payload } = await jwtVerify(sessionCookie.value, JWT_SECRET);
+      const { payload } = await jwtVerify(sessionCookie.value, getAdminJwtSecret());
       if (!payload || !payload.email) {
         throw new Error("Invalid session payload");
       }

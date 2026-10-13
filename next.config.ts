@@ -153,6 +153,66 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  async redirects() {
+    return [
+      {
+        source: "/commercial-buildings",
+        destination: "/commercial-modular-buildings",
+        permanent: true,
+      },
+      {
+        source: "/commercial-buildings/:path*",
+        destination: "/commercial-modular-buildings/:path*",
+        permanent: true,
+      },
+      {
+        source: "/catalog",
+        destination: "/buildings",
+        permanent: true,
+      },
+      {
+        source: "/models",
+        destination: "/buildings",
+        permanent: true,
+      },
+      {
+        source: "/floorplans",
+        destination: "/floor-plans",
+        permanent: true,
+      },
+      {
+        source: "/plans",
+        destination: "/floor-plans",
+        permanent: true,
+      },
+      {
+        source: "/buildings/the-grey-haven-barndo-house-kit",
+        destination: "/barndominiums/the-grey-haven-barndo-house-kit",
+        permanent: true,
+      },
+      {
+        source: "/buildings/the-farmhouse-charm-new-model",
+        destination: "/modular-homes/the-farmhouse-charm-new-model",
+        permanent: true,
+      },
+      {
+        source: "/buildings/el-chapo-muchacho",
+        destination: "/cabins/el-chapo-muchacho",
+        permanent: true,
+      },
+      {
+        source: "/buildings/the-grandview-two-story-modular-estate",
+        destination: "/barndominiums/the-grandview-two-story-modular-estate",
+        permanent: true,
+      },
+      {
+        source: "/collections/prefab-homes",
+        destination: "/prefab-homes",
+        permanent: true,
+      },
+    ];
+  },
+
   async rewrites() {
     return [
       {

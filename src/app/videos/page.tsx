@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
+import { getPublishedVideos } from "@/lib/videoStore";
 import VideosClient from "./VideosClient";
 
 export const dynamic = "force-dynamic";
@@ -33,11 +34,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function VideosPage() {
-  const pageData = await getPublicPageBySlug("videos");
+  const [pageData, initialVideos] = await Promise.all([
+    getPublicPageBySlug("videos"),
+    Promise.resolve().then(() => getPublishedVideos()),
+  ]);
 
   return (
     <Suspense fallback={<div className="min-h-screen bg-white pt-32 text-center text-[#73777A]">Loading videos...</div>}>
-      <VideosClient pageData={pageData} />
+      <VideosClient pageData={pageData} initialVideos={initialVideos} />
     </Suspense>
   );
 }

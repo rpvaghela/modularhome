@@ -237,18 +237,25 @@ export function matchProductCategory(
 
   // 9. Prefab Homes
   if (clean.includes("prefab")) {
+    const hasPrefabCollection = Array.isArray(model.collections) &&
+      model.collections.some((c: string) => typeof c === "string" && c.toLowerCase().includes("prefab"));
+    const hasPrefabTag = Array.isArray(model.tags)
+      ? model.tags.some((t: string) => typeof t === "string" && t.toLowerCase().includes("prefab"))
+      : typeof model.tags === "string" && (model.tags as string).toLowerCase().includes("prefab");
+
     return (
       (mCat.includes("prefab") ||
         mName.includes("prefab") ||
         mSlug.includes("prefab") ||
+        hasPrefabCollection ||
+        hasPrefabTag ||
         (mCat.includes("modular") && !mName.includes("cabin")) ||
         mName.includes("panelized") ||
         mName.includes("sip panel")) &&
       !mName.includes("barndo") &&
       !mName.includes("pole barn") &&
       !mName.includes("duplex") &&
-      !mName.includes("house kit") &&
-      !mName.includes("cabin")
+      !mName.includes("house kit")
     );
   }
 

@@ -1,4 +1,6 @@
 {
+  "/commercial-buildings": "/commercial-modular-buildings",
+  "/commercial-buildings/": "/commercial-modular-buildings",
   "/buildings/the-grandview-two-story-modular-estate": "/barndominiums/the-grandview-two-story-modular-estate",
   "/models/the-grandview-two-story-modular-estate": "/barndominiums/the-grandview-two-story-modular-estate",
   "/products/the-grandview-two-story-modular-estate": "/barndominiums/the-grandview-two-story-modular-estate",

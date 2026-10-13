@@ -12,6 +12,7 @@ import { CmsPage } from "@/lib/publicData";
 
 interface VideosClientProps {
   pageData?: CmsPage | null;
+  initialVideos?: VideoItem[];
 }
 
 const ITEMS_PER_PAGE = 12;
@@ -41,14 +42,18 @@ function matchVideoCategory(video: VideoItem, cat: string): boolean {
   return (video.category || "").toLowerCase() === cat.toLowerCase();
 }
 
-export default function VideosClient({ pageData }: VideosClientProps) {
+export default function VideosClient({ pageData, initialVideos = [] }: VideosClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [videos, setVideos] = useState<VideoItem[]>([]);
+  const seedVideos = (initialVideos && initialVideos.length > 0)
+    ? initialVideos
+    : (VIDEOS_DATA as unknown as VideoItem[]);
+
+  const [videos, setVideos] = useState<VideoItem[]>(seedVideos);
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(seedVideos.length === 0);
 
   // Read state from URL search params
   const initialCategory = searchParams.get("category") || "All";
@@ -74,19 +79,22 @@ export default function VideosClient({ pageData }: VideosClientProps) {
   useEffect(() => {
     let isMounted = true;
     async function loadSyncedVideos() {
-      setIsLoading(true);
+      // If we don't have any videos yet, show loading spinner
+      if (videos.length === 0) {
+        setIsLoading(true);
+      }
       try {
         const res = await fetch("/api/videos");
         const data = await res.json();
         if (!isMounted) return;
         if (data.success && Array.isArray(data.videos) && data.videos.length > 0) {
           setVideos(data.videos);
-        } else {
+        } else if (videos.length === 0) {
           setVideos(VIDEOS_DATA as unknown as VideoItem[]);
         }
       } catch (err) {
         console.error("Failed to fetch synced videos, using fallback:", err);
-        if (isMounted) {
+        if (isMounted && videos.length === 0) {
           setVideos(VIDEOS_DATA as unknown as VideoItem[]);
         }
       } finally {

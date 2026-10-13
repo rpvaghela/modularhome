@@ -3,14 +3,21 @@ dotenv.config();
 import { Client } from "pg";
 
 async function main() {
-  const client = new Client({
-    host: "aws-0-us-west-1.pooler.supabase.com",
-    port: 5432,
-    user: "postgres.tbaxtdecjznpqmccldnz",
-    password: "OmNIuqIP4ni8d6pv",
-    database: "postgres",
-    ssl: { rejectUnauthorized: false },
-  });
+  const connectionString =
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL ||
+    process.env.SUPABASE_DB_URL;
+
+  const client = connectionString
+    ? new Client({ connectionString, ssl: { rejectUnauthorized: false } })
+    : new Client({
+        host: process.env.PGHOST || "localhost",
+        port: Number(process.env.PGPORT) || 5432,
+        user: process.env.PGUSER || "postgres",
+        password: process.env.PGPASSWORD || "",
+        database: process.env.PGDATABASE || "postgres",
+        ssl: { rejectUnauthorized: false },
+      });
 
   try {
     await client.connect();
