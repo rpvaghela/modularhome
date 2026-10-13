@@ -361,6 +361,113 @@ export async function getPaginatedVideos(params?: {
   };
 }
 
+export interface AdminPaginatedVideosResult {
+  videos: VideoItem[];
+  totalCount: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export async function getAdminPaginatedVideos(params?: {
+  page?: number;
+  limit?: number;
+  category?: string;
+  search?: string;
+  status?: "all" | "published" | "draft";
+}): Promise<AdminPaginatedVideosResult> {
+  const page = Math.max(1, params?.page || 1);
+  const limit = Math.max(1, Math.min(params?.limit || 25, 100));
+  const offset = (page - 1) * limit;
+  const category = params?.category && params.category !== "All" && params.category !== "ALL" ? params.category : undefined;
+  const search = params?.search?.trim() || undefined;
+  const status = params?.status || "all";
+
+  // Try Supabase first
+  if (isSupabaseConfigured()) {
+    try {
+      let query = supabaseAdmin
+        .from("videos")
+        .select("*", { count: "exact" })
+        .order("published_at", { ascending: false, nullsFirst: false });
+
+      if (status === "published") {
+        query = query.or("is_published.eq.true,is_published.is.null");
+      } else if (status === "draft") {
+        query = query.eq("is_published", false);
+      }
+
+      if (category) {
+        query = query.ilike("category", `%${category}%`);
+      }
+
+      if (search) {
+        query = query.or(`title.ilike.%${search}%,youtube_video_id.ilike.%${search}%,slug.ilike.%${search}%,description.ilike.%${search}%`);
+      }
+
+      query = query.range(offset, offset + limit - 1);
+
+      const { data, count, error } = await query;
+      if (!error && data) {
+        const videos = data.map(normalizeVideo);
+        const totalCount = typeof count === "number" ? count : videos.length;
+        const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+        return {
+          videos,
+          totalCount,
+          page,
+          limit,
+          totalPages,
+        };
+      }
+    } catch (e) {
+      console.error("getAdminPaginatedVideos Supabase query error:", e);
+    }
+  }
+
+  // Fallback to in-memory store
+  const allVideos = readVideosFromStore();
+  let filtered = [...allVideos];
+
+  if (status === "published") {
+    filtered = filtered.filter((v) => v.isPublished !== false);
+  } else if (status === "draft") {
+    filtered = filtered.filter((v) => v.isPublished === false);
+  }
+
+  if (category) {
+    const catLower = category.toLowerCase();
+    filtered = filtered.filter((v) => (v.category || "").toLowerCase().includes(catLower));
+  }
+
+  if (search) {
+    const q = search.toLowerCase();
+    filtered = filtered.filter(
+      (v) =>
+        (v.title || "").toLowerCase().includes(q) ||
+        (v.youtubeVideoId || "").toLowerCase().includes(q) ||
+        (v.slug || "").toLowerCase().includes(q) ||
+        (v.description || "").toLowerCase().includes(q)
+    );
+  }
+
+  filtered.sort(
+    (a, b) => new Date(b.publishedAt || "").getTime() - new Date(a.publishedAt || "").getTime()
+  );
+
+  const totalCount = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+  const videos = filtered.slice(offset, offset + limit);
+
+  return {
+    videos,
+    totalCount,
+    page,
+    limit,
+    totalPages,
+  };
+}
+
 export function getAllVideos(params?: { category?: string; search?: string }): VideoItem[] {
   const videos = readVideosFromStore();
   let result = [...videos];

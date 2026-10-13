@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { 
-  getAllVideos, 
+  getAdminPaginatedVideos, 
   updateVideoCategory, 
   toggleVideoPublish, 
   deleteLocalVideo, 
@@ -19,10 +19,13 @@ export async function GET(request: NextRequest) {
   if (authResult instanceof NextResponse) return authResult;
   try {
     const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1", 10) || 1;
+    const limit = parseInt(searchParams.get("limit") || "25", 10) || 25;
     const category = searchParams.get("category") || undefined;
     const search = searchParams.get("search") || undefined;
+    const status = (searchParams.get("status") as any) || "all";
 
-    const videos = getAllVideos({ category, search });
+    const paginated = await getAdminPaginatedVideos({ page, limit, category, search, status });
     let stats = readSyncStats();
 
     if (isSupabaseConfigured()) {
@@ -43,8 +46,12 @@ export async function GET(request: NextRequest) {
       {
         success: true,
         stats,
-        count: videos.length,
-        videos,
+        count: paginated.totalCount,
+        totalCount: paginated.totalCount,
+        page: paginated.page,
+        limit: paginated.limit,
+        totalPages: paginated.totalPages,
+        videos: paginated.videos,
       },
       {
         headers: {

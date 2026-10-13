@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { 
@@ -22,10 +22,25 @@ import {
   Link2,
   Copy,
   Check,
-  Globe
+  Globe,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Filter
 } from "lucide-react";
 import { VideoItem, SyncStats } from "@/types/video";
 import { useConfirm } from "@/context/ConfirmDialogContext";
+
+const CATEGORIES = [
+  "All",
+  "Barndominiums",
+  "Modular Homes",
+  "Prefab Cabins",
+  "Tiny Homes",
+  "A-Frames",
+  "Building Tours",
+];
 
 export default function AdminVideoManager() {
   const [videos, setVideos] = useState<VideoItem[]>([]);
@@ -39,8 +54,15 @@ export default function AdminVideoManager() {
   const [generatingBlogId, setGeneratingBlogId] = useState<string | null>(null);
   const [blogGenNotice, setBlogGenNotice] = useState<{ type: "success" | "error" | "duplicate"; text: string; link?: string } | null>(null);
 
-  // Search Filter
+  // Server-side Pagination & Filtering State
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(25);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedStatus, setSelectedStatus] = useState<"all" | "published" | "draft">("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [jumpPageInput, setJumpPageInput] = useState("");
 
   // Modal for Add YouTube Video by URL
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -67,43 +89,52 @@ export default function AdminVideoManager() {
     }
   }, []);
 
-  useEffect(() => {
-    let isMounted = true;
-    const load = async () => {
+  const fetchAdminVideos = useCallback(
+    async (
+      targetPage = page,
+      targetLimit = limit,
+      cat = selectedCategory,
+      q = searchQuery,
+      stat = selectedStatus
+    ) => {
       setIsLoading(true);
       try {
-        const res = await fetch("/api/admin/videos");
+        const params = new URLSearchParams();
+        params.set("page", String(targetPage));
+        params.set("limit", String(targetLimit));
+        if (cat && cat !== "All") params.set("category", cat);
+        if (q && q.trim()) params.set("search", q.trim());
+        if (stat && stat !== "all") params.set("status", stat);
+
+        const res = await fetch(`/api/admin/videos?${params.toString()}`);
         const data = await res.json();
-        if (isMounted && data.success) {
+        if (data.success) {
           setVideos(data.videos || []);
           setStats(data.stats || null);
+          setTotalPages(data.totalPages || 1);
+          setTotalCount(data.totalCount ?? (data.count || 0));
+          setPage(data.page || targetPage);
         }
       } catch (err) {
         console.error("Failed to load admin videos:", err);
       } finally {
-        if (isMounted) setIsLoading(false);
+        setIsLoading(false);
       }
-    };
-    load();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    },
+    [page, limit, selectedCategory, searchQuery, selectedStatus]
+  );
 
-  const fetchAdminVideos = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/admin/videos");
-      const data = await res.json();
-      if (data.success) {
-        setVideos(data.videos || []);
-        setStats(data.stats || null);
-      }
-    } catch (err) {
-      console.error("Failed to load admin videos:", err);
-    } finally {
-      setIsLoading(false);
-    }
+  // Debounced fetch on search query or filter changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchAdminVideos(page, limit, selectedCategory, searchQuery, selectedStatus);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, selectedCategory, selectedStatus, limit, page]);
+
+  const handlePageChange = (newPage: number) => {
+    const valid = Math.max(1, Math.min(newPage, totalPages));
+    setPage(valid);
   };
 
   const handleManualSync = async () => {
@@ -117,7 +148,7 @@ export default function AdminVideoManager() {
           type: "success",
           text: `Sync Completed! ${data.newVideosCount || 0} new videos added, ${data.updatedVideosCount || 0} updated.`,
         });
-        await fetchAdminVideos();
+        await fetchAdminVideos(1, limit, selectedCategory, searchQuery, selectedStatus);
       } else {
         setSyncMessage({
           type: "error",
@@ -367,16 +398,6 @@ export default function AdminVideoManager() {
     }
   };
 
-  const filteredVideos = videos.filter((v) => {
-    const q = searchQuery.toLowerCase().trim();
-    if (!q) return true;
-    return (
-      v.title.toLowerCase().includes(q) ||
-      v.youtubeVideoId.toLowerCase().includes(q) ||
-      (v.description && v.description.toLowerCase().includes(q))
-    );
-  });
-
   return (
     <div className="space-y-6 text-[#101114] animate-in fade-in">
       {/* 1. TOP HEADER BANNER */}
@@ -498,38 +519,104 @@ export default function AdminVideoManager() {
         </div>
       </div>
 
-      {/* 3. SEARCH & DOMAIN STRIP */}
-      <div className="p-4 sm:p-5 bg-white border border-[#e7e9ee] rounded-[18px] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-[0_12px_35px_rgba(16,24,40,0.04)]">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="text-xs font-bold text-[#101114]">
-            Video Catalog ({filteredVideos.length} {filteredVideos.length === 1 ? "video" : "videos"})
+      {/* 3. FILTER, SEARCH & CONTROLS STRIP */}
+      <div className="p-4 sm:p-5 bg-white border border-[#e7e9ee] rounded-[18px] space-y-3.5 shadow-[0_12px_35px_rgba(16,24,40,0.04)]">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="text-xs font-bold text-[#101114]">
+              Video Catalog ({totalCount.toLocaleString()} {totalCount === 1 ? "video" : "videos"})
+            </div>
+
+            {/* Category Filter */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f6f7f9] border border-[#d5d9e0] rounded-xl text-xs text-[#6b7280]">
+              <Filter className="w-3.5 h-3.5 text-[#d97706] shrink-0" />
+              <span className="font-semibold text-[#101114]">Category:</span>
+              <select
+                value={selectedCategory}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setPage(1);
+                }}
+                className="bg-transparent font-medium text-[#101114] focus:outline-none cursor-pointer pr-1"
+              >
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Visibility Status Filter */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f6f7f9] border border-[#d5d9e0] rounded-xl text-xs text-[#6b7280]">
+              <Eye className="w-3.5 h-3.5 text-[#d97706] shrink-0" />
+              <span className="font-semibold text-[#101114]">Status:</span>
+              <select
+                value={selectedStatus}
+                onChange={(e) => {
+                  setSelectedStatus(e.target.value as any);
+                  setPage(1);
+                }}
+                className="bg-transparent font-medium text-[#101114] focus:outline-none cursor-pointer pr-1"
+              >
+                <option value="all">All Visibility</option>
+                <option value="published">Published Only</option>
+                <option value="draft">Hidden / Draft</option>
+              </select>
+            </div>
+
+            {/* Items Per Page */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f6f7f9] border border-[#d5d9e0] rounded-xl text-xs text-[#6b7280]">
+              <span className="font-semibold text-[#101114]">Per Page:</span>
+              <select
+                value={limit}
+                onChange={(e) => {
+                  setLimit(Number(e.target.value));
+                  setPage(1);
+                }}
+                className="bg-transparent font-medium text-[#101114] focus:outline-none cursor-pointer pr-1"
+              >
+                <option value="15">15</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+
+            {/* Domain copy selector */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f6f7f9] border border-[#d5d9e0] rounded-xl text-xs text-[#6b7280]">
+              <Globe className="w-3.5 h-3.5 text-[#d97706] shrink-0" />
+              <span className="font-semibold text-[#101114]">Domain:</span>
+              <select
+                value={copyDomainMode}
+                onChange={(e) => setCopyDomainMode(e.target.value as any)}
+                className="bg-transparent font-medium text-[#101114] focus:outline-none cursor-pointer pr-1"
+              >
+                <option value="current">Current Host ({currentDomain.replace(/^https?:\/\//, "")})</option>
+                <option value="production">Production (modularhome.com)</option>
+                <option value="relative">Relative Path (/videos/...)</option>
+              </select>
+            </div>
           </div>
 
-          {/* Domain copy selector */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#f6f7f9] border border-[#d5d9e0] rounded-xl text-xs text-[#6b7280]">
-            <Globe className="w-3.5 h-3.5 text-[#d97706] shrink-0" />
-            <span className="font-semibold text-[#101114]">Domain:</span>
-            <select
-              value={copyDomainMode}
-              onChange={(e) => setCopyDomainMode(e.target.value as any)}
-              className="bg-transparent font-medium text-[#101114] focus:outline-none cursor-pointer pr-1"
-            >
-              <option value="current">Current Host ({currentDomain.replace(/^https?:\/\//, "")})</option>
-              <option value="production">Production (modularhome.com)</option>
-              <option value="relative">Relative Path (/videos/...)</option>
-            </select>
+          <div className="relative w-full lg:w-80">
+            <Search className="w-4 h-4 text-[#6b7280] absolute left-3.5 top-3" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by title, slug, or ID..."
+              className="w-full bg-[#f6f7f9] border border-[#d5d9e0] pl-10 pr-8 py-2.5 text-xs text-[#101114] font-medium rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-2.5 p-0.5 rounded-full hover:bg-gray-200 text-gray-500"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
-        </div>
-
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-[#6b7280] absolute left-3.5 top-3" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by title, slug, or ID..."
-            className="w-full bg-[#f6f7f9] border border-[#d5d9e0] pl-10 pr-4 py-2.5 text-xs text-[#101114] font-medium rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
-          />
         </div>
       </div>
 
@@ -540,12 +627,14 @@ export default function AdminVideoManager() {
             <RefreshCw className="w-5 h-5 animate-spin text-[#fcb907]" />
             <span>Loading video database...</span>
           </div>
-        ) : filteredVideos.length === 0 ? (
+        ) : videos.length === 0 ? (
           <div className="p-16 text-center space-y-3">
             <VideoIcon className="w-8 h-8 text-[#6b7280] mx-auto" />
             <div className="text-sm font-serif font-bold text-[#101114]">No Videos Found</div>
             <p className="text-xs text-[#6b7280] max-w-sm mx-auto">
-              Click &ldquo;Sync YouTube Now&rdquo; to fetch videos from your configured YouTube channel or add a video manually.
+              {searchQuery || selectedCategory !== "All" || selectedStatus !== "all"
+                ? "No videos matched your filter criteria. Try clearing filters."
+                : "Click \"Sync YouTube Now\" to fetch videos from your configured YouTube channel or add a video manually."}
             </p>
           </div>
         ) : (
@@ -562,7 +651,7 @@ export default function AdminVideoManager() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#e7e9ee]">
-                {filteredVideos.map((video) => {
+                {videos.map((video) => {
                   const vId = video.id || (video as any)._id;
                   const currentSlug = video.slug || video.youtubeVideoId;
                   return (
@@ -574,6 +663,7 @@ export default function AdminVideoManager() {
                               src={video.thumbnail}
                               alt={video.title}
                               fill
+                              sizes="80px"
                               className="object-cover"
                             />
                             <div className="absolute bottom-1 right-1 bg-black/80 text-white text-[9px] px-1.5 py-0.5 font-bold rounded-md">
@@ -732,6 +822,134 @@ export default function AdminVideoManager() {
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* 4a. PAGINATION CONTROLS BAR */}
+        {!isLoading && totalPages > 1 && (
+          <div className="p-4 sm:p-5 bg-[#f6f7f9] border-t border-[#e7e9ee] flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-xs text-[#6b7280]">
+              Showing <span className="font-bold text-[#101114]">{((page - 1) * limit + 1).toLocaleString()}</span> to{" "}
+              <span className="font-bold text-[#101114]">{Math.min(page * limit, totalCount).toLocaleString()}</span> of{" "}
+              <span className="font-bold text-[#101114]">{totalCount.toLocaleString()}</span> videos
+            </div>
+
+            <div className="flex items-center gap-1.5 flex-wrap justify-center">
+              {/* First Page */}
+              <button
+                onClick={() => handlePageChange(1)}
+                disabled={page <= 1}
+                title="First Page"
+                className="p-2 rounded-xl bg-white border border-[#d5d9e0] text-[#101114] hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronsLeft className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Prev Page */}
+              <button
+                onClick={() => handlePageChange(page - 1)}
+                disabled={page <= 1}
+                title="Previous Page"
+                className="p-2 rounded-xl bg-white border border-[#d5d9e0] text-[#101114] hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Numbered Buttons */}
+              {(() => {
+                const pages: (number | "...")[] = [];
+                if (totalPages <= 7) {
+                  for (let i = 1; i <= totalPages; i++) pages.push(i);
+                } else {
+                  pages.push(1);
+                  if (page > 3) pages.push("...");
+                  const start = Math.max(2, page - 1);
+                  const end = Math.min(totalPages - 1, page + 1);
+                  for (let i = start; i <= end; i++) pages.push(i);
+                  if (page < totalPages - 2) pages.push("...");
+                  pages.push(totalPages);
+                }
+
+                return pages.map((p, idx) => {
+                  if (p === "...") {
+                    return (
+                      <span key={`dots-${idx}`} className="px-2 text-xs text-gray-400 select-none">
+                        ...
+                      </span>
+                    );
+                  }
+                  const isCurrent = p === page;
+                  return (
+                    <button
+                      key={`page-${p}`}
+                      onClick={() => handlePageChange(p as number)}
+                      className={`min-w-8 h-8 px-2 text-xs font-bold rounded-xl transition-all ${
+                        isCurrent
+                          ? "bg-[#fcb907] text-[#101114] shadow-xs"
+                          : "bg-white border border-[#d5d9e0] text-[#101114] hover:bg-gray-100"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  );
+                });
+              })()}
+
+              {/* Next Page */}
+              <button
+                onClick={() => handlePageChange(page + 1)}
+                disabled={page >= totalPages}
+                title="Next Page"
+                className="p-2 rounded-xl bg-white border border-[#d5d9e0] text-[#101114] hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Last Page */}
+              <button
+                onClick={() => handlePageChange(totalPages)}
+                disabled={page >= totalPages}
+                title="Last Page"
+                className="p-2 rounded-xl bg-white border border-[#d5d9e0] text-[#101114] hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronsRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Jump to page */}
+            <div className="flex items-center gap-1.5 text-xs text-[#6b7280]">
+              <span>Go to:</span>
+              <input
+                type="number"
+                min={1}
+                max={totalPages}
+                value={jumpPageInput}
+                onChange={(e) => setJumpPageInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const num = parseInt(jumpPageInput, 10);
+                    if (!isNaN(num)) {
+                      handlePageChange(num);
+                      setJumpPageInput("");
+                    }
+                  }
+                }}
+                placeholder={String(page)}
+                className="w-14 px-2 py-1 bg-white border border-[#d5d9e0] rounded-lg text-center text-xs font-medium text-[#101114] focus:outline-none focus:ring-1 focus:ring-[#fcb907]"
+              />
+              <button
+                onClick={() => {
+                  const num = parseInt(jumpPageInput, 10);
+                  if (!isNaN(num)) {
+                    handlePageChange(num);
+                    setJumpPageInput("");
+                  }
+                }}
+                className="px-2.5 py-1 bg-[#101114] hover:bg-black text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              >
+                Go
+              </button>
+            </div>
           </div>
         )}
       </div>
