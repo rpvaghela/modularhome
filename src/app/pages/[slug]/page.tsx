@@ -23,10 +23,9 @@ export async function generateMetadata({
   const page = await getPublicPageBySlug(slug);
 
   if (!page || page.status === "DRAFT" || page.status === "ARCHIVED") {
-    const targetPath = resolveSimilarCategoryPath(slug);
     return {
-      title: "Models & Floor Plans | ModularHome.com",
-      alternates: { canonical: getCanonicalUrl(targetPath) },
+      title: "Page Not Found | ModularHome.com",
+      robots: { index: false, follow: false },
     };
   }
 
@@ -70,7 +69,7 @@ export default async function PagesSlugPage({ params }: PagesSlugProps) {
   const page = await getPublicPageBySlug(slug);
 
   if (!page || page.status === "DRAFT" || page.status === "ARCHIVED") {
-    permanentRedirect(resolveSimilarCategoryPath(slug));
+    notFound();
   }
 
   const canonical = getCanonicalUrl(`/pages/${page.slug}`);

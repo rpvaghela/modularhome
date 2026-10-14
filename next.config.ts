@@ -121,6 +121,7 @@ const nextConfig: NextConfig = {
 
   async headers() {
     return [
+      // ── Security headers on all routes ───────────────────────────────────
       {
         source: "/(.*)",
         headers: [
@@ -150,6 +151,53 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+
+      // ── Public images / fonts ─────────────────────────────────────────────
+      {
+        source: "/(.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|otf)$)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+
+      // ── robots.txt & sitemaps: public, short TTL ─────────────────────────
+      {
+        source: "/(robots\\.txt|sitemap.*\\.xml)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
+
+      // ── Admin panel & API: never cache ───────────────────────────────────
+      {
+        source: "/(admin|api)(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store, no-cache, must-revalidate",
+          },
+        ],
+      },
+
+      // ── Public catalog & landing pages: ISR-friendly short cache ─────────
+      // s-maxage lets a CDN cache the HTML for 60 s; stale-while-revalidate
+      // serves stale content while Next.js regenerates in the background.
+      {
+        source:
+          "/(modular-homes|prefab-homes|barndominiums|cabins|modular-cabins|tiny-homes|house-kits|a-frames|commercial-modular-buildings|floor-plans|videos|blogs)(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=60, stale-while-revalidate=300",
+          },
+        ],
+      },
     ];
   },
 
@@ -158,57 +206,62 @@ const nextConfig: NextConfig = {
       {
         source: "/commercial-buildings",
         destination: "/commercial-modular-buildings",
-        permanent: true,
+        statusCode: 301,
+      },
+      {
+        source: "/commercial-buildings/",
+        destination: "/commercial-modular-buildings",
+        statusCode: 301,
       },
       {
         source: "/commercial-buildings/:path*",
         destination: "/commercial-modular-buildings/:path*",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/catalog",
         destination: "/buildings",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/models",
         destination: "/buildings",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/floorplans",
         destination: "/floor-plans",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/plans",
         destination: "/floor-plans",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/buildings/the-grey-haven-barndo-house-kit",
         destination: "/barndominiums/the-grey-haven-barndo-house-kit",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/buildings/the-farmhouse-charm-new-model",
         destination: "/modular-homes/the-farmhouse-charm-new-model",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/buildings/el-chapo-muchacho",
         destination: "/cabins/el-chapo-muchacho",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/buildings/the-grandview-two-story-modular-estate",
         destination: "/barndominiums/the-grandview-two-story-modular-estate",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/collections/prefab-homes",
         destination: "/prefab-homes",
-        permanent: true,
+        statusCode: 301,
       },
     ];
   },

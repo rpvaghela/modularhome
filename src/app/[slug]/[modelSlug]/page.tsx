@@ -49,10 +49,9 @@ export async function generateMetadata({
 
   const model = await getPublicProductBySlug(modelSlug);
   if (!model) {
-    const targetCategory = resolveSimilarCategoryPath(`${category} ${modelSlug}`);
     return {
-      title: "Models & Floor Plans | ModularHome.com",
-      alternates: { canonical: getCanonicalUrl(targetCategory) },
+      title: "Product Not Found | ModularHome.com",
+      robots: { index: false, follow: false },
     };
   }
 
@@ -107,12 +106,12 @@ export default async function CategoryProductPage({ params }: CategoryProductPag
   const { slug: category, modelSlug } = await params;
 
   if (!modelSlug || !category || RESERVED_FIRST_SEGMENTS.has(category.toLowerCase())) {
-    permanentRedirect("/modular-homes");
+    notFound();
   }
 
   const model = await getPublicProductBySlug(modelSlug);
   if (!model) {
-    permanentRedirect(resolveSimilarCategoryPath(`${category} ${modelSlug}`));
+    notFound();
   }
 
   const cleanCat = category.toLowerCase().trim();

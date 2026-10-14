@@ -171,6 +171,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.5,
     },
+    // Price-point & utility landing pages (QA requirement #14)
+    {
+      url: `${baseUrl}/modular-homes-under-100k`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/modular-storage`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
   ];
 
   const dynamicRoutes: MetadataRoute.Sitemap = [];
@@ -191,70 +204,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   });
 
-  // 3. Published Video Tours with Descriptive SEO URLs (/videos/[title-slug])
-  try {
-    const { getPublishedVideos, getVideoSlug } = require("@/lib/videoStore");
-    let publishedVideos: any[] = [];
-
-    if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase
-          .from("videos")
-          .select("slug, youtube_video_id, title, published_at")
-          .or("is_published.eq.true,is_published.is.null")
-          .order("published_at", { ascending: false });
-
-        if (!error && Array.isArray(data) && data.length > 0) {
-          publishedVideos = data.map((v) => ({
-            ...v,
-            youtubeVideoId: v.youtube_video_id,
-            publishedAt: v.published_at,
-          }));
-        }
-      } catch (err) {}
-    }
-
-    if (publishedVideos.length === 0) {
-      publishedVideos = getPublishedVideos();
-    }
-
-    if (Array.isArray(publishedVideos)) {
-      publishedVideos.forEach((v: any) => {
-        const vSlug = v.slug || getVideoSlug(v, publishedVideos);
-        if (vSlug) {
-          const videoUrl = `${baseUrl}/videos/${vSlug}`;
-          if (!seenUrls.has(videoUrl)) {
-            seenUrls.add(videoUrl);
-            dynamicRoutes.push({
-              url: videoUrl,
-              lastModified: v.publishedAt ? new Date(v.publishedAt) : now,
-              changeFrequency: "weekly",
-              priority: 0.75,
-            });
-          }
-        }
-      });
-    }
-  } catch (e) {
-    // Fallback if videoStore not available
-  }
+  // 3. Video pages are covered by the dedicated paginated sitemap at
+  //    /videos/sitemap/[id].xml (src/app/videos/sitemap.ts) via generateSitemaps(),
+  //    which exposes all 20,001 video pages across ~21 sub-sitemaps without Supabase's
+  //    1,000-row cap. Do NOT add video URLs here to avoid duplicates.
 
   // 4. Products with Canonical SEO Category Paths (e.g. /cabins/el-chapo-muchacho)
   if (Array.isArray(ALL_PRODUCTS_CATALOG)) {
     ALL_PRODUCTS_CATALOG.forEach((p: any) => {
       const slug = p.slug || p.handle;
-      if (slug && !slug.includes("<") && !seenUrls.has(slug)) {
-        const path = getProductUrl(p);
-        const fullUrl = `${baseUrl}${path}`;
-        if (!seenUrls.has(fullUrl)) {
-          seenUrls.add(fullUrl);
-          dynamicRoutes.push({
-            url: fullUrl,
-            lastModified: now,
-            changeFrequency: "weekly",
-            priority: 0.85,
-          });
-        }
+      if (!slug || slug.includes("<")) return;
+      const path = getProductUrl(p);
+      const fullUrl = `${baseUrl}${path}`;
+      if (!seenUrls.has(fullUrl)) {
+        seenUrls.add(fullUrl);
+        dynamicRoutes.push({
+          url: fullUrl,
+          lastModified: now,
+          changeFrequency: "weekly",
+          priority: 0.85,
+        });
       }
     });
   }

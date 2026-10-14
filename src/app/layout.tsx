@@ -12,6 +12,7 @@ import { getPublicGlobalSettings } from "@/lib/settings";
 import { getPublicPages, getMegaMenuCatalog } from "@/lib/publicData";
 import { getRobotsMetadata, PRODUCTION_CANONICAL_HOST } from "@/lib/seo";
 import LocomotiveScrollProvider from "@/components/LocomotiveScrollProvider";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -48,7 +49,7 @@ export async function generateMetadata(): Promise<Metadata> {
     robots,
     title: {
       default: title,
-      template: `%s | ${settings.companyName || "ModularHome.com"}`,
+      template: "%s",
     },
     description,
     keywords: [
@@ -111,6 +112,8 @@ export default async function RootLayout({
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=4" />
         <link rel="shortcut icon" href={settings.faviconUrl || "/favicon.png?v=4"} />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=4" />
+        {/* GA4 — activates when NEXT_PUBLIC_GA_MEASUREMENT_ID env var is set */}
+        <GoogleAnalytics />
       </head>
       <body className={`min-h-screen flex flex-col bg-white text-[#101114] antialiased selection:bg-[#fcb907] selection:text-[#101114] ${manrope.className}`}>
         <CustomerAuthProvider>

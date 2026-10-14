@@ -166,10 +166,10 @@ export async function generateMetadata({
     };
   }
 
-  const targetCategory = resolveSimilarCategoryPath(cleanSlug);
+  // 4. If slug did not match category, location, or CMS page: 404 metadata
   return {
-    title: "Models & Floor Plans | ModularHome.com",
-    alternates: { canonical: getCanonicalUrl(targetCategory) },
+    title: "Page Not Found | ModularHome.com",
+    robots: { index: false, follow: false },
   };
 }
 
@@ -342,11 +342,6 @@ export default async function DynamicSlugPage({ params }: DynamicSlugPageProps) 
     );
   }
 
-  // 3. Fallback: Redirect to similar category of models or floor plans
-  const targetCategory = resolveSimilarCategoryPath(cleanSlug);
-  if (targetCategory !== `/${cleanSlug}`) {
-    permanentRedirect(targetCategory);
-  }
-
-  permanentRedirect("/modular-homes");
+  // 4. Fallback: If not a category, location, CMS page, or matched products, return real 404
+  notFound();
 }

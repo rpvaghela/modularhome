@@ -94,7 +94,10 @@ export function matchProductCategory(
       mSlug.includes("barndo") ||
       mName.includes("pole barn") ||
       mName.includes("grandview") ||
-      mSlug.includes("grandview")
+      mSlug.includes("grandview") ||
+      // ABC barndominium kit — slug-based override
+      mSlug.includes("the-summit-steel-home-kit") ||
+      mName.includes("summit steel")
     );
   }
 
@@ -243,7 +246,18 @@ export function matchProductCategory(
       ? model.tags.some((t: string) => typeof t === "string" && t.toLowerCase().includes("prefab"))
       : typeof model.tags === "string" && (model.tags as string).toLowerCase().includes("prefab");
 
+    // Exclude kits, shells and log-cabin kits which belong in House Kits / Cabins, not Prefab Homes
+    const isKitOrShell =
+      mName.includes("kit") ||
+      mSlug.includes("-kit") ||
+      mSlug.includes("kit-") ||
+      mName.includes("shell") ||
+      mSlug.includes("shell") ||
+      mName.includes("log cabin kit") ||
+      mSlug.includes("log-cabin-kit");
+
     return (
+      !isKitOrShell &&
       (mCat.includes("prefab") ||
         mName.includes("prefab") ||
         mSlug.includes("prefab") ||
@@ -270,11 +284,18 @@ export function matchProductCategory(
     );
   }
 
-  // 11. Modular Homes (Strictly Single-Family Modular Homes & Modular Residences - No Cabins)
+  // 11. Modular Homes
+  // Includes move-in-ready modular cabins (from ABC's "Modular Homes" collection).
+  // Kits, shells, barndominium kits, duplex, ADUs, A-Frames, park models and tiny homes
+  // are routed to their own collection pages instead.
   if (clean.includes("modular")) {
     const isExcluded =
-      mName.includes("cabin") ||
-      mName.includes("kit") ||
+      // DO NOT exclude "cabin" here — ABC's 38 move-in-ready modular cabins belong in /modular-homes
+      mName.includes("log cabin kit") ||
+      mSlug.includes("log-cabin-kit") ||
+      mName.includes(" kit") ||
+      mSlug.includes("-kit") ||
+      mName.includes("shell") ||
       mName.includes("duplex") ||
       mName.includes("barndo") ||
       mName.includes("grandview") ||
@@ -286,14 +307,15 @@ export function matchProductCategory(
       mName.includes("dealer") ||
       mName.includes("broker") ||
       mName.includes("pole barn") ||
-      mName.includes("shed") ||
-      mSlug.includes("cabin");
+      mName.includes("shed");
 
     return (
       !isExcluded &&
       (mCat === "modular homes" ||
         mCat === "modular" ||
+        mCat.includes("modular") ||
         mName.includes("modular home") ||
+        mName.includes("modular cabin") ||
         mName.includes("modular residence") ||
         mName.includes("modular estate") ||
         mName.includes("farmhouse charm") ||

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
 import { getPaginatedVideos } from "@/lib/videoStore";
 import VideosClient from "./VideosClient";
@@ -19,6 +20,22 @@ export async function generateMetadata({ searchParams }: VideosPageProps): Promi
   const sp = searchParams ? await searchParams : {};
   const pageNum = Math.max(1, parseInt(sp.page || "1", 10) || 1);
   const category = sp.category && sp.category !== "All" ? sp.category : null;
+  const searchQuery = sp.q || "";
+
+  const { totalPages } = await getPaginatedVideos({
+    page: pageNum,
+    limit: 12,
+    category: category || "All",
+    search: searchQuery,
+  });
+
+  if (pageNum > totalPages && totalPages > 0) {
+    return {
+      title: "Page Not Found | ModularHome.com",
+      robots: { index: false, follow: false },
+    };
+  }
+
   const page = await getPublicPageBySlug("videos");
 
   let title =
@@ -71,6 +88,10 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
       search: searchQuery,
     }),
   ]);
+
+  if (page > paginatedData.totalPages && paginatedData.totalPages > 0) {
+    notFound();
+  }
 
   return (
     <Suspense fallback={<div className="min-h-screen bg-white pt-32 text-center text-[#73777A]">Loading videos...</div>}>

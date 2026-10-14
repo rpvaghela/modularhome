@@ -26,10 +26,15 @@ export default function RichHtmlContent({
     );
   }
 
+  // Enforce single H1 SEO hierarchy: demote any <h1> tags inside descriptions/articles to <h2>
+  const sanitizedHtml = content
+    .replace(/<h1(\s|>)/gi, '<h2$1')
+    .replace(/<\/h1>/gi, '</h2>');
+
   return (
     <div
       className={`rich-html ${className}`}
-      dangerouslySetInnerHTML={{ __html: content }}
+      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
     />
   );
 }

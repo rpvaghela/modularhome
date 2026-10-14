@@ -799,7 +799,11 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
             {parsedPageContent.text && (
               <div
                 className="prose prose-lg max-w-none text-[#374151] leading-relaxed prose-headings:font-black prose-headings:text-[#101114] prose-h2:text-2xl sm:prose-h2:text-3xl prose-h2:border-b prose-h2:border-[#e7e9ee] prose-h2:pb-3 prose-h2:mt-10 prose-h3:text-xl prose-h3:mt-8 prose-p:text-[#4b5563] prose-p:leading-relaxed prose-li:text-[#4b5563] prose-strong:text-[#101114] prose-a:text-[#d97706] prose-a:underline hover:prose-a:text-[#b45309]"
-                dangerouslySetInnerHTML={{ __html: parsedPageContent.text }}
+                dangerouslySetInnerHTML={{
+                  __html: parsedPageContent.text
+                    .replace(/<h1(\s|>)/gi, '<h2$1')
+                    .replace(/<\/h1>/gi, '</h2>'),
+                }}
               />
             )}
           </div>

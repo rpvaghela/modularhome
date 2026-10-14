@@ -105,22 +105,36 @@ export function getProductCategorySlug(product?: ProductUrlInput | null): ValidP
   const tagsStr = Array.isArray(product.tags) ? product.tags.join(" ").toLowerCase() : (product.tags || "").toLowerCase();
   const combined = `${title} ${slug} ${rawCat} ${tagsStr}`;
 
-  // 1. Direct category match
-  const catKey = rawCat.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  if (CATEGORY_SLUG_MAP[catKey]) {
-    return CATEGORY_SLUG_MAP[catKey] as ValidProductCategory;
-  }
-
-  // 2. Keyword heuristic matching (ordered by specificity)
+  // 1. Barndominiums & Steel Home Kits (e.g. Grandview, Summit Steel Home Kit)
   if (
     combined.includes("barndo") ||
     combined.includes("barndominium") ||
     slug.includes("grandview") ||
-    title.includes("grandview")
+    title.includes("grandview") ||
+    slug.includes("the-summit-steel-home-kit") ||
+    title.includes("summit steel")
   ) {
     return "barndominiums";
   }
 
+  // 2. House Kits & SIP Panel Home Kits (always canonical /house-kits/, even if tagged Cabins in raw source)
+  if (
+    slug.includes("house-kit") ||
+    slug.includes("home-kit") ||
+    slug.includes("housekit") ||
+    slug.includes("homekit") ||
+    slug.includes("sip-panel") ||
+    title.includes("house kit") ||
+    title.includes("home kit") ||
+    title.includes("sip panel") ||
+    rawCat === "house kits" ||
+    rawCat === "house-kits" ||
+    rawCat === "sip panel homes"
+  ) {
+    return "house-kits";
+  }
+
+  // 3. Modular Cabins & Prefab Cabins
   if (
     combined.includes("modular cabin") ||
     combined.includes("modular-cabin") ||
@@ -130,6 +144,13 @@ export function getProductCategorySlug(product?: ProductUrlInput | null): ValidP
     return "modular-cabins";
   }
 
+  // 4. Direct category match
+  const catKey = rawCat.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  if (CATEGORY_SLUG_MAP[catKey]) {
+    return CATEGORY_SLUG_MAP[catKey] as ValidProductCategory;
+  }
+
+  // 5. Keyword heuristic matching (ordered by specificity)
   if (
     combined.includes("cabin") ||
     combined.includes("log home") ||

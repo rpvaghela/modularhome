@@ -827,44 +827,7 @@ export async function getPublicProductBySlug(slug: string): Promise<BuildingMode
     }
   }
 
-  // Fallback generation for valid product slugs so no click ever 404s
-  if (!result && clean && clean.length > 2 && !clean.includes("not-found")) {
-    const words = clean
-      .split("-")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ");
-
-    const fallbackCat = clean.includes("cabin")
-      ? "Cabins"
-      : clean.includes("barndo")
-      ? "Barndominiums"
-      : clean.includes("tiny")
-      ? "Tiny Homes"
-      : clean.includes("park")
-      ? "Park Models"
-      : clean.includes("adu")
-      ? "ADUs & Granny Pods"
-      : "Modular Homes";
-
-    result = formatProduct({
-      id: `prod-${clean}`,
-      handle: clean,
-      slug: clean,
-      title: words,
-      name: words,
-      product_type: fallbackCat,
-      category: fallbackCat,
-      series: "Essential Series",
-      description: `<p>The <strong>${words}</strong> is an engineered prefab modular building model built with precision manufacturing, high-R insulation, and nationwide turnkey delivery.</p>`,
-      starting_price: 49500,
-      sqft: clean.includes("14-by-40") ? 560 : 720,
-      dimensions: clean.includes("14-by-40") ? "14x40 ft" : "24x30 ft",
-      bedrooms: 2,
-      bathrooms: 1,
-      stories: 1,
-    });
-  }
-
+  // If no product is matched, return null to trigger genuine 404
   setCached(cacheKey, result, 60000);
   return result;
 }
@@ -1457,31 +1420,6 @@ export async function getPublicPageBySlug(slugParam: string): Promise<CmsPage | 
       canonicalUrl: `https://modularhome.com/pages/${cleanSlug}`,
       ogTitle: `${fallback.title} | ModularHome.com`,
       ogDescription: fallback.metaDescription || "ModularHome.com official page",
-      ogImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
-      robots: "index, follow",
-      publishedAt: "2026-01-01T00:00:00.000Z",
-      createdAt: "2026-01-01T00:00:00.000Z",
-      updatedAt: "2026-01-01T00:00:00.000Z",
-      sections: [],
-    };
-  }
-
-  if (cleanSlug && !cleanSlug.includes('totally-fake') && cleanSlug.length > 2) {
-    const title = cleanSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-    return {
-      id: `page_${cleanSlug}`,
-      title: title,
-      slug: cleanSlug,
-      subtitle: `${title} - ModularHome.com`,
-      content: `<p>Learn more about ${title} and explore modular construction solutions from ModularHome.com.</p>`,
-      status: "PUBLISHED",
-      featuredImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
-      imageAlt: `${title} banner`,
-      seoTitle: `${title} | ModularHome.com`,
-      metaDescription: `Learn more about ${title} at ModularHome.com. Precision engineered prefab construction.`,
-      canonicalUrl: `https://modularhome.com/pages/${cleanSlug}`,
-      ogTitle: `${title} | ModularHome.com`,
-      ogDescription: `Learn more about ${title} at ModularHome.com.`,
       ogImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
       robots: "index, follow",
       publishedAt: "2026-01-01T00:00:00.000Z",

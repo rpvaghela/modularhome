@@ -10,11 +10,11 @@ export default async function ModelSlugRedirectPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  if (!slug) permanentRedirect("/buildings");
+  if (!slug) notFound();
 
   const model = await getPublicProductBySlug(slug);
   if (!model) {
-    permanentRedirect(resolveSimilarCategoryPath(slug));
+    notFound();
   }
 
   const targetUrl = getProductUrl(model);

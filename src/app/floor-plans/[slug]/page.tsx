@@ -71,7 +71,7 @@ export async function generateMetadata({
   if (!plan) {
     return {
       title: "Floor Plan Not Found | ModularHome.com",
-      robots,
+      robots: { index: false, follow: false },
     };
   }
 
@@ -112,6 +112,10 @@ export async function generateMetadata({
 export default async function FloorPlanDetailPage({ params }: FloorPlanPageProps) {
   const { slug } = await params;
   const plan = await getFloorPlan(slug);
+
+  if (!plan) {
+    notFound();
+  }
 
   return <FloorPlanDetailClient initialPlan={plan} slug={slug} />;
 }
