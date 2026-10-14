@@ -258,6 +258,48 @@ const nextConfig: NextConfig = {
         destination: "/barndominiums/the-grandview-two-story-modular-estate",
         statusCode: 301,
       },
+      // Discontinued Willow Brook Cabin Designs -> Category SEO Redirect (Permanent 301)
+      {
+        source: "/cabins/:slug(the-willow-brook.*)",
+        destination: "/cabins",
+        statusCode: 301,
+      },
+      {
+        source: "/products/:slug(the-willow-brook.*)",
+        destination: "/cabins",
+        statusCode: 301,
+      },
+      // Discontinued Meadow Ridge ADU Designs -> Category SEO Redirect (Permanent 301)
+      {
+        source: "/adus/:slug(the-meadow-ridge.*)",
+        destination: "/adus",
+        statusCode: 301,
+      },
+      {
+        source: "/adus/:slug(the-meadow-brook-adu.*)",
+        destination: "/adus",
+        statusCode: 301,
+      },
+      {
+        source: "/cabins/:slug(the-meadow-ridge.*)",
+        destination: "/adus",
+        statusCode: 301,
+      },
+      {
+        source: "/cabins/:slug(the-meadow-brook-adu.*)",
+        destination: "/adus",
+        statusCode: 301,
+      },
+      {
+        source: "/products/:slug(the-meadow-ridge.*)",
+        destination: "/adus",
+        statusCode: 301,
+      },
+      {
+        source: "/products/:slug(the-meadow-brook-adu.*)",
+        destination: "/adus",
+        statusCode: 301,
+      },
     ];
   },
 

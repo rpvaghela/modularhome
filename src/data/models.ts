@@ -1050,9 +1050,11 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Turnkey"
     ],
     "collections": [
-      "Cabins",
+"Cabins",
       "cabins-for-sale",
-      "modular-homes"
+      "modular-homes",
+      "amish-built-modular-cabins",
+      "prefab-homes"
     ]
   },
   {
@@ -1208,10 +1210,13 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
       "turnkey-cabins",
-      "2-bedroom-turnkey-homes"
+      "2-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -1288,10 +1293,13 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
       "turnkey-cabins",
-      "1-bedroom-turnkey-homes"
+      "1-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -1368,10 +1376,13 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
       "turnkey-cabins",
-      "1-bedroom-turnkey-homes"
+      "1-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -1448,10 +1459,13 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
       "turnkey-cabins",
-      "2-bedroom-turnkey-homes"
+      "2-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -1528,10 +1542,13 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
       "turnkey-cabins",
-      "2-bedroom-turnkey-homes"
+      "2-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -1608,10 +1625,13 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
       "turnkey-cabins",
-      "2-bedroom-turnkey-homes"
+      "2-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -1688,10 +1708,13 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
       "turnkey-cabins",
-      "2-bedroom-turnkey-homes"
+      "2-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -1768,10 +1791,13 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
       "turnkey-cabins",
-      "2-bedroom-turnkey-homes"
+      "2-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -1848,10 +1874,13 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
       "turnkey-cabins",
-      "2-bedroom-turnkey-homes"
+      "2-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -1928,10 +1957,13 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
       "turnkey-cabins",
-      "2-bedroom-turnkey-homes"
+      "2-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -2008,10 +2040,13 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
       "turnkey-cabins",
-      "2-bedroom-turnkey-homes"
+      "2-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -2088,10 +2123,13 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
       "turnkey-cabins",
-      "2-bedroom-turnkey-homes"
+      "2-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -5687,9 +5725,12 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Turnkey"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
-      "2-bedroom-turnkey-homes"
+      "2-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {
@@ -5818,9 +5859,12 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Turnkey"
     ],
     "collections": [
-      "cabins",
+"cabins",
       "modular-cabins",
-      "3-bedroom-turnkey-homes"
+      "3-bedroom-turnkey-homes",
+      "amish-built-modular-cabins",
+      "modular-homes",
+      "prefab-homes"
     ]
   },
   {

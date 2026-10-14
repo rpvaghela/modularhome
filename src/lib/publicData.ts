@@ -6,7 +6,7 @@ import ALL_COLLECTIONS_DATA from "@/data/all_collections.json";
 import { ResourceArticle, RESOURCE_ARTICLES } from "@/data/resources";
 import { getPublicGlobalSettings } from "./settings";
 import { matchProductCategory, getBaseModelName } from "@/utils/categoryMatching";
-import { getProductUrl } from "@/utils/productUrls";
+import { getProductUrl, isCategorySlug } from "@/utils/productUrls";
 import { readProductsFromStore } from "./productStore";
 import { readFloorPlansFromStore, getCustomFloorPlanByIdOrSlug } from "./floorPlanStore";
 import { readBlogsFromStore, getCustomBlogByIdOrSlug } from "./blogStore";
@@ -1703,11 +1703,28 @@ export async function getPublicCollections(): Promise<PublicCollection[]> {
  */
 export async function getPublicCollectionBySlug(slug: string): Promise<PublicCollection | null> {
   const cleanSlug = slug.toLowerCase().trim();
+  const slugAliases: Record<string, string> = {
+    "modular-homes": "modular-homes-1",
+    "modular-homes-1": "modular-homes",
+    "prefab-cabins": "prefab-cabins-1",
+    "prefab-cabins-1": "prefab-cabins",
+  };
+  const aliasSlug = slugAliases[cleanSlug];
+
   const allCols = await getPublicCollections();
   let matched = allCols.find((c) => c.slug.toLowerCase() === cleanSlug || c.id === cleanSlug);
   
+  if (!matched && aliasSlug) {
+    matched = allCols.find((c) => c.slug.toLowerCase() === aliasSlug || c.id === aliasSlug);
+  }
+
   if (!matched) {
-    const fallbackMatch = FALLBACK_COLLECTIONS.find((c) => c.slug.toLowerCase() === cleanSlug || c.id === cleanSlug);
+    const fallbackMatch = FALLBACK_COLLECTIONS.find(
+      (c) =>
+        c.slug.toLowerCase() === cleanSlug ||
+        c.id === cleanSlug ||
+        (aliasSlug && (c.slug.toLowerCase() === aliasSlug || c.id === aliasSlug))
+    );
     if (fallbackMatch) matched = fallbackMatch;
   }
 
@@ -1726,17 +1743,39 @@ export async function getPublicCollectionBySlug(slug: string): Promise<PublicCol
     return false;
   });
 
-  // Fallback to robust category & collection matching if database join has no matching rows
-  if (mappedProducts.length === 0) {
-    mappedProducts = allProducts.filter(
+  const isCategory = isCategorySlug(cleanSlug) || isCategorySlug(matched.slug) || (aliasSlug ? isCategorySlug(aliasSlug) : false);
+
+  // If this is a category collection (or if no products linked), dynamically match all category products
+  if (isCategory || mappedProducts.length === 0) {
+    const categoryMatched = allProducts.filter(
       (p) =>
+        matchProductCategory(p, cleanSlug) ||
         matchProductCategory(p, matched!.slug) ||
+        (aliasSlug && matchProductCategory(p, aliasSlug)) ||
         matchProductCategory(p, matched!.name) ||
         (Array.isArray(p.collections) &&
           p.collections.some(
-            (c) => typeof c === "string" && c.toLowerCase() === cleanSlug
+            (c) => typeof c === "string" && (c.toLowerCase() === cleanSlug || (aliasSlug && c.toLowerCase() === aliasSlug))
           ))
     );
+
+    const existingIds = new Set(mappedProducts.map((p) => p.id));
+    for (const p of categoryMatched) {
+      if (!existingIds.has(p.id)) {
+        mappedProducts.push(p);
+        existingIds.add(p.id);
+      }
+    }
+
+    // For category collections, strictly enforce category rules so non-homes or mismatched types do not bleed in
+    if (isCategory) {
+      mappedProducts = mappedProducts.filter(
+        (p) =>
+          matchProductCategory(p, cleanSlug) ||
+          matchProductCategory(p, matched!.slug) ||
+          (aliasSlug ? matchProductCategory(p, aliasSlug) : false)
+      );
+    }
   }
 
   // Supplement if fewer than 4 products matched (e.g. state builders, bedroom specific)

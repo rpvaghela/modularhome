@@ -495,7 +495,13 @@ export default function ModelDetailClient({
                 Design & Architecture
               </div>
               <div className="pt-1">
-                <RichHtmlContent content={model.description} />
+                <RichHtmlContent
+                  content={
+                    model.description && model.description.trim()
+                      ? model.description
+                      : `<p>The <strong>${model.name}</strong> is an engineered architectural model designed for superior structural durability, energy efficiency, and modern living. Built to residential building codes with high-performance framing and premium insulation, this versatile design offers customizable finishes, factory-direct quality, and flexible layout options.</p>`
+                  }
+                />
               </div>
             </section>
 

@@ -38,6 +38,87 @@ export function isCategorySelected(currentCat?: string | null, tabName?: string 
 }
 
 /**
+ * Checks if a model is an authentic Amish-Built Modular Turnkey Cabin
+ * from ABC (Amish Built Cabins, e.g. /collections/amish-built-modular-cabins).
+ * These are fully finished, move-in ready turnkey residences.
+ * Excludes DIY kits, shells, timber frames, broker listings, and park model RVs.
+ */
+export function isAmishModularTurnkeyCabin(model: {
+  name?: string;
+  title?: string;
+  slug?: string;
+  handle?: string;
+  category?: string;
+  collections?: string[];
+  tags?: string[] | string;
+}): boolean {
+  const mName = (model.name || model.title || "").toLowerCase();
+  const mSlug = (model.slug || model.handle || "").toLowerCase();
+
+  // Exclude kits, shells, panelized DIY kits, timber frame kits, broker listings, wagons
+  const isKitOrShell =
+    mName.includes("kit") ||
+    mSlug.includes("-kit") ||
+    mSlug.includes("kit-") ||
+    mName.includes("shell") ||
+    mSlug.includes("shell") ||
+    mName.includes("log cabin kit") ||
+    mSlug.includes("log-cabin-kit") ||
+    mName.includes("timber frame") ||
+    mSlug.includes("timber-frame") ||
+    mName.includes("panelized") ||
+    mSlug.includes("panelized") ||
+    mName.includes("broker") ||
+    mSlug.includes("broker") ||
+    mName.includes("partner") ||
+    mName.includes("dealer") ||
+    mName.includes("wagon");
+
+  if (isKitOrShell) return false;
+
+  // Exclude park model RVs (which have their own dedicated category /park-models)
+  if (mName.includes("park model") || mSlug.includes("park-model")) {
+    return false;
+  }
+
+  // 1. Collections: Amish-Built Modular Turnkey Cabins collection on ABC
+  const cols = Array.isArray(model.collections)
+    ? model.collections.map((c: any) =>
+        typeof c === "string" ? c.toLowerCase() : (c.handle || c.title || "").toLowerCase()
+      )
+    : [];
+
+  const hasAmishModularCol = cols.some(
+    (c: string) =>
+      c === "amish-built-modular-cabins" ||
+      c === "turnkey-modular-cabins" ||
+      c === "turnkey-cabins" ||
+      c.includes("amish-built-modular")
+  );
+
+  if (hasAmishModularCol) return true;
+
+  // 2. Name / Slug matching for Amish modular cabins & turnkey cabins
+  if (
+    mName.includes("amish built modular cabin") ||
+    mSlug.includes("amish-built-modular-cabin") ||
+    (mName.includes("amish") && mName.includes("modular cabin")) ||
+    (mSlug.includes("amish") && mSlug.includes("modular-cabin")) ||
+    (mName.includes("turnkey") && mName.includes("cabin")) ||
+    (mSlug.includes("turnkey") && mSlug.includes("cabin"))
+  ) {
+    return true;
+  }
+
+  // 3. Modular cabins (finished turnkey models)
+  if (mName.includes("modular cabin") || mSlug.includes("modular-cabin")) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Robustly matches a product/model against a selected category or slug
  */
 export function matchProductCategory(
@@ -198,6 +279,8 @@ export function matchProductCategory(
     clean === "modular-cabins" ||
     clean === "prefab-cabins"
   ) {
+    if (isAmishModularTurnkeyCabin(model)) return true;
+
     return (
       (mCat.includes("cabin") ||
         mName.includes("cabin") ||
@@ -239,12 +322,6 @@ export function matchProductCategory(
 
   // 9. Prefab Homes
   if (clean.includes("prefab")) {
-    const hasPrefabCollection = Array.isArray(model.collections) &&
-      model.collections.some((c: string) => typeof c === "string" && c.toLowerCase().includes("prefab"));
-    const hasPrefabTag = Array.isArray(model.tags)
-      ? model.tags.some((t: string) => typeof t === "string" && t.toLowerCase().includes("prefab"))
-      : typeof model.tags === "string" && (model.tags as string).toLowerCase().includes("prefab");
-
     // Exclude kits, shells and log-cabin kits which belong in House Kits / Cabins, not Prefab Homes
     const isKitOrShell =
       mName.includes("kit") ||
@@ -255,19 +332,29 @@ export function matchProductCategory(
       mName.includes("log cabin kit") ||
       mSlug.includes("log-cabin-kit");
 
+    if (isKitOrShell) return false;
+
+    // Client Requirement: Display Amish-Built Modular Turnkey Cabins in Prefab Homes
+    if (isAmishModularTurnkeyCabin(model)) return true;
+
+    const hasPrefabCollection = Array.isArray(model.collections) &&
+      model.collections.some((c: string) => typeof c === "string" && c.toLowerCase().includes("prefab"));
+    const hasPrefabTag = Array.isArray(model.tags)
+      ? model.tags.some((t: string) => typeof t === "string" && t.toLowerCase().includes("prefab"))
+      : typeof model.tags === "string" && (model.tags as string).toLowerCase().includes("prefab");
+
     return (
-      !isKitOrShell &&
       (mCat.includes("prefab") ||
         mName.includes("prefab") ||
         mSlug.includes("prefab") ||
         hasPrefabCollection ||
         hasPrefabTag ||
-        (mCat.includes("modular") && !mName.includes("cabin")) ||
+        mCat.includes("modular") ||
         mName.includes("panelized") ||
         mName.includes("sip panel")) &&
       !mName.includes("barndo") &&
       !mName.includes("pole barn") &&
-      !mName.includes("duplex") &&
+      (!mName.includes("duplex") || mSlug.includes("prefab") || mName.includes("prefab")) &&
       !mName.includes("house kit")
     );
   }
@@ -284,12 +371,11 @@ export function matchProductCategory(
   }
 
   // 11. Modular Homes
-  // Includes move-in-ready modular cabins (from ABC's "Modular Homes" collection).
+  // Includes move-in-ready modular cabins (from ABC's "Modular Homes" collection and Amish-Built Modular Turnkey Cabins).
   // Kits, shells, barndominium kits, duplex, ADUs, A-Frames, park models and tiny homes
   // are routed to their own collection pages instead.
   if (clean.includes("modular")) {
     const isExcluded =
-      // DO NOT exclude "cabin" here — ABC's 38 move-in-ready modular cabins belong in /modular-homes
       mName.includes("log cabin kit") ||
       mSlug.includes("log-cabin-kit") ||
       mName.includes(" kit") ||
@@ -308,25 +394,30 @@ export function matchProductCategory(
       mName.includes("pole barn") ||
       mName.includes("shed");
 
+    if (isExcluded) return false;
+
+    // Client Requirement: Display Amish-Built Modular Turnkey Cabins in Modular Homes
+    if (isAmishModularTurnkeyCabin(model)) return true;
+
     return (
-      !isExcluded &&
-      (mCat === "modular homes" ||
-        mCat === "modular" ||
-        mCat.includes("modular") ||
-        mName.includes("modular home") ||
-        mName.includes("modular cabin") ||
-        mName.includes("modular residence") ||
-        mName.includes("modular estate") ||
-        mName.includes("farmhouse charm") ||
-        mName.includes("modern craftsman") ||
-        mName.includes("aspen ridge") ||
-        mName.includes("prairie modern") ||
-        mName.includes("cascade valley") ||
-        mName.includes("copper house") ||
-        mName.includes("rancher") ||
-        mName.includes("residence") ||
-        mName.includes("craftsman") ||
-        mName.includes("farmhouse"))
+      mCat === "modular homes" ||
+      mCat === "modular" ||
+      mCat.includes("modular") ||
+      mName.includes("modular home") ||
+      mName.includes("modular cabin") ||
+      mSlug.includes("modular-cabin") ||
+      mName.includes("modular residence") ||
+      mName.includes("modular estate") ||
+      mName.includes("farmhouse charm") ||
+      mName.includes("modern craftsman") ||
+      mName.includes("aspen ridge") ||
+      mName.includes("prairie modern") ||
+      mName.includes("cascade valley") ||
+      mName.includes("copper house") ||
+      mName.includes("rancher") ||
+      mName.includes("residence") ||
+      mName.includes("craftsman") ||
+      mName.includes("farmhouse")
     );
   }
 
