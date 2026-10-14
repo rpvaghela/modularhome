@@ -91,7 +91,9 @@ export default function AdminDashboardClient() {
     {
       label: "Home Models",
       value: metrics.totalProducts,
-      subtext: "Precision steel catalog models",
+      subtext: metrics.dbProductRecords && metrics.dbProductRecords !== metrics.totalProducts
+        ? `${metrics.totalProducts} published (${metrics.dbProductRecords} in DB)`
+        : "Live published catalog models",
       href: "/admin/products",
       icon: Home,
       accentBorder: "hover:border-[#fcb907]",

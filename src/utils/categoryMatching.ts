@@ -38,6 +38,41 @@ export function isCategorySelected(currentCat?: string | null, tabName?: string 
 }
 
 /**
+ * Checks if a model is a DIY Kit, structural shell, timber frame, panelized kit, or broker listing.
+ */
+export function isKitOrShell(model: {
+  name?: string;
+  title?: string;
+  slug?: string;
+  handle?: string;
+  category?: string;
+}): boolean {
+  const mName = (model.name || model.title || "").toLowerCase();
+  const mSlug = (model.slug || model.handle || "").toLowerCase();
+  const mCat = (model.category || "").toLowerCase();
+
+  return (
+    mCat.includes("kit") ||
+    mName.includes("kit") ||
+    mSlug.includes("-kit") ||
+    mSlug.includes("kit-") ||
+    mName.includes("shell") ||
+    mSlug.includes("shell") ||
+    mName.includes("log cabin kit") ||
+    mSlug.includes("log-cabin-kit") ||
+    mName.includes("timber frame") ||
+    mSlug.includes("timber-frame") ||
+    mName.includes("panelized") ||
+    mSlug.includes("panelized") ||
+    mName.includes("broker") ||
+    mSlug.includes("broker") ||
+    mName.includes("partner") ||
+    mName.includes("dealer") ||
+    mName.includes("wagon")
+  );
+}
+
+/**
  * Checks if a model is an authentic Amish-Built Modular Turnkey Cabin
  * from ABC (Amish Built Cabins, e.g. /collections/amish-built-modular-cabins).
  * These are fully finished, move-in ready turnkey residences.
@@ -56,25 +91,7 @@ export function isAmishModularTurnkeyCabin(model: {
   const mSlug = (model.slug || model.handle || "").toLowerCase();
 
   // Exclude kits, shells, panelized DIY kits, timber frame kits, broker listings, wagons
-  const isKitOrShell =
-    mName.includes("kit") ||
-    mSlug.includes("-kit") ||
-    mSlug.includes("kit-") ||
-    mName.includes("shell") ||
-    mSlug.includes("shell") ||
-    mName.includes("log cabin kit") ||
-    mSlug.includes("log-cabin-kit") ||
-    mName.includes("timber frame") ||
-    mSlug.includes("timber-frame") ||
-    mName.includes("panelized") ||
-    mSlug.includes("panelized") ||
-    mName.includes("broker") ||
-    mSlug.includes("broker") ||
-    mName.includes("partner") ||
-    mName.includes("dealer") ||
-    mName.includes("wagon");
-
-  if (isKitOrShell) return false;
+  if (isKitOrShell(model)) return false;
 
   // Exclude park model RVs (which have their own dedicated category /park-models)
   if (mName.includes("park model") || mSlug.includes("park-model")) {
@@ -322,17 +339,8 @@ export function matchProductCategory(
 
   // 9. Prefab Homes
   if (clean.includes("prefab")) {
-    // Exclude kits, shells and log-cabin kits which belong in House Kits / Cabins, not Prefab Homes
-    const isKitOrShell =
-      mName.includes("kit") ||
-      mSlug.includes("-kit") ||
-      mSlug.includes("kit-") ||
-      mName.includes("shell") ||
-      mSlug.includes("shell") ||
-      mName.includes("log cabin kit") ||
-      mSlug.includes("log-cabin-kit");
-
-    if (isKitOrShell) return false;
+    // Exclude kits, shells, timber frames, wagons and broker listings from Prefab Homes
+    if (isKitOrShell(model)) return false;
 
     // Client Requirement: Display Amish-Built Modular Turnkey Cabins in Prefab Homes
     if (isAmishModularTurnkeyCabin(model)) return true;

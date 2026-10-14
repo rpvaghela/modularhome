@@ -1388,7 +1388,7 @@ export const BUILDING_MODELS: BuildingModel[] = [
   {
     "id": "9786928628028",
     "slug": "big-bertha-rustic-cabin-indiana-pricing-shipping-set-up-fees-included-in-our-pricing",
-    "name": "Big Bertha Rustic Cabin - Indiana Pricing (Shipping & Set up fees included in our pricing) (Copy)",
+    "name": "Big Bertha Rustic Cabin - Indiana Pricing (Shipping & Set up fees included in our pricing)",
     "series": "Architectural Series",
     "category": "Cabins",
     "architecturalStyle": "Rustic Cabin",

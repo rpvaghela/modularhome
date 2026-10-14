@@ -5,6 +5,7 @@ import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { getLeadStats } from "@/lib/leadsStore";
 import { readPagesFromStore } from "@/lib/pageStore";
 import { readBlogsFromStore } from "@/lib/blogStore";
+import { getPublicProducts } from "@/lib/publicData";
 
 export async function GET() {
   const authResult = await requireAdminAuth();
@@ -16,6 +17,7 @@ export async function GET() {
     const localBlogs = readBlogsFromStore();
 
     let totalProducts = 0;
+    let dbProductRecords = 0;
     let totalCollections = 0;
     let totalPages = localPages.length;
     let totalFloorPlans = 0;
@@ -59,7 +61,7 @@ export async function GET() {
           query("SELECT * FROM quotations ORDER BY created_at DESC LIMIT 5"),
         ]);
 
-        totalProducts = Number(prodRes.rows[0]?.count) || 0;
+        dbProductRecords = Number(prodRes.rows[0]?.count) || 0;
         if (collRes && collRes.rows[0]) totalCollections = Number(collRes.rows[0].count) || 0;
         if (pageRes && pageRes.rows[0]) totalPages = Math.max(Number(pageRes.rows[0].count) || 0, localPages.length);
         if (floorRes && floorRes.rows[0]) totalFloorPlans = Number(floorRes.rows[0].count) || 0;
@@ -118,7 +120,7 @@ export async function GET() {
           .select("*", { count: "exact", head: true })
           .eq("status", "PENDING");
 
-        totalProducts = spTotalProducts || 0;
+        dbProductRecords = spTotalProducts || 0;
         totalCollections = spTotalCollections || 0;
         totalPages = Math.max(spTotalPages || 0, localPages.length);
         totalFloorPlans = spTotalFloorPlans || 0;
@@ -153,11 +155,20 @@ export async function GET() {
       }
     }
 
+    // Align totalProducts with verified live customer-facing home models on the storefront
+    try {
+      const liveCatalog = await getPublicProducts();
+      totalProducts = liveCatalog.length;
+    } catch {
+      totalProducts = dbProductRecords;
+    }
+
     return NextResponse.json({
       success: true,
       data: {
         metrics: {
           totalProducts,
+          dbProductRecords,
           totalCollections,
           totalPages,
           totalFloorPlans,
