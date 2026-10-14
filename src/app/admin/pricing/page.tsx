@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Sparkles,
   Layers,
   ArrowRight,
   RefreshCw,
@@ -320,7 +319,6 @@ export default function AdminPricingPage() {
         <div className="bg-[#0f1218] text-white p-6 sm:p-7 rounded-[22px] shadow-2xl border border-[#1e2430] space-y-5 sticky top-24">
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div className="flex items-center gap-2 text-xs font-bold text-[#fcb907] uppercase tracking-wider font-mono">
-              <Sparkles className="w-4 h-4" />
               <span>Live Quote Simulator</span>
             </div>
             {isSimulating && <Loader2 className="w-4 h-4 animate-spin text-[#fcb907]" />}

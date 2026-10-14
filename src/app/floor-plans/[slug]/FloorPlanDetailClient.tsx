@@ -17,7 +17,6 @@ import {
   ShieldCheck,
   FileCode2,
   ArrowLeft,
-  Sparkles,
   Zap,
   ShoppingBag,
 } from "lucide-react";
@@ -312,7 +311,6 @@ export default function FloorPlanDetailClient({
             <div className="sticky top-24 bg-white p-6 sm:p-8 rounded-3xl border-2 border-stone-200 shadow-xl space-y-6">
               <div>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-bold mb-2">
-                  <Sparkles className="w-3.5 h-3.5" />
                   Instant Digital Delivery
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-stone-900 leading-tight">

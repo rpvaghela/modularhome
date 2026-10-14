@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { ShieldCheck, Lock, Eye, FileText, CheckCircle2, Sparkles } from "lucide-react";
+import { ShieldCheck, Lock, Eye, FileText, CheckCircle2 } from "lucide-react";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
 import DynamicPageRenderer from "@/components/DynamicPageRenderer";
 import { getCanonicalUrl } from "@/lib/seo";

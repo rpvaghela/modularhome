@@ -25,7 +25,6 @@ import {
   ChevronRight,
   ShieldCheck,
   Clock,
-  Sparkles,
   User as UserIcon,
   Image as ImageIcon,
   Star,

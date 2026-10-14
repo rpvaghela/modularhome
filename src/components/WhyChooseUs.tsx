@@ -2,7 +2,7 @@
 
 import { 
   Building2, 
-  Sparkles, 
+  Compass, 
   Sliders, 
   Clock, 
   ShieldCheck, 
@@ -20,7 +20,7 @@ const TRUST_CARDS = [
     desc: "Built in indoor facilities protected from moisture, rain, and UV damage for maximum structural precision.",
   },
   {
-    icon: Sparkles,
+    icon: Compass,
     title: "Modern Designs",
     desc: "Architect-designed floor plans featuring soaring vaulted ceilings, open layouts, and panoramic glass curtain walls.",
   },

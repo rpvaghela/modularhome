@@ -9,7 +9,7 @@ import {
   Award,
   Truck,
   Clock,
-  Sparkles,
+  Compass,
   Zap,
   Leaf,
   DollarSign,
@@ -294,7 +294,7 @@ export default async function AboutPage() {
 
             <div className="p-7 rounded-[22px] bg-[#f8f9fa] border border-[#e7e9ee] space-y-4 hover:shadow-lg transition-all">
               <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-black">
-                <Sparkles className="w-6 h-6" />
+                <Compass className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-black uppercase tracking-tight text-[#101114]">
                 Indistinguishable From Architect Builds
@@ -463,7 +463,7 @@ export default async function AboutPage() {
               },
               {
                 step: "05",
-                icon: Sparkles,
+                icon: CheckCircle2,
                 title: "Turnkey Move-In",
                 desc: "Plumbing and electrical connections are completed, roof ridges seamed, and local inspections finalized for your certificate of occupancy.",
               },
@@ -541,7 +541,7 @@ export default async function AboutPage() {
 
             <div className="p-8 rounded-[24px] bg-[#1a1e26] border border-white/10 space-y-4">
               <div className="w-12 h-12 rounded-xl bg-[#fcb907]/20 text-[#fcb907] flex items-center justify-center">
-                <Sparkles className="w-6 h-6" />
+                <ShieldCheck className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-black uppercase tracking-tight text-white">
                 Superior Structural Rigidity

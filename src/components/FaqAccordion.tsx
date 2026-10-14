@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, ChevronDown, HelpCircle, Sparkles } from "lucide-react";
+import { Search, ChevronDown, HelpCircle } from "lucide-react";
 
 export interface FaqItem {
   question: string;

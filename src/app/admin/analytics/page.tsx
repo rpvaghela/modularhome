@@ -14,7 +14,6 @@ import {
   Filter,
   RefreshCw,
   Loader2,
-  Sparkles,
   Layers,
   ArrowRight,
 } from "lucide-react";

@@ -19,7 +19,6 @@ import {
   X,
   MapPin,
   Layers,
-  Sparkles,
   Send,
   UserCheck
 } from "lucide-react";

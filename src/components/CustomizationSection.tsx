@@ -10,7 +10,7 @@ import {
   Layers, 
   Compass, 
   Hammer, 
-  Sparkles, 
+  Wrench, 
   Sliders, 
   Maximize, 
   Paintbrush, 
@@ -65,7 +65,7 @@ const CUSTOMIZATION_ITEMS = [
     desc: "Solid wood shaker cabinets, soft-close hardware, and custom pantry shelving.",
   },
   {
-    icon: Sparkles,
+    icon: Wrench,
     title: "Fixtures & Hardware",
     desc: "Matte black, brushed brass, or oil-rubbed bronze plumbing and lighting fixtures.",
   },

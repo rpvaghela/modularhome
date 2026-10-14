@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   Send,
   HelpCircle,
-  Sparkles,
 } from "lucide-react";
 import { notifyCustomerAuthChanged } from "@/context/CustomerAuthContext";
 
@@ -265,7 +264,6 @@ function VerifyEmailInner() {
           {devDirectUrl && (
             <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-left space-y-2.5 animate-in fade-in">
               <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
-                <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
                 <span>Local Testing Quick-Link</span>
               </div>
               <p className="text-[11px] text-amber-800 leading-relaxed">

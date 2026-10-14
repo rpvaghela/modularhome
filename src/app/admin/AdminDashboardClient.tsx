@@ -18,7 +18,6 @@ import {
   Loader2,
   Download,
   RefreshCw,
-  Sparkles,
   ShoppingBag,
   Mail,
   Phone,
@@ -201,7 +200,6 @@ export default function AdminDashboardClient() {
 
         <div className="space-y-2.5 relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[#fcb907] text-[11px] font-mono font-bold uppercase tracking-widest backdrop-blur-xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#fcb907]" />
             <span>ModularHome CMS • Online & Connected</span>
           </div>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white font-serif">

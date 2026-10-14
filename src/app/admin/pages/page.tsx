@@ -16,7 +16,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   Calendar,
-  Sparkles,
 } from "lucide-react";
 import { getPageUrl } from "@/lib/publicData";
 import { useConfirm } from "@/context/ConfirmDialogContext";

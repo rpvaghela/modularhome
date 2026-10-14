@@ -8,7 +8,6 @@ import {
   Wrench, 
   FileCheck2, 
   Clock, 
-  Sparkles,
   Phone,
   Mail
 } from "lucide-react";

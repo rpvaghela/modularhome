@@ -16,7 +16,6 @@ import {
   ShieldCheck, 
   Sliders, 
   X,
-  Sparkles,
   ArrowRight
 } from "lucide-react";
 import { PublicGlobalSettings } from "@/lib/settings";

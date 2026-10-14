@@ -3,7 +3,6 @@ import Image from "next/image";
 import {
   Building2,
   ArrowRight,
-  Sparkles,
   CheckCircle2,
   ShieldCheck,
   Compass,

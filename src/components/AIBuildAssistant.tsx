@@ -8,7 +8,6 @@ import {
   MessageSquare, 
   X, 
   Send, 
-  Sparkles, 
   ArrowRight
 } from "lucide-react";
 

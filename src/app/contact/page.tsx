@@ -10,7 +10,6 @@ import {
   Truck,
   Award,
   ArrowRight,
-  Sparkles,
   Calculator,
   UploadCloud,
   Headphones,
@@ -306,7 +305,6 @@ export default async function ContactPage() {
               {/* Fast-Track Quick Action Shortcuts */}
               <div className="p-5 bg-[#101114] text-white rounded-2xl shadow-lg space-y-4">
                 <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#fcb907]">
-                  <Sparkles className="w-4 h-4" />
                   <span>Instant Planning Tools</span>
                 </div>
 

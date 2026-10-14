@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { FloorPlan } from "@/data/floorPlans";
 import { useCustomerAuth } from "@/context/CustomerAuthContext";
-import { X, Lock, CheckCircle2, ShieldCheck, Download, Sparkles, Loader2, CreditCard, User } from "lucide-react";
+import { X, Lock, CheckCircle2, ShieldCheck, Download, Loader2, CreditCard, User } from "lucide-react";
 
 interface FloorPlanCheckoutModalProps {
   plan: FloorPlan | null;
@@ -176,7 +176,6 @@ export default function FloorPlanCheckoutModal({
           {/* Included Items Checklist */}
           <div className="space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-orange-600" />
               What You Receive Immediately:
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-stone-700">

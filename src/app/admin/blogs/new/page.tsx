@@ -14,7 +14,6 @@ import {
   Image as ImageIcon,
   Video,
   Layers,
-  Sparkles,
   Quote,
   Home,
   Bed,
@@ -421,7 +420,6 @@ Amish-built with high-quality materials and expert craftsmanship, the New Home d
           <div className="bg-white p-6 rounded-[18px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-4">
             <div className="flex items-center justify-between border-b border-[#e7e9ee] pb-3">
               <h2 className="text-sm font-serif font-bold text-[#101114] flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#d97706]" />
                 <span>Key Features Grid Cards ({form.customFeatures.length})</span>
               </h2>
               <button

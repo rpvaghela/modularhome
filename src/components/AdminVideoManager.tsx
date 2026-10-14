@@ -13,7 +13,6 @@ import {
   CheckCircle2, 
   AlertCircle, 
   Video as VideoIcon, 
-  Sparkles, 
   Search,
   X,
   FileText,
@@ -351,7 +350,6 @@ export default function AdminVideoManager() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#fcb907] mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-[#fcb907]" />
               <span>Automatic Channel Synchronization</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight">

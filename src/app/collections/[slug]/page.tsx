@@ -6,7 +6,6 @@ import Image from "next/image";
 import { 
   Building2, 
   ArrowRight, 
-  Sparkles, 
   CheckCircle2, 
   ShieldCheck, 
   Compass,
@@ -217,7 +216,6 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
 
           <div className="relative z-10 max-w-3xl space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fcb907]/20 border border-[#fcb907]/30 text-[#fcb907] text-xs font-black uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" />
               <span>{collectionTagline}</span>
             </div>
 

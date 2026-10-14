@@ -23,7 +23,6 @@ import {
   ShieldCheck, 
   Zap, 
   TreePine, 
-  Sparkles, 
   Leaf, 
   Settings, 
   Maximize2,
@@ -190,7 +189,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
     ? article.customFeatures.map((f, idx) => {
         const icons = [Home, Bed, Bath, Layers, Leaf, Settings, TreePine, Zap];
         return {
-          icon: icons[idx % icons.length] || Sparkles,
+          icon: icons[idx % icons.length] || Zap,
           title: f.title,
           desc: f.desc,
         };

@@ -3,7 +3,6 @@ import Link from "next/link";
 import { 
   CheckCircle2, 
   ArrowRight, 
-  Sparkles, 
   Building2, 
   ShieldCheck, 
   Clock, 

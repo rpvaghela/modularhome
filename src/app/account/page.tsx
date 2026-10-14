@@ -17,7 +17,6 @@ import {
   ArrowRight,
   ExternalLink,
   Loader2,
-  Sparkles,
   Layers,
   LayoutDashboard,
   Calendar,
@@ -230,7 +229,6 @@ function CustomerDashboardContent() {
           <div className="space-y-3 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fcb907]/15 text-[#fcb907] text-[11px] font-mono font-bold tracking-wider uppercase border border-[#fcb907]/30">
-                <Sparkles className="w-3 h-3" />
                 Customer Account
               </span>
               {profile?.email_verified ? (

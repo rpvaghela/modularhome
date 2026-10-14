@@ -17,7 +17,7 @@ import {
   Compass,
   FileCheck,
   Layers,
-  Sparkles,
+  Sliders,
   Download
 } from "lucide-react";
 import { BuildingModel, BuildingModelVariant } from "@/data/models";
@@ -434,7 +434,7 @@ export default function ModelDetailClient({
                   onClick={() => setCustomizeModalOpen(true)}
                   className="w-full py-3 text-xs sm:text-sm font-extrabold rounded-[11px] border-2 border-[#d97706] bg-[#fef3c7] hover:bg-[#fde68a] text-[#92400e] flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
                 >
-                  <Sparkles className="w-4 h-4 text-[#d97706]" />
+                  <Sliders className="w-4 h-4 text-[#d97706]" />
                   <span>Customize Plan</span>
                 </button>
 
@@ -804,7 +804,7 @@ export default function ModelDetailClient({
                     onClick={() => setCustomizeModalOpen(true)}
                     className="w-full py-2.5 text-xs font-extrabold rounded-[11px] border border-[#d97706] bg-[#fef3c7] hover:bg-[#fde68a] text-[#92400e] flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <Sliders className="w-3.5 h-3.5" />
                     <span>Customize Plan & Layout</span>
                   </button>
 

@@ -6,7 +6,7 @@ import { BuildingModel } from "@/data/models";
 import HomeProductCard, { ProductItem } from "@/components/HomeProductCard";
 import { matchProductCategory } from "@/utils/categoryMatching";
 import { getCategoryFallbackImage } from "@/lib/publicData";
-import { Sparkles, ArrowRight, Layers } from "lucide-react";
+import { ArrowRight, Layers } from "lucide-react";
 
 interface CategoryTabConfig {
   id: string;
@@ -185,7 +185,6 @@ export default function HomeModelsShowcase({
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 sm:mb-8 font-sans">
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fcb907]/15 border border-[#fcb907]/30 text-[#d97706] text-xs font-black uppercase tracking-wider mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
               <span>Architectural Model Showcase</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-black tracking-[-1.3px] text-[#101114] m-0 font-display">

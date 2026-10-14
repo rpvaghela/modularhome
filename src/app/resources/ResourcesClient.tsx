@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Clock, Search, BookOpen, Sparkles } from "lucide-react";
+import { ArrowRight, Clock, Search, BookOpen } from "lucide-react";
 import { CmsPage } from "@/lib/publicData";
 
 interface ResourcesClientProps {
@@ -35,7 +35,6 @@ export default function ResourcesClient({ initialArticles, pageData }: Resources
         {/* Header Banner */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-50 text-[#d97706] text-xs font-bold uppercase tracking-wider mb-4 border border-amber-200">
-            <Sparkles className="w-3.5 h-3.5 text-[#fcb907]" />
             <span>{headerBadge}</span>
           </div>
 

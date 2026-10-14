@@ -11,7 +11,6 @@ import {
   Phone,
   Megaphone,
   Search,
-  Sparkles,
   Link as LinkIcon,
   FileText,
   Building,
@@ -528,7 +527,6 @@ export default function AdminSettingsPage() {
         {/* 6. Primary Call To Action Button */}
         <div className="bg-white p-6 sm:p-7 rounded-[22px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-5 lg:col-span-2">
           <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[#101114] border-b border-[#e7e9ee] pb-3 font-mono">
-            <Sparkles className="w-4 h-4 text-[#d97706]" />
             <span>Primary Global CTA Configuration</span>
           </div>
 

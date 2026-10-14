@@ -10,7 +10,6 @@ import {
   MapPin, 
   Home, 
   Building2, 
-  Sparkles,
   Filter,
   CheckCircle2,
   X

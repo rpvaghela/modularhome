@@ -11,7 +11,6 @@ import {
   Zap, 
   Clock, 
   TrendingDown,
-  Sparkles,
   Calculator,
   PhoneCall,
   Home
@@ -186,7 +185,6 @@ export default async function PricingPage() {
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-5">
               <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#d97706] bg-[#fef3c7] px-3.5 py-1.5 rounded-full">
-                <Sparkles className="w-3.5 h-3.5 text-[#d97706]" />
                 <span>Direct-From-Factory Pricing</span>
               </div>
 

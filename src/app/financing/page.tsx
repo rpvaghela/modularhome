@@ -10,7 +10,6 @@ import {
   FileText, 
   Percent, 
   BadgeDollarSign, 
-  Sparkles,
   HelpCircle,
   PhoneCall,
   Home

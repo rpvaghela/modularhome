@@ -9,7 +9,6 @@ import {
   ArrowRight, 
   AlertTriangle, 
   Compass, 
-  Sparkles,
   HelpCircle,
   Building,
   Calendar,
@@ -285,7 +284,6 @@ export default async function DeliveryPage() {
         <div className="wrap">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#d97706] mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
               <span>Step-by-Step Logistics</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-black text-[#101114] tracking-tight">

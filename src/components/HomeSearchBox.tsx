@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, Check, Search, MapPin, X, Sparkles, Building2, DollarSign, BedDouble, Bath, ShieldCheck } from "lucide-react";
+import { ChevronDown, Check, Search, MapPin, X, Building2, DollarSign, BedDouble, Bath, ShieldCheck } from "lucide-react";
 import { HomeTypeCategoryItem } from "@/lib/publicData";
 
 export interface OptionItem {

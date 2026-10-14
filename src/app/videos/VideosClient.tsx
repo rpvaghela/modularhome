@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef, useTransition } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Search, ChevronLeft, ChevronRight, Film, Sparkles } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Film } from "lucide-react";
 import Link from "next/link";
 import { VIDEO_CATEGORIES } from "@/data/videos";
 import { VideoItem } from "@/types/video";
@@ -233,7 +233,6 @@ export default function VideosClient({
                 }}
                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#fcb907] text-[#101114] text-xs font-black rounded-xl hover:bg-amber-400 transition-colors cursor-pointer"
               >
-                <Sparkles className="w-3.5 h-3.5" />
                 <span>Reset All Filters</span>
               </button>
             </div>

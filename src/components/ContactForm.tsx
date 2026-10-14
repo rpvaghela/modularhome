@@ -9,7 +9,7 @@ import {
   ShieldCheck,
   User,
   Clock,
-  Sparkles,
+  FileText,
   Home,
   FileSpreadsheet,
   Building2,
@@ -32,7 +32,7 @@ const BUILDING_TYPES = [
   { id: "Cabins", label: "Cabin / Retreat", icon: Flame, desc: "Timber & steel framing" },
   { id: "ADUs & Granny Pods", label: "ADU / Tiny Suite", icon: Building2, desc: "Secondary backyard units" },
   { id: "House Kits", label: "Cold-Formed Steel Kit", icon: FileSpreadsheet, desc: "Flat-pack bolt-together frame" },
-  { id: "Custom Architecture", label: "Custom Blueprint", icon: Sparkles, desc: "Bespoke engineered layout" },
+  { id: "Custom Architecture", label: "Custom Blueprint", icon: FileText, desc: "Bespoke engineered layout" },
 ];
 
 const BUDGET_RANGES = [
@@ -212,7 +212,6 @@ export default function ContactForm() {
         {/* Next Steps Guide */}
         <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-4 text-left max-w-md mx-auto">
           <div className="text-xs font-black uppercase text-amber-900 tracking-wider mb-2 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#d97706]" />
             <span>What happens next?</span>
           </div>
           <ul className="text-xs text-amber-950 space-y-1.5 list-disc list-inside leading-relaxed">
@@ -286,7 +285,7 @@ export default function ContactForm() {
               : "text-[#6b7280] hover:text-[#101114]"
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5" />
+          <FileText className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Custom</span> Blueprint
         </button>
         <button

@@ -16,7 +16,7 @@ import {
   Info, 
   PhoneCall, 
   Star, 
-  Sparkles,
+  Compass,
   Layers,
   FolderOpen,
   FileText,
@@ -30,8 +30,7 @@ import {
   Truck,
   HelpCircle,
   DollarSign,
-  CreditCard,
-  Compass
+  CreditCard
 } from "lucide-react";
 import { PublicGlobalSettings } from "@/lib/settings";
 import { CmsPage, MegaMenuCatalog } from "@/lib/publicData";
@@ -116,7 +115,7 @@ const MORE_SERVICES_RESOURCES = [
     label: "Custom Homes", 
     href: "/custom-homes", 
     desc: "Bespoke engineered modular floor plans",
-    icon: Sparkles 
+    icon: Compass 
   },
   { 
     label: "Upload Floor Plan", 

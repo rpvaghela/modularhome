@@ -9,7 +9,6 @@ import {
   Building2, 
   SlidersHorizontal,
   Loader2,
-  Sparkles,
   Home
 } from "lucide-react";
 import BuildingCard from "@/components/BuildingCard";

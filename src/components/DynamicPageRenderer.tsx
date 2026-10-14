@@ -14,7 +14,6 @@ import {
   ChevronDown, 
   ChevronUp, 
   ArrowRight,
-  Sparkles,
   Layers,
   PhoneCall,
   Building,
@@ -208,7 +207,6 @@ export default function DynamicPageRenderer({ page }: DynamicPageRendererProps) 
               <div className="max-w-2xl text-left space-y-4">
                 {section.subtitle && (
                   <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#fcb907]/20 border border-[#fcb907]/40 text-[#fcb907] text-xs font-black uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5" />
                     <span>{section.subtitle}</span>
                   </div>
                 )}

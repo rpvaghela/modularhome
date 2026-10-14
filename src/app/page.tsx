@@ -1,7 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Metadata } from "next";
-import { ArrowRight, Layers, Play, Star, Sparkles, ShieldCheck } from "lucide-react";
+import { ArrowRight, Layers, Play, Star, ShieldCheck } from "lucide-react";
 import TrustBar from "@/components/TrustBar";
 import HomeSearchBox from "@/components/HomeSearchBox";
 import CategoryGrid from "@/components/CategoryGrid";

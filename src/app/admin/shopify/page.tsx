@@ -13,7 +13,6 @@ import {
   ArrowRight,
   ShieldCheck,
   Terminal,
-  Sparkles,
   Loader2,
 } from "lucide-react";
 
