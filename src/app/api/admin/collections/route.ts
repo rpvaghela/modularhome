@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
-import { clearPublicDataCache, getCategoryFallbackImage, normalizeImageUrl } from "@/lib/publicData";
+import { clearPublicDataCache, getCategoryFallbackImage, normalizeImageUrl, getPublicCollections } from "@/lib/publicData";
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAdminAuth();
@@ -12,44 +12,39 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const search = searchParams.get("search");
 
-    if (!isSupabaseConfigured()) {
-      return NextResponse.json({
-        success: true,
-        data: [],
-      });
-    }
+    let collections: any[] = [];
+    if (isSupabaseConfigured()) {
+      try {
+        let query = supabaseAdmin
+          .from("collections")
+          .select(`
+            *,
+            product_collections (
+              product_id
+            )
+          `)
+          .order("title", { ascending: true });
 
-    let query = supabaseAdmin
-      .from("collections")
-      .select(`
-        *,
-        product_collections (
-          product_id
-        )
-      `)
-      .order("title", { ascending: true });
-
-    if (status && status !== "ALL") {
-      if (status === "PUBLISHED") {
-        query = query.eq("published", true);
-      } else if (status === "DRAFT") {
-        query = query.eq("published", false);
+        const { data, error } = await query;
+        if (!error && data) {
+          collections = data;
+        }
+      } catch (err) {
+        console.warn("Supabase collections query warning:", err);
       }
     }
 
-    if (search && search.trim()) {
-      const s = search.trim();
-      query = query.or(`title.ilike.%${s}%,handle.ilike.%${s}%`);
-    }
+    const seenHandles = new Set<string>();
+    const formatted: any[] = [];
 
-    const { data: collections, error } = await query;
-
-    if (error) throw error;
-
-    const formatted = (collections || []).map((col: any) => {
+    // 1. Process Database Collections
+    for (const col of collections) {
       const pIds = col.product_collections ? col.product_collections.map((pc: any) => pc.product_id) : [];
       const title = col.title || col.name || "";
-      const handle = col.handle || col.slug || "";
+      const handle = (col.handle || col.slug || "").toLowerCase().trim();
+      if (!handle || seenHandles.has(handle)) continue;
+      seenHandles.add(handle);
+
       const fallbackImg = getCategoryFallbackImage(title, title, handle);
       const isGeneric = (u?: string | null) =>
         !u ||
@@ -67,7 +62,7 @@ export async function GET(request: NextRequest) {
         ? fallbackImg
         : normalizeImageUrl(col.banner_image || col.image, fallbackImg);
 
-      return {
+      formatted.push({
         id: col.id,
         name: title,
         title: title,
@@ -85,14 +80,66 @@ export async function GET(request: NextRequest) {
         bannerImage: bannerImg,
         productIds: pIds,
         productCount: pIds.length,
-        created_at: col.created_at,
-        updated_at: col.updated_at,
-      };
-    });
+        created_at: col.created_at || new Date().toISOString(),
+        updated_at: col.updated_at || new Date().toISOString(),
+      });
+    }
+
+    // 2. Guaranteed sync: merge any public storefront collections not yet seen
+    try {
+      const publicCols = await getPublicCollections();
+      for (const col of publicCols) {
+        const handle = (col.slug || (col as any).handle || "").toLowerCase().trim();
+        if (handle && !seenHandles.has(handle)) {
+          seenHandles.add(handle);
+          const fallbackImg = getCategoryFallbackImage(col.name, col.name, handle);
+          formatted.push({
+            id: col.id || handle,
+            name: col.name,
+            title: col.name,
+            slug: handle,
+            handle: handle,
+            description: col.description || "",
+            description_html: col.description || "",
+            seo_title: `${col.name} | ModularHome`,
+            seo_description: col.description || "",
+            published: true,
+            status: "PUBLISHED",
+            is_featured: false,
+            image: col.image || fallbackImg,
+            bannerImage: col.bannerImage || fallbackImg,
+            productIds: col.productIds || [],
+            productCount: (col.productIds || []).length || (col as any).count || 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+        }
+      }
+    } catch (pubColErr) {
+      console.warn("Public collections merge warning:", pubColErr);
+    }
+
+    // Apply filters
+    let filtered = formatted;
+    if (status && status !== "ALL") {
+      if (status === "PUBLISHED") {
+        filtered = filtered.filter((c) => c.published);
+      } else if (status === "DRAFT") {
+        filtered = filtered.filter((c) => !c.published);
+      }
+    }
+
+    if (search && search.trim()) {
+      const s = search.toLowerCase().trim();
+      filtered = filtered.filter(
+        (c) => c.title.toLowerCase().includes(s) || c.slug.toLowerCase().includes(s)
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      data: formatted,
+      data: filtered,
+      totalCount: filtered.length,
     });
   } catch (error: any) {
     console.error("Error fetching admin collections:", error);

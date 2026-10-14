@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
-import { clearPublicDataCache } from "@/lib/publicData";
+import { clearPublicDataCache, getLocalProducts } from "@/lib/publicData";
 import { readProductsFromStore, saveCustomProduct, StoredProduct } from "@/lib/productStore";
 
 export async function GET(request: NextRequest) {
@@ -178,6 +178,47 @@ export async function GET(request: NextRequest) {
           collectionIds,
           created_at: p.created_at,
           updated_at: p.updated_at,
+        });
+      }
+    }
+
+    // 3. Guaranteed sync: ensure all models from the live storefront catalog are present
+    const catalogProducts = getLocalProducts();
+    for (const p of catalogProducts) {
+      const slug = (p.slug || "").toLowerCase().trim();
+      if (slug && !seenSlugs.has(slug)) {
+        seenSlugs.add(slug);
+        merged.push({
+          id: p.id || slug,
+          _id: p.id || slug,
+          name: p.name || "",
+          title: p.name || "",
+          slug: p.slug,
+          handle: p.slug,
+          category: p.category || "Modular Homes",
+          product_type: p.category || "Modular Homes",
+          vendor: "ModularHome",
+          description: p.description || "",
+          description_html: p.description || "",
+          status: "active",
+          isPublished: true,
+          primaryImage: p.primaryImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+          image: p.primaryImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+          startingPrice: p.startingPrice || 89000,
+          sqft: p.sqft || 0,
+          bedrooms: p.bedrooms ?? 0,
+          bathrooms: p.bathrooms ?? 0,
+          stories: p.stories || 1,
+          dimensions: p.dimensions || "",
+          tags: p.tags || [],
+          features: p.features || [],
+          specs: p.specs || [],
+          architecturalStyle: p.architecturalStyle || "Modern Homes",
+          series: p.series || "Essential Series",
+          tagline: p.tagline || "",
+          collectionIds: [],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         });
       }
     }

@@ -39,6 +39,8 @@ function normalizeToCanonicalCategory(cat?: string | null): string {
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState("");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
   const [publishFilter, setPublishFilter] = useState("ALL");
@@ -80,6 +82,26 @@ export default function AdminProductsPage() {
       setFetchError(e.message || "Network error loading home models.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSyncCatalog = async () => {
+    setIsSyncing(true);
+    setSyncMessage("");
+    try {
+      const res = await fetch("/api/admin/products/sync", { method: "POST" });
+      const json = await res.json();
+      if (json.success) {
+        setSyncMessage(`Catalog synchronized! ${json.data?.totalStorefrontModels} live storefront models verified.`);
+        await fetchProducts();
+        setTimeout(() => setSyncMessage(""), 5000);
+      } else {
+        alert(json.error?.message || "Sync failed.");
+      }
+    } catch (e: any) {
+      alert("Failed to sync catalog: " + e.message);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -148,15 +170,33 @@ export default function AdminProductsPage() {
         </div>
 
         <div className="flex items-center gap-3 self-start sm:self-auto">
+          <button
+            onClick={handleSyncCatalog}
+            disabled={isSyncing}
+            className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-[#d5d9e0] bg-white hover:bg-[#f8f9fa] text-[#101114] text-xs font-black uppercase tracking-wider shadow-xs transition-all cursor-pointer disabled:opacity-50"
+            title="Synchronize all storefront models and catalog records"
+          >
+            <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin text-[#fcb907]" : "text-[#6b7280]"}`} />
+            <span>{isSyncing ? "Syncing..." : "Sync Storefront"}</span>
+          </button>
+
           <Link
             href="/admin/products/new"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider shadow-xs transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Model</span>
           </Link>
         </div>
       </div>
+
+      {/* Sync Success Alert */}
+      {syncMessage && (
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center justify-between">
+          <span>{syncMessage}</span>
+          <button onClick={() => setSyncMessage("")} className="text-emerald-600 hover:text-emerald-900 font-mono text-sm ml-4">✕</button>
+        </div>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="bg-white p-4 sm:p-5 rounded-[20px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
