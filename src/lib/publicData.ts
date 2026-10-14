@@ -1351,6 +1351,9 @@ const FALLBACK_COLLECTIONS: PublicCollection[] = (ALL_COLLECTIONS_DATA as any[])
   metaDescription: c.seo_description,
   canonicalUrl: c.canonical_url,
   categoryGroup: c.category_group,
+  productCount: c.productCount || (c.productHandles ? c.productHandles.length : 0),
+  productIds: c.productIds || [],
+  productHandles: c.productHandles || [],
 }));
 
 /**
@@ -1505,6 +1508,7 @@ export interface PublicCollection {
   categoryGroup?: string;
   productCount?: number;
   productIds?: string[];
+  productHandles?: string[];
   products?: BuildingModel[];
 }
 
@@ -1543,16 +1547,19 @@ export async function getPublicCollections(): Promise<PublicCollection[]> {
 
     if (!collectionsList) {
       if (isSupabaseConfigured()) {
-        const { data: dbCollections, error } = await supabaseAdmin
-          .from("collections")
-          .select(`
-            *,
-            product_collections (
-              product_id
-            )
-          `)
-          .eq("published", true)
-          .order("title", { ascending: true });
+        const { data: dbCollections, error } = await withDbTimeout(
+          supabaseAdmin
+            .from("collections")
+            .select(`
+              *,
+              product_collections (
+                product_id
+              )
+            `)
+            .eq("published", true)
+            .order("title", { ascending: true }),
+          2500
+        );
 
         if (!error && dbCollections && dbCollections.length > 0) {
           collectionsList = dbCollections.map((col: any) => {
@@ -1643,9 +1650,16 @@ export async function getPublicCollectionBySlug(slug: string): Promise<PublicCol
 
   // Retrieve products
   const allProducts = await getPublicProducts();
-  let mappedProducts = matched.productIds && matched.productIds.length > 0
-    ? allProducts.filter((p) => matched.productIds?.includes(p.id) || (p.slug && matched.productIds?.includes(p.slug)))
-    : [];
+  const linkedHandles = new Set(matched.productHandles || []);
+  const linkedIds = new Set(matched.productIds || []);
+
+  let mappedProducts = allProducts.filter((p) => {
+    if (p.id && linkedIds.has(p.id)) return true;
+    if (p.slug && linkedHandles.has(p.slug)) return true;
+    const handle = (p as any).handle;
+    if (handle && linkedHandles.has(handle)) return true;
+    return false;
+  });
 
   // Fallback to robust category & collection matching if database join has no matching rows
   if (mappedProducts.length === 0) {
