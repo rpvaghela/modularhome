@@ -62,6 +62,10 @@ export async function generateMetadata({
 
   const cleanSlug = slug.toLowerCase().trim();
 
+  if (cleanSlug === "modular-storage-buildings") {
+    permanentRedirect("/modular-storage");
+  }
+
   // 1. Check Category Collection First for category routes
   const allProducts = await getPublicProducts();
   const matched = allProducts.filter((p) => matchProductCategory(p, cleanSlug));
@@ -181,6 +185,10 @@ export default async function DynamicSlugPage({ params }: DynamicSlugPageProps) 
   }
 
   const cleanSlug = slug.toLowerCase().trim();
+
+  if (cleanSlug === "modular-storage-buildings") {
+    permanentRedirect("/modular-storage");
+  }
 
   // 1. Prioritize Category Collections (e.g., /prefab-homes, /barndominiums, /cabins, etc.)
   if (isCategorySlug(cleanSlug)) {

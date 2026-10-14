@@ -136,6 +136,111 @@ export function isAmishModularTurnkeyCabin(model: {
 }
 
 /**
+ * Checks if a model is a storage building, metal pole barn, shed, utility structure, workshop, or garage.
+ */
+export function isStorageBuilding(model: {
+  name?: string;
+  title?: string;
+  slug?: string;
+  handle?: string;
+  category?: string;
+  product_type?: string;
+  series?: string;
+  description?: string;
+}): boolean {
+  const mName = (model.name || model.title || "").toLowerCase();
+  const mSlug = (model.slug || model.handle || "").toLowerCase();
+  const mCat = normalizeCategory(model.category || model.product_type || model.series || "");
+  const mDesc = (model.description || "").toLowerCase();
+
+  return (
+    mName.includes("pole barn") ||
+    mSlug.includes("pole-barn") ||
+    mCat.includes("pole barn") ||
+    mName.includes("storage") ||
+    mSlug.includes("storage") ||
+    mCat.includes("storage") ||
+    mName.includes("shed") ||
+    mSlug.includes("shed") ||
+    mCat.includes("shed") ||
+    mName.includes("workshop") ||
+    mSlug.includes("workshop") ||
+    mName.includes("utility") ||
+    mName.includes("garage haven") ||
+    mName.includes("garage ranch") ||
+    mName.includes("shop/garage") ||
+    mName.includes("carport") ||
+    mName.includes("metal building") ||
+    mName.includes("commercial storage") ||
+    mDesc.includes("storage building") ||
+    mDesc.includes("pole barn")
+  );
+}
+
+/**
+ * Checks if a model is an affordable residential home/cabin under $100,000.
+ * Strictly excludes non-residential furniture/blueprints and any model >= $100,000.
+ */
+export function isHomeUnder100k(model: {
+  name?: string;
+  title?: string;
+  slug?: string;
+  handle?: string;
+  category?: string;
+  product_type?: string;
+  series?: string;
+  startingPrice?: number;
+  price?: number;
+  sqft?: number;
+}): boolean {
+  const price = (model as any).startingPrice ?? (model as any).price ?? 0;
+  if (price <= 15000 || price >= 100000) return false;
+
+  const mName = (model.name || model.title || "").toLowerCase();
+  const mSlug = (model.slug || model.handle || "").toLowerCase();
+  const mCat = normalizeCategory(model.category || model.product_type || model.series || "");
+
+  // Exclude furniture, broker licenses, consultations, pole barns, and blueprints/plans
+  if (
+    mName.includes("cabinet") ||
+    mName.includes("chair") ||
+    mName.includes("table") ||
+    mName.includes("desk") ||
+    mName.includes("broker") ||
+    mName.includes("license") ||
+    mName.includes("pole barn") ||
+    mSlug.includes("pole-barn") ||
+    (mName.includes("plan") && !mName.includes("kit") && !mName.includes("cabin") && !mName.includes("home"))
+  ) {
+    return false;
+  }
+
+  // Must be modular, prefab, cabin, tiny home, ADU, cottage, bungalow, or residential unit
+  return (
+    mCat.includes("modular") ||
+    mCat.includes("prefab") ||
+    mCat.includes("cabin") ||
+    mCat.includes("tiny") ||
+    mCat.includes("adu") ||
+    mName.includes("modular") ||
+    mName.includes("prefab") ||
+    mName.includes("cabin") ||
+    mName.includes("tiny") ||
+    mName.includes("adu") ||
+    mName.includes("bungalow") ||
+    mName.includes("cottage") ||
+    mName.includes("studio") ||
+    mName.includes("retreat") ||
+    mSlug.includes("modular") ||
+    mSlug.includes("prefab") ||
+    mSlug.includes("cabin") ||
+    mSlug.includes("tiny") ||
+    mSlug.includes("adu") ||
+    isAmishModularTurnkeyCabin(model as any)
+  );
+}
+
+/**
  * Robustly matches a product/model against a selected category or slug
  */
 export function matchProductCategory(
@@ -147,6 +252,8 @@ export function matchProductCategory(
     category?: string;
     series?: string;
     product_type?: string;
+    startingPrice?: number;
+    price?: number;
     tags?: string[] | string;
     collections?: string[];
     description?: string;
@@ -182,6 +289,27 @@ export function matchProductCategory(
     mSlug.includes("broker")
   ) {
     return false;
+  }
+
+  // 0a. Modular Homes Under $100k
+  if (
+    clean.includes("under 100k") ||
+    clean.includes("under-100k") ||
+    clean.includes("under $100k") ||
+    clean === "modular homes under 100k" ||
+    clean === "modular-homes-under-100k"
+  ) {
+    return isHomeUnder100k(model);
+  }
+
+  // 0b. Modular Storage Buildings & Sheds / Pole Barns / Garages / Workshops
+  if (
+    clean.includes("storage") ||
+    clean.includes("modular-storage") ||
+    clean.includes("modular storage") ||
+    clean.includes("storage building")
+  ) {
+    return isStorageBuilding(model);
   }
 
   // 1. Barndominiums

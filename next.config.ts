@@ -204,6 +204,16 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/modular-storage-buildings",
+        destination: "/modular-storage",
+        statusCode: 301,
+      },
+      {
+        source: "/modular-storage-buildings/",
+        destination: "/modular-storage",
+        statusCode: 301,
+      },
+      {
         source: "/commercial-buildings",
         destination: "/commercial-modular-buildings",
         statusCode: 301,

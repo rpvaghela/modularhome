@@ -11,13 +11,14 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import BuildingCard from "@/components/BuildingCard";
 import { BuildingModel } from "@/data/models";
-import { matchProductCategory, getBaseModelName } from "@/utils/categoryMatching";
+import { matchProductCategory, getBaseModelName, isStorageBuilding, isHomeUnder100k } from "@/utils/categoryMatching";
 
 interface CategoryFilteredCatalogProps {
   initialProducts: BuildingModel[];
   allProducts: BuildingModel[];
   categoryName: string;
   categoryKey?: string;
+  lockPoolToInitial?: boolean;
 }
 
 export const CATEGORY_ROUTE_MAP: Record<string, string> = {
@@ -76,10 +77,23 @@ export default function CategoryFilteredCatalog({
   allProducts,
   categoryName,
   categoryKey,
+  lockPoolToInitial = false,
 }: CategoryFilteredCatalogProps) {
   const router = useRouter();
   const pathname = usePathname();
   const isAllPage = categoryName === "All" || categoryName === "All Models" || categoryKey === "all";
+
+  const isUnder100k =
+    categoryKey === "modular-homes-under-100k" ||
+    categoryName.toLowerCase().includes("under 100k") ||
+    categoryName.toLowerCase().includes("under $100k") ||
+    (typeof pathname === "string" && pathname.includes("under-100k"));
+
+  const isStorage =
+    categoryKey === "modular-storage" ||
+    categoryKey === "modular-storage-buildings" ||
+    categoryName.toLowerCase().includes("storage") ||
+    (typeof pathname === "string" && pathname.includes("modular-storage"));
   
   // Normalize initial category value to match one of our select option values
   const getInitialCategory = () => {
@@ -115,12 +129,25 @@ export default function CategoryFilteredCatalog({
     }
   };
 
-  // Pool of products to filter from
-  const catalogPool = allProducts && allProducts.length > 0 ? allProducts : initialProducts;
+  // Pool of products to filter from - locked for dedicated landing pages to prevent bleeding
+  const shouldLockPool = lockPoolToInitial || isUnder100k || isStorage;
+  const catalogPool = shouldLockPool
+    ? initialProducts
+    : allProducts && allProducts.length > 0
+    ? allProducts
+    : initialProducts;
 
   // Filter products in real-time
   const filteredProducts = useMemo(() => {
     const matched = catalogPool.filter((p) => {
+      // Specialized landing page strict validation
+      if (isUnder100k) {
+        if (!isHomeUnder100k(p)) return false;
+      }
+      if (isStorage) {
+        if (!isStorageBuilding(p)) return false;
+      }
+
       // 1. Category Filter
       if (selectedCategory !== "All") {
         if (!matchProductCategory(p, selectedCategory)) {
@@ -237,6 +264,13 @@ export default function CategoryFilteredCatalog({
           return 0;
         });
       }
+    } else if (isUnder100k) {
+      // Default sort ascending by price so the most accessible entry models appear first
+      result.sort((a: BuildingModel, b: BuildingModel) => {
+        const aPrice = a.startingPrice || 0;
+        const bPrice = b.startingPrice || 0;
+        return aPrice - bPrice;
+      });
     }
 
     return result;

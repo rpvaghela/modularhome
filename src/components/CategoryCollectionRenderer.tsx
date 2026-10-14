@@ -25,6 +25,8 @@ interface CategoryCollectionRendererProps {
   allProducts?: BuildingModel[];
   allCollections?: PublicCollection[];
   categoryKey?: string;
+  lockPoolToInitial?: boolean;
+  children?: React.ReactNode;
 }
 
 export default function CategoryCollectionRenderer({
@@ -37,6 +39,8 @@ export default function CategoryCollectionRenderer({
   allProducts = [],
   allCollections = [],
   categoryKey,
+  lockPoolToInitial = false,
+  children,
 }: CategoryCollectionRendererProps) {
   const canonical = getCanonicalUrl(canonicalPath);
   const heroImage =
@@ -125,7 +129,11 @@ export default function CategoryCollectionRenderer({
           allProducts={allProducts.length > 0 ? allProducts : products}
           categoryName={title}
           categoryKey={categoryKey}
+          lockPoolToInitial={lockPoolToInitial || categoryKey === "modular-homes-under-100k" || categoryKey === "modular-storage" || categoryKey === "modular-storage-buildings"}
         />
+
+        {/* Dedicated Editorial Architectural Content (if provided) */}
+        {children}
 
         {/* Related Collections Section */}
         {allCollections.length > 0 && (
