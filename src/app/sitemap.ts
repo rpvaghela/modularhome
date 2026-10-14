@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import { PRODUCTION_CANONICAL_HOST } from "@/lib/seo";
 import { CATEGORIES } from "@/data/models";
 import ALL_PRODUCTS_CATALOG from "@/data/all_products_catalog.json";
+import ALL_COLLECTIONS_DATA from "@/data/all_collections.json";
 import MIGRATED_ARTICLES from "@/data/migrated_articles.json";
 import { getProductUrl } from "@/utils/productUrls";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
@@ -299,6 +300,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     } catch (e) {
       // offline fallback handled by local catalog
     }
+  }
+
+  // 7. Curated Architectural Collections from Book1.xlsx (/collections/[slug])
+  if (Array.isArray(ALL_COLLECTIONS_DATA)) {
+    ALL_COLLECTIONS_DATA.forEach((col: any) => {
+      const slug = col.handle || col.slug;
+      if (!slug || slug === "all") return;
+      const fullUrl = `${baseUrl}/collections/${slug}`;
+      if (!seenUrls.has(fullUrl)) {
+        seenUrls.add(fullUrl);
+        dynamicRoutes.push({
+          url: fullUrl,
+          lastModified: now,
+          changeFrequency: "weekly",
+          priority: 0.85,
+        });
+      }
+    });
   }
 
   return [...staticRoutes, ...dynamicRoutes];

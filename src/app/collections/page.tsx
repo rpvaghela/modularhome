@@ -1,10 +1,9 @@
 import { Metadata } from "next";
 import { headers } from "next/headers";
-import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight, Layers, Sparkles } from "lucide-react";
-import { getPublicCollections, getHomeTypeCategories, getCategoryFallbackImage } from "@/lib/publicData";
+import { Layers } from "lucide-react";
+import { getPublicCollections, getHomeTypeCategories } from "@/lib/publicData";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
+import CollectionsCatalogClient from "./CollectionsCatalogClient";
 
 export const dynamic = "force-dynamic";
 
@@ -30,13 +29,18 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: "ModularHome.com",
       images: [{ url: "/newmodularlogo.png", alt: title }],
     },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/newmodularlogo.png"],
+    },
   };
 }
 
 export default async function CollectionsIndexPage() {
-  const [collections, homeTypes] = await Promise.all([
+  const [collections] = await Promise.all([
     getPublicCollections(),
-    getHomeTypeCategories(),
   ]);
 
   const canonical = getCanonicalUrl("/collections");
@@ -64,84 +68,15 @@ export default async function CollectionsIndexPage() {
             <span>Curated Architectural Series</span>
           </div>
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-[-1.5px] text-[#101114]">
-            Home Collections
+            Home Collections ({collections.length})
           </h1>
           <p className="text-sm sm:text-base text-[#6b7280] max-w-2xl mt-2 leading-relaxed">
-            Browse our pre-engineered collections designed for every lifestyle, lot requirement, and architectural preference.
+            Browse our pre-engineered collections designed for every lifestyle, lot requirement, and architectural preference. Filter by style, bedroom count, or state builders.
           </p>
         </div>
 
-        {/* Collections Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* All Models Card */}
-          <Link
-            href="/collections/all"
-            className="group card overflow-hidden flex flex-col justify-between bg-white rounded-[18px] border border-[#e7e9ee] hover:-translate-y-1 transition-all"
-          >
-            <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
-              <Image
-                src="https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691"
-                alt="All Modular Home Models"
-                fill
-                priority
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute top-3 left-3 bg-[#fcb907] text-[#101114] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-xs">
-                Full Catalog
-              </div>
-            </div>
-            <div className="p-5 space-y-2">
-              <h2 className="text-lg font-black text-[#101114] group-hover:text-[#d97706] transition-colors">
-                All Modular Home Models
-              </h2>
-              <p className="text-xs text-[#6b7280] leading-relaxed line-clamp-2">
-                Browse our entire portfolio of precision steel modular homes, turnkey prefab models, and custom house kits.
-              </p>
-              <div className="pt-2 text-xs font-bold text-[#d97706] inline-flex items-center gap-1 group-hover:underline">
-                <span>Explore Full Collection</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </div>
-            </div>
-          </Link>
-
-          {/* Dynamic / Migrated Collections */}
-          {collections.map((col) => {
-            const colImg = col.image || col.bannerImage || getCategoryFallbackImage(col.name, col.name, col.slug);
-            return (
-              <Link
-                key={col.id}
-                href={`/collections/${col.slug}`}
-                className="group card overflow-hidden flex flex-col justify-between bg-white rounded-[18px] border border-[#e7e9ee] hover:-translate-y-1 transition-all"
-              >
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
-                  <Image
-                    src={colImg}
-                    alt={col.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 left-3 bg-[#101114] text-[#fcb907] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-xs">
-                    {col.productCount || 0} Models
-                  </div>
-                </div>
-                <div className="p-5 space-y-2">
-                  <h2 className="text-lg font-black text-[#101114] group-hover:text-[#d97706] transition-colors">
-                    {col.name}
-                  </h2>
-                  <p className="text-xs text-[#6b7280] leading-relaxed line-clamp-2">
-                    {col.tagline || col.description?.replace(/<[^>]*>?/gm, "").slice(0, 100) || `High-performance ${col.name} designs.`}
-                  </p>
-                  <div className="pt-2 text-xs font-bold text-[#d97706] inline-flex items-center gap-1 group-hover:underline">
-                    <span>View Collection</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+        {/* Interactive Filterable Catalog */}
+        <CollectionsCatalogClient initialCollections={collections} />
       </div>
     </div>
   );

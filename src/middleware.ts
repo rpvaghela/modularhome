@@ -102,18 +102,6 @@ export async function middleware(request: NextRequest) {
     preserveSearch = ""; // strip query parameter for clean canonical URL
   }
 
-  // 2b. Collections Category Redirect: /collections/barndominiums -> /barndominiums (301)
-  // If not a recognized canonical category, redirect to similar category of models or floor plans!
-  if (lowerPath.startsWith("/collections/") && lowerPath !== "/collections/all") {
-    const colSlug = lowerPath.replace(/^\/collections\//, "").replace(/\/+$/, "");
-    if (colSlug && !colSlug.includes("/")) {
-      if (isCategorySlug(colSlug)) {
-        destinationPath = colSlug === "commercial-buildings" ? "/commercial-modular-buildings" : `/${colSlug}`;
-      } else {
-        destinationPath = resolveSimilarCategoryPath(colSlug);
-      }
-    }
-  }
 
   // 2c. Pages Redirect: legacy Shopify /pages/* URLs redirect to target or similar category
   if (lowerPath.startsWith("/pages/")) {

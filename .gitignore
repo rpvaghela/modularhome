@@ -47,3 +47,6 @@ src/data/custom_admin_sessions.json
 
 # large dataset files exceeding GitHub 100MB limit
 migration/source/Products.csv
+
+# Excel temporary lock files
+~$*

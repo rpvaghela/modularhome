@@ -258,11 +258,6 @@ const nextConfig: NextConfig = {
         destination: "/barndominiums/the-grandview-two-story-modular-estate",
         statusCode: 301,
       },
-      {
-        source: "/collections/prefab-homes",
-        destination: "/prefab-homes",
-        statusCode: 301,
-      },
     ];
   },
 

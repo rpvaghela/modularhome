@@ -2,6 +2,7 @@ import { supabaseAdmin, isSupabaseConfigured } from "./supabase";
 import { FloorPlan, INITIAL_FLOOR_PLANS } from "@/data/floorPlans";
 import { BuildingModel, BUILDING_MODELS, CATEGORIES } from "@/data/models";
 import ALL_PRODUCTS_CATALOG from "@/data/all_products_catalog.json";
+import ALL_COLLECTIONS_DATA from "@/data/all_collections.json";
 import { ResourceArticle, RESOURCE_ARTICLES } from "@/data/resources";
 import { getPublicGlobalSettings } from "./settings";
 import { matchProductCategory, getBaseModelName } from "@/utils/categoryMatching";
@@ -1335,26 +1336,22 @@ const FALLBACK_PAGES: Record<string, Partial<CmsPage>> = {
   },
 };
 
-const FALLBACK_COLLECTIONS: PublicCollection[] = [
-  { id: "cabins", name: "Cabins", slug: "cabins", tagline: "Rustic Timber & Handcrafted Modular Cabins", description: "Explore our collection of Amish-crafted and modular cabins built for year-round comfort.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345", status: "PUBLISHED" },
-  { id: "modular-cabins", name: "Modular Cabins", slug: "modular-cabins", tagline: "Modern Factory-Built Prefab & Modular Cabins", description: "Discover high-performance modular cabins and turnkey prefab log retreats engineered for mountain, lake, or rural living.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow.jpg?v=1732341345", status: "PUBLISHED" },
-  { id: "modular-homes", name: "Modular Homes", slug: "modular-homes", tagline: "Modern Precision-Engineered Residential Homes", description: "Full-sized single-family modular residences with architectural excellence.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", status: "PUBLISHED" },
-  { id: "prefab-homes", name: "Prefab Homes", slug: "prefab-homes", tagline: "High-Performance Turnkey Prefabricated Residences", description: "Turnkey prefab homes manufactured in precision climate-controlled environments.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/prefabdua1.jpg?v=1737512098", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/prefabdua1.jpg?v=1737512098", status: "PUBLISHED" },
-  { id: "tiny-homes", name: "Tiny Homes", slug: "tiny-homes", tagline: "Compact High-Efficiency Living & ADUs", description: "Modern tiny homes and backyard accessory dwelling units with premium finishes.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/maddy.png?v=1783804418", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/maddy.png?v=1783804418", status: "PUBLISHED" },
-  { id: "park-models", name: "Park Models", slug: "park-models", tagline: "Certified Park Model Cottages & Resort Cabins", description: "Architectural park model cottages engineered for seasonal or resort living.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/aspen2.avif?v=1783816889", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/aspen2.avif?v=1783816889", status: "PUBLISHED" },
-  { id: "barndominiums", name: "Barndominiums", slug: "barndominiums", tagline: "Spacious Steel Clear-Span Residences", description: "Open-concept living combined with massive workshop and garage spaces.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM3945-front_1.png?v=1750743065", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM3945-front_1.png?v=1750743065", status: "PUBLISHED" },
-  { id: "house-kits", name: "House Kits", slug: "house-kits", tagline: "Prefab Panelized & Steel Framing Kits", description: "Complete pre-cut structural kits engineered for fast on-site erection.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/m1_ce95e0cb-7b02-4d09-b913-1fc48d1b48f1.jpg?v=1774680383", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/m1_ce95e0cb-7b02-4d09-b913-1fc48d1b48f1.jpg?v=1774680383", status: "PUBLISHED" },
-  { id: "modern-homes", name: "Modern Homes", slug: "modern-homes", tagline: "Contemporary Architectural Prefab Series", description: "Sleek lines, floor-to-ceiling glass, and minimalist luxury modular homes.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", status: "PUBLISHED" },
-  { id: "custom-builds", name: "Custom Builds", slug: "custom-builds", tagline: "Bespoke Architectural Modular Engineering", description: "Custom engineered modular solutions tailored to your unique building site.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/cross.jpg?v=1735268780", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/cross.jpg?v=1735268780", status: "PUBLISHED" },
-  { id: "residential-series", name: "Residential Series", slug: "residential-series", tagline: "Single-Family & Multi-Family Residential Models", description: "Engineered single-family and duplex modular models with turnkey floor plans.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545", status: "PUBLISHED" },
-  { id: "commercial-series", name: "Commercial Series", slug: "commercial-series", tagline: "Commercial Modular & Multi-Unit Construction", description: "Modular office buildings, workforce housing, hospitality, and commercial complexes.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/442435176_1117036319546606_7478160302982824370_n_2a3e20a5-fc3f-46af-9aa2-8da3022fbe87.jpg?v=1736129729", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/442435176_1117036319546606_7478160302982824370_n_2a3e20a5-fc3f-46af-9aa2-8da3022fbe87.jpg?v=1736129729", status: "PUBLISHED" },
-  { id: "aduvian-collection", name: "Aduvian Modern Studios", slug: "aduvian-collection", tagline: "Luxury Modular ADUs & Studio Pods", description: "Architectural backyard studios, home offices, and guest suites.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308", status: "PUBLISHED" },
-  { id: "adus", name: "ADUs & Granny Pods", slug: "adus", tagline: "Luxury Modular ADUs & Studio Pods", description: "Permit-ready backyard suites and secondary dwelling units.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/ad16.jpg?v=1732947308", status: "PUBLISHED" },
-  { id: "a-frame-homes", name: "A-Frames", slug: "a-frame-homes", tagline: "Architectural Glass-Gable A-Frame Home Kits", description: "Iconic steep-pitch architectural homes engineered for heavy snow loads and mountain views.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/blackaframe.png?v=1770169284", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/blackaframe.png?v=1770169284", status: "PUBLISHED" },
-  { id: "ranch-series", name: "Ranch Series", slug: "ranch-series", tagline: "Single-Level Modular Ranch Homes", description: "Accessible, single-story ranch modular homes with open split-bedroom layouts.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/wow5z.jpg?v=1736124545", status: "PUBLISHED" },
-  { id: "two-story-series", name: "Two-Story Series", slug: "two-story-series", tagline: "Two-Story Modular Residences", description: "Multi-level modular homes maximizing living space on compact property footprints.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM2334-FRONT.jpg?v=1752962746", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/BM2334-FRONT.jpg?v=1752962746", status: "PUBLISHED" },
-  { id: "all", name: "All Models", slug: "all", tagline: "Complete Catalog of Modular Homes & Kits", description: "Browse every modular home, cabin, barndominium, and house kit in our portfolio.", image: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", bannerImage: "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/newwow7.jpg?v=1732341691", status: "PUBLISHED" },
-];
+const FALLBACK_COLLECTIONS: PublicCollection[] = (ALL_COLLECTIONS_DATA as any[]).map((c) => ({
+  id: c.id || c.handle,
+  name: c.title,
+  slug: c.handle,
+  tagline: c.tagline,
+  description: c.description_html,
+  image: c.image,
+  bannerImage: c.banner_image,
+  isFeatured: Boolean(c.is_featured),
+  status: c.published ? "PUBLISHED" : "DRAFT",
+  displayOrder: c.display_order || 0,
+  seoTitle: c.seo_title,
+  metaDescription: c.seo_description,
+  canonicalUrl: c.canonical_url,
+  categoryGroup: c.category_group,
+}));
 
 /**
  * Fetches a single published page by slug (or ID) from Supabase
@@ -1504,6 +1501,8 @@ export interface PublicCollection {
   displayOrder?: number;
   seoTitle?: string;
   metaDescription?: string;
+  canonicalUrl?: string;
+  categoryGroup?: string;
   productCount?: number;
   productIds?: string[];
   products?: BuildingModel[];
@@ -1659,6 +1658,22 @@ export async function getPublicCollectionBySlug(slug: string): Promise<PublicCol
             (c) => typeof c === "string" && c.toLowerCase() === cleanSlug
           ))
     );
+  }
+
+  // Supplement if fewer than 4 products matched (e.g. state builders, bedroom specific)
+  if (mappedProducts.length < 4) {
+    const isBedroom = cleanSlug.includes("2-bedroom") ? 2 : cleanSlug.includes("3-bedroom") ? 3 : 0;
+    const additional = allProducts.filter((p) => {
+      if (mappedProducts.some((m) => m.id === p.id)) return false;
+      if (isBedroom > 0 && p.bedrooms === isBedroom) return true;
+      if (cleanSlug.includes("cabin") && (p.category === "cabins" || p.category === "modular-cabins")) return true;
+      if (cleanSlug.includes("barndo") && p.category === "barndominiums") return true;
+      if (cleanSlug.includes("a-frame") && p.category === "a-frame-homes") return true;
+      if ((cleanSlug.includes("adu") || cleanSlug.includes("tiny")) && (p.category === "adus" || p.category === "tiny-homes")) return true;
+      if (cleanSlug.includes("-in-") || cleanSlug.includes("amish")) return true;
+      return false;
+    });
+    mappedProducts = [...mappedProducts, ...additional].slice(0, 24);
   }
 
   return {
