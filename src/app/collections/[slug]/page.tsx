@@ -92,8 +92,10 @@ export async function generateMetadata({
 
   // Fallback metadata
   const canonical = getCanonicalUrl(`/collections/${slug}`);
+  const formattedName = slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   return {
-    title: `${slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} | ModularHome.com`,
+    title: `${formattedName} | ModularHome.com`,
+    description: `Explore the ${formattedName} collection of modular homes, cabins, and turnkey building kits on ModularHome.com.`,
     alternates: { canonical },
     robots,
   };
