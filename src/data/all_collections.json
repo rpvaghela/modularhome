@@ -1571,7 +1571,7 @@
     "source_id": "col_book1_21_barndominiums",
     "category_group": "Barndominiums & Barns",
     "id": "829f35b7-1faa-44dc-a26a-fe1fefc6891d",
-    "productCount": 30,
+    "productCount": 31,
     "productIds": [
       "d28e4613-083f-4d9c-92d7-fe800633dce9",
       "40f81a14-6c1e-42e6-8abc-4c56af03d0fe",
@@ -1634,7 +1634,8 @@
       "the-boulder-barndominium-kit",
       "the-bozeman-barndominium-house-kit",
       "the-branson-barndominium-house-kit",
-      "the-cheyenne-barndominium-house-kit"
+      "the-cheyenne-barndominium-house-kit",
+      "the-grandview-two-story-modular-estate"
     ]
   },
   {
@@ -5999,7 +6000,7 @@
     "source_id": "col_book1_75_cabins-for-sale",
     "category_group": "Cabins & Lodges",
     "id": "8f829721-92fc-4f2d-87f1-df1f14fcc465",
-    "productCount": 30,
+    "productCount": 35,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -6062,7 +6063,12 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "the-country-rancher-amish-built-modular-cabin",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -6081,7 +6087,7 @@
     "source_id": "col_book1_76_cabins-for-sale-in-alabama",
     "category_group": "State & Regional Builders",
     "id": "f2de52a9-3647-4b46-9fcf-d30c92fec816",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -6144,7 +6150,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -6163,7 +6173,7 @@
     "source_id": "col_book1_77_cabins-for-sale-in-alaska",
     "category_group": "State & Regional Builders",
     "id": "752bef47-e07f-4434-917b-546fcd74fe89",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -6226,7 +6236,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -6245,7 +6259,7 @@
     "source_id": "col_book1_78_cabins-for-sale-in-arizona",
     "category_group": "State & Regional Builders",
     "id": "a7910ba2-b3d1-424f-84e1-28bbb33489fc",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -6308,7 +6322,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -6327,7 +6345,7 @@
     "source_id": "col_book1_79_cabins-for-sale-in-arkansas",
     "category_group": "State & Regional Builders",
     "id": "62f0c8c3-7bdd-45ac-bfa7-9f6c03c856fe",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -6390,7 +6408,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -6409,7 +6431,7 @@
     "source_id": "col_book1_80_cabins-for-sale-in-california",
     "category_group": "State & Regional Builders",
     "id": "6773d4e1-c150-48a3-aff0-641fe795ba82",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -6472,7 +6494,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -6491,7 +6517,7 @@
     "source_id": "col_book1_81_cabins-for-sale-in-colorado",
     "category_group": "State & Regional Builders",
     "id": "2ad3a6bc-4425-45b4-a7fa-0705cfd76025",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -6554,7 +6580,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -6573,7 +6603,7 @@
     "source_id": "col_book1_82_cabins-for-sale-in-connecticut",
     "category_group": "State & Regional Builders",
     "id": "f4c4ec17-82c2-4d92-9e26-5f718dbc96cc",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -6636,7 +6666,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -6655,7 +6689,7 @@
     "source_id": "col_book1_83_cabins-for-sale-in-delaware",
     "category_group": "State & Regional Builders",
     "id": "d861441a-349d-411d-a1bb-6919d4653f0e",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -6718,7 +6752,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -6737,7 +6775,7 @@
     "source_id": "col_book1_84_cabins-for-sale-in-florida",
     "category_group": "State & Regional Builders",
     "id": "4a14e3a6-fd1b-4ca5-8732-c137daa6f854",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -6800,7 +6838,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -6819,7 +6861,7 @@
     "source_id": "col_book1_85_cabins-for-sale-in-georgia",
     "category_group": "State & Regional Builders",
     "id": "fbff99d0-5f76-4a30-b70e-d0a2c2dc782a",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -6882,7 +6924,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -6901,7 +6947,7 @@
     "source_id": "col_book1_86_cabins-for-sale-in-hawaii",
     "category_group": "State & Regional Builders",
     "id": "61314347-2c70-40d1-8934-e4334dd96378",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -6964,7 +7010,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -6983,7 +7033,7 @@
     "source_id": "col_book1_87_cabins-for-sale-in-idaho",
     "category_group": "State & Regional Builders",
     "id": "bf70c861-1e21-4da4-82f9-34ef843a63f1",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -7046,7 +7096,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -7065,7 +7119,7 @@
     "source_id": "col_book1_88_cabins-for-sale-in-illinois",
     "category_group": "State & Regional Builders",
     "id": "07874b71-bfd0-45af-9e2d-da23d604a05e",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -7128,7 +7182,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -7147,7 +7205,7 @@
     "source_id": "col_book1_89_cabins-for-sale-in-indiana",
     "category_group": "State & Regional Builders",
     "id": "2dc2fce9-db4d-41c1-94f0-4f290da36956",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -7210,7 +7268,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -7229,7 +7291,7 @@
     "source_id": "col_book1_90_cabins-for-sale-in-iowa",
     "category_group": "State & Regional Builders",
     "id": "e318876d-084d-4a31-9f07-0defee68f0a4",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -7292,7 +7354,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -7311,7 +7377,7 @@
     "source_id": "col_book1_91_cabins-for-sale-in-kansas",
     "category_group": "State & Regional Builders",
     "id": "47d3bd7f-f46e-4543-8aea-35251f92e463",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -7374,7 +7440,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -7393,7 +7463,7 @@
     "source_id": "col_book1_92_cabins-for-sale-in-kentucky",
     "category_group": "State & Regional Builders",
     "id": "b69a0f1b-1879-45f8-9db7-2d9fe521e32c",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -7456,7 +7526,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -7475,7 +7549,7 @@
     "source_id": "col_book1_93_cabins-for-sale-in-louisiana",
     "category_group": "State & Regional Builders",
     "id": "8fd6e954-dd7d-4aee-9f7c-3212cdcad88f",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -7538,7 +7612,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -7557,7 +7635,7 @@
     "source_id": "col_book1_94_cabins-for-sale-in-maine",
     "category_group": "State & Regional Builders",
     "id": "e9c76c2e-f78c-403f-b779-3032adb1d3e9",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -7620,7 +7698,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -7639,7 +7721,7 @@
     "source_id": "col_book1_95_cabins-for-sale-in-maryland",
     "category_group": "State & Regional Builders",
     "id": "c56fe031-ffaa-43a5-90ba-e4ce45dc7a37",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -7702,7 +7784,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -7721,7 +7807,7 @@
     "source_id": "col_book1_96_cabins-for-sale-in-massachusetts",
     "category_group": "State & Regional Builders",
     "id": "bf85941c-1111-4d71-9d44-39b7eaf091ff",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -7784,7 +7870,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -7803,7 +7893,7 @@
     "source_id": "col_book1_97_cabins-for-sale-in-michigan",
     "category_group": "State & Regional Builders",
     "id": "c125888a-ab33-4d70-bbef-1c7d2bb2166b",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -7866,7 +7956,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -7885,7 +7979,7 @@
     "source_id": "col_book1_98_cabins-for-sale-in-minnesota",
     "category_group": "State & Regional Builders",
     "id": "8d804f2e-dc18-4b7d-b422-7b5156f6d855",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -7948,7 +8042,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -7967,7 +8065,7 @@
     "source_id": "col_book1_99_cabins-for-sale-in-mississippi",
     "category_group": "State & Regional Builders",
     "id": "683eb302-5b1c-44e1-a5ac-a5211d10ac37",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
       "2e15377c-4f32-4d81-88c7-93b90efbf4a6",
@@ -8030,7 +8128,11 @@
       "daisy-meadow-metal-house-kit-free-nationwide-shipping",
       "daisy-meadow-cottage-house-kit-home-kit",
       "daniel-boone-log-home-plan-log-home-kit",
-      "double-delight-duplex-house-kit-duplex-home-kit"
+      "double-delight-duplex-house-kit-duplex-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -8049,7 +8151,7 @@
     "source_id": "col_book1_100_cabins-for-sale-in-missouri",
     "category_group": "State & Regional Builders",
     "id": "bcdfb8be-429f-49a1-8044-b66722c9e57e",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -8112,7 +8214,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -8131,7 +8237,7 @@
     "source_id": "col_book1_101_cabins-for-sale-in-nebraska",
     "category_group": "State & Regional Builders",
     "id": "b6e897ed-8518-47b2-982c-151f989778df",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -8194,7 +8300,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -8213,7 +8323,7 @@
     "source_id": "col_book1_102_cabins-for-sale-in-nevada",
     "category_group": "State & Regional Builders",
     "id": "9dbb87ef-45c5-42c9-b836-648848302e75",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -8276,7 +8386,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -8295,7 +8409,7 @@
     "source_id": "col_book1_103_cabins-for-sale-in-new-hampshire",
     "category_group": "State & Regional Builders",
     "id": "2d1d31c4-b73a-4708-9442-4f5f5b666f06",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -8358,7 +8472,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -8377,7 +8495,7 @@
     "source_id": "col_book1_104_cabins-for-sale-in-new-jersey",
     "category_group": "State & Regional Builders",
     "id": "2f05096e-c708-4141-bcf1-ff45d5a24132",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -8440,7 +8558,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -8459,7 +8581,7 @@
     "source_id": "col_book1_105_cabins-for-sale-in-new-mexico",
     "category_group": "State & Regional Builders",
     "id": "e6d844a6-c809-46bf-85d2-54178ac8d366",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -8522,7 +8644,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -8541,7 +8667,7 @@
     "source_id": "col_book1_106_cabins-for-sale-in-new-york",
     "category_group": "State & Regional Builders",
     "id": "cb68c39d-7b35-47b3-9085-a05edd63433c",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -8604,7 +8730,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -8623,7 +8753,7 @@
     "source_id": "col_book1_107_cabins-for-sale-in-north-carolina",
     "category_group": "State & Regional Builders",
     "id": "da53c04b-e092-41b4-96e6-06c37b091dba",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -8686,7 +8816,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -8823,7 +8957,7 @@
     "source_id": "col_book1_110_commercial-modular-buildings",
     "category_group": "Commercial Buildings",
     "id": "aab35b50-b1aa-4246-882f-94f2a5aacdc1",
-    "productCount": 8,
+    "productCount": 13,
     "productIds": [
       "b4fcc19f-3683-4578-adba-cc4cd791704f",
       "d86d35e3-c070-41ec-b201-11003b439c51",
@@ -8841,7 +8975,12 @@
       "prefab-modular-duplex",
       "the-commercial-cabin-log-cabin-kit",
       "twin-haven-duplex-house-kit-duplex-home-kit",
-      "multi-family-homes"
+      "multi-family-homes",
+      "a-frame-metal-house-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -9352,7 +9491,7 @@
     "source_id": "col_book1_117_house-kits",
     "category_group": "House Kits & Framing",
     "id": "a2203257-3427-445d-a034-fe47ddd5681b",
-    "productCount": 32,
+    "productCount": 44,
     "productIds": [
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
       "2e15377c-4f32-4d81-88c7-93b90efbf4a6",
@@ -9417,7 +9556,19 @@
       "daniel-boone-log-home-plan-log-home-kit",
       "double-delight-duplex-house-kit-duplex-home-kit",
       "a-frame-luxe",
-      "a-frame-united"
+      "a-frame-united",
+      "the-grandview-two-story-modular-estate",
+      "hummingbird-hollow-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
+      "wildwood-retreat-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
+      "summit-haven-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
+      "rocky-crest-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
+      "timberline-retreat-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
+      "misty-peak-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
+      "snowcap-refuge-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
+      "mountain-brooke-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
+      "tuscany-hillside-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
+      "harbor-light-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
+      "golden-shore-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit"
     ]
   },
   {
@@ -9600,7 +9751,7 @@
     "source_id": "col_book1_120_house-plans-home-plans-cabin-plans",
     "category_group": "Cabins & Lodges",
     "id": "e6868256-3463-4c13-a657-b4f0d374ea98",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -9663,7 +9814,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -10420,7 +10575,7 @@
     "source_id": "col_book1_130_modular-cabins-alabama",
     "category_group": "Cabins & Lodges",
     "id": "14c39abe-95cb-4ee2-8821-41b7680024a5",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -10483,7 +10638,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -10502,7 +10661,7 @@
     "source_id": "col_book1_131_modular-cabins-alaska",
     "category_group": "Cabins & Lodges",
     "id": "45f085f0-4d82-4f6c-adb8-a17a106698f2",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -10565,7 +10724,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -10584,7 +10747,7 @@
     "source_id": "col_book1_132_modular-cabins-arizona",
     "category_group": "Cabins & Lodges",
     "id": "0769a69b-9d58-49a2-a250-fcb21f7c45e9",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -10647,7 +10810,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -10666,7 +10833,7 @@
     "source_id": "col_book1_133_modular-cabins-arkansas",
     "category_group": "Cabins & Lodges",
     "id": "d1284de3-552f-4680-bad5-00283724e8d0",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -10729,7 +10896,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -10748,7 +10919,7 @@
     "source_id": "col_book1_134_modular-cabins-california",
     "category_group": "Cabins & Lodges",
     "id": "a95b1292-de69-4272-acbe-b541dcf6404d",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -10811,7 +10982,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -10830,7 +11005,7 @@
     "source_id": "col_book1_135_modular-cabins-colorado",
     "category_group": "Cabins & Lodges",
     "id": "396c7aed-01b4-43fb-9e6c-5ed67c481c1d",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -10893,7 +11068,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -10912,7 +11091,7 @@
     "source_id": "col_book1_136_modular-cabins-connecticut",
     "category_group": "Cabins & Lodges",
     "id": "7d46b750-9d4a-429e-8dae-875d2fc6bd26",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -10975,7 +11154,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -10994,7 +11177,7 @@
     "source_id": "col_book1_137_modular-cabins-delaware",
     "category_group": "Cabins & Lodges",
     "id": "80337976-8a2e-40d0-a468-963f2def8fc2",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -11057,7 +11240,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -11076,7 +11263,7 @@
     "source_id": "col_book1_138_modular-cabins-florida",
     "category_group": "Cabins & Lodges",
     "id": "f4096d66-50a9-4f07-b8a6-415edecfc14d",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -11139,7 +11326,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -11240,7 +11431,7 @@
     "source_id": "col_book1_140_modular-cabins-georgia",
     "category_group": "Cabins & Lodges",
     "id": "edb89b1e-84a1-48ce-89c8-b04c9e94a25f",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -11303,7 +11494,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -11322,7 +11517,7 @@
     "source_id": "col_book1_141_modular-cabins-hawaii",
     "category_group": "Cabins & Lodges",
     "id": "848a4a65-9e29-4df6-bf7e-640f8d672faf",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -11385,7 +11580,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -11404,7 +11603,7 @@
     "source_id": "col_book1_142_modular-cabins-idaho",
     "category_group": "Cabins & Lodges",
     "id": "0f7b576d-89d8-4d1c-91d6-c5943f55f523",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -11467,7 +11666,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -11486,7 +11689,7 @@
     "source_id": "col_book1_143_modular-cabins-illinois",
     "category_group": "Cabins & Lodges",
     "id": "f5961607-2e46-48cf-bb5a-bb8d958640d9",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -11549,7 +11752,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -11568,7 +11775,7 @@
     "source_id": "col_book1_144_modular-cabins-indiana",
     "category_group": "Cabins & Lodges",
     "id": "e4413e8a-9a09-40ac-a39c-821d98cfc400",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -11631,7 +11838,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -11650,7 +11861,7 @@
     "source_id": "col_book1_145_modular-cabins-iowa",
     "category_group": "Cabins & Lodges",
     "id": "e2f254cb-bfd0-430f-ac29-eda3c09f8300",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -11713,7 +11924,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -11732,7 +11947,7 @@
     "source_id": "col_book1_146_modular-cabins-kansas",
     "category_group": "Cabins & Lodges",
     "id": "7b307e8f-4821-4474-9d73-20f9b088aaf2",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -11795,7 +12010,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -11814,7 +12033,7 @@
     "source_id": "col_book1_147_modular-cabins-kentucky",
     "category_group": "Cabins & Lodges",
     "id": "80429bd6-3c21-4530-8f70-a18d54abfdb3",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -11877,7 +12096,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -11896,7 +12119,7 @@
     "source_id": "col_book1_148_modular-cabins-louisiana",
     "category_group": "Cabins & Lodges",
     "id": "21ab5951-2ab9-4c5a-ac5b-54e461157bc3",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -11959,7 +12182,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -11978,7 +12205,7 @@
     "source_id": "col_book1_149_modular-cabins-maine",
     "category_group": "Cabins & Lodges",
     "id": "c3676984-d2e5-4b05-baa7-bb6e01b5fc8c",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -12041,7 +12268,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -12060,7 +12291,7 @@
     "source_id": "col_book1_150_modular-cabins-maryland",
     "category_group": "Cabins & Lodges",
     "id": "b351d01c-9308-43e6-8e64-ca99ed0b6624",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -12123,7 +12354,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -12142,7 +12377,7 @@
     "source_id": "col_book1_151_modular-cabins-massachusetts",
     "category_group": "Cabins & Lodges",
     "id": "6e0e26e3-ea48-4ad6-9b06-5875a80f88c5",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -12205,7 +12440,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -12224,7 +12463,7 @@
     "source_id": "col_book1_152_modular-cabins-michigan",
     "category_group": "Cabins & Lodges",
     "id": "aa76f7eb-a311-436e-87f6-b7b56a751b67",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -12287,7 +12526,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -12306,7 +12549,7 @@
     "source_id": "col_book1_153_modular-cabins-minnesota",
     "category_group": "Cabins & Lodges",
     "id": "d10be7df-675c-4bae-a87f-d1ad782cf45b",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -12369,7 +12612,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -12388,7 +12635,7 @@
     "source_id": "col_book1_154_modular-cabins-mississippi",
     "category_group": "Cabins & Lodges",
     "id": "99d0cc0a-764b-4582-b875-34fe4dd93716",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
       "2e15377c-4f32-4d81-88c7-93b90efbf4a6",
@@ -12451,7 +12698,11 @@
       "daisy-meadow-metal-house-kit-free-nationwide-shipping",
       "daisy-meadow-cottage-house-kit-home-kit",
       "daniel-boone-log-home-plan-log-home-kit",
-      "double-delight-duplex-house-kit-duplex-home-kit"
+      "double-delight-duplex-house-kit-duplex-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -12470,7 +12721,7 @@
     "source_id": "col_book1_155_modular-cabins-missouri",
     "category_group": "Cabins & Lodges",
     "id": "5f4e6474-ab35-40ec-bbe0-5f71a156845f",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -12533,7 +12784,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -12552,7 +12807,7 @@
     "source_id": "col_book1_156_modular-cabins-montana",
     "category_group": "Cabins & Lodges",
     "id": "b8bec3f1-ea49-4fb0-816d-bbd5c428345d",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -12615,7 +12870,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -12634,7 +12893,7 @@
     "source_id": "col_book1_157_modular-cabins-nebraska",
     "category_group": "Cabins & Lodges",
     "id": "15806cba-ef01-43f3-9045-3f92a522dd67",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -12697,7 +12956,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -12716,7 +12979,7 @@
     "source_id": "col_book1_158_modular-cabins-nevada",
     "category_group": "Cabins & Lodges",
     "id": "e5a7c093-ee26-4f7c-be64-d09fd80e8195",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -12779,7 +13042,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -12798,7 +13065,7 @@
     "source_id": "col_book1_159_modular-cabins-new-hampshire",
     "category_group": "Cabins & Lodges",
     "id": "315a1695-6944-4125-8955-81377408263d",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -12861,7 +13128,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -12880,7 +13151,7 @@
     "source_id": "col_book1_160_modular-cabins-new-mexico",
     "category_group": "Cabins & Lodges",
     "id": "a0673882-81c1-4c6f-925d-aabde4d18b49",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -12943,7 +13214,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -13044,7 +13319,7 @@
     "source_id": "col_book1_162_modular-cabins-new-york",
     "category_group": "Cabins & Lodges",
     "id": "4a5446d7-a1fa-4ac1-a166-7d50b2c7ed19",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -13107,7 +13382,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -13126,7 +13405,7 @@
     "source_id": "col_book1_163_modular-cabins-north-carolina",
     "category_group": "Cabins & Lodges",
     "id": "7ac6dc85-d0f7-43a3-987e-8f2b1923731f",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -13189,7 +13468,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -13208,7 +13491,7 @@
     "source_id": "col_book1_164_modular-cabins-north-dakota",
     "category_group": "Cabins & Lodges",
     "id": "3e79de62-6e26-4753-af14-0a0442d97f72",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -13271,7 +13554,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -13290,7 +13577,7 @@
     "source_id": "col_book1_165_modular-cabins-ohio",
     "category_group": "Cabins & Lodges",
     "id": "601aaad8-8c0a-4140-b221-b7fb4e7fa791",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -13353,7 +13640,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -13372,7 +13663,7 @@
     "source_id": "col_book1_166_modular-cabins-oklahoma",
     "category_group": "Cabins & Lodges",
     "id": "5912eeac-40b5-477b-9342-059807b6b4ca",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -13435,7 +13726,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -13454,7 +13749,7 @@
     "source_id": "col_book1_167_modular-cabins-oregon",
     "category_group": "Cabins & Lodges",
     "id": "e7e071f3-5a84-4931-9ea3-88421b794a2a",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -13517,7 +13812,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -13536,7 +13835,7 @@
     "source_id": "col_book1_168_modular-cabins-pennsylvania",
     "category_group": "Cabins & Lodges",
     "id": "015cab02-ef35-4871-b86c-d52916bd6713",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -13599,7 +13898,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -13618,7 +13921,7 @@
     "source_id": "col_book1_169_modular-cabins-rhode-island",
     "category_group": "Cabins & Lodges",
     "id": "7bd335b6-f017-42db-a22b-faca1bb1cccb",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -13681,7 +13984,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -13700,7 +14007,7 @@
     "source_id": "col_book1_170_modular-cabins-south-carolina",
     "category_group": "Cabins & Lodges",
     "id": "bb8249ad-cc8c-4595-97de-c95228eeff6a",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -13763,7 +14070,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -13782,7 +14093,7 @@
     "source_id": "col_book1_171_modular-cabins-south-dakota",
     "category_group": "Cabins & Lodges",
     "id": "56becef5-4be1-4175-b7e3-bd7ba999f8f0",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -13845,7 +14156,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -13864,7 +14179,7 @@
     "source_id": "col_book1_172_modular-cabins-tennessee",
     "category_group": "Cabins & Lodges",
     "id": "32f10da6-a1a7-41da-9e05-bdb2bcf4e93e",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -13927,7 +14242,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -13946,7 +14265,7 @@
     "source_id": "col_book1_173_modular-cabins-texas",
     "category_group": "Cabins & Lodges",
     "id": "83534b36-5895-4b80-8ed0-41ad9ee41a29",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -14009,7 +14328,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -14028,7 +14351,7 @@
     "source_id": "col_book1_174_modular-cabins-utah",
     "category_group": "Cabins & Lodges",
     "id": "bf8eabf7-e793-4b8a-909a-8846b547ec3f",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -14091,7 +14414,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -14110,7 +14437,7 @@
     "source_id": "col_book1_175_modular-cabins-vermont",
     "category_group": "Cabins & Lodges",
     "id": "b3db9e44-ae17-4047-bb60-aed7f29bbca3",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -14173,7 +14500,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -14192,7 +14523,7 @@
     "source_id": "col_book1_176_modular-cabins-virginia",
     "category_group": "Cabins & Lodges",
     "id": "bc7bc6e9-f47e-4477-a2d8-477b26151042",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -14255,7 +14586,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -14274,7 +14609,7 @@
     "source_id": "col_book1_177_modular-cabins-washington",
     "category_group": "Cabins & Lodges",
     "id": "69df3865-9ce4-44bc-986a-fda45968b931",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -14337,7 +14672,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -14356,7 +14695,7 @@
     "source_id": "col_book1_178_modular-cabins-west-virginia",
     "category_group": "Cabins & Lodges",
     "id": "309133fa-1fcd-4c60-a9bc-27366f6ba91e",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -14419,7 +14758,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -14438,7 +14781,7 @@
     "source_id": "col_book1_179_modular-cabins-wisconsin",
     "category_group": "Cabins & Lodges",
     "id": "add8a6f2-8047-43bf-83c3-2a47fa336cf5",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -14501,7 +14844,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -14520,7 +14867,7 @@
     "source_id": "col_book1_180_modular-cabins-wyoming",
     "category_group": "Cabins & Lodges",
     "id": "2bafee04-11fe-4f46-997a-8e8440b3437e",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -14583,7 +14930,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -19604,7 +19955,7 @@
     "source_id": "col_book1_242_prefab-cabins-alabama",
     "category_group": "Cabins & Lodges",
     "id": "f254a6a4-3386-4ae2-a465-49535e6f2992",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -19667,7 +20018,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -19686,7 +20041,7 @@
     "source_id": "col_book1_243_prefab-cabins-alaska",
     "category_group": "Cabins & Lodges",
     "id": "34435040-2714-419a-abb6-0a7c85e693bc",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -19749,7 +20104,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -19768,7 +20127,7 @@
     "source_id": "col_book1_244_prefab-cabins-arizona",
     "category_group": "Cabins & Lodges",
     "id": "e7bcafdc-20cb-48a3-8959-1bb17e99e94a",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "1f1919ee-aa75-44c3-b6dc-268babee627a",
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
@@ -19831,7 +20190,11 @@
       "cape-cod-cottage-amish-built-modular-cabin",
       "carrot-top-cabin-old-order-amish-rustic-build",
       "certified-cabin-sales-partner-launch-your-high-ticket-cabin-business",
-      "daniel-boone-log-home-plan-log-home-kit"
+      "daniel-boone-log-home-plan-log-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -24858,7 +25221,7 @@
     "source_id": "col_book1_306_timber-frame-builders",
     "category_group": "State & Regional Builders",
     "id": "ebe397ab-4922-4ee9-947a-520eda2e6f61",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "947ab371-abb9-4dd2-b2da-d73063c598c2",
       "432c4fee-bb61-41ce-8d09-e0916c3c7643",
@@ -24921,7 +25284,11 @@
       "the-lake-louise-amish-built-modular-cabin",
       "the-lake-michigan-amish-built-modular-cabin",
       "the-lake-tahoe-amish-built-modular-cabin",
-      "the-lake-victoria-amish-built-modular-cabin"
+      "the-lake-victoria-amish-built-modular-cabin",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -24940,7 +25307,7 @@
     "source_id": "col_book1_307_timber-frame-home-kits",
     "category_group": "House Kits & Framing",
     "id": "cd418678-604a-4c4e-be39-87fedf2205d7",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
       "2e15377c-4f32-4d81-88c7-93b90efbf4a6",
@@ -25003,7 +25370,11 @@
       "daisy-meadow-metal-house-kit-free-nationwide-shipping",
       "daisy-meadow-cottage-house-kit-home-kit",
       "daniel-boone-log-home-plan-log-home-kit",
-      "double-delight-duplex-house-kit-duplex-home-kit"
+      "double-delight-duplex-house-kit-duplex-home-kit",
+      "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -25268,7 +25639,7 @@
     "source_id": "col_book1_311_tiny-home-builders",
     "category_group": "State & Regional Builders",
     "id": "6348334f-3e70-4fb9-8d3b-0063f8ca0998",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -25331,7 +25702,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -25350,7 +25725,7 @@
     "source_id": "col_book1_312_tiny-home-builders-in-alabama",
     "category_group": "State & Regional Builders",
     "id": "2401bcd9-f6a3-4fd4-b6e1-51300b3e5f7a",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -25413,7 +25788,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -25432,7 +25811,7 @@
     "source_id": "col_book1_313_tiny-home-builders-in-alaska",
     "category_group": "State & Regional Builders",
     "id": "1bbde3e7-04b6-4a32-8907-873670bf86d1",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -25495,7 +25874,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -25514,7 +25897,7 @@
     "source_id": "col_book1_314_tiny-home-builders-in-arizona",
     "category_group": "State & Regional Builders",
     "id": "fee4bf94-e8da-4b9e-b469-9b95cc3fb923",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -25577,7 +25960,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -25596,7 +25983,7 @@
     "source_id": "col_book1_315_tiny-home-builders-in-arkansas",
     "category_group": "State & Regional Builders",
     "id": "fba3f8fc-5522-437e-8e67-c03b417092b3",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -25659,7 +26046,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -25678,7 +26069,7 @@
     "source_id": "col_book1_316_tiny-home-builders-in-california",
     "category_group": "State & Regional Builders",
     "id": "dabb56d7-b56c-4a64-8795-088ab66a3209",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -25741,7 +26132,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -25760,7 +26155,7 @@
     "source_id": "col_book1_317_tiny-home-builders-in-colorado",
     "category_group": "State & Regional Builders",
     "id": "759c6e30-9b29-49ec-b6b7-b9249fb55937",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -25823,7 +26218,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -25842,7 +26241,7 @@
     "source_id": "col_book1_318_tiny-home-builders-in-connecticut",
     "category_group": "State & Regional Builders",
     "id": "b5a9c1bc-6b83-4e32-b05f-8ced87c91368",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -25905,7 +26304,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -25924,7 +26327,7 @@
     "source_id": "col_book1_319_tiny-home-builders-in-delaware",
     "category_group": "State & Regional Builders",
     "id": "78e0cc6c-11cd-4bfc-84c1-c1dc88c2c6b4",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -25987,7 +26390,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26006,7 +26413,7 @@
     "source_id": "col_book1_320_tiny-home-builders-in-florida",
     "category_group": "State & Regional Builders",
     "id": "6b17354f-05cf-4ffa-b029-60a9eedf5101",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -26069,7 +26476,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26088,7 +26499,7 @@
     "source_id": "col_book1_321_tiny-home-builders-in-georgia",
     "category_group": "State & Regional Builders",
     "id": "ed7c81e1-2ab7-4c5b-b251-be91e1559d11",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -26151,7 +26562,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26170,7 +26585,7 @@
     "source_id": "col_book1_322_tiny-home-builders-in-hawaii",
     "category_group": "State & Regional Builders",
     "id": "d060d2b1-f93c-4b3a-9b00-d8503b8905cd",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -26233,7 +26648,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26252,7 +26671,7 @@
     "source_id": "col_book1_323_tiny-home-builders-in-idaho",
     "category_group": "State & Regional Builders",
     "id": "40a6b105-07a1-495c-a44d-ad2b6aa52462",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -26315,7 +26734,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26334,7 +26757,7 @@
     "source_id": "col_book1_324_tiny-home-builders-in-illinois",
     "category_group": "State & Regional Builders",
     "id": "35c40a4a-4f58-4223-b6c7-94ce3770da90",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -26397,7 +26820,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26416,7 +26843,7 @@
     "source_id": "col_book1_325_tiny-home-builders-in-indiana",
     "category_group": "State & Regional Builders",
     "id": "920a0123-c5a3-4413-8310-dd4f15d58ff3",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -26479,7 +26906,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26498,7 +26929,7 @@
     "source_id": "col_book1_326_tiny-home-builders-in-iowa",
     "category_group": "State & Regional Builders",
     "id": "bf9577c7-1da0-4004-9bed-e7c8aa83483f",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -26561,7 +26992,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26580,7 +27015,7 @@
     "source_id": "col_book1_327_tiny-home-builders-in-kansas",
     "category_group": "State & Regional Builders",
     "id": "b0b5d162-fe68-448b-9161-d3167d38e859",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -26643,7 +27078,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26662,7 +27101,7 @@
     "source_id": "col_book1_328_tiny-home-builders-in-kentucky",
     "category_group": "State & Regional Builders",
     "id": "391dc501-a465-4b3d-bae0-cb5b00366a85",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -26725,7 +27164,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26744,7 +27187,7 @@
     "source_id": "col_book1_329_tiny-home-builders-in-louisiana",
     "category_group": "State & Regional Builders",
     "id": "ef74b5b1-47c3-4e3c-afcf-be9ebab24257",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -26807,7 +27250,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26826,7 +27273,7 @@
     "source_id": "col_book1_330_tiny-home-builders-in-maine",
     "category_group": "State & Regional Builders",
     "id": "18df4ff9-4334-479b-b46f-a2b8ca63b96c",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -26889,7 +27336,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26908,7 +27359,7 @@
     "source_id": "col_book1_331_tiny-home-builders-in-maryland",
     "category_group": "State & Regional Builders",
     "id": "b6d5cd74-4f9f-4793-9a0a-b70dc61fc7e1",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -26971,7 +27422,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -26990,7 +27445,7 @@
     "source_id": "col_book1_332_tiny-home-builders-in-massachusetts",
     "category_group": "State & Regional Builders",
     "id": "cdf941b0-e8f4-4ce3-924b-ee4a5177f52d",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -27053,7 +27508,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -27072,7 +27531,7 @@
     "source_id": "col_book1_333_tiny-home-builders-in-michigan",
     "category_group": "State & Regional Builders",
     "id": "07a23659-743e-49b3-bc2d-3fe507d4f3f9",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -27135,7 +27594,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -27154,7 +27617,7 @@
     "source_id": "col_book1_334_tiny-home-builders-in-minnesota",
     "category_group": "State & Regional Builders",
     "id": "d7025853-f4ce-4a09-956d-b96a4191eb22",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -27217,7 +27680,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -27236,7 +27703,7 @@
     "source_id": "col_book1_335_tiny-home-builders-in-mississippi",
     "category_group": "State & Regional Builders",
     "id": "bddae621-10ed-4ee9-8f9f-97fa3144dd94",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -27299,7 +27766,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -27318,7 +27789,7 @@
     "source_id": "col_book1_336_tiny-home-builders-in-missouri",
     "category_group": "State & Regional Builders",
     "id": "94289b8d-39c6-432f-963a-59fe8e464fb7",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -27381,7 +27852,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -27400,7 +27875,7 @@
     "source_id": "col_book1_337_tiny-home-builders-in-montana",
     "category_group": "State & Regional Builders",
     "id": "52ea0806-3195-463b-9e3a-99c2ad32d93c",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -27463,7 +27938,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -27482,7 +27961,7 @@
     "source_id": "col_book1_338_tiny-home-builders-in-nebraska",
     "category_group": "State & Regional Builders",
     "id": "7b2a03b3-6c80-4e5c-a971-b475838fb8cf",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -27545,7 +28024,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -27564,7 +28047,7 @@
     "source_id": "col_book1_339_tiny-home-builders-in-nevada",
     "category_group": "State & Regional Builders",
     "id": "87690e20-edb4-44b6-9072-afc47dad22b0",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -27627,7 +28110,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -27646,7 +28133,7 @@
     "source_id": "col_book1_340_tiny-home-builders-in-new-hampshire",
     "category_group": "State & Regional Builders",
     "id": "fffb42ba-d39e-4c6a-8412-b8ede193c212",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -27709,7 +28196,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -27728,7 +28219,7 @@
     "source_id": "col_book1_341_tiny-home-builders-in-new-jersey",
     "category_group": "State & Regional Builders",
     "id": "9278841f-b64f-4478-b51a-82771a384932",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -27791,7 +28282,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -27810,7 +28305,7 @@
     "source_id": "col_book1_342_tiny-home-builders-in-new-mexico",
     "category_group": "State & Regional Builders",
     "id": "c4101ab6-073e-4bc4-9d50-d4ff5865d69e",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -27873,7 +28368,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -27892,7 +28391,7 @@
     "source_id": "col_book1_343_tiny-home-builders-in-new-york",
     "category_group": "State & Regional Builders",
     "id": "9902e74f-8636-4b8f-b99a-cdd62ed38710",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -27955,7 +28454,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -27974,7 +28477,7 @@
     "source_id": "col_book1_344_tiny-home-builders-in-north-carolina",
     "category_group": "State & Regional Builders",
     "id": "bf4d27be-6ec8-4758-9efa-5f23fbef170e",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -28037,7 +28540,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -28056,7 +28563,7 @@
     "source_id": "col_book1_345_tiny-home-builders-in-north-dakota",
     "category_group": "State & Regional Builders",
     "id": "41b87218-3552-4a36-b13e-88d64931d2ac",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -28119,7 +28626,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -28138,7 +28649,7 @@
     "source_id": "col_book1_346_tiny-home-builders-in-ohio",
     "category_group": "State & Regional Builders",
     "id": "77733908-c67a-4ef9-a079-fde2ba6f704c",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -28201,7 +28712,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -28220,7 +28735,7 @@
     "source_id": "col_book1_347_tiny-home-builders-in-oklahoma",
     "category_group": "State & Regional Builders",
     "id": "2a04ca6f-35a4-4cb6-87c6-3a5f1a161a4a",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -28283,7 +28798,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -28302,7 +28821,7 @@
     "source_id": "col_book1_348_tiny-home-builders-in-oregon",
     "category_group": "State & Regional Builders",
     "id": "6bc58e2f-9299-454b-9b71-967b7794ad21",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -28365,7 +28884,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -28384,7 +28907,7 @@
     "source_id": "col_book1_349_tiny-home-builders-in-pennsylvania",
     "category_group": "State & Regional Builders",
     "id": "b155894d-27aa-4eb0-b0bf-604dccacea9b",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -28447,7 +28970,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -28466,7 +28993,7 @@
     "source_id": "col_book1_350_tiny-home-builders-in-rhode-island",
     "category_group": "State & Regional Builders",
     "id": "0390ac72-0d18-42b3-9855-ce8eea1009a1",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -28529,7 +29056,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -28548,7 +29079,7 @@
     "source_id": "col_book1_351_tiny-home-builders-in-south-carolina",
     "category_group": "State & Regional Builders",
     "id": "f6f0069f-b593-4be7-9c20-38328bd36a18",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -28611,7 +29142,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -28630,7 +29165,7 @@
     "source_id": "col_book1_352_tiny-home-builders-in-south-dakota",
     "category_group": "State & Regional Builders",
     "id": "047f1492-ffca-4a12-b1d2-e9225d6dab05",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -28693,7 +29228,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -28712,7 +29251,7 @@
     "source_id": "col_book1_353_tiny-home-builders-in-tennessee",
     "category_group": "State & Regional Builders",
     "id": "e1f6e563-dbb3-4246-a362-228af402c47f",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -28775,7 +29314,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -28794,7 +29337,7 @@
     "source_id": "col_book1_354_tiny-home-builders-in-texas",
     "category_group": "State & Regional Builders",
     "id": "744bc93c-cc2d-4ca2-a1eb-fa9e7fb8a190",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -28857,7 +29400,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -28876,7 +29423,7 @@
     "source_id": "col_book1_355_tiny-home-builders-in-utah",
     "category_group": "State & Regional Builders",
     "id": "541b8c37-b93e-468d-a755-956da03335ad",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -28939,7 +29486,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -28958,7 +29509,7 @@
     "source_id": "col_book1_356_tiny-home-builders-in-vermont",
     "category_group": "State & Regional Builders",
     "id": "bae61106-48fb-4be5-becb-f9dea5d8668e",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -29021,7 +29572,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -29040,7 +29595,7 @@
     "source_id": "col_book1_357_tiny-home-builders-in-virginia",
     "category_group": "State & Regional Builders",
     "id": "addcde16-6e0d-4044-9aba-115b3d2bb0a6",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -29103,7 +29658,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -29122,7 +29681,7 @@
     "source_id": "col_book1_358_tiny-home-builders-in-washington",
     "category_group": "State & Regional Builders",
     "id": "cbfc1b6b-3956-4c5b-a01a-5e1a45e8ad35",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -29185,7 +29744,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -29204,7 +29767,7 @@
     "source_id": "col_book1_359_tiny-home-builders-in-west-virginia",
     "category_group": "State & Regional Builders",
     "id": "9ce2d974-8796-4945-9be5-ca3900364854",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -29267,7 +29830,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -29286,7 +29853,7 @@
     "source_id": "col_book1_360_tiny-home-builders-in-wisconsin",
     "category_group": "State & Regional Builders",
     "id": "b873cf46-f191-4bff-a4e9-10830a767d15",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -29349,7 +29916,11 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-bozeman-barndominium-kit",
+      "the-cody-barndominium-kit-copy"
     ]
   },
   {
@@ -33632,7 +34203,7 @@
     "source_id": "col_book1_413_tiny-house-builder",
     "category_group": "State & Regional Builders",
     "id": "b3bdd053-0f66-40fa-b809-3cbc57f99d4c",
-    "productCount": 30,
+    "productCount": 33,
     "productIds": [
       "37bf999b-4459-413f-8b4d-784c5f735924",
       "4f53f319-bc5a-49d2-ba99-8101b8173a67",
@@ -33695,7 +34266,10 @@
       "the-willow-brook-cabin-idaho-pricing",
       "the-willow-brook-cabin-illinois-pricing",
       "the-willow-brook-cabin-indiana-pricing",
-      "the-willow-brook-cabin-iowa-pricing"
+      "the-willow-brook-cabin-iowa-pricing",
+      "a-frame-metal-house-kit",
+      "the-harborview-steel-house-kit",
+      "the-copper-house-24-x-24-x-10"
     ]
   }
 ]

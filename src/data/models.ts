@@ -213,18 +213,50 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Turnkey Factory-Built Modules Delivered Nationwide"
     ],
     "specs": [
-      { "label": "Living Area", "value": "2,150 SQ FT" },
-      { "label": "Bedrooms", "value": "3 Bed" },
-      { "label": "Bathrooms", "value": "2.5 Bath" },
-      { "label": "Frame Type", "value": "Galvanized Precision Steel" },
-      { "label": "Warranty", "value": "50-Year Structural Warranty" }
+      {
+        "label": "Living Area",
+        "value": "2,150 SQ FT"
+      },
+      {
+        "label": "Bedrooms",
+        "value": "3 Bed"
+      },
+      {
+        "label": "Bathrooms",
+        "value": "2.5 Bath"
+      },
+      {
+        "label": "Frame Type",
+        "value": "Galvanized Precision Steel"
+      },
+      {
+        "label": "Warranty",
+        "value": "50-Year Structural Warranty"
+      }
     ],
     "customizableOptions": [
-      { "id": "opt-1", "name": "Covered Wrap-Around Porch", "price": 14500, "description": "Composite decking & architectural posts" },
-      { "id": "opt-2", "name": "Solar Ready Energy Package", "price": 8500, "description": "Pre-wired for roof solar & battery backup" }
+      {
+        "id": "opt-1",
+        "name": "Covered Wrap-Around Porch",
+        "price": 14500,
+        "description": "Composite decking & architectural posts"
+      },
+      {
+        "id": "opt-2",
+        "name": "Solar Ready Energy Package",
+        "price": 8500,
+        "description": "Pre-wired for roof solar & battery backup"
+      }
     ],
-    "tags": ["Featured", "Modular", "Turnkey"],
-    "collections": ["Modular Homes", "modular-homes"]
+    "tags": [
+      "Featured",
+      "Modular",
+      "Turnkey"
+    ],
+    "collections": [
+      "Modular Homes",
+      "modular-homes"
+    ]
   },
   {
     "id": "mod-farmhouse-charm",
@@ -259,17 +291,44 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Factory-Built Turnkey Precision Construction"
     ],
     "specs": [
-      { "label": "Living Area", "value": "1,160 SQ FT" },
-      { "label": "Bedrooms", "value": "2 Bed" },
-      { "label": "Bathrooms", "value": "2 Bath" },
-      { "label": "Frame Type", "value": "Galvanized Steel" },
-      { "label": "Warranty", "value": "50-Year Structural Warranty" }
+      {
+        "label": "Living Area",
+        "value": "1,160 SQ FT"
+      },
+      {
+        "label": "Bedrooms",
+        "value": "2 Bed"
+      },
+      {
+        "label": "Bathrooms",
+        "value": "2 Bath"
+      },
+      {
+        "label": "Frame Type",
+        "value": "Galvanized Steel"
+      },
+      {
+        "label": "Warranty",
+        "value": "50-Year Structural Warranty"
+      }
     ],
     "customizableOptions": [
-      { "id": "opt-1", "name": "Covered Front Veranda", "price": 9500, "description": "Covered entryway porch" }
+      {
+        "id": "opt-1",
+        "name": "Covered Front Veranda",
+        "price": 9500,
+        "description": "Covered entryway porch"
+      }
     ],
-    "tags": ["Featured", "Modular", "Turnkey"],
-    "collections": ["Modular Homes", "modular-homes"]
+    "tags": [
+      "Featured",
+      "Modular",
+      "Turnkey"
+    ],
+    "collections": [
+      "Modular Homes",
+      "modular-homes"
+    ]
   },
   {
     "id": "mod-aspen-ridge",
@@ -304,17 +363,44 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Commercial-Grade Steel Modular Core"
     ],
     "specs": [
-      { "label": "Living Area", "value": "2,850 SQ FT" },
-      { "label": "Bedrooms", "value": "4 Bed" },
-      { "label": "Bathrooms", "value": "3.5 Bath" },
-      { "label": "Stories", "value": "2 Level" },
-      { "label": "Warranty", "value": "50-Year Structural Warranty" }
+      {
+        "label": "Living Area",
+        "value": "2,850 SQ FT"
+      },
+      {
+        "label": "Bedrooms",
+        "value": "4 Bed"
+      },
+      {
+        "label": "Bathrooms",
+        "value": "3.5 Bath"
+      },
+      {
+        "label": "Stories",
+        "value": "2 Level"
+      },
+      {
+        "label": "Warranty",
+        "value": "50-Year Structural Warranty"
+      }
     ],
     "customizableOptions": [
-      { "id": "opt-1", "name": "Balcony Glass Railing Package", "price": 11500, "description": "Tempered glass balcony railings" }
+      {
+        "id": "opt-1",
+        "name": "Balcony Glass Railing Package",
+        "price": 11500,
+        "description": "Tempered glass balcony railings"
+      }
     ],
-    "tags": ["Featured", "Modular", "Turnkey"],
-    "collections": ["Modular Homes", "modular-homes"]
+    "tags": [
+      "Featured",
+      "Modular",
+      "Turnkey"
+    ],
+    "collections": [
+      "Modular Homes",
+      "modular-homes"
+    ]
   },
   {
     "id": "mod-prairie-modern",
@@ -349,14 +435,33 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Engineered Structural Steel Frame"
     ],
     "specs": [
-      { "label": "Living Area", "value": "2,200 SQ FT" },
-      { "label": "Bedrooms", "value": "3 Bed" },
-      { "label": "Bathrooms", "value": "2.5 Bath" },
-      { "label": "Warranty", "value": "50-Year Structural Warranty" }
+      {
+        "label": "Living Area",
+        "value": "2,200 SQ FT"
+      },
+      {
+        "label": "Bedrooms",
+        "value": "3 Bed"
+      },
+      {
+        "label": "Bathrooms",
+        "value": "2.5 Bath"
+      },
+      {
+        "label": "Warranty",
+        "value": "50-Year Structural Warranty"
+      }
     ],
     "customizableOptions": [],
-    "tags": ["Featured", "Modular", "Turnkey"],
-    "collections": ["Modular Homes", "modular-homes"]
+    "tags": [
+      "Featured",
+      "Modular",
+      "Turnkey"
+    ],
+    "collections": [
+      "Modular Homes",
+      "modular-homes"
+    ]
   },
   {
     "id": "mod-grandview-estate",
@@ -391,15 +496,40 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Turnkey Factory-Built Crane Set Installation"
     ],
     "specs": [
-      { "label": "Living Area", "value": "3,200 SQ FT" },
-      { "label": "Bedrooms", "value": "5 Bed" },
-      { "label": "Bathrooms", "value": "4 Bath" },
-      { "label": "Stories", "value": "2 Level" },
-      { "label": "Warranty", "value": "50-Year Structural Warranty" }
+      {
+        "label": "Living Area",
+        "value": "3,200 SQ FT"
+      },
+      {
+        "label": "Bedrooms",
+        "value": "5 Bed"
+      },
+      {
+        "label": "Bathrooms",
+        "value": "4 Bath"
+      },
+      {
+        "label": "Stories",
+        "value": "2 Level"
+      },
+      {
+        "label": "Warranty",
+        "value": "50-Year Structural Warranty"
+      }
     ],
     "customizableOptions": [],
-    "tags": ["Featured", "Barndominium", "Barndominium Kit", "House Kits", "Turnkey"],
-    "collections": ["Barndominiums", "barndominiums", "house-kits"]
+    "tags": [
+      "Featured",
+      "Barndominium",
+      "Barndominium Kit",
+      "House Kits",
+      "Turnkey"
+    ],
+    "collections": [
+      "Barndominiums",
+      "barndominiums",
+      "house-kits"
+    ]
   },
   {
     "id": "mod-cascade-valley",
@@ -434,14 +564,33 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Turnkey Factory Built Delivery"
     ],
     "specs": [
-      { "label": "Living Area", "value": "2,400 SQ FT" },
-      { "label": "Bedrooms", "value": "4 Bed" },
-      { "label": "Bathrooms", "value": "3 Bath" },
-      { "label": "Warranty", "value": "50-Year Structural Warranty" }
+      {
+        "label": "Living Area",
+        "value": "2,400 SQ FT"
+      },
+      {
+        "label": "Bedrooms",
+        "value": "4 Bed"
+      },
+      {
+        "label": "Bathrooms",
+        "value": "3 Bath"
+      },
+      {
+        "label": "Warranty",
+        "value": "50-Year Structural Warranty"
+      }
     ],
     "customizableOptions": [],
-    "tags": ["Featured", "Modular", "Turnkey"],
-    "collections": ["Modular Homes", "modular-homes"]
+    "tags": [
+      "Featured",
+      "Modular",
+      "Turnkey"
+    ],
+    "collections": [
+      "Modular Homes",
+      "modular-homes"
+    ]
   },
   {
     "id": "9786090357052",
@@ -517,7 +666,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
   },
   {
@@ -594,7 +745,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins"
     ]
   },
   {
@@ -671,7 +824,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins"
     ]
   },
   {
@@ -974,7 +1129,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins"
     ]
   },
   {
@@ -1051,7 +1208,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins",
+      "2-bedroom-turnkey-homes"
     ]
   },
   {
@@ -1059,7 +1219,7 @@ export const BUILDING_MODELS: BuildingModel[] = [
     "slug": "el-chapo-muchacho",
     "name": "El Chapo Muchacho 1.0 Amish Built Modular Cabin",
     "series": "Architectural Series",
-    "category": "Modular Homes",
+    "category": "Cabins",
     "architecturalStyle": "Rustic Cabin",
     "tagline": "Precision Engineered Home Kit",
     "description": "<p><strong>The El Chapo Muchacho Rustic Amish-Built Cabin</strong></p>\n<p>The <strong>El Chapo Muchacho</strong> is one of our best-selling ranch-style, one-story cabins, offering versatile layouts and rustic charm. Whether you're looking for a cozy <strong>1-bedroom, 1-bathroom model</strong> or a spacious <strong>3-bedroom, 2-bathroom home</strong>, this cabin has options to suit your needs. </p>\n<h3>Cabin Customization Options:</h3>\n<ul>\n<li>\n<strong>Purchase as a Shell</strong>: Perfect for DIY enthusiasts who want to finish the interior themselves.</li>\n<li>\n<strong>Turnkey Upgrades</strong>: Let us handle the finishing touches, including:\n<ul>\n<li>\n<strong>Electric</strong>: $10,000</li>\n<li>\n<strong>Plumbing</strong>: $10,000</li>\n<li>\n<strong>Heating and Cooling</strong>: $8,000 to $12,000 (cost varies by cabin size)</li>\n</ul>\n</li>\n</ul>\n<h3>Build Timeline:</h3>\n<p>Due to high demand, current turnaround times for builds are <strong>5 to 6 months</strong>.</p>\n<h3>Shipping and Setup:</h3>\n<ul>\n<li>\n<strong>Shipping Cost</strong>: Approx. $10,000 to most parts of the United States (note: not all areas are serviceable).</li>\n<li>Includes shipping, permits, and reassembly of the porch system, which must be folded for transport.</li>\n<li>Setup on-site includes placing the cabin on a foundation or blocks.</li>\n</ul>\n<h3>Foundation Options:</h3>\n<ul>\n<li>\n<strong>Concrete Slab</strong>: Most customers opt for a 6-inch concrete slab with rebar. Cabins are set 3 feet off the slab on blocks for easy crawlspace access.</li>\n<li>\n<strong>Basement</strong>: Requires an on-site crane at the customer’s expense.</li>\n</ul>\n<h3>Materials and Upgrades:</h3>\n<ul>\n<li>\n<strong>Walls</strong>: 4x6 solid <strong>Southern Yellow Pine</strong>, with an option to upgrade to <strong>Redwood Cedar</strong> for 25% more.</li>\n<li>\n<strong>Roof</strong>: Durable 26-gauge metal.</li>\n<li>\n<strong>Insulation</strong>: Closed-cell spray foam is recommended for the subfloor after plumbing is connected.</li>\n</ul>\n<p>The <strong>El Chapo Muchacho Cabin</strong> is built for durability, beauty, and functionality, making it an ideal choice for families, weekend retreats, or rental properties.</p>\n<h3>Ready to Order?</h3>\n<p>Call us today at <strong>502-298-8946</strong> for pricing, questions, or to place your order. Let us help you create your perfect cabin!</p>",
@@ -1128,7 +1288,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins",
+      "1-bedroom-turnkey-homes"
     ]
   },
   {
@@ -1136,7 +1299,7 @@ export const BUILDING_MODELS: BuildingModel[] = [
     "slug": "cape-cod-cottage-amish-built-modular-cabin",
     "name": "Cape Cod Cottage Amish Built Modular Cabin",
     "series": "Architectural Series",
-    "category": "Modular Homes",
+    "category": "Cabins",
     "architecturalStyle": "Rustic Cabin",
     "tagline": "Precision Engineered Home Kit",
     "description": "<p><strong>Cape Cod Cottage - 14x36 Model (On Sale Now for $79,900)</strong></p>\n<p>The <strong>Cape Cod Cottage</strong> is a beautifully designed 14x36 model that's the perfect blend of comfort and functionality. Originally priced at $85,000, a limited-time offer you don't want to miss! Please scroll below to see all the other many different sizes we offer in the Cape Cod Cottage, there is many sizes and price points to choose from!</p>\n<p>This turnkey cottage comes fully loaded with everything you need to move in and start enjoying your new space right away. Inside, it includes <strong>electricity</strong>, <strong>plumbing</strong>, <strong>heating</strong>, <strong>cooling</strong>, and essential appliances such as a <strong>stove</strong>, <strong>refrigerator</strong>, <strong>microwave</strong>, <strong>washer and dryer hookups</strong>, and a <strong>tankless water heater</strong>. You’ll also have your choice of <strong>pine pretty walls</strong> or <strong>nickel gap</strong> for a charming interior finish.</p>\n<p>On the outside, the cottage comes with durable <strong>vinyl siding</strong>, with the option to upgrade to <strong>board and batten</strong>, <strong>hardy board</strong>, or <strong>cedar log siding</strong> for a more customized aesthetic.</p>\n<p>Perfect for a <strong>starter home</strong>, <strong>mother-in-law suite</strong>, or a <strong>cabin rental getaway</strong> to monetize your land, this cabin offers endless possibilities. And don't forget, it’s <strong>Amish built</strong>, and can be constructed to code to meet the necessary <strong>wind ratings</strong>, <strong>snow ratings</strong>, and <strong>insulation requirements</strong> for all 50 states.</p>\n<p>With a <strong>26-gauge metal roof</strong> and customizable options to suit your style, the Cape Cod Cottage is built to last and provide long-term comfort. Interested? Give us a call at <strong>502-298-8946</strong> and mention that the <strong>Amish-built</strong> Cape Cod Cottage is designed to meet the highest standards for your area.</p>\n<p>We’re happy to discuss how we can personalize this home to fit your needs!</p>",
@@ -1205,7 +1368,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins",
+      "1-bedroom-turnkey-homes"
     ]
   },
   {
@@ -1282,7 +1448,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins",
+      "2-bedroom-turnkey-homes"
     ]
   },
   {
@@ -1359,7 +1528,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins",
+      "2-bedroom-turnkey-homes"
     ]
   },
   {
@@ -1436,7 +1608,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins",
+      "2-bedroom-turnkey-homes"
     ]
   },
   {
@@ -1513,7 +1688,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins",
+      "2-bedroom-turnkey-homes"
     ]
   },
   {
@@ -1590,7 +1768,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins",
+      "2-bedroom-turnkey-homes"
     ]
   },
   {
@@ -1667,7 +1848,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins",
+      "2-bedroom-turnkey-homes"
     ]
   },
   {
@@ -1744,7 +1928,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins",
+      "2-bedroom-turnkey-homes"
     ]
   },
   {
@@ -1821,7 +2008,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins",
+      "2-bedroom-turnkey-homes"
     ]
   },
   {
@@ -1898,7 +2088,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Building Materials"
+      "cabins",
+      "modular-cabins",
+      "turnkey-cabins",
+      "2-bedroom-turnkey-homes"
     ]
   },
   {
@@ -1975,7 +2168,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
   },
   {
@@ -2052,7 +2247,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
   },
   {
@@ -2129,7 +2326,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
   },
   {
@@ -2206,7 +2405,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
   },
   {
@@ -2283,7 +2484,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
   },
   {
@@ -2360,7 +2563,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
   },
   {
@@ -2437,7 +2642,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
   },
   {
@@ -2514,7 +2721,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
   },
   {
@@ -2591,7 +2800,10 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes",
+      "commercial-modular-buildings"
     ]
   },
   {
@@ -2668,7 +2880,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
   },
   {
@@ -2745,7 +2959,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
   },
   {
@@ -2822,7 +3038,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
   },
   {
@@ -2899,10 +3117,11 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Modular"
     ],
     "collections": [
-      "Construction"
+      "house-kits",
+      "sip-panel-homes",
+      "turnkey-homes"
     ]
-  }
-,
+  },
   {
     "id": "10286602715452",
     "slug": "a-frame-metal-house-kit",
@@ -4616,7 +4835,7 @@ export const BUILDING_MODELS: BuildingModel[] = [
     "slug": "prefab-modular-duplex",
     "name": "Prefab Modular Duplex (Great for rentals!)",
     "series": "Essential Series",
-    "category": "Modular Homes",
+    "category": "Commercial Modular Buildings",
     "architecturalStyle": "Modern Homes",
     "tagline": "720 Sq Ft • 1 Bed • 1 Bath Modular Homes",
     "description": "<p><strong>The Modular Duplex Cabin</strong></p>\n<h3>Overview</h3>\n<p>The <strong>Modular Duplex Cabin</strong> is the perfect solution for resorts and short-term rental properties, offering unparalleled flexibility and style. This innovative design combines two units into one, allowing you to rent out one or both units to accommodate individual families or groups.</p>\n<h3>Specifications</h3>\n<ul>\n<li>\n<strong>Square Feet</strong>: 792</li>\n<li>\n<strong>Sleeps</strong>: Up to 6</li>\n<li>\n<strong>Layout</strong>: Duplex</li>\n<li>\n<strong>Sale Price</strong>: $179,900 (Regular Price: $189,900)</li>\n<li>\n<strong>Ships To</strong>: Nationwide</li>\n<li>\n<strong>Category</strong>: Duplex, Small Homes</li>\n<li>\n<strong>Dimensions</strong>: 24'9\" x 42'3\"</li>\n</ul>\n<p>Crafted by the expert artisans of <strong>Amish Built Cabins</strong>, the <strong>Modular Duplex Cabin</strong> is a testament to quality and craftsmanship. Each unit is designed with functionality and aesthetics in mind, making it an ideal investment for both personal and rental use.</p>\n<p>Contact us today to learn more about the <strong>Modular Duplex Cabin</strong> or schedule a visit to see it in person. Experience the beauty and durability of Amish craftsmanship for yourself!</p>",
@@ -4735,10 +4954,8 @@ export const BUILDING_MODELS: BuildingModel[] = [
     ],
     "tags": [],
     "collections": [
-      "amish-built-modular-cabins",
-      "made-in-usa",
-      "made-in-america",
       "commercial-modular-buildings",
+      "modular-homes",
       "commercial-modular-builders"
     ]
   },
@@ -4855,8 +5072,7 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "tiny-house-builder",
       "tiny-homes"
     ]
-  }
-,
+  },
   {
     "id": "mod-the-madison",
     "slug": "the-madison",
@@ -6465,7 +6681,7 @@ export const BUILDING_MODELS: BuildingModel[] = [
     "slug": "4-bed-adus",
     "name": "4+ Bed Multi-Gen Modular ADU",
     "series": "Architectural Series",
-    "category": "Modular Homes",
+    "category": "ADUs & Granny Pods",
     "architecturalStyle": "Multi-Gen Living",
     "tagline": "2,100 SQ FT • 4 Bed 3 Bath Multi-Family Living",
     "description": "<p><strong>The 4+ Bed Multi-Gen Modular ADU</strong> is an expansive two-story modular design engineered for large multi-generational families, accessory property living, or multi-tenant rental income.</p>",
@@ -6521,10 +6737,9 @@ export const BUILDING_MODELS: BuildingModel[] = [
       "Turnkey"
     ],
     "collections": [
-      "modular-homes",
       "adus",
+      "modular-homes",
       "4-bedroom-turnkey-homes"
     ]
   }
 ];
-

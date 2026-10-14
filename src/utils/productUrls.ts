@@ -136,10 +136,13 @@ export function getProductCategorySlug(product?: ProductUrlInput | null): ValidP
 
   // 3. Modular Cabins & Prefab Cabins
   if (
-    combined.includes("modular cabin") ||
-    combined.includes("modular-cabin") ||
-    combined.includes("prefab cabin") ||
-    combined.includes("prefab-cabin")
+    (combined.includes("modular cabin") ||
+      combined.includes("modular-cabin") ||
+      combined.includes("prefab cabin") ||
+      combined.includes("prefab-cabin")) &&
+    !combined.includes("park model") &&
+    rawCat !== "park models" &&
+    rawCat !== "park-models"
   ) {
     return "modular-cabins";
   }

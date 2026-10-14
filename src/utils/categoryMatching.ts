@@ -148,8 +148,7 @@ export function matchProductCategory(
         mName.includes("steel kit") ||
         mName.includes("sip panel") ||
         mName.includes("panelized")) &&
-      !mName.includes("barndo") &&
-      !mName.includes("duplex")
+      !mName.includes("barndo")
     );
   }
 
