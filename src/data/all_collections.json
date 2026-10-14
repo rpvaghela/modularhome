@@ -15,7 +15,7 @@
     "source_id": "col_book1_1_2-bedroom-turnkey-homes",
     "category_group": "Turnkey & Bedroom Models",
     "id": "be5f6626-e4bc-41b9-8b1b-d11d717e854c",
-    "productCount": 30,
+    "productCount": 34,
     "productIds": [
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
       "2e15377c-4f32-4d81-88c7-93b90efbf4a6",
@@ -78,7 +78,11 @@
       "lakeside-haven-tiny-home-affordable-house-kit-2-bed-1-bath",
       "meadow-mist-panelized-sip-panel-house-kit-energy-efficient-sip-home-kit",
       "meadowlark-cottage-house-kit-home-kit",
-      "napa-valley-retreat-house-kit-home-kit"
+      "napa-valley-retreat-house-kit-home-kit",
+      "the-cube-link-system",
+      "a-frame-luxe",
+      "deluxe-retreat",
+      "2-bed-2-bath"
     ]
   },
   {
@@ -97,7 +101,7 @@
     "source_id": "col_book1_2_3-bedroom-turnkey-homes",
     "category_group": "Turnkey & Bedroom Models",
     "id": "760b40c8-dae8-492c-8c98-8966c74e188f",
-    "productCount": 30,
+    "productCount": 38,
     "productIds": [
       "a022603c-1656-4c17-96d8-eeeb3249df33",
       "280c616a-f4af-4e57-a506-e56004c06163",
@@ -160,7 +164,15 @@
       "lake-tahoe-retreat-house-kit-home-kit",
       "lavender-lane-house-kit-home-kit",
       "lavender-skies-house-kit-home-kit",
-      "magnolia-creek-cottage-affordable-house-kit-3-bed-2-bath"
+      "magnolia-creek-cottage-affordable-house-kit-3-bed-2-bath",
+      "the-madison",
+      "a-frame-united",
+      "grizzly",
+      "modern-living",
+      "nova",
+      "twilight",
+      "3-bed-3-bath",
+      "3-bed-3-bath-with-deck"
     ]
   },
   {
@@ -8811,7 +8823,7 @@
     "source_id": "col_book1_110_commercial-modular-buildings",
     "category_group": "Commercial Buildings",
     "id": "aab35b50-b1aa-4246-882f-94f2a5aacdc1",
-    "productCount": 7,
+    "productCount": 8,
     "productIds": [
       "b4fcc19f-3683-4578-adba-cc4cd791704f",
       "d86d35e3-c070-41ec-b201-11003b439c51",
@@ -8828,7 +8840,8 @@
       "shared-serenity-duplex-house-kit-duplex-home-kit",
       "prefab-modular-duplex",
       "the-commercial-cabin-log-cabin-kit",
-      "twin-haven-duplex-house-kit-duplex-home-kit"
+      "twin-haven-duplex-house-kit-duplex-home-kit",
+      "multi-family-homes"
     ]
   },
   {
@@ -9339,7 +9352,7 @@
     "source_id": "col_book1_117_house-kits",
     "category_group": "House Kits & Framing",
     "id": "a2203257-3427-445d-a034-fe47ddd5681b",
-    "productCount": 30,
+    "productCount": 32,
     "productIds": [
       "84349b33-41bb-4bb0-b3c7-34c7ae44f415",
       "2e15377c-4f32-4d81-88c7-93b90efbf4a6",
@@ -9402,7 +9415,9 @@
       "daisy-meadow-metal-house-kit-free-nationwide-shipping",
       "daisy-meadow-cottage-house-kit-home-kit",
       "daniel-boone-log-home-plan-log-home-kit",
-      "double-delight-duplex-house-kit-duplex-home-kit"
+      "double-delight-duplex-house-kit-duplex-home-kit",
+      "a-frame-luxe",
+      "a-frame-united"
     ]
   },
   {
@@ -19835,7 +19850,7 @@
     "source_id": "col_book1_245_prefab-homes",
     "category_group": "Modular & Prefab Architecture",
     "id": "2aab2e55-d945-4a60-9e62-a1c0d40f40c6",
-    "productCount": 30,
+    "productCount": 36,
     "productIds": [
       "432c4fee-bb61-41ce-8d09-e0916c3c7643",
       "199a1b44-8c00-4d11-aab8-f96e4932f9a9",
@@ -19898,7 +19913,13 @@
       "the-timber-charm-amish-built-modular-cabin",
       "the-villa-cottage-amish-built-modular-cabin",
       "the-yellowstone-amish-built-modular-cabin",
-      "the-zorro-amish-built-modular-cabin"
+      "the-zorro-amish-built-modular-cabin",
+      "the-madison",
+      "the-cleveland",
+      "modern-living",
+      "nova",
+      "pre-fabricated-tiny-homes",
+      "twilight"
     ]
   },
   {

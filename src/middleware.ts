@@ -104,7 +104,7 @@ export async function middleware(request: NextRequest) {
 
 
   // 2c. Pages Redirect: legacy Shopify /pages/* URLs redirect to target or similar category
-  if (lowerPath.startsWith("/pages/")) {
+  if (destinationPath === normalizedPath && lowerPath.startsWith("/pages/")) {
     const pageSlug = lowerPath.replace(/^\/pages\//, "").replace(/\/+$/, "");
     if (pageSlug && !pageSlug.includes("/")) {
       if (pageSlug === "contact") destinationPath = "/quote";

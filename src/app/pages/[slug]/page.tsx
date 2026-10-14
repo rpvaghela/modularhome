@@ -5,6 +5,7 @@ import { getPublicPageBySlug } from "@/lib/pageDataServer";
 import DynamicPageRenderer from "@/components/DynamicPageRenderer";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import { resolveSimilarCategoryPath } from "@/utils/productUrls";
+import { BUILDING_MODELS } from "@/data/models";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,18 @@ export async function generateMetadata({
   const { slug } = await params;
   if (!slug || slug === "undefined" || slug === "null") {
     return { title: "Page Not Found | ModularHome.com" };
+  }
+
+  const model = BUILDING_MODELS.find(
+    (m) => m.slug.toLowerCase() === slug.toLowerCase()
+  );
+  if (model) {
+    const canonical = getCanonicalUrl(`/models/${model.slug}`);
+    return {
+      title: `${model.name} | ModularHome.com`,
+      description: model.tagline || `Explore the ${model.name} modular home kit.`,
+      alternates: { canonical },
+    };
   }
 
   const page = await getPublicPageBySlug(slug);
@@ -64,6 +77,13 @@ export default async function PagesSlugPage({ params }: PagesSlugProps) {
   const { slug } = await params;
   if (!slug || slug === "undefined" || slug === "null") {
     permanentRedirect("/modular-homes");
+  }
+
+  const model = BUILDING_MODELS.find(
+    (m) => m.slug.toLowerCase() === slug.toLowerCase()
+  );
+  if (model) {
+    permanentRedirect(`/models/${model.slug}`);
   }
 
   const page = await getPublicPageBySlug(slug);
