@@ -18,6 +18,7 @@ import {
   Star, 
   Sparkles,
   Layers,
+  FolderOpen,
   FileText,
   ShieldCheck,
   ShoppingBag,
@@ -47,6 +48,7 @@ interface CategoryNavOption {
 const PRIMARY_MENU_OPTIONS: CategoryNavOption[] = [
   { label: "Modular Homes", href: "/modular-homes", categoryQuery: "Modular Homes" },
   { label: "Prefab Homes", href: "/prefab-homes", categoryQuery: "Prefab Homes" },
+  { label: "Collections", href: "/collections" },
   { label: "Modular Cabins", href: "/modular-cabins", categoryQuery: "Modular Cabins" },
   { label: "Barndominiums", href: "/barndominiums", categoryQuery: "Barndominiums" },
   { label: "House Kits", href: "/house-kits", categoryQuery: "House Kits" },
@@ -98,6 +100,12 @@ const MORE_BUYER_GUIDES = [
 ];
 
 const MORE_SERVICES_RESOURCES = [
+  { 
+    label: "All Collections", 
+    href: "/collections", 
+    desc: "Browse 400+ curated home & cabin collections",
+    icon: FolderOpen 
+  },
   { 
     label: "Floor Plan Store", 
     href: "/floor-plans", 
@@ -187,7 +195,8 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
     "delivery", "faqs", "faq", "pricing", "financing", "how-it-works",
     "floor-plans", "custom-homes", "upload-floor-plan", "videos", 
     "blogs", "blog", "about", "contact", "home", "index", "quote",
-    "cabins", "adus", "a-frame-homes", "commercial-modular-buildings", "buildings"
+    "cabins", "adus", "a-frame-homes", "commercial-modular-buildings", "buildings",
+    "collections"
   ]);
 
   // Published custom pages (excluding core duplicates and home/index)
@@ -209,6 +218,7 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
 
   // Display strictly the building product categories that are available with active models
   const menuItems: CategoryNavOption[] = PRIMARY_MENU_OPTIONS.filter((item) => {
+    if (item.href === "/collections" || item.label.toLowerCase().includes("collection")) return true;
     if (megaMenuCatalog && Object.keys(megaMenuCatalog).length > 0) {
       const catData = megaMenuCatalog[item.label];
       return Boolean(catData && catData.products && catData.products.length > 0);
