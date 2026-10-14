@@ -157,6 +157,71 @@ export function formatFloorPlan(p: any): FloorPlan {
 }
 
 /**
+ * Derives canonical home model category from product metadata and linked collections
+ */
+export function deriveCanonicalCategory(p: any, collections: string[] = []): string {
+  const explicitCat = (p.category || "").trim();
+  const rawType = (p.product_type || "").trim();
+  const title = (p.title || p.name || "").toLowerCase();
+  const slug = (p.handle || p.slug || "").toLowerCase();
+  const colText = collections.join(" ").toLowerCase();
+
+  const canonical = [
+    "Barndominiums",
+    "Cabins",
+    "House Kits",
+    "Tiny Homes",
+    "Park Models",
+    "A-Frames",
+    "ADUs & Granny Pods",
+    "Commercial Modular Buildings",
+    "Prefab Homes",
+    "Modular Homes",
+  ];
+
+  for (const c of canonical) {
+    if (explicitCat.toLowerCase() === c.toLowerCase()) return c;
+  }
+
+  if (title.includes("barndo") || slug.includes("barndo") || colText.includes("barndo") || rawType.toLowerCase().includes("barndo")) {
+    return "Barndominiums";
+  }
+  if (title.includes("a-frame") || slug.includes("a-frame") || title.includes("aframe") || colText.includes("a-frame")) {
+    return "A-Frames";
+  }
+  if (title.includes("park model") || slug.includes("park-model") || rawType.toLowerCase().includes("park model") || colText.includes("park-model")) {
+    return "Park Models";
+  }
+  if (title.includes("sip panel") || title.includes("panelized") || title.includes("house kit") || rawType.toLowerCase().includes("house kit") || colText.includes("house-kit") || colText.includes("sips-panel")) {
+    return "House Kits";
+  }
+  if (title.includes("tiny home") || title.includes("tiny house") || slug.includes("tiny") || colText.includes("tiny-home")) {
+    return "Tiny Homes";
+  }
+  if (title.includes("adu") || slug.includes("adu") || title.includes("granny pod") || colText.includes("adu") || title.includes("guest pod")) {
+    return "ADUs & Granny Pods";
+  }
+  if (title.includes("cabin") || slug.includes("cabin") || rawType.toLowerCase().includes("cabin") || colText.includes("cabin") || title.includes("log home") || title.includes("amish")) {
+    if (title.includes("modular cabin") || colText.includes("modular-cabin")) {
+      return "Modular Homes";
+    }
+    return "Cabins";
+  }
+  if (title.includes("prefab") || slug.includes("prefab") || rawType.toLowerCase().includes("prefab") || colText.includes("prefab")) {
+    return "Prefab Homes";
+  }
+  if (title.includes("modular") || slug.includes("modular") || rawType.toLowerCase().includes("modular") || colText.includes("modular")) {
+    return "Modular Homes";
+  }
+
+  if (rawType && !["construction", "building materials", "default", "general"].includes(rawType.toLowerCase())) {
+    return rawType;
+  }
+
+  return "Modular Homes";
+}
+
+/**
  * Normalizes Supabase product row to BuildingModel interface
  */
 export function formatProduct(p: any): BuildingModel {
@@ -326,7 +391,7 @@ export function formatProduct(p: any): BuildingModel {
     slug: p.handle || p.slug || p.id,
     name: cleanTitle,
     series: p.series || p.product_type || "Essential Series",
-    category: p.category || p.product_type || "Modular Homes",
+    category: deriveCanonicalCategory(p, collectionNames),
     architecturalStyle: p.architectural_style || p.architecturalStyle || (isCabinOrTimber ? "Rustic Cabin" : "Modern Homes"),
     tagline: safeTagline,
     description: p.description || p.description_html || "",

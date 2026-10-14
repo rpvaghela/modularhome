@@ -6,6 +6,7 @@ import TrustBar from "@/components/TrustBar";
 import HomeSearchBox from "@/components/HomeSearchBox";
 import CategoryGrid from "@/components/CategoryGrid";
 import HomeProductCard, { ProductItem } from "@/components/HomeProductCard";
+import HomeModelsShowcase from "@/components/HomeModelsShowcase";
 import BudgetSection from "@/components/BudgetSection";
 import NearMeSection from "@/components/NearMeSection";
 import CustomizeAndPlansSection from "@/components/CustomizeAndPlansSection";
@@ -219,41 +220,8 @@ export default async function HomePage() {
       {/* 4. SHOP BY HOME TYPE (10 Category 5-Column Grid) */}
       <CategoryGrid categories={homeCategories} collections={collections} />
 
-      {/* 5. HOMES AVAILABLE RIGHT NOW (5-Column Product Grid) */}
-      <section id="homes" className="py-12 sm:py-16 bg-white">
-        <div className="wrap">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
-            <div>
-              <h2 className="text-2xl sm:text-4xl font-black tracking-[-1.3px] text-[#101114] m-0">
-                Homes Available Right Now
-              </h2>
-              <p className="text-sm sm:text-base text-[#6b7280] mt-1.5 mb-0">
-                Move-in ready and quick-ship modular homes.
-              </p>
-            </div>
-            <Link
-              href="/buildings"
-              className="text-[#d97706] hover:text-[#b45309] font-extrabold text-sm sm:text-base hover:underline whitespace-nowrap self-start sm:self-auto"
-            >
-              View All Homes →
-            </Link>
-          </div>
-
-          {/* 5-Column Product Grid */}
-          {availableHomes.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-4.5">
-              {availableHomes.map((home) => (
-                <HomeProductCard key={home.id} product={home} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10 px-4 bg-[#f8f9fa] rounded-[14px] border border-[#e7e9ee] text-[#6b7280]">
-              <p className="text-sm font-semibold text-[#101114]">No models currently listed.</p>
-              <p className="text-xs mt-1">Contact our team to configure a custom modular plan for your site.</p>
-            </div>
-          )}
-        </div>
-      </section>
+      {/* 5. HOMES AVAILABLE RIGHT NOW (Interactive Category-Filtered Home Models Showcase) */}
+      <HomeModelsShowcase allProducts={distinctProducts} initialHomes={availableHomes} />
 
       {/* 6. FIND A HOME IN YOUR BUDGET (4 Budget Cards) */}
       <BudgetSection products={products} />
