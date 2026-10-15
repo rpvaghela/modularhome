@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  skipTrailingSlashRedirect: true,
   images: {
     // When hosted on Node.js / shared hosting / VPS / custom server, unoptimized avoids internal proxy failures and serves direct fast CDN URLs.
     unoptimized: process.env.NEXT_IMAGE_OPTIMIZATION === "true" ? false : true,
@@ -203,6 +204,147 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // Direct Category Redirects from /collections/:category to canonical /:category
+      {
+        source: "/collections/barndominiums",
+        destination: "/barndominiums",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/barndominiums/",
+        destination: "/barndominiums",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/prefab-homes",
+        destination: "/prefab-homes",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/prefab-homes/",
+        destination: "/prefab-homes",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/modular-homes",
+        destination: "/modular-homes",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/modular-homes/",
+        destination: "/modular-homes",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/cabins",
+        destination: "/cabins",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/cabins/",
+        destination: "/cabins",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/modular-cabins",
+        destination: "/modular-cabins",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/modular-cabins/",
+        destination: "/modular-cabins",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/house-kits",
+        destination: "/house-kits",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/house-kits/",
+        destination: "/house-kits",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/tiny-homes",
+        destination: "/tiny-homes",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/tiny-homes/",
+        destination: "/tiny-homes",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/park-models",
+        destination: "/park-models",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/park-models/",
+        destination: "/park-models",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/adus",
+        destination: "/adus",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/adus/",
+        destination: "/adus",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/a-frame-homes",
+        destination: "/a-frame-homes",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/a-frame-homes/",
+        destination: "/a-frame-homes",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/commercial-modular-buildings",
+        destination: "/commercial-modular-buildings",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/commercial-modular-buildings/",
+        destination: "/commercial-modular-buildings",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/commercial-buildings",
+        destination: "/commercial-modular-buildings",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/commercial-buildings/",
+        destination: "/commercial-modular-buildings",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/modular-storage",
+        destination: "/modular-storage",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/modular-storage/",
+        destination: "/modular-storage",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/modular-homes-under-100k",
+        destination: "/modular-homes-under-100k",
+        statusCode: 301,
+      },
+      {
+        source: "/collections/modular-homes-under-100k/",
+        destination: "/modular-homes-under-100k",
+        statusCode: 301,
+      },
       {
         source: "/modular-storage-buildings",
         destination: "/modular-storage",
@@ -260,12 +402,38 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/buildings/el-chapo-muchacho",
-        destination: "/cabins/el-chapo-muchacho",
+        destination: "/modular-cabins/el-chapo-muchacho",
         statusCode: 301,
       },
       {
         source: "/buildings/the-grandview-two-story-modular-estate",
         destination: "/barndominiums/the-grandview-two-story-modular-estate",
+        statusCode: 301,
+      },
+      // Removed model farmhouse-metal-house-kit-1 -> Category Redirect (Permanent 301)
+      {
+        source: "/products/farmhouse-metal-house-kit-1",
+        destination: "/house-kits",
+        statusCode: 301,
+      },
+      {
+        source: "/products/farmhouse-metal-house-kit-1/",
+        destination: "/house-kits",
+        statusCode: 301,
+      },
+      {
+        source: "/house-kits/farmhouse-metal-house-kit-1",
+        destination: "/house-kits",
+        statusCode: 301,
+      },
+      {
+        source: "/house-kits/farmhouse-metal-house-kit-1/",
+        destination: "/house-kits",
+        statusCode: 301,
+      },
+      {
+        source: "/buildings/farmhouse-metal-house-kit-1",
+        destination: "/house-kits",
         statusCode: 301,
       },
       // Discontinued Willow Brook Cabin Designs -> Category SEO Redirect (Permanent 301)

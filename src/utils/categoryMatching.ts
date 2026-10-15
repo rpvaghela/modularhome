@@ -9,7 +9,7 @@ export function normalizeCategory(cat?: string | null): string {
   if (!cat) return "";
   return cat
     .toLowerCase()
-    .replace(/[-_&+/|]/g, " ")
+    .replace(/[-_&+/|$]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -137,6 +137,7 @@ export function isAmishModularTurnkeyCabin(model: {
 
 /**
  * Checks if a model is a storage building, metal pole barn, shed, utility structure, workshop, or garage.
+ * Excludes residential living homes/cabins that merely have "finished inside" in title.
  */
 export function isStorageBuilding(model: {
   name?: string;
@@ -153,27 +154,23 @@ export function isStorageBuilding(model: {
   const mCat = normalizeCategory(model.category || model.product_type || model.series || "");
   const mDesc = (model.description || "").toLowerCase();
 
+  // Exclude cabins or homes that are purely residential and lack storage/shop/garage/carport/pole barn features
+  if (mName.includes("blue lagoon") || mSlug.includes("blue-lagoon")) {
+    return false;
+  }
+
+  // Use word-boundary regex so "finished" or "furnished" doesn't falsely trigger "shed"
+  const storageWordPattern = /\b(storage|pole\s*barn|sheds?|workshop|garage|carport|shop\/garage)\b/i;
+
   return (
-    mName.includes("pole barn") ||
-    mSlug.includes("pole-barn") ||
-    mCat.includes("pole barn") ||
-    mName.includes("storage") ||
-    mSlug.includes("storage") ||
-    mCat.includes("storage") ||
-    mName.includes("shed") ||
-    mSlug.includes("shed") ||
-    mCat.includes("shed") ||
-    mName.includes("workshop") ||
-    mSlug.includes("workshop") ||
-    mName.includes("utility") ||
+    storageWordPattern.test(mName) ||
+    storageWordPattern.test(mSlug) ||
+    storageWordPattern.test(mCat) ||
     mName.includes("garage haven") ||
     mName.includes("garage ranch") ||
-    mName.includes("shop/garage") ||
-    mName.includes("carport") ||
-    mName.includes("metal building") ||
     mName.includes("commercial storage") ||
-    mDesc.includes("storage building") ||
-    mDesc.includes("pole barn")
+    (mDesc.includes("storage building") && !mName.includes("cabin") && !mName.includes("home")) ||
+    (mDesc.includes("pole barn") && !mName.includes("cabin") && !mName.includes("home"))
   );
 }
 

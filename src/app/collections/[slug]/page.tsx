@@ -21,6 +21,7 @@ import ShareButton from "@/components/ShareButton";
 import CategoryFilteredCatalog from "@/components/CategoryFilteredCatalog";
 import { getPublicCollections, getPublicProducts, getCategoryFallbackImage, getPublicCollectionBySlug } from "@/lib/publicData";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
+import { CATEGORY_SLUG_MAP } from "@/utils/productUrls";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,11 @@ export async function generateMetadata({
   const { slug } = await params;
   if (!slug || slug === "undefined" || slug === "null") {
     return { title: "Collection Not Found | ModularHome.com" };
+  }
+
+  const cleanSlug = slug.toLowerCase().trim();
+  if (cleanSlug && cleanSlug !== "all" && CATEGORY_SLUG_MAP[cleanSlug]) {
+    permanentRedirect(`/${CATEGORY_SLUG_MAP[cleanSlug]}`);
   }
 
   const reqHeaders = await headers();
@@ -104,6 +110,11 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
   const { slug } = await params;
   if (!slug || slug === "undefined" || slug === "null") {
     permanentRedirect("/collections");
+  }
+
+  const cleanSlug = slug.toLowerCase().trim();
+  if (cleanSlug && cleanSlug !== "all" && CATEGORY_SLUG_MAP[cleanSlug]) {
+    permanentRedirect(`/${CATEGORY_SLUG_MAP[cleanSlug]}`);
   }
 
   const allProducts = await getPublicProducts();

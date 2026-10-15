@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import SHOPIFY_REDIRECTS_DATA from "@/data/shopify_redirects.json";
-import { resolveSimilarCategoryPath, isCategorySlug } from "@/utils/productUrls";
+import { resolveSimilarCategoryPath, isCategorySlug, CATEGORY_SLUG_MAP } from "@/utils/productUrls";
 
 // Explicit static legacy redirects mapping
 const LEGACY_REDIRECTS: Record<string, string> = {
@@ -13,6 +13,21 @@ const LEGACY_REDIRECTS: Record<string, string> = {
   "/plans": "/floor-plans",
   "/models": "/buildings",
   "/commercial-buildings": "/commercial-modular-buildings",
+  "/commercial-buildings/": "/commercial-modular-buildings",
+  "/modular-storage-buildings": "/modular-storage",
+  "/modular-storage-buildings/": "/modular-storage",
+  "/collections/modular-storage": "/modular-storage",
+  "/collections/modular-storage/": "/modular-storage",
+  "/collections/modular-storage-buildings": "/modular-storage",
+  "/collections/modular-storage-buildings/": "/modular-storage",
+  "/collections/modular-homes-under-100k": "/modular-homes-under-100k",
+  "/collections/modular-homes-under-100k/": "/modular-homes-under-100k",
+  "/buildings/el-chapo-muchacho": "/modular-cabins/el-chapo-muchacho",
+  "/buildings/el-chapo-muchacho/": "/modular-cabins/el-chapo-muchacho",
+  "/products/farmhouse-metal-house-kit-1": "/house-kits",
+  "/products/farmhouse-metal-house-kit-1/": "/house-kits",
+  "/house-kits/farmhouse-metal-house-kit-1": "/house-kits",
+  "/house-kits/farmhouse-metal-house-kit-1/": "/house-kits",
 };
 
 // Imported Matrixify Shopify & Product category redirects (2,748 mapped paths)
@@ -100,6 +115,14 @@ export async function middleware(request: NextRequest) {
 
     destinationPath = `/${targetCat}`;
     preserveSearch = ""; // strip query parameter for clean canonical URL
+  }
+
+  // 2b. Collection Category Redirects: e.g. /collections/barndominiums -> /barndominiums (301)
+  if (destinationPath === normalizedPath && lowerPath.startsWith("/collections/")) {
+    const colSlug = lowerPath.replace(/^\/collections\//, "").replace(/\/+$/, "");
+    if (colSlug && colSlug !== "all" && CATEGORY_SLUG_MAP[colSlug]) {
+      destinationPath = `/${CATEGORY_SLUG_MAP[colSlug]}`;
+    }
   }
 
 

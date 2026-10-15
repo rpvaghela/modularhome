@@ -38,12 +38,16 @@ export const CATEGORY_ROUTE_MAP: Record<string, string> = {
   "Commercial Buildings": "/commercial-modular-buildings",
   "Commercial": "/commercial-modular-buildings",
   "Commercial Modular Buildings": "/commercial-modular-buildings",
+  "Modular Homes Under $100k": "/modular-homes-under-100k",
+  "Modular Storage Buildings": "/modular-storage",
+  "Modular Storage": "/modular-storage",
   "Custom Homes": "/custom-homes",
 };
 
 const CATEGORY_SELECT_OPTIONS = [
   { label: "All Categories", value: "All" },
   { label: "Modular Homes", value: "Modular Homes" },
+  { label: "Modular Homes Under $100k", value: "Modular Homes Under $100k" },
   { label: "Prefab Homes", value: "Prefab Homes" },
   { label: "Barndominiums", value: "Barndominiums" },
   { label: "House Kits", value: "House Kits" },
@@ -54,6 +58,7 @@ const CATEGORY_SELECT_OPTIONS = [
   { label: "ADUs & Granny Pods", value: "ADUs & Granny Pods" },
   { label: "A-Frames", value: "A-Frames" },
   { label: "Commercial", value: "Commercial" },
+  { label: "Modular Storage Buildings", value: "Modular Storage Buildings" },
   { label: "Custom Homes", value: "Custom Homes" },
 ];
 
