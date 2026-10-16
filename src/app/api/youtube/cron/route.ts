@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { syncYouTubeChannel } from "@/lib/youtubeService";
+import { readAutoSyncConfig, saveAutoSyncConfig } from "@/lib/videoStore";
 
 export const dynamic = "force-dynamic";
 
@@ -32,10 +33,45 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const result = await syncYouTubeChannel();
+    const config = readAutoSyncConfig();
+    if (!config.enabled) {
+      return NextResponse.json({
+        message: "Auto-sync is disabled in admin settings.",
+        config,
+      });
+    }
+
+    const result = await syncYouTubeChannel({
+      maxPages: config.syncScope === "full" ? 5 : 2,
+      includeAllHistorical: true,
+    });
+
+    const now = new Date();
+    const interval = config.intervalMinutes || 60;
+    const nextRun = new Date(now.getTime() + interval * 60 * 1000).toISOString();
+
+    const updatedConfig = {
+      ...config,
+      lastRunAt: now.toISOString(),
+      nextRunAt: nextRun,
+      lastRunStatus: (result.success ? "success" : "error") as "success" | "error",
+      lastRunMessage: result.message,
+      history: [
+        {
+          executedAt: now.toISOString(),
+          newVideos: result.newVideosCount || 0,
+          updatedVideos: result.updatedVideosCount || 0,
+          status: (result.success ? "success" : "error") as "success" | "error",
+        },
+        ...(config.history || []).slice(0, 9),
+      ],
+    };
+    saveAutoSyncConfig(updatedConfig);
+
     return NextResponse.json({
-      cronExecutedAt: new Date().toISOString(),
+      cronExecutedAt: now.toISOString(),
       result,
+      autoSync: updatedConfig,
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Cron execution failed";

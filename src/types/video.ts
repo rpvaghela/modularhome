@@ -5,6 +5,11 @@ export type VideoCategory =
   | "Interior" 
   | "Customer Stories" 
   | "Barndominiums" 
+  | "Modular Homes"
+  | "Prefab Cabins"
+  | "Tiny Homes"
+  | "A-Frames"
+  | "Shorts"
   | "General";
 
 export interface VideoItem {
@@ -26,6 +31,7 @@ export interface VideoItem {
   channelId?: string;
   channelTitle?: string;
   isPublished?: boolean;
+  isShort?: boolean; // Indicates if this is a YouTube Short (<= 60s / shorts format)
   createdAt?: string;
   updatedAt?: string;
 }
@@ -39,6 +45,23 @@ export interface SyncStats {
   errorMessage?: string;
 }
 
+export interface AutoSyncConfig {
+  enabled: boolean;
+  intervalMinutes: number; // e.g., 15, 30, 60, 120, 360, 1440
+  syncShorts: boolean;
+  syncScope: "latest" | "full";
+  lastRunAt: string | null;
+  nextRunAt: string | null;
+  lastRunStatus: "success" | "error" | "never" | "running";
+  lastRunMessage?: string;
+  history?: Array<{
+    executedAt: string;
+    newVideos: number;
+    updatedVideos: number;
+    status: "success" | "error";
+  }>;
+}
+
 export interface YouTubeSyncResult {
   success: boolean;
   message: string;
@@ -46,6 +69,7 @@ export interface YouTubeSyncResult {
   newVideosCount: number;
   updatedVideosCount: number;
   stats: SyncStats;
+  autoSync?: AutoSyncConfig;
   nextPageToken?: string | null;
   hasMore?: boolean;
   errors?: string[];

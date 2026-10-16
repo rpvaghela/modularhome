@@ -1,0 +1,24 @@
+{
+  "enabled": true,
+  "intervalMinutes": 60,
+  "syncShorts": true,
+  "syncScope": "latest",
+  "lastRunAt": "2026-10-16T12:56:44.193Z",
+  "nextRunAt": "2026-10-16T13:56:44.193Z",
+  "lastRunStatus": "success",
+  "lastRunMessage": "Successfully synchronized 100 videos from YouTube channel.",
+  "history": [
+    {
+      "executedAt": "2026-10-16T12:56:44.193Z",
+      "newVideos": 0,
+      "updatedVideos": 100,
+      "status": "success"
+    },
+    {
+      "executedAt": "2026-10-16T12:53:51.579Z",
+      "newVideos": 0,
+      "updatedVideos": 100,
+      "status": "success"
+    }
+  ]
+}

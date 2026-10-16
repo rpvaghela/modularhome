@@ -1,7 +1,7 @@
 {
-  "lastPageToken": null,
-  "totalBatchesProcessed": 40,
-  "totalVideosSynced": 19707,
-  "lastRunAt": "2026-10-13T13:05:12.409Z",
-  "isComplete": true
+  "lastPageToken": "EAAaIVBUOkNOQ01BU0lRT0VRelJVVkZRa0pCT1RaQk56WkVSQQ",
+  "totalBatchesProcessed": 76,
+  "totalVideosSynced": 19741,
+  "lastRunAt": "2026-10-16T12:42:47.283Z",
+  "isComplete": false
 }

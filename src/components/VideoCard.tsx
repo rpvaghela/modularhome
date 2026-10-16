@@ -64,10 +64,15 @@ export default function VideoCard({ video, onPlay, dark = false }: VideoCardProp
         </div>
 
         {/* Badges */}
-        <div className="absolute top-3 left-3 pointer-events-none z-10">
+        <div className="absolute top-3 left-3 pointer-events-none z-10 flex items-center gap-1.5">
           <span className="px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest bg-black/70 backdrop-blur-md text-white rounded-full">
             {video.category}
           </span>
+          {Boolean(video.isShort || video.category === "Shorts") && (
+            <span className="px-2 py-0.5 text-[9px] font-black uppercase tracking-wider bg-red-600/90 backdrop-blur-md text-white rounded-full shadow-xs">
+              Shorts
+            </span>
+          )}
         </div>
 
         {/* Share Button (Top-Right Overlay) */}

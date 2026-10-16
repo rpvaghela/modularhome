@@ -5,6 +5,7 @@ export type VideoItem = BaseVideoItem;
 
 export const VIDEO_CATEGORIES = [
   "All",
+  "Shorts",
   "Modular Homes",
   "Prefab Cabins",
   "Tiny Homes",
@@ -32,6 +33,7 @@ export const VIDEOS_DATA: VideoItem[] = (syncedVideosData as any[]).slice(0, 50)
   channelId: v.channelId || "UCe8Cs76lnVixGuymeoyExKg",
   channelTitle: v.channelTitle || "Amish Built Cabins, Modular Cabins, Modular Homes",
   isPublished: v.isPublished !== false,
+  isShort: v.isShort || v.is_short || v.category === "Shorts",
   createdAt: v.createdAt || new Date().toISOString(),
   updatedAt: v.updatedAt || new Date().toISOString(),
 }));

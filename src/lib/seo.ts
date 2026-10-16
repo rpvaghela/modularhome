@@ -29,11 +29,37 @@ export function getCanonicalUrl(path: string = "/"): string {
 
 /**
  * Inspects a host string (from headers or env) and returns appropriate Robots metadata.
- * Standardizes to { index: true, follow: true } to pass Lighthouse and search audits with production canonical consolidation.
- * Can be explicitly disabled via DISALLOW_ROBOTS="true" environment variable.
+ * - If DISALLOW_ROBOTS="true" is set, enforces noindex, nofollow.
+ * - If host or environment is a preview/staging environment (e.g. *.vercel.app, staging.*, or non-production hostname other than localhost),
+ *   automatically enforces noindex, nofollow to protect staging environments from indexing.
+ * - On production (modularhome.com), allows indexing: { index: true, follow: true }.
  */
 export function getRobotsMetadata(host?: string | null): Metadata["robots"] {
-  if (process.env.DISALLOW_ROBOTS === "true") {
+  const isExplicitlyDisallowed = process.env.DISALLOW_ROBOTS === "true";
+  const isVercelPreview = process.env.VERCEL_ENV === "preview";
+
+  const rawHost = (host || "").trim().toLowerCase();
+  const hostWithoutPort = rawHost.split(":")[0];
+
+  const isProductionHost =
+    hostWithoutPort === "modularhome.com" ||
+    hostWithoutPort === "www.modularhome.com";
+
+  const isLocalDev =
+    hostWithoutPort === "localhost" ||
+    hostWithoutPort === "127.0.0.1" ||
+    hostWithoutPort === "";
+
+  // Auto-detect staging / preview domains
+  const isStaging =
+    !isProductionHost &&
+    !isLocalDev &&
+    (hostWithoutPort.endsWith(".vercel.app") ||
+      hostWithoutPort.includes("staging") ||
+      hostWithoutPort.includes("preview") ||
+      hostWithoutPort.includes("dev."));
+
+  if (isExplicitlyDisallowed || isVercelPreview || isStaging) {
     return {
       index: false,
       follow: false,

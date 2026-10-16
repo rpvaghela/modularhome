@@ -1,9 +1,10 @@
-import { VideoItem, SyncStats } from "@/types/video";
+import { VideoItem, SyncStats, AutoSyncConfig } from "@/types/video";
 import { VIDEOS_DATA } from "@/data/videos";
 import syncedVideosFallback from "@/data/synced_videos.json";
 import syncStatsFallback from "@/data/sync_stats.json";
 import { supabaseAdmin, isSupabaseConfigured } from "./supabase";
 import { slugifyVideoTitle, generateUniqueSlug } from "./videoSlug";
+import { isYouTubeShort, parseISO8601DurationInSeconds } from "./youtubeService";
 
 let fs: any = null;
 let path: any = null;
@@ -18,11 +19,13 @@ if (typeof window === "undefined") {
 const DATA_DIR = path ? path.join(process.cwd(), "src", "data") : "";
 const FILE_PATH = path ? path.join(DATA_DIR, "synced_videos.json") : "";
 const STATS_FILE_PATH = path ? path.join(DATA_DIR, "sync_stats.json") : "";
+const AUTO_SYNC_FILE_PATH = path ? path.join(DATA_DIR, "youtube_auto_sync_config.json") : "";
 const REDIRECTS_FILE_PATH = path ? path.join(DATA_DIR, "shopify_redirects.json") : "";
 
 // In-memory cache
 let memoryVideosCache: VideoItem[] | null = null;
 let memoryStatsCache: SyncStats | null = null;
+let memoryAutoSyncCache: AutoSyncConfig | null = null;
 
 function ensureDataDirectory() {
   try {
@@ -34,6 +37,15 @@ function ensureDataDirectory() {
   }
 }
 
+export function parseDurationStringSeconds(str: string): number {
+  if (!str) return 0;
+  if (str.startsWith("PT")) return parseISO8601DurationInSeconds(str);
+  const parts = str.split(":").map((p) => parseInt(p, 10));
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return parts[0] || 0;
+}
+
 export function normalizeVideo(v: any): VideoItem {
   const ytId =
     v.youtubeVideoId ||
@@ -42,26 +54,35 @@ export function normalizeVideo(v: any): VideoItem {
   const embed = v.embedUrl || v.embed_url || `https://www.youtube-nocookie.com/embed/${ytId}`;
   const title = v.title || "Modular Home & Cabin Tour";
   const slug = v.slug || slugifyVideoTitle(title, ytId);
+  const dur = v.duration || "4:00";
+  const durSec = parseDurationStringSeconds(dur);
+  const isShort =
+    v.isShort !== undefined
+      ? Boolean(v.isShort)
+      : v.is_short !== undefined
+      ? Boolean(v.is_short)
+      : (v.category === "Shorts" || isYouTubeShort(durSec, title, v.description, v.youtubeUrl || v.youtube_url));
 
   return {
     id: v.id || `vid-${ytId}`,
     youtubeVideoId: ytId,
     slug,
     title,
-    category: v.category || "Building Tours",
-    duration: v.duration || "4:00",
+    category: v.category || (isShort ? "Shorts" : "Building Tours"),
+    duration: dur,
     description: v.description || "",
     thumbnail: v.thumbnail || `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,
     modelSlug: v.modelSlug || v.model_slug,
     views: v.views || "10K views",
     date: v.date || "Recent",
     publishedAt: v.publishedAt || v.published_at || new Date().toISOString(),
-    youtubeUrl: v.youtubeUrl || v.youtube_url || `https://www.youtube.com/watch?v=${ytId}`,
+    youtubeUrl: v.youtubeUrl || v.youtube_url || (isShort ? `https://www.youtube.com/shorts/${ytId}` : `https://www.youtube.com/watch?v=${ytId}`),
     embedUrl: embed,
-    videoUrl: v.videoUrl || v.video_url || embed,
+    videoUrl: v.videoUrl || v.video_url || (isShort ? `https://www.youtube.com/shorts/${ytId}` : embed),
     channelId: v.channelId || v.channel_id || "UCe8Cs76lnVixGuymeoyExKg",
     channelTitle: v.channelTitle || v.channel_title || "Amish Built Cabins, Modular Cabins, Modular Homes",
     isPublished: v.isPublished !== undefined ? v.isPublished : v.is_published !== false,
+    isShort,
     createdAt: v.createdAt || v.created_at || new Date().toISOString(),
     updatedAt: v.updatedAt || v.updated_at || new Date().toISOString(),
   };
@@ -168,6 +189,74 @@ export function saveSyncStats(stats: SyncStats): void {
   }
 }
 
+export function readAutoSyncConfig(): AutoSyncConfig {
+  if (memoryAutoSyncCache) return memoryAutoSyncCache;
+
+  try {
+    ensureDataDirectory();
+    if (fs && AUTO_SYNC_FILE_PATH && fs.existsSync(AUTO_SYNC_FILE_PATH)) {
+      const data = fs.readFileSync(AUTO_SYNC_FILE_PATH, "utf-8");
+      memoryAutoSyncCache = JSON.parse(data);
+      return memoryAutoSyncCache!;
+    }
+  } catch (error) {}
+
+  const stats = readSyncStats();
+  const defaultInterval = 60; // 1 hour
+  const lastRun = stats.lastSyncAt || new Date().toISOString();
+  const nextRun = new Date(new Date(lastRun).getTime() + defaultInterval * 60 * 1000).toISOString();
+
+  const defaultConfig: AutoSyncConfig = {
+    enabled: true,
+    intervalMinutes: defaultInterval,
+    syncShorts: true,
+    syncScope: "latest",
+    lastRunAt: stats.lastSyncAt,
+    nextRunAt: nextRun,
+    lastRunStatus: stats.status === "never" ? "never" : (stats.status === "error" ? "error" : "success"),
+    lastRunMessage: "Automatic synchronization enabled (Every 1 Hour).",
+    history: [],
+  };
+
+  memoryAutoSyncCache = defaultConfig;
+  return defaultConfig;
+}
+
+export function saveAutoSyncConfig(config: AutoSyncConfig): void {
+  memoryAutoSyncCache = config;
+  try {
+    ensureDataDirectory();
+    if (fs && AUTO_SYNC_FILE_PATH) {
+      fs.writeFileSync(AUTO_SYNC_FILE_PATH, JSON.stringify(config, null, 2), "utf-8");
+    }
+  } catch (error) {}
+
+  if (isSupabaseConfigured()) {
+    (async () => {
+      try {
+        const { data: curr } = await supabaseAdmin
+          .from("global_settings")
+          .select("custom_scripts")
+          .eq("id", "primary")
+          .maybeSingle();
+
+        const existingScripts = curr?.custom_scripts || {};
+        await supabaseAdmin
+          .from("global_settings")
+          .update({
+            custom_scripts: {
+              ...existingScripts,
+              youtube_auto_sync_config: config,
+            },
+          })
+          .eq("id", "primary");
+      } catch (e) {
+        console.error("Failed to persist auto sync config to global_settings:", e);
+      }
+    })();
+  }
+}
+
 export function getPublishedVideos(params?: { category?: string; search?: string; limit?: number }): VideoItem[] {
   const videos = readVideosFromStore();
   let result = videos.filter((v) => v.isPublished !== false);
@@ -220,8 +309,9 @@ export async function getCategoryCounts(): Promise<Record<string, number>> {
 
   if (isSupabaseConfigured()) {
     try {
-      const [cAll, cBarndo, cCabin, cTiny, cModular, cAFrame, cTour] = await Promise.all([
+      const [cAll, cShorts, cBarndo, cCabin, cTiny, cModular, cAFrame, cTour] = await Promise.all([
         supabaseAdmin.from("videos").select("id", { count: "exact" }).limit(1),
+        supabaseAdmin.from("videos").select("id", { count: "exact" }).limit(1).or("category.eq.Shorts,title.ilike.%#short%,description.ilike.%#short%,title.ilike.%shorts%"),
         supabaseAdmin.from("videos").select("id", { count: "exact" }).limit(1).or("category.eq.Barndominiums,title.ilike.%barndo%,description.ilike.%barndo%,title.ilike.%pole barn%"),
         supabaseAdmin.from("videos").select("id", { count: "exact" }).limit(1).or("category.eq.Prefab Cabins,title.ilike.%cabin%,description.ilike.%cabin%,title.ilike.%lodge%,title.ilike.%log%"),
         supabaseAdmin.from("videos").select("id", { count: "exact" }).limit(1).or("category.eq.Tiny Homes,title.ilike.%tiny%,description.ilike.%tiny%,title.ilike.%park model%"),
@@ -233,6 +323,7 @@ export async function getCategoryCounts(): Promise<Record<string, number>> {
       const totalAll = cAll.count || 0;
       const counts = {
         All: totalAll,
+        Shorts: cShorts.count || 0,
         Barndominiums: cBarndo.count || 0,
         "Prefab Cabins": cCabin.count || 0,
         "Tiny Homes": cTiny.count || 0,
@@ -254,10 +345,11 @@ export async function getCategoryCounts(): Promise<Record<string, number>> {
   // Fallback to local memory store
   const videos = readVideosFromStore().filter((v) => v.isPublished !== false);
   const counts: Record<string, number> = { All: videos.length };
-  const categories = ["Barndominiums", "Modular Homes", "Prefab Cabins", "Tiny Homes", "A-Frames", "Building Tours"];
+  const categories = ["Shorts", "Barndominiums", "Modular Homes", "Prefab Cabins", "Tiny Homes", "A-Frames", "Building Tours"];
   for (const cat of categories) {
     counts[cat] = videos.filter((v) => {
       const content = `${v.title} ${v.description} ${v.category || ""}`.toLowerCase();
+      if (cat === "Shorts") return v.isShort || (v.category || "").toLowerCase() === "shorts" || content.includes("#short") || content.includes("#shorts");
       if (cat === "Barndominiums") return content.includes("barndo") || content.includes("barndominium");
       if (cat === "Modular Homes") return (content.includes("modular") && !content.includes("cabin")) || content.includes("modular home") || content.includes("residence");
       if (cat === "Prefab Cabins") return content.includes("cabin") || content.includes("lodge") || content.includes("rustic") || content.includes("log");
@@ -299,7 +391,9 @@ export async function getPaginatedVideos(params?: {
         .order("published_at", { ascending: false, nullsFirst: false });
 
       if (category) {
-        if (category === "Barndominiums") {
+        if (category === "Shorts") {
+          query = query.or("category.eq.Shorts,title.ilike.%#short%,description.ilike.%#short%,title.ilike.%shorts%");
+        } else if (category === "Barndominiums") {
           query = query.or("category.eq.Barndominiums,title.ilike.%barndo%,description.ilike.%barndo%,title.ilike.%pole barn%");
         } else if (category === "Prefab Cabins") {
           query = query.or("category.eq.Prefab Cabins,title.ilike.%cabin%,description.ilike.%cabin%,title.ilike.%lodge%,title.ilike.%log%");
@@ -398,7 +492,11 @@ export async function getAdminPaginatedVideos(params?: {
       }
 
       if (category) {
-        query = query.ilike("category", `%${category}%`);
+        if (category === "Shorts") {
+          query = query.or("category.eq.Shorts,title.ilike.%#short%,description.ilike.%#short%,title.ilike.%shorts%");
+        } else {
+          query = query.ilike("category", `%${category}%`);
+        }
       }
 
       if (search) {
@@ -436,8 +534,12 @@ export async function getAdminPaginatedVideos(params?: {
   }
 
   if (category) {
-    const catLower = category.toLowerCase();
-    filtered = filtered.filter((v) => (v.category || "").toLowerCase().includes(catLower));
+    if (category === "Shorts") {
+      filtered = filtered.filter((v) => v.isShort || (v.category || "").toLowerCase() === "shorts" || (v.title || "").toLowerCase().includes("#short"));
+    } else {
+      const catLower = category.toLowerCase();
+      filtered = filtered.filter((v) => (v.category || "").toLowerCase().includes(catLower));
+    }
   }
 
   if (search) {

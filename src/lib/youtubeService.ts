@@ -91,10 +91,10 @@ export function extractYouTubeId(urlOrId: string): string | null {
     return trimmed;
   }
 
-  // Regex patterns for youtube URLs
+  // Regex patterns for youtube URLs including Shorts
   const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([a-zA-Z0-9_-]{11})/i,
     /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/i,
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([a-zA-Z0-9_-]{11})/i,
   ];
 
   for (const pattern of patterns) {
@@ -116,11 +116,6 @@ export async function fetchYouTubeVideoByUrl(urlOrId: string): Promise<Partial<V
   // Reject known demo IDs
   if (KNOWN_DEMO_VIDEO_IDS.has(videoId)) {
     throw new Error("Demo placeholder videos cannot be imported.");
-  }
-
-  // Reject explicit shorts URL
-  if (/youtube\.com\/shorts\//i.test(urlOrId)) {
-    throw new Error("YouTube Shorts are excluded. Please provide a full-length YouTube video URL.");
   }
 
   const apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyDtb7876TeTWSXHH14xqH0QVir-rEYm6R0";
@@ -146,9 +141,7 @@ export async function fetchYouTubeVideoByUrl(urlOrId: string): Promise<Partial<V
     const statistics = item.statistics;
 
     const durationSec = parseISO8601DurationInSeconds(contentDetails?.duration || "");
-    if (isYouTubeShort(durationSec, snippet.title, snippet.description, urlOrId)) {
-      throw new Error("This video is a YouTube Short (<= 60s). Only full-length main videos are supported.");
-    }
+    const isShort = isYouTubeShort(durationSec, snippet.title, snippet.description, urlOrId);
 
     const thumbnail =
       snippet.thumbnails?.maxres?.url ||
@@ -161,13 +154,16 @@ export async function fetchYouTubeVideoByUrl(urlOrId: string): Promise<Partial<V
       ? `${parseInt(statistics.viewCount, 10).toLocaleString()} views`
       : "10K views";
 
+    const title = snippet.title || (isShort ? "YouTube Short" : "YouTube Video");
+    const category = isShort ? "Shorts" : inferVideoCategory(title, snippet.description || "");
+
     return {
       youtubeVideoId: videoId,
-      slug: slugifyVideoTitle(snippet.title || "YouTube Video", videoId),
-      title: snippet.title || "YouTube Video",
+      slug: slugifyVideoTitle(title, videoId),
+      title,
       description: snippet.description || "",
       thumbnail,
-      duration: parseISO8601Duration(contentDetails?.duration),
+      duration: parseISO8601Duration(contentDetails?.duration) || (durationSec > 0 ? `${Math.floor(durationSec / 60)}:${(durationSec % 60).toString().padStart(2, "0")}` : "0:45"),
       publishedAt: snippet.publishedAt || new Date().toISOString(),
       views: viewCount,
       date: snippet.publishedAt
@@ -177,11 +173,13 @@ export async function fetchYouTubeVideoByUrl(urlOrId: string): Promise<Partial<V
             year: "numeric",
           })
         : "Recent",
-      youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
+      youtubeUrl: isShort ? `https://www.youtube.com/shorts/${videoId}` : `https://www.youtube.com/watch?v=${videoId}`,
       embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}`,
+      videoUrl: isShort ? `https://www.youtube.com/shorts/${videoId}` : `https://www.youtube-nocookie.com/embed/${videoId}`,
       channelId: snippet.channelId,
       channelTitle: snippet.channelTitle,
-      category: "Building Tours",
+      category,
+      isShort,
       isPublished: true,
     };
   } catch (err: any) {
@@ -190,7 +188,13 @@ export async function fetchYouTubeVideoByUrl(urlOrId: string): Promise<Partial<V
   }
 }
 
-export function inferVideoCategory(title: string = "", description: string = ""): string {
+export function inferVideoCategory(title: string = "", description: string = "", isShort: boolean = false): string {
+  if (isShort) {
+    const content = `${title} ${description}`.toLowerCase();
+    if (!content.includes("barndo") && !content.includes("modular") && !content.includes("cabin") && !content.includes("tiny") && !content.includes("a-frame")) {
+      return "Shorts";
+    }
+  }
   const content = `${title} ${description}`.toLowerCase();
   if (content.includes("barndo") || content.includes("barndominium") || content.includes("pole barn")) {
     return "Barndominiums";
@@ -206,6 +210,9 @@ export function inferVideoCategory(title: string = "", description: string = "")
   }
   if (content.includes("modular") || content.includes("residence") || content.includes("prefab home")) {
     return "Modular Homes";
+  }
+  if (isShort) {
+    return "Shorts";
   }
   return "Building Tours";
 }
@@ -319,12 +326,8 @@ export async function syncYouTubeChannel(options?: {
         continue;
       }
 
-      // Check duration and shorts indicators only if NOT importing full historical archive
       const durationSec = parseISO8601DurationInSeconds(contentDetails?.duration || "");
-      if (!includeAllHistorical && isYouTubeShort(durationSec, snippet?.title, snippet?.description)) {
-        // Skip shorts only if strict non-historical mode requested
-        continue;
-      }
+      const isShort = isYouTubeShort(durationSec, snippet?.title, snippet?.description);
 
       const thumbnail =
         snippet?.thumbnails?.maxres?.url ||
@@ -337,16 +340,16 @@ export async function syncYouTubeChannel(options?: {
         ? `${parseInt(statistics.viewCount, 10).toLocaleString()} views`
         : "Recent Tour";
 
-      const title = snippet?.title || "Modular Home & Cabin Tour";
+      const title = snippet?.title || (isShort ? "Modular Homes & Cabins Short" : "Modular Home & Cabin Tour");
       const description = snippet?.description || "";
-      const category = inferVideoCategory(title, description);
+      const category = inferVideoCategory(title, description, isShort);
 
       mainVideos.push({
         youtubeVideoId: vId,
         title,
         description,
         thumbnail,
-        duration: parseISO8601Duration(contentDetails?.duration) || (durationSec > 0 ? `${Math.floor(durationSec / 60)}:${(durationSec % 60).toString().padStart(2, "0")}` : "4:00"),
+        duration: parseISO8601Duration(contentDetails?.duration) || (durationSec > 0 ? `${Math.floor(durationSec / 60)}:${(durationSec % 60).toString().padStart(2, "0")}` : (isShort ? "0:45" : "4:00")),
         publishedAt: snippet?.publishedAt || new Date().toISOString(),
         views: viewCount,
         date: snippet?.publishedAt
@@ -356,12 +359,13 @@ export async function syncYouTubeChannel(options?: {
               year: "numeric",
             })
           : "Recent",
-        youtubeUrl: `https://www.youtube.com/watch?v=${vId}`,
+        youtubeUrl: isShort ? `https://www.youtube.com/shorts/${vId}` : `https://www.youtube.com/watch?v=${vId}`,
         embedUrl: `https://www.youtube-nocookie.com/embed/${vId}`,
-        videoUrl: `https://www.youtube-nocookie.com/embed/${vId}`,
+        videoUrl: isShort ? `https://www.youtube.com/shorts/${vId}` : `https://www.youtube-nocookie.com/embed/${vId}`,
         channelId: snippet?.channelId || channelId,
         channelTitle: snippet?.channelTitle || "Amish Built Cabins, Modular Cabins, Modular Homes",
         category,
+        isShort,
         isPublished: true,
       });
     }

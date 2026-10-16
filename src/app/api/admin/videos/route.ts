@@ -6,8 +6,11 @@ import {
   deleteLocalVideo, 
   upsertVideo, 
   updateVideoSlug,
-  readSyncStats 
+  readSyncStats,
+  readAutoSyncConfig,
+  saveAutoSyncConfig
 } from "@/lib/videoStore";
+import { syncYouTubeChannel } from "@/lib/youtubeService";
 import { requireAdminAuth } from "@/lib/auth";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 
@@ -27,6 +30,7 @@ export async function GET(request: NextRequest) {
 
     const paginated = await getAdminPaginatedVideos({ page, limit, category, search, status });
     let stats = readSyncStats();
+    let autoSync = readAutoSyncConfig();
 
     if (isSupabaseConfigured()) {
       try {
@@ -39,6 +43,9 @@ export async function GET(request: NextRequest) {
         if (gs?.custom_scripts?.video_sync_stats) {
           stats = gs.custom_scripts.video_sync_stats;
         }
+        if (gs?.custom_scripts?.youtube_auto_sync_config) {
+          autoSync = { ...autoSync, ...gs.custom_scripts.youtube_auto_sync_config };
+        }
       } catch (e) {}
     }
 
@@ -46,6 +53,7 @@ export async function GET(request: NextRequest) {
       {
         success: true,
         stats,
+        autoSync,
         count: paginated.totalCount,
         totalCount: paginated.totalCount,
         page: paginated.page,
@@ -108,6 +116,67 @@ export async function POST(request: NextRequest) {
       }
       const deleted = deleteLocalVideo(id);
       return NextResponse.json({ success: deleted, message: deleted ? "Local record removed" : "Video not found" });
+    }
+
+    if (action === "updateAutoSync") {
+      const current = readAutoSyncConfig();
+      const updatedConfig = {
+        ...current,
+        enabled: body.enabled !== undefined ? Boolean(body.enabled) : current.enabled,
+        intervalMinutes: body.intervalMinutes ? Number(body.intervalMinutes) : current.intervalMinutes,
+        syncShorts: body.syncShorts !== undefined ? Boolean(body.syncShorts) : current.syncShorts,
+        syncScope: body.syncScope || current.syncScope,
+      };
+
+      const now = new Date();
+      updatedConfig.nextRunAt = new Date(
+        now.getTime() + (updatedConfig.intervalMinutes || 60) * 60 * 1000
+      ).toISOString();
+
+      saveAutoSyncConfig(updatedConfig);
+      return NextResponse.json({
+        success: true,
+        message: `Auto-sync configuration saved (${updatedConfig.enabled ? "Active" : "Paused"}).`,
+        autoSync: updatedConfig,
+      });
+    }
+
+    if (action === "triggerAutoSync") {
+      const current = readAutoSyncConfig();
+      const result = await syncYouTubeChannel({
+        maxPages: current.syncScope === "full" ? 5 : 2,
+        includeAllHistorical: true,
+      });
+
+      const now = new Date();
+      const nextRun = new Date(
+        now.getTime() + (current.intervalMinutes || 60) * 60 * 1000
+      ).toISOString();
+
+      const updatedConfig = {
+        ...current,
+        lastRunAt: now.toISOString(),
+        nextRunAt: nextRun,
+        lastRunStatus: (result.success ? "success" : "error") as "success" | "error",
+        lastRunMessage: result.message,
+        history: [
+          {
+            executedAt: now.toISOString(),
+            newVideos: result.newVideosCount || 0,
+            updatedVideos: result.updatedVideosCount || 0,
+            status: (result.success ? "success" : "error") as "success" | "error",
+          },
+          ...(current.history || []).slice(0, 9),
+        ],
+      };
+      saveAutoSyncConfig(updatedConfig);
+
+      return NextResponse.json({
+        success: result.success,
+        message: result.message,
+        autoSync: updatedConfig,
+        syncResult: result,
+      });
     }
 
     if (action === "upsertManual") {

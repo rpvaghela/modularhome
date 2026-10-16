@@ -50,12 +50,12 @@ async function runHistoricalSync() {
   const resetRequested = args.includes("--reset");
   const runAll = args.includes("--all");
   const maxBatchesArg = args.find((a) => a.startsWith("--max-batches="));
-  const maxBatches = maxBatchesArg ? parseInt(maxBatchesArg.split("=")[1], 10) : (runAll ? 500 : 40);
+  const maxBatches = maxBatchesArg ? parseInt(maxBatchesArg.split("=")[1], 10) : 100;
 
   console.log("==================================================================");
   console.log("🎬 STARTING COMPLETE YOUTUBE HISTORICAL ARCHIVE SYNCHRONIZATION");
   console.log("   Target Channel: Amish Built Cabins (@amishbuiltcabins)");
-  console.log("   Archive Scope: Full Historical Uploads (~20,000+ Videos)");
+  console.log("   Archive Scope: Full Historical Uploads (~23,000+ Videos & Shorts)");
   console.log("==================================================================");
 
   let checkpoint = readCheckpoint();

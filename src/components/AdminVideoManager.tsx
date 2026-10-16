@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { 
@@ -26,13 +26,23 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Filter
+  Filter,
+  Sparkles,
+  StopCircle,
+  Clock,
+  Zap,
+  Power,
+  Settings2,
+  Sliders,
+  Activity,
+  History
 } from "lucide-react";
-import { VideoItem, SyncStats } from "@/types/video";
+import { VideoItem, SyncStats, AutoSyncConfig } from "@/types/video";
 import { useConfirm } from "@/context/ConfirmDialogContext";
 
 const CATEGORIES = [
   "All",
+  "Shorts",
   "Barndominiums",
   "Modular Homes",
   "Prefab Cabins",
@@ -46,8 +56,30 @@ export default function AdminVideoManager() {
   const [stats, setStats] = useState<SyncStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isSyncingAll, setIsSyncingAll] = useState(false);
+  const [syncAllProgress, setSyncAllProgress] = useState<{
+    batch: number;
+    totalBatchesEst: number;
+    newCount: number;
+    updatedCount: number;
+    checkedCount: number;
+    percent: number;
+    statusText: string;
+  } | null>(null);
+  const syncCancelRef = useRef(false);
   const [syncMessage, setSyncMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const confirm = useConfirm();
+
+  // Auto-Sync Engine State
+  const [autoSyncConfig, setAutoSyncConfig] = useState<AutoSyncConfig | null>(null);
+  const [isUpdatingAutoSync, setIsUpdatingAutoSync] = useState(false);
+  const [isTriggeringAutoSync, setIsTriggeringAutoSync] = useState(false);
+  const [secondsUntilNextSync, setSecondsUntilNextSync] = useState<number | null>(null);
+  const [autoSyncModalOpen, setAutoSyncModalOpen] = useState(false);
+  const [pendingIntervalMinutes, setPendingIntervalMinutes] = useState(60);
+  const [pendingSyncShorts, setPendingSyncShorts] = useState(true);
+  const [pendingSyncScope, setPendingSyncScope] = useState<"latest" | "full">("latest");
+  const isAutoSyncExecutingRef = useRef(false);
 
   // Server-side Pagination & Filtering State
   const [page, setPage] = useState(1);
@@ -106,6 +138,12 @@ export default function AdminVideoManager() {
         if (data.success) {
           setVideos(data.videos || []);
           setStats(data.stats || null);
+          if (data.autoSync) {
+            setAutoSyncConfig(data.autoSync);
+            setPendingIntervalMinutes(data.autoSync.intervalMinutes || 60);
+            setPendingSyncShorts(data.autoSync.syncShorts ?? true);
+            setPendingSyncScope(data.autoSync.syncScope || "latest");
+          }
           setTotalPages(data.totalPages || 1);
           setTotalCount(data.totalCount ?? (data.count || 0));
           setPage(data.page || targetPage);
@@ -141,7 +179,7 @@ export default function AdminVideoManager() {
       if (data.success) {
         setSyncMessage({
           type: "success",
-          text: `Sync Completed! ${data.newVideosCount || 0} new videos added, ${data.updatedVideosCount || 0} updated.`,
+          text: `Sync Completed! ${data.newVideosCount || 0} new videos/shorts added, ${data.updatedVideosCount || 0} updated.`,
         });
         await fetchAdminVideos(1, limit, selectedCategory, searchQuery, selectedStatus);
       } else {
@@ -157,6 +195,260 @@ export default function AdminVideoManager() {
       });
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const handleCancelSyncAll = () => {
+    syncCancelRef.current = true;
+    setIsSyncingAll(false);
+    setSyncMessage({
+      type: "error",
+      text: "Archive sync paused by user.",
+    });
+  };
+
+  // Automated YouTube Sync Countdown & Trigger Engine
+  useEffect(() => {
+    if (!autoSyncConfig?.enabled || !autoSyncConfig.nextRunAt) {
+      setSecondsUntilNextSync(null);
+      return;
+    }
+
+    const checkAndTick = () => {
+      const now = Date.now();
+      const targetTime = new Date(autoSyncConfig.nextRunAt!).getTime();
+      const diffSec = Math.floor((targetTime - now) / 1000);
+
+      if (diffSec <= 0) {
+        setSecondsUntilNextSync(0);
+        // If not already in-flight, trigger automatic sync in background!
+        if (
+          !isAutoSyncExecutingRef.current &&
+          !isSyncing &&
+          !isSyncingAll &&
+          !isTriggeringAutoSync
+        ) {
+          isAutoSyncExecutingRef.current = true;
+          handleTriggerAutoSync(true).finally(() => {
+            isAutoSyncExecutingRef.current = false;
+          });
+        }
+      } else {
+        setSecondsUntilNextSync(diffSec);
+      }
+    };
+
+    checkAndTick();
+    const intervalTimer = setInterval(checkAndTick, 1000);
+    return () => clearInterval(intervalTimer);
+  }, [autoSyncConfig?.enabled, autoSyncConfig?.nextRunAt, isSyncing, isSyncingAll, isTriggeringAutoSync]);
+
+  const formatCountdown = (totalSeconds: number | null): string => {
+    if (totalSeconds === null) return "Paused";
+    if (totalSeconds <= 0) return "Syncing...";
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${seconds}s`;
+    }
+    return `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
+  };
+
+  const handleToggleAutoSync = async () => {
+    const nextState = !autoSyncConfig?.enabled;
+    setIsUpdatingAutoSync(true);
+    try {
+      const res = await fetch("/api/admin/videos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "updateAutoSync",
+          enabled: nextState,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.autoSync) {
+        setAutoSyncConfig(data.autoSync);
+        setSyncMessage({
+          type: "success",
+          text: `Automatic Sync is now ${nextState ? "ACTIVE (Running on Schedule)" : "PAUSED (Manual Only)"}.`,
+        });
+      }
+    } catch (err: any) {
+      setSyncMessage({
+        type: "error",
+        text: err.message || "Failed to toggle automatic sync.",
+      });
+    } finally {
+      setIsUpdatingAutoSync(false);
+    }
+  };
+
+  const handleTriggerAutoSync = async (isBackgroundTrigger = false) => {
+    setIsTriggeringAutoSync(true);
+    if (!isBackgroundTrigger) {
+      setSyncMessage(null);
+    }
+
+    try {
+      const res = await fetch("/api/admin/videos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "triggerAutoSync" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (data.autoSync) {
+          setAutoSyncConfig(data.autoSync);
+        }
+        setSyncMessage({
+          type: "success",
+          text: `Auto-Sync Completed: +${data.syncResult?.newVideosCount || 0} new videos/shorts added, ${data.syncResult?.updatedVideosCount || 0} updated.`,
+        });
+        await fetchAdminVideos(page, limit, selectedCategory, searchQuery, selectedStatus);
+      } else {
+        setSyncMessage({
+          type: "error",
+          text: data.message || "Auto-sync failed to execute.",
+        });
+      }
+    } catch (err: any) {
+      setSyncMessage({
+        type: "error",
+        text: err.message || "Network error while triggering auto-sync.",
+      });
+    } finally {
+      setIsTriggeringAutoSync(false);
+    }
+  };
+
+  const handleSaveAutoSyncConfig = async () => {
+    setIsUpdatingAutoSync(true);
+    try {
+      const res = await fetch("/api/admin/videos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "updateAutoSync",
+          enabled: autoSyncConfig ? autoSyncConfig.enabled : true,
+          intervalMinutes: pendingIntervalMinutes,
+          syncShorts: pendingSyncShorts,
+          syncScope: pendingSyncScope,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.autoSync) {
+        setAutoSyncConfig(data.autoSync);
+        setAutoSyncModalOpen(false);
+        setSyncMessage({
+          type: "success",
+          text: `Automatic Sync settings updated! Frequency: Every ${data.autoSync.intervalMinutes}m.`,
+        });
+      } else {
+        setSyncMessage({
+          type: "error",
+          text: data.message || "Failed to update auto-sync settings.",
+        });
+      }
+    } catch (err: any) {
+      setSyncMessage({
+        type: "error",
+        text: err.message || "Error updating auto-sync settings.",
+      });
+    } finally {
+      setIsUpdatingAutoSync(false);
+    }
+  };
+
+  const handleSyncAllArchive = async () => {
+    setIsSyncingAll(true);
+    syncCancelRef.current = false;
+    setSyncMessage(null);
+
+    let currentToken: string | undefined = undefined;
+    let batch = 0;
+    const estBatches = 48; // ~23,921 / 500
+    let totalChecked = 0;
+    let totalNew = 0;
+    let totalUpdated = 0;
+
+    try {
+      while (!syncCancelRef.current) {
+        batch++;
+        const pct = Math.min(99, Math.round((batch / estBatches) * 100));
+        setSyncAllProgress({
+          batch,
+          totalBatchesEst: estBatches,
+          newCount: totalNew,
+          updatedCount: totalUpdated,
+          checkedCount: totalChecked,
+          percent: pct,
+          statusText: `Syncing batch #${batch}... Fetching videos and Shorts...`,
+        });
+
+        const res: Response = await fetch("/api/youtube/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            pageToken: currentToken,
+            maxPages: 10,
+          }),
+        });
+
+        const data: any = await res.json();
+        if (!data.success) {
+          throw new Error(data.message || `Failed at batch #${batch}`);
+        }
+
+        totalChecked += data.checkedCount || 0;
+        totalNew += data.newVideosCount || 0;
+        totalUpdated += data.updatedVideosCount || 0;
+
+        setSyncAllProgress({
+          batch,
+          totalBatchesEst: estBatches,
+          newCount: totalNew,
+          updatedCount: totalUpdated,
+          checkedCount: totalChecked,
+          percent: pct,
+          statusText: `Batch #${batch} complete: +${data.newVideosCount || 0} new, ${data.updatedVideosCount || 0} updated.`,
+        });
+
+        if (!data.hasMore || !data.nextPageToken) {
+          break;
+        }
+
+        currentToken = data.nextPageToken;
+
+        if (batch % 2 === 0) {
+          await fetchAdminVideos(1, limit, selectedCategory, searchQuery, selectedStatus);
+        }
+      }
+
+      if (!syncCancelRef.current) {
+        setSyncAllProgress({
+          batch,
+          totalBatchesEst: batch,
+          newCount: totalNew,
+          updatedCount: totalUpdated,
+          checkedCount: totalChecked,
+          percent: 100,
+          statusText: "All videos & Shorts successfully synchronized!",
+        });
+        setSyncMessage({
+          type: "success",
+          text: `Complete 23k+ Channel Sync Finished! Processed ${totalChecked.toLocaleString()} videos. Added ${totalNew.toLocaleString()} new, updated ${totalUpdated.toLocaleString()}.`,
+        });
+      }
+    } catch (err: any) {
+      setSyncMessage({
+        type: "error",
+        text: err.message || "Error occurred during full channel archive sync.",
+      });
+    } finally {
+      setIsSyncingAll(false);
+      await fetchAdminVideos(1, limit, selectedCategory, searchQuery, selectedStatus);
     }
   };
 
@@ -350,13 +642,14 @@ export default function AdminVideoManager() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#fcb907] mb-2">
-              <span>Automatic Channel Synchronization</span>
+              <span className={`w-2 h-2 rounded-full ${autoSyncConfig?.enabled ? "bg-emerald-400 animate-ping" : "bg-gray-400"}`} />
+              <span>Automatic Channel Synchronization {autoSyncConfig?.enabled ? "• LIVE" : "• PAUSED"}</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight">
               YouTube Video Manager
             </h1>
             <p className="text-xs sm:text-sm text-white/70 mt-1 max-w-2xl font-sans">
-              Automatically sync full-length videos from your YouTube channel directly to your website. Main video uploads appear automatically without manual website post creation.
+              Automatic background synchronization runs every {autoSyncConfig?.intervalMinutes || 60} minutes to ingest fresh YouTube uploads &amp; Shorts directly into your website catalog.
             </p>
           </div>
 
@@ -366,19 +659,75 @@ export default function AdminVideoManager() {
               className="px-4 py-2.5 bg-white text-[#101114] hover:bg-[#fcb907] hover:text-[#101114] text-xs font-bold uppercase tracking-wider rounded-xl transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
             >
               <Plus className="w-4 h-4 text-[#d97706]" />
-              <span>Add Video</span>
+              <span>Add Video / Short</span>
+            </button>
+
+            <button
+              onClick={() => setAutoSyncModalOpen(true)}
+              className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 border border-white/20 cursor-pointer"
+              title="Configure Automatic Synchronization Schedule"
+            >
+              <Sliders className="w-3.5 h-3.5 text-[#fcb907]" />
+              <span>Auto-Sync Settings</span>
             </button>
 
             <button
               onClick={handleManualSync}
-              disabled={isSyncing}
-              className="px-5 py-2.5 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
+              disabled={isSyncing || isSyncingAll || isTriggeringAutoSync}
+              className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 border border-white/20 disabled:opacity-50 cursor-pointer"
             >
-              <RefreshCw className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`} />
-              <span>{isSyncing ? "Syncing..." : "Sync YouTube Now"}</span>
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin" : ""}`} />
+              <span>{isSyncing ? "Syncing..." : "Sync Latest (500)"}</span>
+            </button>
+
+            <button
+              onClick={isSyncingAll ? handleCancelSyncAll : handleSyncAllArchive}
+              disabled={isSyncing || isTriggeringAutoSync}
+              className={`px-5 py-2.5 text-xs font-black uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-sm cursor-pointer ${
+                isSyncingAll
+                  ? "bg-red-500 hover:bg-red-600 text-white animate-pulse"
+                  : "bg-[#fcb907] hover:bg-[#e5a706] text-[#101114]"
+              }`}
+            >
+              {isSyncingAll ? (
+                <>
+                  <StopCircle className="w-4 h-4" />
+                  <span>Pause 23k Sync</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 text-[#b45309]" />
+                  <span>Sync All 23k+ Videos</span>
+                </>
+              )}
             </button>
           </div>
         </div>
+
+        {/* Real-time 23k Archive Progress Indicator */}
+        {syncAllProgress && (
+          <div className="p-4 bg-white/10 border border-white/20 rounded-xl space-y-2.5 text-white animate-in fade-in duration-200">
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 text-[#fcb907] animate-spin" />
+                <span className="font-bold">{syncAllProgress.statusText}</span>
+              </div>
+              <div className="text-[11px] text-white/80 font-mono">
+                Batch {syncAllProgress.batch} / ~{syncAllProgress.totalBatchesEst} ({syncAllProgress.percent}%)
+              </div>
+            </div>
+            <div className="w-full bg-white/20 rounded-full h-2.5 overflow-hidden">
+              <div
+                className="bg-[#fcb907] h-2.5 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(100, Math.max(2, syncAllProgress.percent))}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-[11px] text-white/70">
+              <span>Processed: {syncAllProgress.checkedCount.toLocaleString()} videos</span>
+              <span>New: +{syncAllProgress.newCount.toLocaleString()} | Updated: {syncAllProgress.updatedCount.toLocaleString()}</span>
+            </div>
+          </div>
+        )}
 
         {syncMessage && (
           <div
@@ -403,7 +752,7 @@ export default function AdminVideoManager() {
         <div className="p-5 bg-white border border-[#e7e9ee] rounded-[18px] space-y-1 shadow-[0_12px_35px_rgba(16,24,40,0.04)]">
           <div className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280]">Last Sync Status</div>
           <div className="text-base font-bold text-[#101114] flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#fcb907]"></span>
+            <span className={`w-2.5 h-2.5 rounded-full ${stats?.status === "error" ? "bg-red-500" : "bg-emerald-500"}`}></span>
             <span>{stats?.status === "never" ? "Never Synced" : stats?.status === "error" ? "Failed Sync" : "Active & Synced"}</span>
           </div>
           <div className="text-[11px] text-[#6b7280]">
@@ -414,9 +763,9 @@ export default function AdminVideoManager() {
         </div>
 
         <div className="p-5 bg-white border border-[#e7e9ee] rounded-[18px] space-y-1 shadow-[0_12px_35px_rgba(16,24,40,0.04)]">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280]">Videos Found</div>
-          <div className="text-2xl font-serif font-bold text-[#101114]">{videos.length}</div>
-          <div className="text-[11px] text-[#6b7280]">{videos.filter(v => v.isPublished).length} published on website</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280]">Total Videos In Library</div>
+          <div className="text-2xl font-serif font-bold text-[#101114]">{totalCount.toLocaleString()}</div>
+          <div className="text-[11px] text-[#6b7280]">Total videos &amp; Shorts cataloged</div>
         </div>
 
         <div className="p-5 bg-white border border-[#e7e9ee] rounded-[18px] space-y-1 shadow-[0_12px_35px_rgba(16,24,40,0.04)]">
@@ -425,10 +774,68 @@ export default function AdminVideoManager() {
           <div className="text-[11px] text-[#6b7280]">From last channel sync</div>
         </div>
 
-        <div className="p-5 bg-white border border-[#e7e9ee] rounded-[18px] space-y-1 shadow-[0_12px_35px_rgba(16,24,40,0.04)]">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280]">Auto Sync Mode</div>
-          <div className="text-base font-bold text-[#d97706]">ON (Scheduled)</div>
-          <div className="text-[11px] text-[#6b7280]">Frequency: Every 1 Hour</div>
+        {/* 4. INTERACTIVE AUTO-SYNC CARD */}
+        <div className="p-5 bg-white border border-[#e7e9ee] rounded-[18px] space-y-2 shadow-[0_12px_35px_rgba(16,24,40,0.04)] relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280] flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-[#d97706]" />
+              <span>Automatic Sync</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleToggleAutoSync}
+              disabled={isUpdatingAutoSync}
+              title={autoSyncConfig?.enabled ? "Click to Pause Auto-Sync" : "Click to Enable Auto-Sync"}
+              className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                autoSyncConfig?.enabled ? "bg-emerald-500" : "bg-gray-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  autoSyncConfig?.enabled ? "translate-x-4" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          <div className="flex items-baseline justify-between">
+            <div className="text-sm font-bold flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${autoSyncConfig?.enabled ? "bg-emerald-500 animate-pulse" : "bg-gray-400"}`} />
+              <span className={autoSyncConfig?.enabled ? "text-emerald-700" : "text-gray-500"}>
+                {autoSyncConfig?.enabled ? "AUTOMATIC: ON" : "PAUSED (Manual)"}
+              </span>
+            </div>
+            {autoSyncConfig?.enabled && (
+              <span className="text-[11px] font-mono font-bold text-[#d97706] bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                {formatCountdown(secondsUntilNextSync)}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between pt-1 border-t border-[#f0f2f5] text-[11px] text-[#6b7280]">
+            <span>Every {autoSyncConfig?.intervalMinutes || 60}m {autoSyncConfig?.syncShorts ? "(+Shorts)" : ""}</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleTriggerAutoSync(false)}
+                disabled={isTriggeringAutoSync || isSyncing || isSyncingAll}
+                className="text-[#d97706] hover:text-[#b45309] font-bold text-[10px] uppercase tracking-wider cursor-pointer inline-flex items-center gap-1"
+                title="Trigger immediate auto-sync cycle"
+              >
+                <RefreshCw className={`w-3 h-3 ${isTriggeringAutoSync ? "animate-spin" : ""}`} />
+                <span>{isTriggeringAutoSync ? "Running..." : "Sync Now"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setAutoSyncModalOpen(true)}
+                className="text-gray-500 hover:text-[#101114] text-[10px] font-bold uppercase tracking-wider cursor-pointer inline-flex items-center gap-0.5"
+                title="Configure Auto-Sync Schedule & Settings"
+              >
+                <Settings2 className="w-3 h-3" />
+                <span>Settings</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -584,11 +991,19 @@ export default function AdminVideoManager() {
                             </div>
                           </div>
                           <div>
-                            <div className="font-bold text-[#101114] line-clamp-1 max-w-xs sm:max-w-md font-sans">
-                              {video.title}
+                            <div className="flex items-center gap-2">
+                              {Boolean(video.isShort || video.category === "Shorts") && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-red-100 text-red-700 rounded-md border border-red-200 shrink-0">
+                                  Shorts
+                                </span>
+                              )}
+                              <div className="font-bold text-[#101114] line-clamp-1 max-w-xs sm:max-w-md font-sans">
+                                {video.title}
+                              </div>
                             </div>
-                            <div className="text-[11px] text-[#6b7280] mt-0.5">
-                              {video.views} • {video.date}
+                            <div className="text-[11px] text-[#6b7280] mt-0.5 flex items-center gap-2">
+                              <span>{video.views} • {video.date}</span>
+                              <span className="text-[10px] bg-[#f6f7f9] border border-[#e7e9ee] text-[#101114] px-1.5 py-0.2 rounded font-medium">{video.category}</span>
                             </div>
                           </div>
                         </div>
@@ -871,7 +1286,7 @@ export default function AdminVideoManager() {
             </div>
 
             <p className="text-xs text-[#6b7280] leading-relaxed">
-              Paste a YouTube video URL (e.g. <span className="font-mono text-[#101114]">https://www.youtube.com/watch?v=...</span>) to extract metadata and publish it to the website.
+              Paste any YouTube video or Shorts URL (e.g. <span className="font-mono text-[#101114]">https://www.youtube.com/watch?v=...</span> or <span className="font-mono text-[#101114]">https://youtube.com/shorts/...</span>) to extract metadata and publish it to the website.
             </p>
 
             {/* URL Input Form */}
@@ -880,7 +1295,7 @@ export default function AdminVideoManager() {
                 type="text"
                 value={pastedUrl}
                 onChange={(e) => setPastedUrl(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..."
+                placeholder="https://www.youtube.com/watch?v=... or https://youtube.com/shorts/..."
                 className="w-full bg-[#f6f7f9] border border-[#d5d9e0] px-4 py-2.5 text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907] rounded-xl"
               />
               <button
@@ -1074,6 +1489,247 @@ export default function AdminVideoManager() {
                   <span>Save SEO Slug</span>
                 )}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: AUTOMATIC SYNC CONFIGURATION & HISTORY */}
+      {autoSyncModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-in fade-in">
+          <div className="bg-white rounded-[22px] max-w-xl w-full p-6 sm:p-7 space-y-6 border border-[#e7e9ee] shadow-2xl animate-in zoom-in-95 max-h-[92vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-[#e7e9ee] pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-[#d97706]">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-[#101114]">Automatic YouTube Sync Settings</h3>
+                  <p className="text-xs text-[#6b7280]">Fully automated synchronization without manual intervention</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAutoSyncModalOpen(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Master Auto-Sync Switch */}
+            <div className={`p-4 rounded-xl border flex items-center justify-between transition-colors ${
+              (autoSyncConfig?.enabled ?? true)
+                ? "bg-emerald-50/70 border-emerald-200 text-emerald-950"
+                : "bg-gray-50 border-gray-200 text-gray-700"
+            }`}>
+              <div className="space-y-0.5 pr-4">
+                <div className="text-sm font-bold flex items-center gap-2">
+                  <span className={`w-2.5 h-2.5 rounded-full ${autoSyncConfig?.enabled ? "bg-emerald-500 animate-pulse" : "bg-gray-400"}`} />
+                  <span>Automatic Synchronization</span>
+                </div>
+                <p className="text-xs opacity-80">
+                  {autoSyncConfig?.enabled
+                    ? "Active: System regularly checks and ingests new uploads and Shorts in background."
+                    : "Paused: Automatic background sync is disabled. Videos will only sync when manually requested."}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleToggleAutoSync}
+                disabled={isUpdatingAutoSync}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  autoSyncConfig?.enabled ? "bg-emerald-500" : "bg-gray-300"
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    autoSyncConfig?.enabled ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Sync Frequency */}
+            <div className="space-y-2.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[#101114]">
+                Sync Frequency Interval
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                {[
+                  { label: "15 Min", val: 15 },
+                  { label: "30 Min", val: 30 },
+                  { label: "1 Hour", val: 60 },
+                  { label: "6 Hours", val: 360 },
+                  { label: "24 Hours", val: 1440 },
+                ].map((item) => {
+                  const isSelected = pendingIntervalMinutes === item.val;
+                  return (
+                    <button
+                      key={item.val}
+                      type="button"
+                      onClick={() => setPendingIntervalMinutes(item.val)}
+                      className={`px-3 py-2 text-xs font-bold rounded-xl border text-center transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-[#101114] text-white border-[#101114] shadow-xs"
+                          : "bg-white text-[#101114] border-[#d5d9e0] hover:bg-gray-50"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] text-[#6b7280]">
+                Every {pendingIntervalMinutes} minutes, the background runner scans the YouTube channel for new items.
+              </p>
+            </div>
+
+            {/* Content Options */}
+            <div className="space-y-3 pt-2 border-t border-[#e7e9ee]">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[#101114]">
+                Content Options
+              </label>
+
+              <label className="flex items-start gap-3 p-3 bg-[#f6f7f9] border border-[#e7e9ee] rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={pendingSyncShorts}
+                  onChange={(e) => setPendingSyncShorts(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 text-[#fcb907] rounded border-[#d5d9e0] focus:ring-[#fcb907]"
+                />
+                <div className="text-xs">
+                  <span className="font-bold text-[#101114] block">Include YouTube Shorts</span>
+                  <span className="text-[#6b7280] block text-[11px] mt-0.5">
+                    Automatically tag videos &le; 60 seconds as Shorts and categorize them appropriately.
+                  </span>
+                </div>
+              </label>
+
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-[#101114]">Sync Scope:</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <label className={`p-3 rounded-xl border cursor-pointer text-xs transition-colors flex items-start gap-2.5 ${
+                    pendingSyncScope === "latest" ? "bg-amber-50/60 border-amber-300" : "bg-white border-[#d5d9e0]"
+                  }`}>
+                    <input
+                      type="radio"
+                      name="syncScope"
+                      checked={pendingSyncScope === "latest"}
+                      onChange={() => setPendingSyncScope("latest")}
+                      className="mt-0.5 text-[#fcb907]"
+                    />
+                    <div>
+                      <span className="font-bold text-[#101114] block">Latest Uploads &amp; Shorts</span>
+                      <span className="text-[11px] text-[#6b7280]">Fetches the most recent ~100 uploads. Fast, reliable, low API quota.</span>
+                    </div>
+                  </label>
+
+                  <label className={`p-3 rounded-xl border cursor-pointer text-xs transition-colors flex items-start gap-2.5 ${
+                    pendingSyncScope === "full" ? "bg-amber-50/60 border-amber-300" : "bg-white border-[#d5d9e0]"
+                  }`}>
+                    <input
+                      type="radio"
+                      name="syncScope"
+                      checked={pendingSyncScope === "full"}
+                      onChange={() => setPendingSyncScope("full")}
+                      className="mt-0.5 text-[#fcb907]"
+                    />
+                    <div>
+                      <span className="font-bold text-[#101114] block">Continuous Deep Crawl</span>
+                      <span className="text-[11px] text-[#6b7280]">Fetches up to 250 videos per cycle to continuously refresh older videos.</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Status Details */}
+            <div className="p-3.5 bg-gray-50 border border-gray-200 rounded-xl space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[#6b7280] font-medium">Next Automatic Run:</span>
+                <span className="font-bold text-[#101114] font-mono">
+                  {autoSyncConfig?.enabled ? formatCountdown(secondsUntilNextSync) : "Paused"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#6b7280] font-medium">Last Run Time:</span>
+                <span className="text-[#101114]">
+                  {autoSyncConfig?.lastRunAt
+                    ? new Date(autoSyncConfig.lastRunAt).toLocaleString()
+                    : "No runs yet"}
+                </span>
+              </div>
+              {autoSyncConfig?.lastRunMessage && (
+                <div className="text-[11px] text-[#6b7280] border-t border-gray-200 pt-1.5">
+                  <span className="font-medium text-[#101114]">Status:</span> {autoSyncConfig.lastRunMessage}
+                </div>
+              )}
+            </div>
+
+            {/* Recent History Logs */}
+            {autoSyncConfig?.history && autoSyncConfig.history.length > 0 && (
+              <div className="space-y-2 pt-2 border-t border-[#e7e9ee]">
+                <div className="text-xs font-bold uppercase tracking-wider text-[#101114] flex items-center gap-1.5">
+                  <History className="w-3.5 h-3.5 text-[#d97706]" />
+                  <span>Recent Automatic Sync Logs</span>
+                </div>
+                <div className="max-h-32 overflow-y-auto rounded-xl border border-[#e7e9ee] divide-y divide-[#e7e9ee] text-[11px]">
+                  {autoSyncConfig.history.slice(0, 5).map((log, idx) => (
+                    <div key={idx} className="p-2.5 flex items-center justify-between bg-white">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${log.status === "success" ? "bg-emerald-500" : "bg-red-500"}`} />
+                        <span className="font-mono text-gray-600">
+                          {new Date(log.executedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                      <span className="font-medium text-[#101114]">
+                        +{log.newVideos} new, {log.updatedVideos} updated
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Footer Buttons */}
+            <div className="pt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#e7e9ee]">
+              <button
+                type="button"
+                onClick={() => handleTriggerAutoSync(false)}
+                disabled={isTriggeringAutoSync || isSyncing || isSyncingAll}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#101114] text-xs font-bold rounded-xl transition-colors cursor-pointer inline-flex items-center gap-1.5"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isTriggeringAutoSync ? "animate-spin" : ""}`} />
+                <span>{isTriggeringAutoSync ? "Triggering..." : "Test Run Auto-Sync Now"}</span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAutoSyncModalOpen(false)}
+                  className="px-4 py-2 bg-white hover:bg-gray-50 text-[#101114] border border-[#d5d9e0] text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveAutoSyncConfig}
+                  disabled={isUpdatingAutoSync}
+                  className="px-5 py-2 bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black uppercase tracking-wider rounded-xl transition-all disabled:opacity-50 cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+                >
+                  {isUpdatingAutoSync ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <span>Save Auto-Sync Settings</span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
