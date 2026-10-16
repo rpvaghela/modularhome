@@ -158832,11 +158832,11 @@
     "startingPrice": 199900,
     "starting_price": 199900,
     "price": 199900,
-    "primaryImage": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/The_Clifford_Coastal_Cabin_Flyer.png?v=1791509312",
-    "primary_image_url": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/The_Clifford_Coastal_Cabin_Flyer.png?v=1791509312",
-    "image": "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/The_Clifford_Coastal_Cabin_Flyer.png?v=1791509312",
+    "primaryImage": "https://tbaxtdecjznpqmccldnz.supabase.co/storage/v1/object/public/media/products/the-clifford-modular-cabin-primary.webp",
+    "primary_image_url": "https://tbaxtdecjznpqmccldnz.supabase.co/storage/v1/object/public/media/products/the-clifford-modular-cabin-primary.webp",
+    "image": "https://tbaxtdecjznpqmccldnz.supabase.co/storage/v1/object/public/media/products/the-clifford-modular-cabin-primary.webp",
     "gallery": [
-      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/The_Clifford_Coastal_Cabin_Flyer.png?v=1791509312",
+      "https://tbaxtdecjznpqmccldnz.supabase.co/storage/v1/object/public/media/products/the-clifford-modular-cabin-primary.webp",
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta5.jpg?v=1732847251",
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta1.jpg?v=1732847251",
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta2.jpg?v=1732847251",
@@ -158862,10 +158862,11 @@
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta24.jpg?v=1732847283",
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta28.jpg?v=1732847282",
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta30.jpg?v=1732847282",
-      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta31.jpg?v=1732847282"
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta31.jpg?v=1732847282",
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/The_Clifford_Coastal_Cabin_Flyer.png?v=1791509312"
     ],
     "images": [
-      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/The_Clifford_Coastal_Cabin_Flyer.png?v=1791509312",
+      "https://tbaxtdecjznpqmccldnz.supabase.co/storage/v1/object/public/media/products/the-clifford-modular-cabin-primary.webp",
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta5.jpg?v=1732847251",
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta1.jpg?v=1732847251",
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta2.jpg?v=1732847251",
@@ -158891,7 +158892,8 @@
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta24.jpg?v=1732847283",
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta28.jpg?v=1732847282",
       "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta30.jpg?v=1732847282",
-      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta31.jpg?v=1732847282"
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/chatta31.jpg?v=1732847282",
+      "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/The_Clifford_Coastal_Cabin_Flyer.png?v=1791509312"
     ],
     "features": [
       "Barn-Red Board-and-Batten Siding with Crisp White Metal Roof",
