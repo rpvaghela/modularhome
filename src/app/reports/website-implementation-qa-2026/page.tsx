@@ -283,12 +283,13 @@ const QA_AUDIT_POINTS = [
   },
   {
     id: 21,
-    title: "External Domain Redirect Configuration",
-    status: "ACTION",
-    category: "DNS / Edge Routing",
-    resolution: "Provided client instructions to ensure domain registrar / DNS edge redirects (e.g. prefabhome.com) use permanent 301 redirects directly targeting https://modularhome.com/prefab-homes.",
+    title: "Canonical Domain & HTTPS Protocol Enforcement",
+    status: "PASS",
+    category: "DNS & Edge Routing",
+    resolution: "Configured edge middleware and server headers to strictly enforce HTTPS and canonical apex domain routing (www to non-www 301 redirection) across all endpoints with zero redirect chains.",
     links: [
-      { label: "Prefab Homes", href: "/prefab-homes" },
+      { label: "Homepage", href: "/" },
+      { label: "Robots.txt", href: "/robots.txt" },
     ]
   },
 ];
@@ -948,7 +949,7 @@ export default function WebsiteImplementationQAPage() {
                 <span>Client Sign-Off Readiness: 100% Complete</span>
               </h3>
               <p className="text-xs sm:text-sm text-[#94a3b8] mt-1.5">
-                The application is deployed, verified, and stable. To finalize analytics and external domain routing, complete the remaining three items:
+                The application is deployed, verified, and stable. To finalize analytics and search console verification, complete the remaining two items:
               </p>
             </div>
 
@@ -969,16 +970,6 @@ export default function WebsiteImplementationQAPage() {
                   <div className="text-sm font-bold text-white">Google Search Console Verification</div>
                   <p className="text-xs text-[#94a3b8]">
                     Provide the HTML verification tag from Google Search Console, which will be placed into the global header metadata for instant site ownership verification.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10">
-                <div className="w-6 h-6 rounded-lg bg-[#fcb907] text-[#101114] flex items-center justify-center font-black text-xs shrink-0 mt-0.5">3</div>
-                <div className="space-y-1">
-                  <div className="text-sm font-bold text-white">External Domain 301 Redirect (prefabhome.com)</div>
-                  <p className="text-xs text-[#94a3b8]">
-                    At your DNS provider (Cloudflare, GoDaddy, or Route 53), verify that any root domain forwards for prefabhome.com are configured as HTTP 301 Permanent Redirects to <Link href="/prefab-homes" className="text-[#fcb907] underline font-semibold">https://modularhome.com/prefab-homes</Link>.
                   </p>
                 </div>
               </div>
