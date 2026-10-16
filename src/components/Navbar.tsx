@@ -47,7 +47,6 @@ interface CategoryNavOption {
 const PRIMARY_MENU_OPTIONS: CategoryNavOption[] = [
   { label: "Modular Homes", href: "/modular-homes", categoryQuery: "Modular Homes" },
   { label: "Prefab Homes", href: "/prefab-homes", categoryQuery: "Prefab Homes" },
-  { label: "Collections", href: "/collections" },
   { label: "Modular Cabins", href: "/modular-cabins", categoryQuery: "Modular Cabins" },
   { label: "Barndominiums", href: "/barndominiums", categoryQuery: "Barndominiums" },
   { label: "House Kits", href: "/house-kits", categoryQuery: "House Kits" },
@@ -96,15 +95,15 @@ const MORE_BUYER_GUIDES = [
     desc: "Educational articles, tours & build guides",
     icon: BookOpen 
   },
-];
-
-const MORE_SERVICES_RESOURCES = [
   { 
-    label: "All Collections", 
+    label: "Collections", 
     href: "/collections", 
     desc: "Browse 400+ curated home & cabin collections",
     icon: FolderOpen 
   },
+];
+
+const MORE_SERVICES_RESOURCES = [
   { 
     label: "Floor Plan Store", 
     href: "/floor-plans", 
@@ -343,6 +342,7 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
     "/about",
     "/videos",
     "/blogs",
+    "/collections",
     "/resources",
     "/contact",
     "/upload-floor-plan",
