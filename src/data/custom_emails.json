@@ -1,5 +1,37 @@
 [
   {
+    "id": "eml-1792073501858-0l0j1",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_QUOTE_REQUEST",
+    "subject": "New Quote Request — Auditor Quoter Test",
+    "status": "SENT",
+    "metadata": {
+      "quote_id": "82b65359-ac5e-4803-bd2a-f6d6bcb28929",
+      "customer_name": "Auditor Quoter Test",
+      "customer_email": "quote.audit.1792073494286@modularhome-test.com",
+      "reply_to": "quote.audit.1792073494286@modularhome-test.com",
+      "model": "The Farmhouse Charm",
+      "amount": 305800,
+      "resend_id": "01a13fe7-94ac-71c3-aa49-68bfbe1a988d"
+    },
+    "created_at": "2026-10-15T14:11:41.858Z"
+  },
+  {
+    "id": "eml-1792073498138-rdcw1",
+    "recipient": "modularhome.admin@gmail.com",
+    "template_type": "ADMIN_CONTACT_LEAD",
+    "subject": "New Contact Lead — Auditor Lead Test",
+    "status": "SENT",
+    "metadata": {
+      "lead_id": "4ba98e3f-6bd3-4ecc-80ba-564f818f033b",
+      "customer_name": "Auditor Lead Test",
+      "customer_email": "lead.audit.1792073494286@modularhome-test.com",
+      "reply_to": "lead.audit.1792073494286@modularhome-test.com",
+      "resend_id": "01a13fe7-861b-77ae-a1b4-160f7f3d4662"
+    },
+    "created_at": "2026-10-15T14:11:38.138Z"
+  },
+  {
     "id": "eml-1791705823306-8i5b0",
     "recipient": "chetansonawane1260@gmail.com",
     "template_type": "EMAIL_VERIFICATION",

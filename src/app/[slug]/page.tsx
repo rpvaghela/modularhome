@@ -31,6 +31,7 @@ const RESERVED_PATHS = new Set([
   "login",
   "models",
   "quote",
+  "reports",
   "resources",
   "signup",
   "upload-floor-plan",
