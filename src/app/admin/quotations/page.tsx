@@ -16,12 +16,14 @@ import {
   Home,
   RefreshCw,
   Eye,
+  Download,
   X,
   MapPin,
   Layers,
   Send,
   UserCheck
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import { useConfirm } from "@/context/ConfirmDialogContext";
 
 export default function AdminQuotationsPage() {
@@ -64,6 +66,55 @@ export default function AdminQuotationsPage() {
   useEffect(() => {
     fetchQuotations();
   }, [statusFilter]);
+
+  const handleExportQuotations = () => {
+    try {
+      const rows = quotations.map((quote) => ({
+        "Quote ID": quote.id || quote._id || "",
+        "Customer Name": quote.customer_name || quote.customerName || "",
+        Email: quote.customer_email || quote.customerEmail || "",
+        Phone: quote.customer_phone || quote.customerPhone || "",
+        "ZIP Code": quote.customer_zip || quote.customerZip || "",
+        "Configured Model": quote.model_name || quote.modelName || "Custom Configuration",
+        "Size (sq ft)": quote.sqft ?? quote.approximateSqFt ?? "",
+        Requirements: quote.requirements || quote.notes || quote.description || "",
+        "Estimated Cost": quote.estimated_amount ?? quote.estimatedAmount ?? "",
+        Status: quote.status || "PENDING",
+        Timeline: quote.timeline || "",
+        Source: quote.source || "",
+        "Submitted Date": quote.created_at || quote.createdAt || "",
+        "Assigned To": quote.assigned_to || quote.assignedTo || "",
+        "Follow-up Date": quote.follow_up_date || quote.followUpDate || "",
+        "Internal Notes": quote.internal_notes || quote.internalNotes || "",
+      }));
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      worksheet["!cols"] = [
+        { wch: 28 },
+        { wch: 24 },
+        { wch: 32 },
+        { wch: 18 },
+        { wch: 12 },
+        { wch: 32 },
+        { wch: 16 },
+        { wch: 60 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 24 },
+        { wch: 24 },
+        { wch: 24 },
+        { wch: 24 },
+        { wch: 20 },
+        { wch: 40 },
+      ];
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Quote Submissions");
+      XLSX.writeFile(workbook, `Quote_Submissions_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    } catch (error) {
+      console.error("Failed to export quote submissions:", error);
+      alert("Failed to export quote submissions.");
+    }
+  };
 
   const openQuoteDrawer = (quote: any) => {
     setSelectedQuote(quote);
@@ -206,14 +257,25 @@ export default function AdminQuotationsPage() {
             Review sizing calculations, customer selections, timeline requirements, and pricing estimates submitted online.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={fetchQuotations}
-          className="px-4 py-2.5 bg-white hover:bg-[#f8f9fa] text-[#101114] border border-[#d5d9e0] rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs self-start sm:self-auto"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#fcb907]" : ""}`} />
-          <span>Refresh Quotes</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={handleExportQuotations}
+            disabled={isLoading || quotations.length === 0}
+            className="px-4 py-2.5 bg-[#101114] hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs"
+          >
+            <Download className="w-3.5 h-3.5 text-[#fcb907]" />
+            <span>Export Excel</span>
+          </button>
+          <button
+            type="button"
+            onClick={fetchQuotations}
+            className="px-4 py-2.5 bg-white hover:bg-[#f8f9fa] text-[#101114] border border-[#d5d9e0] rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#fcb907]" : ""}`} />
+            <span>Refresh Quotes</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}

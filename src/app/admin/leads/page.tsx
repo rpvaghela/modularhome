@@ -18,11 +18,13 @@ import {
   Shield,
   RefreshCw,
   Eye,
+  Download,
   X,
   UserCheck,
   Send,
   Plus
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import { useConfirm } from "@/context/ConfirmDialogContext";
 
 export default function AdminLeadsPage() {
@@ -76,6 +78,49 @@ export default function AdminLeadsPage() {
   useEffect(() => {
     fetchLeads();
   }, [statusFilter, sourceFilter]);
+
+  const handleExportLeads = () => {
+    try {
+      const rows = leads.map((lead) => ({
+        "Lead ID": lead.id || lead._id || "",
+        Name: lead.name || "",
+        Email: lead.email || "",
+        Phone: lead.phone || "",
+        Location: lead.location || "",
+        ZIP: lead.zip || "",
+        "Inquiry Details": lead.enquiry_details || lead.enquiryDetails || lead.message || "",
+        "Intake Source": lead.source || "WEBSITE",
+        Status: lead.status || "NEW",
+        "Date Received": lead.created_at || lead.createdAt || "",
+        Notes: lead.notes || "",
+        "Assigned To": lead.assigned_to || lead.assignedTo || "",
+        "Follow-up Date": lead.follow_up_date || lead.followUpDate || "",
+      }));
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      worksheet["!cols"] = [
+        { wch: 28 },
+        { wch: 24 },
+        { wch: 32 },
+        { wch: 18 },
+        { wch: 28 },
+        { wch: 12 },
+        { wch: 60 },
+        { wch: 28 },
+        { wch: 18 },
+        { wch: 24 },
+        { wch: 40 },
+        { wch: 24 },
+        { wch: 20 },
+      ];
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Lead Inquiries");
+      XLSX.writeFile(workbook, `Lead_Inquiries_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    } catch (error) {
+      console.error("Failed to export lead inquiries:", error);
+      alert("Failed to export lead inquiries.");
+    }
+  };
 
   const openLeadDrawer = (lead: any) => {
     setSelectedLead(lead);
@@ -201,14 +246,25 @@ export default function AdminLeadsPage() {
             Review incoming architectural consultation requests, Instant Quote interactions, and customer inquiries.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={fetchLeads}
-          className="px-4 py-2.5 bg-white hover:bg-[#f8f9fa] text-[#101114] border border-[#d5d9e0] rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs self-start sm:self-auto"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#fcb907]" : ""}`} />
-          <span>Refresh Leads</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={handleExportLeads}
+            disabled={isLoading || leads.length === 0}
+            className="px-4 py-2.5 bg-[#101114] hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs"
+          >
+            <Download className="w-3.5 h-3.5 text-[#fcb907]" />
+            <span>Export Excel</span>
+          </button>
+          <button
+            type="button"
+            onClick={fetchLeads}
+            className="px-4 py-2.5 bg-white hover:bg-[#f8f9fa] text-[#101114] border border-[#d5d9e0] rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#fcb907]" : ""}`} />
+            <span>Refresh Leads</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
