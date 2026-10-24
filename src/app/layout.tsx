@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { Playfair_Display, Manrope } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import AIBuildAssistant from "@/components/AIBuildAssistant";
+import Script from "next/script";
 import CartDrawer from "@/components/CartDrawer";
 import { CartProvider } from "@/context/CartContext";
 import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
@@ -126,7 +126,10 @@ export default async function RootLayout({
                 </main>
                 <Footer initialSettings={settings} customPages={pages} />
                 <CartDrawer />
-                <AIBuildAssistant />
+                <Script
+                  src="//code.tidio.co/hnehqsvmi7ef3rcnmbydqpmvafzzhydf.js"
+                  strategy="afterInteractive"
+                />
               </LocomotiveScrollProvider>
             </ConfirmDialogProvider>
           </CartProvider>
