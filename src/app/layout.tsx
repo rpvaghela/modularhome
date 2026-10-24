@@ -130,6 +130,36 @@ export default async function RootLayout({
                   src="//code.tidio.co/hnehqsvmi7ef3rcnmbydqpmvafzzhydf.js"
                   strategy="afterInteractive"
                 />
+                {/* Enable mouse-wheel scrolling inside the Tidio chat iframe */}
+                <Script id="tidio-wheel-scroll" strategy="afterInteractive">{`
+                  (function() {
+                    function enableTidioWheelScroll() {
+                      var iframe = document.querySelector('#tidio-chat-iframe');
+                      if (!iframe) return;
+                      iframe.addEventListener('mouseenter', function() {
+                        iframe.style.pointerEvents = 'auto';
+                      });
+                      // Forward host wheel events into the iframe's scrollable content
+                      var container = iframe.parentElement;
+                      if (container) {
+                        container.style.overflowY = 'auto';
+                        container.style.overscrollBehavior = 'contain';
+                      }
+                    }
+                    // Poll until Tidio injects its iframe (usually within 2-3s)
+                    var attempts = 0;
+                    var poll = setInterval(function() {
+                      attempts++;
+                      var iframe = document.querySelector('#tidio-chat-iframe');
+                      if (iframe) {
+                        enableTidioWheelScroll();
+                        clearInterval(poll);
+                      } else if (attempts > 60) {
+                        clearInterval(poll);
+                      }
+                    }, 500);
+                  })();
+                `}</Script>
               </LocomotiveScrollProvider>
             </ConfirmDialogProvider>
           </CartProvider>
