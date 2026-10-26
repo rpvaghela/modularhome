@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import VideoModal from "@/components/VideoModal";
-import { VideoItem, VIDEOS_DATA } from "@/data/videos";
+import { VideoItem, VIDEOS_DATA, HOMEPAGE_FEATURED_VIDEOS } from "@/data/videos";
 import { Play, ArrowRight } from "lucide-react";
 
 interface HomeVideosSectionProps {
@@ -17,12 +17,17 @@ function cleanVideoTitle(rawTitle: string): string {
     .replace(/#\w+/g, "")
     .replace(/https?:\/\/\S+/gi, "")
     .replace(/\[.*?\]|\(.*?\)/g, "")
-    .replace(/\|\s*Amish Built.*/i, "")
+    .replace(/\|\s*Amish.*/i, "")
+    .replace(/\|\s*Modular.*/i, "")
     .replace(/\s+/g, " ")
     .trim();
 
-  if (!clean || clean.length < 5) {
+  if (!clean || clean.length < 5 || clean.toUpperCase().startsWith("CALL 812") || clean.startsWith("October")) {
     return "Amish Built Modular Home & Cabin Tour";
+  }
+
+  if (clean.toLowerCase().startsWith("tiny homes, tiny houses")) {
+    return "Modern Tiny Home & Modular Housing Tour";
   }
 
   // If the title is just lowercase tags or all uppercase, clean and title-case it
@@ -43,14 +48,18 @@ function cleanVideoTitle(rawTitle: string): string {
 }
 
 export default function HomeVideosSection({ videos, totalCount }: HomeVideosSectionProps) {
-  const [videoList, setVideoList] = useState<VideoItem[]>(videos && videos.length > 0 ? videos : VIDEOS_DATA);
+  const [videoList, setVideoList] = useState<VideoItem[]>(
+    videos && videos.length >= 5 ? videos : (videos && videos.length > 0 ? [...videos, ...HOMEPAGE_FEATURED_VIDEOS] : HOMEPAGE_FEATURED_VIDEOS)
+  );
   const [totalVideosCount, setTotalVideosCount] = useState<number>(totalCount ?? (videos?.length || VIDEOS_DATA.length));
   const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
 
   // Sync state if server props change
   useEffect(() => {
-    if (videos && videos.length > 0) {
+    if (videos && videos.length >= 5) {
       setVideoList(videos);
+    } else if (videos && videos.length > 0) {
+      setVideoList([...videos, ...HOMEPAGE_FEATURED_VIDEOS]);
     }
     if (typeof totalCount === "number") {
       setTotalVideosCount(totalCount);
@@ -59,13 +68,13 @@ export default function HomeVideosSection({ videos, totalCount }: HomeVideosSect
 
   // Client-side fallback fetch only if no server videos were supplied
   useEffect(() => {
-    if (videos && videos.length > 0) {
+    if (videos && videos.length >= 5) {
       return;
     }
     let isMounted = true;
     async function loadVideos() {
       try {
-        const res = await fetch("/api/videos?limit=8");
+        const res = await fetch("/api/videos?limit=25");
         if (res.ok) {
           const data = await res.json();
           if (isMounted && data.success && Array.isArray(data.videos) && data.videos.length > 0) {
@@ -76,7 +85,7 @@ export default function HomeVideosSection({ videos, totalCount }: HomeVideosSect
           }
         }
       } catch (e) {
-        // Fallback to initial VIDEOS_DATA
+        // Fallback to initial HOMEPAGE_FEATURED_VIDEOS
       }
     }
     loadVideos();
@@ -85,22 +94,32 @@ export default function HomeVideosSection({ videos, totalCount }: HomeVideosSect
     };
   }, [videos]);
 
-  // Filter 8 distinct videos for a clean 2x4 grid
+  // Ensure 5 distinct, high-quality tour videos
   const distinctVideos: VideoItem[] = [];
+  const seenIds = new Set<string>();
   const seenTitles = new Set<string>();
 
-  for (const v of videoList) {
+  const pool = [...videoList, ...HOMEPAGE_FEATURED_VIDEOS];
+
+  for (const v of pool) {
+    const id = v.youtubeVideoId || v.id;
+    if (seenIds.has(id)) continue;
+
     const cleaned = cleanVideoTitle(v.title);
-    if (!seenTitles.has(cleaned) && distinctVideos.length < 8) {
-      seenTitles.add(cleaned);
-      distinctVideos.push({
-        ...v,
-        title: cleaned,
-      });
-    }
+    const lowerTitle = cleaned.toLowerCase();
+    if (seenTitles.has(lowerTitle)) continue;
+
+    seenIds.add(id);
+    seenTitles.add(lowerTitle);
+    distinctVideos.push({
+      ...v,
+      title: cleaned,
+    });
+
+    if (distinctVideos.length === 5) break;
   }
 
-  const displayVideos = distinctVideos.length > 0 ? distinctVideos : videoList.slice(0, 8);
+  const displayVideos = distinctVideos.length >= 5 ? distinctVideos : HOMEPAGE_FEATURED_VIDEOS.slice(0, 5);
 
   if (displayVideos.length === 0) {
     return null;
@@ -132,8 +151,8 @@ export default function HomeVideosSection({ videos, totalCount }: HomeVideosSect
             </Link>
           </div>
 
-          {/* 2x4 Video Grid (8 Cards Total) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4.5 font-sans">
+          {/* 5-Video Showcase Grid (5 Cards Total) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4.5 font-sans">
             {displayVideos.map((vid) => (
               <div
                 key={vid.id || vid.youtubeVideoId}
@@ -141,7 +160,7 @@ export default function HomeVideosSection({ videos, totalCount }: HomeVideosSect
                 className="group rounded-2xl bg-white border border-gray-200/90 hover:border-[#fcb907] overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.98] transition-all duration-300 flex flex-col justify-between cursor-pointer block relative"
               >
                 {/* Thumbnail Container */}
-                <div className="relative h-[155px] xs:h-[170px] sm:h-[185px] w-full overflow-hidden bg-black">
+                <div className="relative h-[155px] xs:h-[170px] sm:h-[185px] lg:h-[160px] xl:h-[175px] w-full overflow-hidden bg-black">
                   <Image
                     src={vid.thumbnail}
                     alt={vid.title}

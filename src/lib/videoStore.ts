@@ -1,5 +1,5 @@
 import { VideoItem, SyncStats, AutoSyncConfig } from "@/types/video";
-import { VIDEOS_DATA } from "@/data/videos";
+import { VIDEOS_DATA, HOMEPAGE_FEATURED_VIDEOS } from "@/data/videos";
 import syncedVideosFallback from "@/data/synced_videos.json";
 import syncStatsFallback from "@/data/sync_stats.json";
 import { supabaseAdmin, isSupabaseConfigured } from "./supabase";
@@ -287,6 +287,105 @@ export function getPublishedVideos(params?: { category?: string; search?: string
   }
 
   return sorted;
+}
+
+export async function getHomepageVideos(count: number = 5): Promise<VideoItem[]> {
+  const target = Math.max(1, count || 5);
+  const picked: VideoItem[] = [];
+  const seenIds = new Set<string>();
+  const seenTitles = new Set<string>();
+
+  const considerVideo = (v: any): boolean => {
+    const item = normalizeVideo(v);
+    if (!item.youtubeVideoId || seenIds.has(item.youtubeVideoId)) return false;
+
+    // Filter out shorts or sub-1-minute clips for the showcase tours
+    const durSec = parseDurationStringSeconds(item.duration);
+    if (item.isShort || (durSec > 0 && durSec < 60)) return false;
+
+    let clean = (item.title || "")
+      .replace(/#\w+/g, "")
+      .replace(/https?:\/\/\S+/gi, "")
+      .replace(/\[.*?\]|\(.*?\)/g, "")
+      .replace(/\|\s*Amish.*/i, "")
+      .replace(/\|\s*Modular.*/i, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (!clean || clean.length < 10) return false;
+    if (
+      clean.toUpperCase().startsWith("CALL 812") ||
+      clean.startsWith("October") ||
+      clean.toLowerCase().includes("prefabhouse") ||
+      clean.toLowerCase().includes("amishbuiltcabins")
+    ) {
+      return false;
+    }
+
+    if (clean === clean.toUpperCase() || clean === clean.toLowerCase()) {
+      clean = clean
+        .toLowerCase()
+        .split(" ")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+    }
+
+    // Limit category repetition for maximum showcase variety
+    const cat = item.category || "Building Tours";
+    const catCount = picked.filter((p) => p.category === cat).length;
+    if (catCount >= 2 && picked.length < 4) return false;
+
+    const lowerClean = clean.toLowerCase();
+    if (seenTitles.has(lowerClean)) return false;
+
+    seenIds.add(item.youtubeVideoId);
+    seenTitles.add(lowerClean);
+    picked.push({
+      ...item,
+      title: clean,
+    });
+    return true;
+  };
+
+  // Try Supabase first if available
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from("videos")
+        .select("*")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false })
+        .limit(100);
+
+      if (!error && Array.isArray(data)) {
+        for (const row of data) {
+          if (picked.length >= target) break;
+          considerVideo(row);
+        }
+      }
+    } catch (e) {
+      console.error("getHomepageVideos Supabase error:", e);
+    }
+  }
+
+  // If we still need more videos, check local video store
+  if (picked.length < target) {
+    const localVideos = readVideosFromStore();
+    for (const v of localVideos) {
+      if (picked.length >= target) break;
+      considerVideo(v);
+    }
+  }
+
+  // If still fewer than target, supplement from curated HOMEPAGE_FEATURED_VIDEOS
+  if (picked.length < target) {
+    for (const fv of HOMEPAGE_FEATURED_VIDEOS) {
+      if (picked.length >= target) break;
+      considerVideo(fv);
+    }
+  }
+
+  return picked.slice(0, target);
 }
 
 export interface PaginatedVideosResult {

@@ -17,7 +17,7 @@ import HomeArticlesSection from "@/components/HomeArticlesSection";
 import CTASection from "@/components/CTASection";
 import { getPublicProducts, getPublicReviews, getPublicSettings, getPublicCollections, getHomeTypeCategories, getPublicBlogs, getCategoryFallbackImage } from "@/lib/publicData";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
-import { getPublishedVideos, getTotalVideoCount } from "@/lib/videoStore";
+import { getPublishedVideos, getTotalVideoCount, getHomepageVideos } from "@/lib/videoStore";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
@@ -54,7 +54,7 @@ export default async function HomePage() {
     getHomeTypeCategories(),
     getPublicBlogs(),
     getPublicPageBySlug("home"),
-    Promise.resolve().then(() => getPublishedVideos({ limit: 8 })),
+    getHomepageVideos(5),
     getTotalVideoCount(),
   ]);
 
