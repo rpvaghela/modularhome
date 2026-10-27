@@ -40,6 +40,7 @@
     "node_modules",
     "scratch",
     "migration",
-    ".next/dev"
+    ".next/dev",
+    "bombshelters-app"
   ]
 }
