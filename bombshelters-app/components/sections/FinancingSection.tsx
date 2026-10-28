@@ -230,20 +230,22 @@ export function FinancingSection() {
     hasError ? "border-[#e11d1d]" : "border-white/15 hover:border-white/25 focus:border-[#e11d1d]";
 
   return (
-    <section id="financing" className="relative bg-[#0a0a0a] py-14 lg:py-20">
-      {/* Family at sunset backdrop */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <Image
-          src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=2000&q=80"
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover object-center brightness-[0.55] saturate-[1.2]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-black/70" />
-      </div>
+    <section id="financing" className="bg-[#ffffff] py-12 lg:py-16">
+      <div className="site-container">
+        <div className="relative rounded-3xl overflow-hidden bg-[#0a0a0a] p-8 sm:p-12 lg:p-16 shadow-2xl">
+          {/* Family at sunset backdrop */}
+          <div className="absolute inset-0 z-0 overflow-hidden">
+            <Image
+              src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=2000&q=80"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-center brightness-[0.55] saturate-[1.2]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-black/70" />
+          </div>
 
-      <div className="relative z-10 site-container">
+          <div className="relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           {/* Left Column: Financing Benefits */}
           <div className="lg:col-span-6 xl:col-span-7">
@@ -403,6 +405,8 @@ export function FinancingSection() {
             </div>
           </div>
         </div>
+      </div>
+      </div>
       </div>
     </section>
   );

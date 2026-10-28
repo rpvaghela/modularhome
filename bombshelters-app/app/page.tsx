@@ -13,39 +13,39 @@ import { FaqSection } from "@/components/sections/FaqSection";
 
 export default function HomePage() {
   return (
-    <>
+    <div className="w-full min-h-screen bg-[#ffffff] text-[#0a0a0a]">
       {/* 2. Hero */}
       <Hero />
 
-      {/* 3. Trust Strip */}
+      {/* 3. Trust Strip (Pure White background) */}
       <TrustStrip />
 
-      {/* 4. Shop By Category (White background) */}
+      {/* 4. Shop By Category (Pure White background) */}
       <ShopByCategory />
 
-      {/* 5. Featured Models (White/light background) */}
+      {/* 5. Featured Models (Pure White background) */}
       <FeaturedModels />
 
-      {/* 6. Two Promo Banners */}
+      {/* 6. Two Promo Banners (Pure White background) */}
       <PromoBanners />
 
-      {/* 7. How It Works (White background) */}
+      {/* 7. How It Works (Pure White background) */}
       <HowItWorks />
 
-      {/* 8. Why Choose BombShelters.com (Dark background) */}
+      {/* 8. Why Choose BombShelters.com (Pure White background) */}
       <WhyChooseUs />
 
-      {/* 9. Trusted Manufacturers & Partners */}
+      {/* 9. Trusted Manufacturers & Partners (Pure White background) */}
       <Manufacturers />
 
-      {/* 10. Flexible Financing & Consultation Form (Dark background) */}
+      {/* 10. Flexible Financing & Consultation Form (Pure White background) */}
       <FinancingSection />
 
-      {/* 11. Real Customers. Real Peace of Mind. (Dark background) */}
+      {/* 11. Real Customers. Real Peace of Mind. (Pure White background) */}
       <Testimonials />
 
-      {/* 12. FAQ (White background) */}
+      {/* 12. FAQ (Pure White background) */}
       <FaqSection />
-    </>
+    </div>
   );
 }
