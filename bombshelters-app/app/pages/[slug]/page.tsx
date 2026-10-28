@@ -36,7 +36,7 @@ export default function DynamicCmsPage({ params }: PageProps) {
         breadcrumbs={[{ label: formattedTitle }]}
       />
 
-      <section className="bg-white text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container max-w-4xl">
           <div className="p-8 sm:p-12 rounded-2xl bg-gray-50 border border-gray-200">
             <h2 className="font-display font-bold text-2xl uppercase tracking-tight text-[#0a0a0a] mb-4">

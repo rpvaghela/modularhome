@@ -14,7 +14,7 @@ export function Manufacturers() {
   ];
 
   return (
-    <section id="manufacturers" className="bg-white text-[#0a0a0a] py-12 lg:py-14">
+    <section id="manufacturers" className="bg-paper text-[#0a0a0a] py-12 lg:py-14">
       <div className="site-container">
         <SectionHeading
           title="Trusted Manufacturers"
@@ -30,7 +30,8 @@ export function Manufacturers() {
             return (
               <div
                 key={name}
-                className="h-20 rounded-[4px] border border-[#e2e8f0] flex items-center justify-center gap-2.5 px-3 text-[#0a0a0a] grayscale hover:grayscale-0 hover:border-[#e11d1d]/50 hover:shadow-md transition-all cursor-default"
+                // White card so it reads against the off-white (paper) section background
+                className="h-20 rounded-[4px] bg-white border border-[#e4e4e7] shadow-[0_1px_2px_rgba(10,10,10,0.05),0_4px_12px_rgba(10,10,10,0.04)] flex items-center justify-center gap-2.5 px-3 text-[#0a0a0a] grayscale hover:grayscale-0 hover:border-[#e11d1d]/50 hover:shadow-md transition-all cursor-default"
               >
                 {logoIcons[idx % logoIcons.length]}
                 <span className="font-display font-bold uppercase tracking-wide leading-[1.05]">

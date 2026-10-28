@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Scale, CircleDollarSign, Sliders, CreditCard, Users, MapPin } from "lucide-react";
 import { WHY_CHOOSE_ITEMS } from "@/data/navigation";
 import { UsFlag } from "@/components/ui/UsFlag";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function WhyChooseUs() {
   const iconMap: Record<string, React.ReactNode> = {
@@ -39,14 +40,13 @@ export function WhyChooseUs() {
       </div>
 
       <div className="relative z-10 site-container">
-        <div className="mb-10">
-          <h2 className="font-display font-bold uppercase text-[28px] sm:text-[34px] lg:text-[40px] leading-none tracking-tight">
-            Why Choose <span className="text-[#e11d1d]">BombShelters.com?</span>
-          </h2>
-          <p className="mt-2 text-sm text-[#cbd5e1]">
-            The most trusted marketplace for bomb shelters, storm shelters, safe rooms and preparedness solutions.
-          </p>
-        </div>
+        <SectionHeading
+          dark
+          title="Why Choose"
+          highlight="BombShelters.com?"
+          subtitle="The most trusted marketplace for bomb shelters, storm shelters, safe rooms and preparedness solutions."
+          className="!mb-10"
+        />
 
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-y-8 lg:divide-x divide-white/10">
           {items.map((item) => (

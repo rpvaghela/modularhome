@@ -42,6 +42,12 @@ export default function ModelsPage() {
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc">("featured");
   const [modelsList, setModelsList] = useState<ProductModel[]>(FEATURED_MODELS);
 
+  // Prefill from the header search (/models?q=...)
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q");
+    if (q) setSearchQuery(q);
+  }, []);
+
   useEffect(() => {
     fetch("/api/bombshelter/products")
       .then((r) => r.json())
@@ -93,7 +99,7 @@ export default function ModelsPage() {
         breadcrumbs={[{ label: "Models Catalog" }]}
       />
 
-      <section className="bg-white text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container">
           {/* Controls Bar */}
           <div className="flex flex-col lg:flex-row items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-200">

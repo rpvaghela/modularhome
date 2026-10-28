@@ -29,11 +29,11 @@ export default function HomePage() {
       {/* 6. Two Promo Banners */}
       <PromoBanners />
 
-      {/* 7. Why Choose BombShelters.com (Dark background) */}
-      <WhyChooseUs />
-
-      {/* 8. How It Works (White background) */}
+      {/* 7. How It Works (White background) */}
       <HowItWorks />
+
+      {/* 8. Why Choose BombShelters.com (Dark background) */}
+      <WhyChooseUs />
 
       {/* 9. Trusted Manufacturers & Partners */}
       <Manufacturers />

@@ -55,7 +55,7 @@ export function CategoryPageTemplate({
         breadcrumbs={breadcrumbs}
       />
 
-      <section className="bg-white text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container">
           {/* Engineering Highlights */}
           {keyPoints && keyPoints.length > 0 && (

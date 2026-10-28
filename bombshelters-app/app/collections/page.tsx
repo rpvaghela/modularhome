@@ -35,7 +35,7 @@ export default async function CollectionsPage() {
         breadcrumbs={[{ label: "Collections" }]}
       />
 
-      <section className="bg-white text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="font-display font-extrabold text-3xl sm:text-4xl uppercase tracking-tight text-[#0a0a0a]">

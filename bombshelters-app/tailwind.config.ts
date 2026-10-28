@@ -8,7 +8,13 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        // Large desktop monitors; 2xl (1536) is also hit by 1920 laptops at 125% Windows scaling
+        "3xl": "1800px",
+      },
       colors: {
+        // Off-white page background for light sections (cards stay pure white on top)
+        paper: "#f6f6f3",
         background: "#0a0a0a",
         surface: {
           DEFAULT: "#111214",

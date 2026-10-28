@@ -93,7 +93,7 @@ export default function UploadFloorPlanPage() {
         breadcrumbs={[{ label: "Upload Floor Plan" }]}
       />
 
-      <section className="bg-white text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container max-w-4xl">
           {success ? (
             <div className="p-8 sm:p-12 rounded-2xl bg-green-50 border border-green-200 text-center space-y-4">
