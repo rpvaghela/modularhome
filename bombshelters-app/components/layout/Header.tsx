@@ -27,7 +27,9 @@ import {
   Star,
   User,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
+import { useCustomerAuth } from "@/context/CustomerAuthContext";
 import { Button } from "@/components/ui/Button";
 import {
   NAV_ITEMS,
@@ -38,6 +40,7 @@ import {
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const { customer, isAuthenticated, logout } = useCustomerAuth();
   const [headerQuery, setHeaderQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileMoreExpanded, setMobileMoreExpanded] = useState(false);
@@ -136,20 +139,44 @@ export function Header() {
               Upload Plans
             </Link>
             <span className="text-white/40">|</span>
-            <Link
-              href="/admin/login"
-              className="hover:text-white transition-colors inline-flex items-center gap-1 text-white font-semibold whitespace-nowrap"
-            >
-              <User className="w-3 h-3 text-amber-300 stroke-[2.5]" />
-              <span>Sign In</span>
-            </Link>
-            <span className="text-white/40">|</span>
-            <Link
-              href="/quote"
-              className="hover:text-white transition-colors whitespace-nowrap"
-            >
-              Register
-            </Link>
+            {isAuthenticated && customer ? (
+              <>
+                <Link
+                  href="/account"
+                  className="hover:text-amber-200 transition-colors inline-flex items-center gap-1.5 text-white font-bold whitespace-nowrap"
+                >
+                  <span className="w-4 h-4 rounded-full bg-amber-400 text-black flex items-center justify-center text-[10px] font-black">
+                    {customer.name?.charAt(0)?.toUpperCase() || "U"}
+                  </span>
+                  <span>Hi, {customer.name?.split(" ")[0]}</span>
+                </Link>
+                <span className="text-white/40">|</span>
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="hover:text-white transition-colors whitespace-nowrap text-white/80 hover:text-white cursor-pointer"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/account/login"
+                  className="hover:text-white transition-colors inline-flex items-center gap-1 text-white font-semibold whitespace-nowrap"
+                >
+                  <User className="w-3 h-3 text-amber-300 stroke-[2.5]" />
+                  <span>Sign In</span>
+                </Link>
+                <span className="text-white/40">|</span>
+                <Link
+                  href="/account/signup"
+                  className="hover:text-white transition-colors whitespace-nowrap"
+                >
+                  Register
+                </Link>
+              </>
+            )}
             <span className="text-white/40">|</span>
             <Link
               href="/contact"
@@ -451,6 +478,45 @@ export function Header() {
           </nav>
 
           <div className="pt-3 border-t border-[#1f2226] flex flex-col gap-2.5">
+            {isAuthenticated && customer ? (
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white">
+                <Link
+                  href="/account"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 font-bold hover:text-[#e11d1d]"
+                >
+                  <User className="w-4 h-4 text-amber-300" />
+                  <span>Account: {customer.name}</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    logout();
+                  }}
+                  className="text-gray-400 hover:text-white font-semibold"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/account/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2 text-center rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/account/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2 text-center rounded-lg bg-[#e11d1d] hover:bg-[#ff2b2b] text-white font-bold text-xs"
+                >
+                  Register
+                </Link>
+              </div>
+            )}
             <a
               href={`tel:${brandSettings?.phone || "812-595-4033"}`}
               className="flex items-center gap-2 text-white font-display font-bold text-sm tracking-wide"

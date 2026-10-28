@@ -3,6 +3,7 @@ import { Inter, Oswald, Permanent_Marker } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -120,9 +121,11 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col bg-[#ffffff] text-[#0a0a0a] selection:bg-[#e11d1d] selection:text-white">
-        <Header />
-        <main className="flex-1 bg-[#ffffff] w-full">{children}</main>
-        <Footer />
+        <CustomerAuthProvider>
+          <Header />
+          <main className="flex-1 bg-[#ffffff] w-full">{children}</main>
+          <Footer />
+        </CustomerAuthProvider>
       </body>
     </html>
   );
