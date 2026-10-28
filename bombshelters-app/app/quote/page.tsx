@@ -211,7 +211,7 @@ export default function QuotePage() {
         breadcrumbs={[{ label: "Quote Wizard" }]}
       />
 
-      <section className="bg-paper text-[#0a0a0a] py-16">
+      <section className="bg-[#ffffff] text-[#0a0a0a] py-16">
         <div className="site-container">
           {/* Progress Indicator */}
           <div className="max-w-4xl mx-auto mb-10">

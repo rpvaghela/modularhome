@@ -7,7 +7,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function ShopByCategory() {
   return (
-    <section className="bg-paper text-[#0a0a0a] py-14 lg:py-16">
+    <section className="bg-[#ffffff] text-[#0a0a0a] py-14 lg:py-16">
       <div className="site-container">
         <SectionHeading
           title="Shop by"

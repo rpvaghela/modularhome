@@ -84,7 +84,7 @@ export default function FinancingPage() {
         breadcrumbs={[{ label: "Financing" }]}
       />
 
-      <section className="bg-paper text-[#0a0a0a] py-16">
+      <section className="bg-[#ffffff] text-[#0a0a0a] py-16">
         <div className="site-container">
           {/* Interactive Calculator */}
           <div className="mb-20">

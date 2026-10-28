@@ -121,7 +121,7 @@ export default function FloorPlanDetailPage({ params }: PageProps) {
         ]}
       />
 
-      <section className="bg-paper text-[#0a0a0a] py-16">
+      <section className="bg-[#ffffff] text-[#0a0a0a] py-16">
         <div className="site-container">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Left Blueprint Display (8 cols) */}

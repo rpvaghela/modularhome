@@ -14,12 +14,12 @@ const config: Config = {
       },
       colors: {
         // Off-white page background for light sections (cards stay pure white on top)
-        paper: "#f6f6f3",
-        background: "#0a0a0a",
+        paper: "#ffffff",
+        background: "#ffffff",
         surface: {
-          DEFAULT: "#111214",
-          alt: "#16181b",
-          card: "#121417",
+          DEFAULT: "#ffffff",
+          alt: "#ffffff",
+          card: "#ffffff",
         },
         border: {
           DEFAULT: "#2a2d31",

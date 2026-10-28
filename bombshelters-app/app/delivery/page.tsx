@@ -77,7 +77,7 @@ export default function DeliveryPage() {
         breadcrumbs={[{ label: "Delivery & Crane Setting" }]}
       />
 
-      <section className="bg-paper text-[#0a0a0a] py-16">
+      <section className="bg-[#ffffff] text-[#0a0a0a] py-16">
         <div className="site-container">
           {/* Overview Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">

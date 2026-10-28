@@ -61,7 +61,7 @@ export default function CollectionDetailPage({ params }: PageProps) {
         ]}
       />
 
-      <section className="bg-paper text-[#0a0a0a] py-16">
+      <section className="bg-[#ffffff] text-[#0a0a0a] py-16">
         <div className="site-container">
           <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
             <div>

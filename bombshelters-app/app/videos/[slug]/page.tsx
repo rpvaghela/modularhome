@@ -53,7 +53,7 @@ export default function VideoDetailPage({ params }: PageProps) {
         ]}
       />
 
-      <section className="bg-paper text-[#0a0a0a] py-16">
+      <section className="bg-[#ffffff] text-[#0a0a0a] py-16">
         <div className="site-container max-w-5xl">
           {/* Video Player Display Container */}
           <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-black shadow-2xl mb-8 border border-gray-200">

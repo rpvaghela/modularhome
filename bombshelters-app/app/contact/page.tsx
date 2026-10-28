@@ -76,7 +76,7 @@ export default function ContactPage() {
         breadcrumbs={[{ label: "Contact Us" }]}
       />
 
-      <section className="bg-paper text-[#0a0a0a] py-16">
+      <section className="bg-[#ffffff] text-[#0a0a0a] py-16">
         <div className="site-container">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Contact Details & Info (Left 5 cols) */}
