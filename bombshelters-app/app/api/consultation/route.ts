@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { createBombShelterLead } from "@/lib/leadsStore";
+
+export const dynamic = "force-dynamic";
 
 const consultationSchema = z.object({
   fullName: z.string().min(2, "Full name is required (at least 2 characters)"),
@@ -14,48 +17,21 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.json();
     const validated = consultationSchema.parse(rawBody);
 
-    const modularHomeUrl =
-      process.env.NEXT_PUBLIC_MODULARHOME_API_URL || "http://localhost:3000";
-
-    const payload = {
+    // Persist strictly to BombShelter's isolated leads storage (Supabase + local)
+    // No forwarding to ModularHome backend - prevents duplicate lead ingestion
+    const lead = await createBombShelterLead({
       name: validated.fullName,
       email: validated.email,
       phone: validated.phone,
-      projectType: validated.interest,
-      interest: validated.interest,
-      source: "BombShelters.com",
-      enquiryDetails: `[BombShelters.com Consultation] Selected Interest: ${validated.interest}. Customer Phone: ${validated.phone}`,
+      project_type: validated.interest,
+      enquiry_details: `[BombShelters.com Consultation] Selected Interest: ${validated.interest}. Customer Phone: ${validated.phone}`,
       notes: validated.notes || "Inquiry received via BombShelters.com consultation form.",
-    };
-
-    let backendResponse: any = null;
-    let forwardSuccess = false;
-
-    try {
-      const res = await fetch(`${modularHomeUrl}/api/leads`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(5000),
-      });
-
-      if (res.ok) {
-        backendResponse = await res.json();
-        forwardSuccess = true;
-      }
-    } catch (fetchErr: any) {
-      console.warn(
-        `[ModularHome Backend Integration] Unable to reach ${modularHomeUrl}/api/leads (${fetchErr?.message}). Falling back to local confirmation mode.`
-      );
-    }
+      status: "NEW",
+    });
 
     return NextResponse.json({
       success: true,
-      forwardedToBackend: forwardSuccess,
-      backendData: backendResponse,
+      leadId: lead.id,
       message: "Your consultation request has been securely recorded. Our defense specialists will contact you shortly.",
     });
   } catch (error: any) {

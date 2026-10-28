@@ -1,0 +1,710 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import {
+  Globe,
+  Save,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Phone,
+  Megaphone,
+  Search,
+  Link as LinkIcon,
+  FileText,
+  Building,
+  Mail,
+  MapPin,
+  RefreshCw,
+  Send,
+  ShieldCheck,
+  MailCheck,
+  Inbox,
+} from "lucide-react";
+import ImageUpload from "@/components/admin/ImageUpload";
+
+export default function AdminSettingsPage() {
+  const [settings, setSettings] = useState<any>({
+    companyName: "",
+    logoUrl: "",
+    faviconUrl: "",
+    phone: "",
+    email: "",
+    address: "",
+    socialLinks: { facebook: "", instagram: "", youtube: "", tiktok: "", twitter: "", linkedin: "" },
+    announcementEnabled: true,
+    announcementText: "",
+    announcementLink: "",
+    navLinks: [],
+    footerText: "",
+    footerLinks: [],
+    defaultSeoTitle: "",
+    defaultMetaDescription: "",
+    ctaLabel: "",
+    ctaLink: "",
+  });
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const fetchSettings = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/admin/settings");
+      const json = await res.json();
+      if (json.success && json.data) {
+        const d = json.data;
+        const rawSocial = typeof d.socialLinks === "string" ? JSON.parse(d.socialLinks || "{}") : (d.socialLinks || {});
+        setSettings({
+          ...d,
+          socialLinks: {
+            facebook: "",
+            instagram: "",
+            youtube: "",
+            tiktok: "",
+            twitter: "",
+            linkedin: "",
+            ...rawSocial,
+          },
+          navLinks: typeof d.navLinks === "string" ? JSON.parse(d.navLinks || "[]") : d.navLinks || [],
+          footerLinks: typeof d.footerLinks === "string" ? JSON.parse(d.footerLinks || "[]") : d.footerLinks || [],
+        });
+      }
+    } catch (e) {
+      setMessage({ type: "error", text: "Failed to load settings from server." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const [emailInfo, setEmailInfo] = useState<{
+    configured: boolean;
+    fromEmail: string;
+    apiKeyMasked: string;
+    stats?: { total: number; sent: number; failed: number; simulated: number };
+  } | null>(null);
+  const [testEmailRecipient, setTestEmailRecipient] = useState("");
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testEmailResult, setTestEmailResult] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  const fetchEmailStatus = async () => {
+    try {
+      const res = await fetch("/api/admin/emails");
+      const json = await res.json();
+      if (json.success && json.data) {
+        setEmailInfo({
+          ...json.data.connection,
+          stats: json.data.stats,
+        });
+      }
+    } catch {}
+  };
+
+  const handleSendTestEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testEmailRecipient || !testEmailRecipient.includes("@")) {
+      setTestEmailResult({ type: "error", message: "Please provide a valid recipient email address." });
+      return;
+    }
+
+    setIsSendingTest(true);
+    setTestEmailResult(null);
+
+    try {
+      const res = await fetch("/api/admin/emails/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: testEmailRecipient }),
+      });
+      const json = await res.json();
+
+      if (json.success) {
+        setTestEmailResult({
+          type: "success",
+          message: json.message || `Test email dispatched to ${testEmailRecipient}! Check your inbox or spam folder.`,
+        });
+        fetchEmailStatus();
+      } else {
+        setTestEmailResult({
+          type: "error",
+          message: json.error?.message || "Failed to dispatch test email via Resend.",
+        });
+      }
+    } catch (err: any) {
+      setTestEmailResult({
+        type: "error",
+        message: err.message || "Network error while sending test email.",
+      });
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+    fetchEmailStatus();
+  }, []);
+
+  // Keyboard shortcut: Ctrl+S or Cmd+S to save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        const submitBtn = document.getElementById("save-settings-btn");
+        if (submitBtn) submitBtn.click();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setMessage(null);
+
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+      const json = await res.json();
+
+      if (json.success) {
+        setMessage({ type: "success", text: "Global website settings synchronized and saved successfully!" });
+        if (json.data) {
+          const d = json.data;
+          const rawSocial = typeof d.socialLinks === "string" ? JSON.parse(d.socialLinks || "{}") : (d.socialLinks || {});
+          setSettings((prev: any) => ({
+            ...prev,
+            ...d,
+            socialLinks: {
+              ...prev.socialLinks,
+              ...rawSocial,
+            },
+          }));
+        }
+      } else {
+        setMessage({ type: "error", text: json.error?.message || "Failed to save settings." });
+      }
+    } catch (e: any) {
+      setMessage({ type: "error", text: e.message || "Network error while saving settings." });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-28 text-[#6b7280] space-y-3">
+        <Loader2 className="w-8 h-8 animate-spin text-[#e11d1d]" />
+        <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#101114]">
+          Loading Global Configuration...
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSave} className="space-y-8 animate-in fade-in duration-300 pb-16">
+      {/* Top Sticky/Fixed Header Action Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#e7e9ee] pb-5">
+        <div>
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-red-50 border border-red-200 text-[#b91c1c] text-[11px] font-black uppercase tracking-wider mb-2">
+            <Globe className="w-3.5 h-3.5" />
+            <span>Site-Wide Global Settings</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#101114] font-serif">
+            Website Configuration & Brand Profile
+          </h1>
+          <p className="text-xs sm:text-sm text-[#6b7280] mt-1 font-medium">
+            Configure site-wide branding, direct customer channels, top announcement ribbon, social media accounts, and global SEO.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={fetchSettings}
+            disabled={isSaving}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[#d5d9e0] bg-white hover:bg-[#f8f9fa] text-[#101114] text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            title="Reload settings from database"
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-gray-500" />
+            <span>Reload</span>
+          </button>
+
+          <button
+            id="save-settings-btn"
+            type="submit"
+            disabled={isSaving}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#e11d1d] hover:bg-[#b91c1c] text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+          >
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            <span>{isSaving ? "Saving..." : "Save Settings"}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Settings Sub-routes navigation */}
+      <div className="flex items-center gap-2 border-b border-[#e7e9ee] pb-3 text-xs font-bold font-mono">
+        <a href="/admin/settings" className="px-3 py-1.5 rounded-lg bg-[#101114] text-white">All Settings</a>
+        <a href="/admin/settings/header" className="px-3 py-1.5 rounded-lg text-[#6b7280] hover:text-[#101114]">Header</a>
+        <a href="/admin/settings/navigation" className="px-3 py-1.5 rounded-lg text-[#6b7280] hover:text-[#101114]">Navigation</a>
+        <a href="/admin/settings/footer" className="px-3 py-1.5 rounded-lg text-[#6b7280] hover:text-[#101114]">Footer</a>
+      </div>
+
+      {message && (
+        <div
+          className={`p-4 rounded-2xl flex items-center gap-3 text-xs font-semibold animate-in fade-in ${
+            message.type === "success"
+              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+              : "bg-red-50 text-red-800 border border-red-200"
+          }`}
+        >
+          {message.type === "success" ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+          )}
+          <span>{message.text}</span>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        {/* 1. Branding Section */}
+        <div className="bg-white p-6 sm:p-7 rounded-[22px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-5">
+          <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[#101114] border-b border-[#e7e9ee] pb-3 font-mono">
+            <Building className="w-4 h-4 text-[#e11d1d]" />
+            <span>Company Branding</span>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#101114] mb-1.5">Company Name</label>
+            <input
+              type="text"
+              value={settings.companyName || ""}
+              onChange={(e) => setSettings({ ...settings, companyName: e.target.value })}
+              placeholder="e.g. BombShelters.com"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+            <ImageUpload
+              label="Company Logo"
+              value={settings.logoUrl || ""}
+              onChange={(url) => setSettings({ ...settings, logoUrl: url })}
+              folder="branding"
+              aspectRatio="logo"
+              helperText="SVG, PNG, or WebP logo for navbar & footer."
+            />
+
+            <ImageUpload
+              label="Browser Favicon"
+              value={settings.faviconUrl || ""}
+              onChange={(url) => setSettings({ ...settings, faviconUrl: url })}
+              folder="branding"
+              aspectRatio="1/1"
+              accept=".ico,.png,.svg,image/x-icon,image/png,image/svg+xml"
+              helperText="32x32 or 64x64 icon for browser tabs & bookmarks."
+            />
+          </div>
+        </div>
+
+        {/* 2. Direct Contact Channels */}
+        <div className="bg-white p-6 sm:p-7 rounded-[22px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-5">
+          <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[#101114] border-b border-[#e7e9ee] pb-3 font-mono">
+            <Phone className="w-4 h-4 text-[#e11d1d]" />
+            <span>Direct Contact Information</span>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#101114] mb-1.5">Direct Phone Number</label>
+            <input
+              type="text"
+              value={settings.phone || ""}
+              onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
+              placeholder="e.g. +1 (812) 595-4033"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+            />
+            <p className="text-[11px] text-[#6b7280] mt-1">Displayed prominently in navbar header, footer, and quote pages.</p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#101114] mb-1.5">Public Support Email Address</label>
+            <input
+              type="email"
+              value={settings.email || ""}
+              onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+              placeholder="support@bombshelters.com"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#101114] mb-1.5">Physical Address / Headquarters</label>
+            <input
+              type="text"
+              value={settings.address || ""}
+              onChange={(e) => setSettings({ ...settings, address: e.target.value })}
+              placeholder="e.g. Factory Headquarters, IN & Nationwide Delivery"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+            />
+          </div>
+        </div>
+
+        {/* 3. Top Announcement Banner */}
+        <div className="bg-white p-6 sm:p-7 rounded-[22px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-5">
+          <div className="flex items-center justify-between border-b border-[#e7e9ee] pb-3">
+            <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[#101114] font-mono">
+              <Megaphone className="w-4 h-4 text-[#e11d1d]" />
+              <span>Announcement Top Bar</span>
+            </div>
+            <label className="flex items-center gap-2 text-xs font-bold text-[#101114] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={!!settings.announcementEnabled}
+                onChange={(e) => setSettings({ ...settings, announcementEnabled: e.target.checked })}
+                className="w-4 h-4 text-[#e11d1d] rounded-sm focus:ring-[#e11d1d]"
+              />
+              <span>Banner Active</span>
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#101114] mb-1.5">Banner Message Text</label>
+            <input
+              type="text"
+              value={settings.announcementText || ""}
+              onChange={(e) => setSettings({ ...settings, announcementText: e.target.value })}
+              placeholder="Direct Factory Modular & Prefab Home Builder • 2026 Models Released"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#101114] mb-1.5">Banner Target URL / Destination</label>
+            <input
+              type="text"
+              value={settings.announcementLink || ""}
+              onChange={(e) => setSettings({ ...settings, announcementLink: e.target.value })}
+              placeholder="/buildings"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+            />
+          </div>
+        </div>
+
+        {/* 4. Social Media Channels */}
+        <div className="bg-white p-6 sm:p-7 rounded-[22px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-5">
+          <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[#101114] border-b border-[#e7e9ee] pb-3 font-mono">
+            <LinkIcon className="w-4 h-4 text-[#e11d1d]" />
+            <span>Social Media Channels</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">Facebook URL</label>
+              <input
+                type="text"
+                value={settings.socialLinks?.facebook || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    socialLinks: { ...settings.socialLinks, facebook: e.target.value },
+                  })
+                }
+                placeholder="https://facebook.com/modularhome"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">Instagram URL</label>
+              <input
+                type="text"
+                value={settings.socialLinks?.instagram || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    socialLinks: { ...settings.socialLinks, instagram: e.target.value },
+                  })
+                }
+                placeholder="https://instagram.com/modularhome"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">YouTube Channel URL</label>
+              <input
+                type="text"
+                value={settings.socialLinks?.youtube || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    socialLinks: { ...settings.socialLinks, youtube: e.target.value },
+                  })
+                }
+                placeholder="https://youtube.com/@modularhome"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">TikTok Profile URL</label>
+              <input
+                type="text"
+                value={settings.socialLinks?.tiktok || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    socialLinks: { ...settings.socialLinks, tiktok: e.target.value },
+                  })
+                }
+                placeholder="https://tiktok.com/@modularhome"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">X / Twitter URL</label>
+              <input
+                type="text"
+                value={settings.socialLinks?.twitter || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    socialLinks: { ...settings.socialLinks, twitter: e.target.value },
+                  })
+                }
+                placeholder="https://x.com/modularhome"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">LinkedIn URL</label>
+              <input
+                type="text"
+                value={settings.socialLinks?.linkedin || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    socialLinks: { ...settings.socialLinks, linkedin: e.target.value },
+                  })
+                }
+                placeholder="https://linkedin.com/company/modularhome"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* 5. Footer Narrative / Bio */}
+        <div className="bg-white p-6 sm:p-7 rounded-[22px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-5 lg:col-span-2">
+          <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[#101114] border-b border-[#e7e9ee] pb-3 font-mono">
+            <FileText className="w-4 h-4 text-[#e11d1d]" />
+            <span>Footer Brand Description</span>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#101114] mb-1.5">Footer Brand Summary</label>
+            <textarea
+              rows={3}
+              value={settings.footerText || ""}
+              onChange={(e) => setSettings({ ...settings, footerText: e.target.value })}
+              placeholder="BombShelters.com leads the American prefabricated housing movement..."
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium leading-relaxed"
+            />
+            <p className="text-[11px] text-[#6b7280] mt-1">Appears underneath the brand logo in the website footer.</p>
+          </div>
+        </div>
+
+        {/* 6. Primary Call To Action Button */}
+        <div className="bg-white p-6 sm:p-7 rounded-[22px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-5 lg:col-span-2">
+          <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[#101114] border-b border-[#e7e9ee] pb-3 font-mono">
+            <span>Primary Global CTA Configuration</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">Navbar & Global CTA Label</label>
+              <input
+                type="text"
+                value={settings.ctaLabel || ""}
+                onChange={(e) => setSettings({ ...settings, ctaLabel: e.target.value })}
+                placeholder="Get Your Free Quote"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">CTA Target Destination URL</label>
+              <input
+                type="text"
+                value={settings.ctaLink || ""}
+                onChange={(e) => setSettings({ ...settings, ctaLink: e.target.value })}
+                placeholder="/quote"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* 7. Default SEO Metadata */}
+        <div className="bg-white p-6 sm:p-7 rounded-[22px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-5 lg:col-span-2">
+          <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[#101114] border-b border-[#e7e9ee] pb-3 font-mono">
+            <Search className="w-4 h-4 text-[#e11d1d]" />
+            <span>Default Global SEO Metadata</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">
+                Default Meta Title ({settings.defaultSeoTitle?.length || 0}/60 chars)
+              </label>
+              <input
+                type="text"
+                value={settings.defaultSeoTitle || ""}
+                onChange={(e) => setSettings({ ...settings, defaultSeoTitle: e.target.value })}
+                placeholder="BombShelters.com | Modern Homes. A Smarter Way to Build."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#101114] mb-1.5">
+                Default Meta Description ({settings.defaultMetaDescription?.length || 0}/160 chars)
+              </label>
+              <textarea
+                rows={3}
+                value={settings.defaultMetaDescription || ""}
+                onChange={(e) => setSettings({ ...settings, defaultMetaDescription: e.target.value })}
+                placeholder="Explore modular homes, prefab homes, cabins, ADUs, barndominiums, floor plans and custom home options."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* 8. Resend Email Delivery & Gateway Status */}
+        <div className="bg-white p-6 sm:p-7 rounded-[22px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] space-y-5 lg:col-span-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#e7e9ee] pb-4">
+            <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[#101114] font-mono">
+              <MailCheck className="w-4 h-4 text-[#e11d1d]" />
+              <span>Resend API Email Delivery & Diagnostics</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {emailInfo?.configured ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Resend API Active</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-[#b91c1c] text-[11px] font-bold">
+                  <AlertCircle className="w-3.5 h-3.5 text-[#e11d1d]" />
+                  <span>Simulated Mode (No API Key)</span>
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-[#f8f9fa] border border-[#e7e9ee]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280] block mb-1">
+                Active Sender Address
+              </span>
+              <span className="text-xs font-mono font-bold text-[#101114] break-all">
+                {emailInfo?.fromEmail || "BombShelter <onboarding@resend.dev>"}
+              </span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#f8f9fa] border border-[#e7e9ee]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280] block mb-1">
+                Resend API Key Status
+              </span>
+              <span className="text-xs font-mono font-bold text-[#101114]">
+                {emailInfo?.apiKeyMasked || "Not Set"}
+              </span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#f8f9fa] border border-[#e7e9ee]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#6b7280] block mb-1">
+                Delivery Stats
+              </span>
+              <div className="flex items-center gap-3 text-xs font-semibold text-[#101114]">
+                <span className="text-emerald-700">✓ {emailInfo?.stats?.sent || 0} Sent</span>
+                <span className="text-gray-500">⚡ {emailInfo?.stats?.simulated || 0} Dev</span>
+                {Boolean(emailInfo?.stats?.failed) && (
+                  <span className="text-red-600">✕ {emailInfo?.stats?.failed} Failed</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Test Email Tool */}
+          <div className="pt-2">
+            <div className="p-5 rounded-2xl bg-[#fafafa] border border-[#e2e8f0]">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#101114] mb-2 font-mono">
+                <Send className="w-3.5 h-3.5 text-[#e11d1d]" />
+                <span>Test Live Email Dispatch via Resend</span>
+              </div>
+              <p className="text-xs text-[#6b7280] mb-4">
+                Send a real branded test email to verify DNS, SPF, DKIM, and mailbox deliverability.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="email"
+                  value={testEmailRecipient}
+                  onChange={(e) => setTestEmailRecipient(e.target.value)}
+                  placeholder="Enter recipient email (e.g. your email address)..."
+                  className="flex-1 px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-white text-xs text-[#101114] focus:outline-none focus:ring-2 focus:ring-[#e11d1d] font-medium"
+                />
+                <button
+                  type="button"
+                  onClick={handleSendTestEmail}
+                  disabled={isSendingTest || !testEmailRecipient}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#101114] hover:bg-black text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shrink-0"
+                >
+                  {isSendingTest ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#e11d1d]" />
+                      <span>Sending Test...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3.5 h-3.5 text-[#e11d1d]" />
+                      <span>Send Test Email</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {testEmailResult && (
+                <div
+                  className={`mt-3.5 p-3 rounded-xl flex items-start gap-2.5 text-xs font-medium ${
+                    testEmailResult.type === "success"
+                      ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                      : "bg-red-50 text-red-800 border border-red-200"
+                  }`}
+                >
+                  {testEmailResult.type === "success" ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  )}
+                  <span>{testEmailResult.message}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  );
+}

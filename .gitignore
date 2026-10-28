@@ -44,6 +44,8 @@ next-env.d.ts
 # scratch & local cache
 /scratch/
 src/data/custom_admin_sessions.json
+data/custom_*.json
+.vscode/
 
 # large dataset files exceeding GitHub 100MB limit
 migration/source/Products.csv

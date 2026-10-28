@@ -40,6 +40,41 @@ body {
   background: #e11d1d;
 }
 
+/* Hide scrollbar on horizontal card rails */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* One shared left/right edge for header, nav, hero and every section (matches the mockup) */
+.site-container {
+  width: 100%;
+  max-width: 1920px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+@media (min-width: 640px) {
+  .site-container {
+    padding-inline: 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-container {
+    padding-inline: 48px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .site-container {
+    padding-inline: 64px;
+  }
+}
+
 /* Card lift and subtle glowing shadows */
 .card-hover-lift {
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -48,6 +83,58 @@ body {
 .card-hover-lift:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6);
+}
+
+/* Heavy outlined headline text used in the hero */
+.text-stroke-dark {
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.35);
+  paint-order: stroke fill;
+}
+
+/* Thickens Oswald's 700 weight to match the poster-style hero headline */
+.text-heavy {
+  -webkit-text-stroke: 1.5px currentColor;
+}
+
+/* CSS-only hero entrance: content is visible even if JS never hydrates */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* Uses `translate` (not `transform`) so Tailwind rotate utilities on the same element still apply */
+.hero-rise {
+  animation: hero-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise {
+    animation: none;
+  }
+}
+
+/* Hand-painted red swoosh under "SHOULDN'T BE." */
+.brush-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.brush-underline::after {
+  content: "";
+  position: absolute;
+  left: -2%;
+  right: -4%;
+  bottom: -0.12em;
+  height: 0.16em;
+  background: linear-gradient(90deg, rgba(225, 29, 29, 0) 0%, #e11d1d 12%, #ff2b2b 70%, rgba(225, 29, 29, 0) 100%);
+  border-radius: 999px;
+  transform: skewX(-20deg) rotate(-1.5deg);
 }
 
 /* Focus outline accessibility */

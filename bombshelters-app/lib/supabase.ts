@@ -1,0 +1,56 @@
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  process.env.SUPABASE_URL ||
+  "https://placeholder-project.supabase.co";
+
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.SUPABASE_ANON_KEY ||
+  "placeholder-anon-key";
+
+const rawServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const isPostgresUrl =
+  rawServiceKey?.startsWith("postgresql://") || rawServiceKey?.startsWith("postgres://");
+
+const supabaseServiceRoleKey =
+  rawServiceKey && !isPostgresUrl
+    ? rawServiceKey
+    : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || supabaseAnonKey;
+
+/**
+ * Public Supabase Client (For browser and public server reads)
+ */
+export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false,
+  },
+});
+
+/**
+ * Privileged Supabase Admin Client (For server-side API routes bypassing RLS)
+ */
+export const supabaseAdmin: SupabaseClient = createClient(
+  supabaseUrl,
+  supabaseServiceRoleKey,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  }
+);
+
+/**
+ * Helper to check if Supabase is properly configured with live credentials
+ */
+export function isSupabaseConfigured(): boolean {
+  return (
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) &&
+    !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder-project")
+  );
+}
+

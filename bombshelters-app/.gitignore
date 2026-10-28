@@ -28,3 +28,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# env files
+.env
+
+# runtime data & local uploads
+data/custom_*.json
+public/uploads/

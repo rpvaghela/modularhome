@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Oswald } from "next/font/google";
+import { Inter, Oswald, Permanent_Marker } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -14,6 +14,15 @@ const oswald = Oswald({
   subsets: ["latin"],
   variable: "--font-oswald",
   display: "swap",
+});
+
+const brush = Permanent_Marker({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-brush",
+  display: "swap",
+  fallback: ["Permanent Marker", "Impact", "cursive", "sans-serif"],
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -103,7 +112,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${oswald.variable}`}>
+    <html lang="en" className={`${inter.variable} ${oswald.variable} ${brush.variable}`}>
       <head>
         <script
           type="application/ld+json"

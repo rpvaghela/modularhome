@@ -1,35 +1,34 @@
 import React from "react";
-import { ShieldCheck, Building2, Truck, Wrench, BadgeDollarSign, Headphones } from "lucide-react";
+import { ShieldCheck, Truck, Settings, BadgeDollarSign, Users } from "lucide-react";
 import { TRUST_STRIP_ITEMS } from "@/data/navigation";
+import { UsFlag } from "@/components/ui/UsFlag";
 
 export function TrustStrip() {
   const iconMap: Record<string, React.ReactNode> = {
-    ShieldCheck: <ShieldCheck className="w-6 h-6 text-[#e11d1d]" />,
-    Building2: <Building2 className="w-6 h-6 text-[#e11d1d]" />,
-    Truck: <Truck className="w-6 h-6 text-[#e11d1d]" />,
-    Wrench: <Wrench className="w-6 h-6 text-[#e11d1d]" />,
-    BadgeDollarSign: <BadgeDollarSign className="w-6 h-6 text-[#e11d1d]" />,
-    Headset: <Headphones className="w-6 h-6 text-[#e11d1d]" />,
+    ShieldCheck: <UsFlag className="w-10 h-auto rounded-[2px]" />,
+    Building2: <ShieldCheck className="w-7 h-7 text-white" strokeWidth={1.5} />,
+    Truck: <Truck className="w-7 h-7 text-white" strokeWidth={1.5} />,
+    Wrench: <Settings className="w-7 h-7 text-white" strokeWidth={1.5} />,
+    BadgeDollarSign: <BadgeDollarSign className="w-7 h-7 text-white" strokeWidth={1.5} />,
+    Headset: <Users className="w-7 h-7 text-white" strokeWidth={1.5} />,
   };
 
   return (
-    <section className="bg-[#111214] border-y border-[#2a2d31] py-8">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 sm:gap-8">
+    <section className="bg-[#0a0a0a] border-y border-[#1f2226]">
+      <div className="site-container">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:divide-x divide-[#2a2d31]">
           {TRUST_STRIP_ITEMS.map((item) => (
             <div
               key={item.title}
-              className="flex flex-col items-center sm:items-start text-center sm:text-left space-y-2 group"
+              title={item.desc}
+              className="flex items-center gap-3 px-2 lg:px-4 py-5 group"
             >
-              <div className="p-2.5 rounded-[4px] bg-[#16181b] border border-[#2a2d31] group-hover:border-[#e11d1d]/60 transition-colors">
-                {iconMap[item.icon] || <ShieldCheck className="w-6 h-6 text-[#e11d1d]" />}
+              <div className="shrink-0 group-hover:scale-110 transition-transform">
+                {iconMap[item.icon] || <ShieldCheck className="w-7 h-7 text-white" strokeWidth={1.5} />}
               </div>
-              <h4 className="font-display font-bold uppercase text-xs sm:text-sm tracking-wider text-white">
+              <h4 className="font-display font-semibold uppercase text-[11px] sm:text-xs tracking-wider text-white leading-snug group-hover:text-[#e11d1d] transition-colors">
                 {item.title}
               </h4>
-              <p className="text-[11px] text-[#a1a1aa] leading-snug">
-                {item.desc}
-              </p>
             </div>
           ))}
         </div>

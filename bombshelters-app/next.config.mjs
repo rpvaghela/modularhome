@@ -16,6 +16,14 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: "/api/admin/:path*",
+        destination: "/api/bombshelter/admin/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -2,6 +2,7 @@ export interface CategoryItem {
   id: string;
   title: string;
   description: string;
+  tagline: string;
   imageUrl: string;
   link: string;
   badge?: string;
@@ -11,49 +12,55 @@ export const CATEGORIES: CategoryItem[] = [
   {
     id: "bomb-shelters",
     title: "Bomb Shelters",
+    tagline: "Maximum protection for your family.",
     description: "Sub-surface hardened blast and fallout shelters engineered to withstand extreme radiological and military-grade threats.",
-    imageUrl: "https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?auto=format&fit=crop&w=800&q=80",
-    link: "#featured-models",
+    imageUrl: "/images/cat-bomb-shelters.png",
+    link: "/models",
     badge: "NBC Rated",
   },
   {
     id: "storm-shelters",
     title: "Storm Shelters",
+    tagline: "Severe weather protection when it matters most.",
     description: "FEMA-compliant above and below ground tornado & EF5 severe storm shelters designed for rapid household deployment.",
-    imageUrl: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80",
-    link: "#featured-models",
+    imageUrl: "/images/cat-storm-shelters.png",
+    link: "/collections/tornado-storm-shelters",
     badge: "FEMA P-320",
   },
   {
     id: "safe-rooms",
     title: "Safe Rooms",
+    tagline: "Security at home and beyond.",
     description: "Reinforced residential interior ballistic panic rooms with reinforced steel doors and biometric access control.",
-    imageUrl: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=800&q=80",
-    link: "#featured-models",
+    imageUrl: "/images/cat-safe-rooms.png",
+    link: "/adus",
     badge: "Ballistic Level 4",
   },
   {
     id: "luxury-bunkers",
     title: "Luxury Bunkers",
+    tagline: "Premium comfort underground.",
     description: "Multi-level subterranean estates with continuous hydroponic systems, autonomous micro-grids, and climate control.",
-    imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-    link: "#featured-models",
+    imageUrl: "/images/cat-luxury-bunkers.png",
+    link: "/collections/luxury-estates",
     badge: "Turnkey Luxury",
   },
   {
     id: "steel-framed-homes",
     title: "Steel Framed Homes",
+    tagline: "Modern, strong and affordable.",
     description: "Indestructible cold-formed steel architectural homes engineered against wind, seismic loads, fire, and pests.",
-    imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
-    link: "#featured-models",
+    imageUrl: "/images/cat-steel-framed-homes.png",
+    link: "/modular-homes",
     badge: "Class-A Fire",
   },
   {
     id: "cabins",
     title: "Cabins & Retreats",
+    tagline: "Timeless design. Modern craftsmanship.",
     description: "Self-sufficient off-grid modular cabins with heavy-gauge steel framing and panoramic reinforced glazing.",
-    imageUrl: "https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?auto=format&fit=crop&w=800&q=80",
-    link: "#featured-models",
+    imageUrl: "/images/cat-cabins.png",
+    link: "/cabins",
     badge: "Off-Grid Ready",
   },
 ];

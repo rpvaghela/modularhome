@@ -1,0 +1,374 @@
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  BookOpen,
+  Plus,
+  Search,
+  Edit2,
+  Trash2,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Eye,
+  EyeOff,
+  Calendar,
+  RefreshCw,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
+import { useConfirm } from "@/context/ConfirmDialogContext";
+
+export default function AdminBlogsPage() {
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState<"latest" | "oldest" | "title-asc" | "title-desc">("latest");
+  const confirm = useConfirm();
+
+  const fetchBlogs = async () => {
+    setIsLoading(true);
+    try {
+      const url = new URL("/api/admin/blogs", window.location.origin);
+      if (search) url.searchParams.set("search", search);
+      if (statusFilter !== "ALL") url.searchParams.set("status", statusFilter);
+
+      const res = await fetch(url.toString());
+      const json = await res.json();
+      if (json.success) {
+        setBlogs(json.data || []);
+      }
+    } catch (e) {
+      console.error("Error loading blogs:", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlogs();
+  }, [statusFilter]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchBlogs();
+  };
+
+  const handleTogglePublish = async (id: string, currentStatus: string) => {
+    const nextStatus = currentStatus === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
+    try {
+      const res = await fetch(`/api/admin/blogs/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setBlogs((prev) =>
+          prev.map((b) => (b.id === id ? { ...b, status: nextStatus } : b))
+        );
+      }
+    } catch (e) {
+      alert("Failed to toggle status.");
+    }
+  };
+
+  const handleDelete = async (id: string, title: string) => {
+    const ok = await confirm({
+      title: "Delete Blog Post?",
+      message: `Are you sure you want to permanently delete "${title}"? This action cannot be reversed.`,
+      confirmText: "Delete Post",
+      cancelText: "Keep Post",
+      type: "danger",
+      icon: "trash",
+    });
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`/api/admin/blogs/${encodeURIComponent(id)}`, { method: "DELETE" });
+      const json = await res.json();
+      if (json.success) {
+        setBlogs((prev) => prev.filter((b) => b.id !== id));
+      } else {
+        alert(json.error?.message || "Failed to delete article.");
+      }
+    } catch (e) {
+      alert("Failed to delete article.");
+    }
+  };
+
+  const filteredAndSortedBlogs = useMemo(() => {
+    const list = (blogs || []).filter((blog) => {
+      if (statusFilter !== "ALL" && (blog.status || "").toUpperCase() !== statusFilter.toUpperCase()) {
+        return false;
+      }
+      if (search.trim()) {
+        const q = search.toLowerCase().trim();
+        const titleMatch = (blog.title || "").toLowerCase().includes(q);
+        const slugMatch = (blog.slug || "").toLowerCase().includes(q);
+        const catMatch = (blog.category || "").toLowerCase().includes(q);
+        const authorMatch = (blog.author || "").toLowerCase().includes(q);
+        const excerptMatch = (blog.excerpt || "").toLowerCase().includes(q);
+        if (!titleMatch && !slugMatch && !catMatch && !authorMatch && !excerptMatch) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    return [...list].sort((a, b) => {
+      const getTimestamp = (item: any) => {
+        const val = item.publishedAt || item.published_at || item.date || item.createdAt || "";
+        const time = new Date(val).getTime();
+        return isNaN(time) ? 0 : time;
+      };
+
+      if (sortBy === "latest") {
+        return getTimestamp(b) - getTimestamp(a);
+      }
+      if (sortBy === "oldest") {
+        return getTimestamp(a) - getTimestamp(b);
+      }
+      if (sortBy === "title-asc") {
+        return (a.title || "").localeCompare(b.title || "");
+      }
+      if (sortBy === "title-desc") {
+        return (b.title || "").localeCompare(a.title || "");
+      }
+      return 0;
+    });
+  }, [blogs, statusFilter, search, sortBy]);
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-300 pb-12">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#e7e9ee] pb-5">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#101114] font-serif">
+            Blogs &amp; Articles Editorial CMS
+          </h1>
+          <p className="text-xs sm:text-sm text-[#6b7280] mt-1 font-medium">
+            Publish educational articles, housing guides, comparison breakdowns, and construction resources.
+          </p>
+        </div>
+
+        <Link
+          href="/admin/blogs/new"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#e11d1d] hover:bg-[#b91c1c] text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer self-start sm:self-auto"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Write New Article</span>
+        </Link>
+      </div>
+
+      {/* Filter and Search Bar */}
+      <div className="bg-white p-4 sm:p-5 rounded-[20px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <form onSubmit={handleSearchSubmit} className="relative w-full md:w-80">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by title, category, or keyword..."
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d]"
+          />
+          <Search className="w-4 h-4 text-[#6b7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
+        </form>
+
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[#101114] font-bold uppercase tracking-wider font-mono">Sort:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="px-3.5 py-2 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none cursor-pointer"
+            >
+              <option value="latest">Latest Date First (Newest)</option>
+              <option value="oldest">Oldest Date First</option>
+              <option value="title-asc">Title (A - Z)</option>
+              <option value="title-desc">Title (Z - A)</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[#101114] font-bold uppercase tracking-wider font-mono">Status:</span>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3.5 py-2 rounded-xl border border-[#d5d9e0] bg-[#f8f9fa] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none cursor-pointer"
+            >
+              <option value="ALL">All Articles ({blogs.length})</option>
+              <option value="PUBLISHED">Published</option>
+              <option value="DRAFT">Drafts</option>
+              <option value="ARCHIVED">Archived</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Blogs Table */}
+      <div className="bg-white rounded-[20px] border border-[#e7e9ee] shadow-[0_12px_35px_rgba(16,24,40,0.04)] overflow-hidden">
+        {isLoading ? (
+          <div className="py-20 text-center text-[#6b7280] text-xs flex flex-col items-center gap-2 font-medium">
+            <Loader2 className="w-6 h-6 animate-spin text-[#e11d1d]" />
+            <span>Loading articles...</span>
+          </div>
+        ) : filteredAndSortedBlogs.length === 0 ? (
+          <div className="py-20 text-center text-[#6b7280] text-xs font-medium space-y-2">
+            <div>No articles match your search or filter criteria.</div>
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="text-xs text-[#e11d1d] font-bold underline cursor-pointer"
+              >
+                Clear Search Query
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <div className="px-5 py-3 bg-[#fbfbfc] border-b border-[#e7e9ee] text-xs text-[#6b7280] font-medium flex items-center justify-between">
+              <span>Showing <strong>{filteredAndSortedBlogs.length}</strong> of {blogs.length} articles</span>
+              <span className="text-[11px] text-[#9ca3af]">
+                Sorted: <strong className="text-[#101114]">{sortBy === "latest" ? "Latest Date First" : sortBy === "oldest" ? "Oldest Date First" : sortBy === "title-asc" ? "Title A-Z" : "Title Z-A"}</strong>
+              </span>
+            </div>
+            <table className="w-full text-left border-collapse text-xs min-w-[750px]">
+              <thead>
+                <tr className="bg-[#f8f9fa] border-b border-[#e7e9ee] text-[#6b7280] font-bold uppercase tracking-wider text-[10px] font-mono">
+                  <th 
+                    onClick={() => setSortBy(sortBy === "title-asc" ? "title-desc" : "title-asc")}
+                    className="py-4 px-5 cursor-pointer hover:text-[#101114] transition-colors select-none"
+                    title="Click to sort by Title"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span>Article Details</span>
+                      {sortBy === "title-asc" ? (
+                        <ArrowUp className="w-3.5 h-3.5 text-[#e11d1d]" />
+                      ) : sortBy === "title-desc" ? (
+                        <ArrowDown className="w-3.5 h-3.5 text-[#e11d1d]" />
+                      ) : (
+                        <ArrowUpDown className="w-3.5 h-3.5 text-[#9ca3af] opacity-60" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="py-4 px-5">Author</th>
+                  <th 
+                    onClick={() => setSortBy(sortBy === "latest" ? "oldest" : "latest")}
+                    className="py-4 px-5 cursor-pointer hover:text-[#101114] transition-colors select-none"
+                    title="Click to sort by Published Date"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span>Published Date</span>
+                      {sortBy === "latest" ? (
+                        <ArrowDown className="w-3.5 h-3.5 text-[#e11d1d]" />
+                      ) : sortBy === "oldest" ? (
+                        <ArrowUp className="w-3.5 h-3.5 text-[#e11d1d]" />
+                      ) : (
+                        <ArrowUpDown className="w-3.5 h-3.5 text-[#9ca3af] opacity-60" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="py-4 px-5">Status</th>
+                  <th className="py-4 px-5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#e7e9ee]">
+                {filteredAndSortedBlogs.map((blog) => {
+                  const targetSlug = blog.slug || (blog.id ? String(blog.id).replace(/[^a-zA-Z0-9_-]/g, "-") : "article");
+                  const editUrl = `/admin/blogs/${encodeURIComponent(targetSlug)}`;
+                  const previewUrl = `/resources/${blog.slug || targetSlug}`;
+                  const bId = blog.id || blog.slug;
+
+                  return (
+                    <tr key={blog.id || blog.slug} className="hover:bg-[#f8f9fa]/70 transition-colors">
+                      <td className="py-4 px-5">
+                        <div className="flex items-center gap-3.5">
+                          <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-[#f8f9fa] shrink-0 border border-[#e7e9ee]">
+                            {blog.featuredImage ? (
+                              <Image
+                                src={blog.featuredImage}
+                                alt={blog.title}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[#6b7280]">
+                                <BookOpen className="w-5 h-5 opacity-40" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0 max-w-md">
+                            <div className="font-bold text-[#101114] line-clamp-1 font-sans text-sm">{blog.title}</div>
+                            <div className="text-[11px] font-mono text-[#6b7280] mt-0.5">/{blog.slug}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-5 text-[#101114] font-medium">
+                        {blog.author}
+                      </td>
+                      <td className="py-4 px-5 text-[#6b7280] text-[11px] whitespace-nowrap">
+                        {(() => {
+                          if (!blog.publishedAt) return "Draft";
+                          const d = new Date(blog.publishedAt);
+                          return !isNaN(d.getTime())
+                            ? d.toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })
+                            : blog.publishedAt;
+                        })()}
+                      </td>
+                      <td className="py-4 px-5">
+                        <button
+                          onClick={() => handleTogglePublish(bId, blog.status)}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase transition-colors cursor-pointer ${
+                            blog.status === "PUBLISHED"
+                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100"
+                              : "bg-[#f8f9fa] text-[#6b7280] border border-[#d5d9e0] hover:bg-[#e7e9ee]"
+                          }`}
+                        >
+                          {blog.status === "PUBLISHED" ? <Eye className="w-3.5 h-3.5 text-emerald-600" /> : <EyeOff className="w-3.5 h-3.5 text-[#6b7280]" />}
+                          <span>{blog.status}</span>
+                        </button>
+                      </td>
+                      <td className="py-4 px-5 text-right space-x-1.5">
+                        <Link
+                          href={previewUrl}
+                          target="_blank"
+                          className="p-2 rounded-xl text-[#6b7280] hover:text-[#e11d1d] hover:bg-white hover:border-[#d5d9e0] border border-transparent inline-block transition-all shadow-2xs cursor-pointer"
+                          title="View Live Article"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Link>
+                        <Link
+                          href={editUrl}
+                          className="p-2 rounded-xl text-[#101114] hover:bg-white hover:border-[#d5d9e0] border border-transparent inline-block transition-all shadow-2xs cursor-pointer"
+                          title="Edit Article"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(bId, blog.title)}
+                          className="p-2 rounded-xl text-[#6b7280] hover:text-[#e11d1d] hover:bg-red-50 border border-transparent hover:border-red-200 inline-block transition-colors cursor-pointer"
+                          title="Delete Article"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

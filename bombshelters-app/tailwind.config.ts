@@ -32,6 +32,7 @@ const config: Config = {
       fontFamily: {
         display: ["var(--font-oswald)", "Oswald", "sans-serif"],
         sans: ["var(--font-inter)", "Inter", "sans-serif"],
+        brush: ["var(--font-brush)", "Permanent Marker", "cursive"],
       },
       maxWidth: {
         container: "1280px",
