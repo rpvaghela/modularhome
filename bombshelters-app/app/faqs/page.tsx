@@ -162,7 +162,7 @@ export default function FaqsPage() {
         breadcrumbs={[{ label: "FAQs" }]}
       />
 
-      <section className="bg-white text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container">
           {/* Search Bar & Category Filters */}
           <div className="max-w-3xl mx-auto mb-12 space-y-6">

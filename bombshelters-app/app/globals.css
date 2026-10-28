@@ -49,10 +49,11 @@ body {
   display: none;
 }
 
-/* One shared left/right edge for header, nav, hero and every section (matches the mockup) */
+/* One shared left/right edge for header, nav, hero and every section.
+   Content is capped at 1248px and centred (like modularhome.com), so wide screens get even side gutters. */
 .site-container {
   width: 100%;
-  max-width: 1920px;
+  max-width: calc(1248px + 2 * 32px);
   margin-inline: auto;
   padding-inline: 16px;
 }
@@ -63,15 +64,42 @@ body {
   }
 }
 
+/* Home hero, desktop: every size derives from one unit (--hu) that follows the viewport's width AND
+   height. The hero is as tall as its content plus a fixed padding, so there are no empty bands. */
 @media (min-width: 1024px) {
-  .site-container {
-    padding-inline: 48px;
+  .hero-fluid {
+    --hu: clamp(54px, min(5.2vw, 9.2svh), 106px);
+    min-height: 0;
   }
-}
-
-@media (min-width: 1280px) {
-  .site-container {
-    padding-inline: 64px;
+  .hero-fluid .hero-pad {
+    padding-top: calc(var(--hu) * 0.6);
+    padding-bottom: calc(var(--hu) * 0.6);
+  }
+  /* Headline runs ~25% larger than the rest of the hero scale */
+  .hero-fluid .hero-l1 { font-size: calc(var(--hu) * 1); }
+  .hero-fluid .hero-l2 { font-size: calc(var(--hu) * 1.25); }
+  .hero-fluid .hero-l3 { font-size: calc(var(--hu) * 0.75); }
+  .hero-fluid .hero-brush { font-size: calc(var(--hu) * 0.9); }
+  .hero-fluid .hero-sub {
+    margin-top: calc(var(--hu) * 0.34);
+    font-size: clamp(15px, calc(var(--hu) * 0.21), 20px);
+    max-width: calc(var(--hu) * 7.4);
+  }
+  .hero-fluid .hero-actions { margin-top: calc(var(--hu) * 0.36); }
+  .hero-fluid .hero-threats { margin-top: calc(var(--hu) * 0.42); }
+  .hero-fluid .hero-threat { font-size: clamp(14px, calc(var(--hu) * 0.21), 17px); }
+  .hero-fluid .hero-threat-box {
+    padding: calc(var(--hu) * 0.13) calc(var(--hu) * 0.22);
+  }
+  .hero-fluid .hero-threat-icon {
+    width: clamp(16px, calc(var(--hu) * 0.25), 20px);
+    height: clamp(16px, calc(var(--hu) * 0.25), 20px);
+  }
+  .hero-fluid .hero-cta {
+    font-size: calc(var(--hu) * 0.175);
+    padding: calc(var(--hu) * 0.17) calc(var(--hu) * 0.36);
+    /* Button's transition-all would otherwise animate font-size/padding as the window resizes */
+    transition-property: color, background-color, border-color, box-shadow, transform;
   }
 }
 
@@ -113,7 +141,32 @@ body {
   animation: hero-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Hero threat icons: a soft red glow pulse, staggered per icon so they light up one after another */
+@keyframes threat-pulse {
+  0%, 70%, 100% {
+    scale: 1;
+    filter: drop-shadow(0 0 0 rgba(255, 77, 77, 0));
+  }
+  35% {
+    scale: 1.18;
+    filter: drop-shadow(0 0 6px rgba(255, 77, 77, 0.85));
+  }
+}
+
+@keyframes threat-wiggle {
+  0%, 100% { rotate: 0deg; }
+  25% { rotate: -14deg; }
+  75% { rotate: 14deg; }
+}
+
+.threat-pulse {
+  animation: threat-pulse 2.4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .threat-pulse {
+    animation: none;
+  }
   .hero-rise {
     animation: none;
   }

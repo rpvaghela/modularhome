@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Phone,
   Search,
@@ -12,9 +12,6 @@ import {
   ChevronDown,
   Shield,
   Truck,
-  Wrench,
-  Headphones,
-  Flag,
   HelpCircle,
   DollarSign,
   CreditCard,
@@ -34,16 +31,17 @@ import {
   NAV_ITEMS,
   MORE_BUYER_GUIDES,
   MORE_SERVICES_RESOURCES,
-  TRUST_BADGES_TOP,
 } from "@/data/navigation";
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [headerQuery, setHeaderQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileMoreExpanded, setMobileMoreExpanded] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [brandSettings, setBrandSettings] = useState<any>(null);
-  const [logoSrc, setLogoSrc] = useState<string>("/bomb_logo.png");
+  const [logoSrc, setLogoSrc] = useState<string>("/bombshelters-logo-header.png");
   const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
@@ -53,22 +51,15 @@ export function Header() {
         if (json?.success && json?.data) {
           setBrandSettings(json.data);
           const rawLogo = json.data.logo_url || json.data.logoUrl;
-          if (rawLogo && rawLogo !== "/logo.png" && rawLogo !== "/newmodularlogo.png") {
+          if (rawLogo && rawLogo !== "/logo.png" && rawLogo !== "/newmodularlogo.png" && rawLogo !== "/bomb_logo.png" && rawLogo !== "/bomb_logo_trim.png") {
             setLogoSrc(rawLogo);
           } else {
-            setLogoSrc("/bomb_logo.png");
+            setLogoSrc("/bombshelters-logo-header.png");
           }
         }
       })
       .catch(() => {});
   }, []);
-
-  const trustIcons: Record<string, React.ReactNode> = {
-    "Nationwide Delivery": <Truck className="w-4 h-4 text-[#e11d1d]" />,
-    "Custom Solutions": <Wrench className="w-4 h-4 text-[#e11d1d]" />,
-    "Expert Support": <Headphones className="w-4 h-4 text-[#e11d1d]" />,
-    "Made in USA": <Flag className="w-4 h-4 text-[#e11d1d]" />,
-  };
 
   const moreIcons: Record<string, React.ComponentType<{ className?: string }>> = {
     Truck,
@@ -87,6 +78,12 @@ export function Header() {
     PhoneCall,
   };
 
+  const phoneDigits = (brandSettings?.phone || "812-595-4033").replace(/\D/g, "").slice(-10);
+  const phoneDisplay =
+    phoneDigits.length === 10
+      ? `(${phoneDigits.slice(0, 3)}) ${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6)}`
+      : brandSettings?.phone || "812-595-4033";
+
   const getMoreIcon = (name: string) => {
     return moreIcons[name] || Info;
   };
@@ -97,26 +94,10 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full shadow-md">
-      {/* ── Top Announcement Banner (Synced with Admin Settings) ── */}
-      {(brandSettings?.banner_active ?? brandSettings?.announcementEnabled) &&
-        (brandSettings?.banner_message || brandSettings?.announcementText) && (
-          <div className="bg-[#e11d1d] text-white text-[11px] sm:text-xs font-mono font-bold py-1.5 px-4 text-center tracking-wider flex items-center justify-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            <span>{brandSettings.banner_message || brandSettings.announcementText}</span>
-            {(brandSettings.banner_link || brandSettings.announcementLink) && (
-              <Link
-                href={brandSettings.banner_link || brandSettings.announcementLink}
-                className="underline hover:text-black transition-colors ml-1 font-sans font-semibold text-[11px]"
-              >
-                Learn More →
-              </Link>
-            )}
-          </div>
-        )}
-
       {/* ── Top Bar (White Background) ────────────────────────── */}
-      <div className="bg-white text-[#0a0a0a] border-b border-[#e2e8f0]">
-        <div className="w-full max-w-[1920px] mx-auto px-3 sm:px-4 lg:px-6 py-1 sm:py-1.5 flex items-center justify-between gap-4">
+      <div className="bg-white text-[#0a0a0a] border-t-[3px] border-t-[#e11d1d]">
+        {/* Logo | search (fills the middle) | phone */}
+        <div className="site-container h-16 sm:h-[72px] lg:h-20 3xl:h-[100px] grid grid-cols-[1fr_auto] lg:grid-cols-[auto_1fr_auto] items-center gap-6 xl:gap-10">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <Link href="/" className="inline-block group">
@@ -138,52 +119,69 @@ export function Header() {
                 <Image
                   src={logoSrc}
                   alt={brandSettings?.company_name || brandSettings?.companyName || "BombShelters.com"}
-                  width={360}
-                  height={120}
+                  width={1212}
+                  height={194}
                   priority
                   unoptimized
                   onError={() => {
-                    if (logoSrc !== "/bomb_logo.png") {
-                      setLogoSrc("/bomb_logo.png");
+                    if (logoSrc !== "/bombshelters-logo-header.png") {
+                      setLogoSrc("/bombshelters-logo-header.png");
                     } else {
                       setLogoError(true);
                     }
                   }}
-                  className="h-12 sm:h-14 lg:h-16 w-auto object-contain transition-transform group-hover:scale-[1.02]"
+                  // The spark sits above the lettering, so nudge up ~18% to centre the letters on the row
+                  className="h-8 sm:h-10 lg:h-[46px] 3xl:h-[58px] w-auto max-w-[60vw] object-contain -translate-y-[18%] transition-transform group-hover:scale-[1.02]"
                 />
               )}
             </Link>
           </div>
 
-          {/* 4 Trust Badges (Desktop) */}
-          <div className="hidden xl:flex items-center gap-6 text-xs text-[#1e293b]">
-            {TRUST_BADGES_TOP.map((badge) => (
-              <div key={badge} className="flex items-center gap-1.5 font-semibold text-[#1e293b]">
-                {trustIcons[badge] || <Shield className="w-4 h-4 text-[#e11d1d]" />}
-                <span>{badge}</span>
-              </div>
-            ))}
-          </div>
+          {/* Search (Desktop) — sends the query to the models catalog */}
+          <form
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const q = headerQuery.trim();
+              const url = q ? `/models?q=${encodeURIComponent(q)}` : "/models";
+              // The catalog reads ?q on mount, so reload it when searching from the catalog itself
+              if (pathname === "/models") window.location.assign(url);
+              else router.push(url);
+            }}
+            // Light grey pill search with an inset black "Search" button
+            className="group/search hidden lg:flex justify-self-center w-full max-w-[560px] 3xl:max-w-[640px] items-center h-11 3xl:h-12 pl-5 pr-1 rounded-full bg-[#f2f2f3] border border-[#e2e2e5] hover:border-[#d4d4d8] focus-within:bg-white focus-within:border-[#0a0a0a] focus-within:shadow-[0_0_0_4px_rgba(10,10,10,0.06)] transition-all"
+          >
+            <Search
+              className="w-[18px] h-[18px] shrink-0 text-[#71717a] group-focus-within/search:text-[#0a0a0a] transition-colors"
+              aria-hidden="true"
+            />
+            <input
+              type="search"
+              value={headerQuery}
+              onChange={(e) => setHeaderQuery(e.target.value)}
+              placeholder="Search shelters, bunkers, safe rooms, manufacturers..."
+              aria-label="Search shelters and models"
+              className="flex-1 min-w-0 bg-transparent px-3 text-sm 3xl:text-[15px] text-[#0a0a0a] placeholder-[#71717a] focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+            />
+            <button
+              type="submit"
+              className="shrink-0 h-9 3xl:h-10 px-5 rounded-full bg-[#0a0a0a] hover:bg-[#e11d1d] text-white text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e11d1d]"
+            >
+              Search
+            </button>
+          </form>
 
-          {/* Contact & CTA */}
-          <div className="flex items-center gap-3 sm:gap-5">
+          {/* Contact */}
+          <div className="justify-self-end flex items-center gap-2 sm:gap-4">
+            {/* Red call button (same style as the site's primary buttons); icon-only on small screens */}
             <a
-              href={`tel:${brandSettings?.phone || "812-595-4033"}`}
-              className="hidden md:flex items-center gap-2 text-[#0a0a0a] hover:text-[#e11d1d] font-display font-black text-sm tracking-wide transition-colors"
+              href={`tel:${phoneDigits}`}
+              className="group/call inline-flex items-center justify-center gap-2.5 whitespace-nowrap h-10 w-10 md:w-auto lg:h-11 3xl:h-12 md:px-6 rounded-[6px] bg-[#e11d1d] hover:bg-[#c81414] text-white font-semibold text-[15px] 3xl:text-base shadow-[0_8px_20px_rgba(225,29,29,0.28)] hover:shadow-[0_10px_24px_rgba(225,29,29,0.38)] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e11d1d]"
+              aria-label={`Call ${phoneDisplay}`}
             >
-              <Phone className="w-4 h-4 text-[#e11d1d]" />
-              <span>Call Now {brandSettings?.phone || "812-595-4033"}</span>
+              <Phone className="w-[18px] h-[18px] shrink-0" />
+              <span className="hidden md:inline">Call {phoneDisplay}</span>
             </a>
-
-            <Button
-              asLink
-              href="/quote"
-              size="sm"
-              showArrow
-              className="text-xs sm:text-sm shadow-md"
-            >
-              Get a Quote
-            </Button>
 
             {/* Mobile Hamburger Toggle */}
             <button
@@ -197,39 +195,43 @@ export function Header() {
         </div>
       </div>
 
-      {/* ── Navigation Bar Below (Dark Tactical Background) ───────────────────────────── */}
-      <div className="hidden lg:block bg-[#111214] border-b border-white">
-        <div className="w-full max-w-[1920px] mx-auto px-4 lg:px-6 py-1.5 flex items-center justify-between gap-3 overflow-visible">
-          <nav className="flex items-center gap-0.5 xl:gap-1 2xl:gap-1.5 flex-nowrap overflow-visible min-w-0">
+      {/* ── Navigation Bar Below (Dark, category links) ───────────────────────────── */}
+      <div className="hidden lg:block bg-[#111214] border-b border-white/10">
+        <div className="site-container h-9 xl:h-10 3xl:h-11 flex items-stretch overflow-visible">
+          <nav className="px-1 xl:px-2 flex-1 flex items-stretch justify-between flex-nowrap overflow-visible min-w-0">
             {NAV_ITEMS.map((item) => (
               <div
                 key={item.label}
-                className="relative group shrink-0"
+                className="relative group shrink-0 flex"
                 onMouseEnter={() => item.hasDropdown && setActiveDropdown(item.label)}
                 onMouseLeave={() => setActiveDropdown(null)}
               >
                 <Link
                   href={item.href}
-                  className="flex items-center gap-1 px-1.5 xl:px-2 py-1 text-[11px] xl:text-[11.5px] 2xl:text-[12px] font-display font-bold tracking-wider uppercase text-white hover:text-[#e11d1d] transition-colors rounded-[3px] hover:bg-white/5 whitespace-nowrap"
+                  className={`relative flex items-center gap-1 px-1.5 xl:px-2 text-[11px] xl:text-[11.5px] 2xl:text-[12px] 3xl:text-[13.5px] font-display font-bold tracking-[0.06em] uppercase whitespace-nowrap transition-colors hover:text-white after:absolute after:inset-x-1.5 xl:after:inset-x-2 after:bottom-0 after:h-[2px] after:bg-[#e11d1d] after:origin-left after:transition-transform after:duration-200 group-hover:after:scale-x-100 ${
+                    item.href !== "/" && pathname?.startsWith(item.href)
+                      ? "text-white after:scale-x-100"
+                      : "text-white/85 after:scale-x-0"
+                  }`}
                 >
                   <span>
                     {item.label === "ADUs & Granny Pods" ? (
                       <>
-                        <span className="hidden 2xl:inline">ADUs &amp; Granny Pods</span>
-                        <span className="2xl:hidden">ADUs</span>
+                        <span className="hidden xl:inline">ADUs &amp; Granny Pods</span>
+                        <span className="xl:hidden">ADUs</span>
                       </>
                     ) : (
                       item.label
                     )}
                   </span>
                   {item.hasDropdown && (
-                    <ChevronDown className="w-3.5 h-3.5 text-[#a1a1aa] group-hover:text-[#e11d1d] transition-transform duration-200 group-hover:rotate-180" />
+                    <ChevronDown className="w-3.5 h-3.5 text-white/60 group-hover:text-white transition-transform duration-200 group-hover:rotate-180" />
                   )}
                 </Link>
 
                 {/* Dropdown Menu for "More" */}
                 {item.hasDropdown && activeDropdown === item.label && (
-                  <div className="absolute top-full right-0 mt-1 w-[580px] max-w-[94vw] p-4 bg-[#16181b] border border-[#2a2d31] rounded-[4px] shadow-2xl z-50 text-white animate-in fade-in zoom-in-95 duration-150">
+                  <div className="absolute top-full right-0 w-[580px] max-w-[94vw] p-4 bg-[#16181b] border border-[#2a2d31] rounded-[4px] shadow-2xl z-50 text-white animate-in fade-in zoom-in-95 duration-150">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3">
                       {/* Column 1: Buyer Guides & Logistics */}
                       <div>
@@ -302,16 +304,6 @@ export function Header() {
               </div>
             ))}
           </nav>
-
-          {/* Search Input */}
-          <div className="relative w-32 sm:w-40 xl:w-48 shrink-0 ml-auto pr-1">
-            <input
-              type="text"
-              placeholder="Search shelters, cabins..."
-              className="w-full bg-[#181a1d] text-white text-xs placeholder-[#71717a] border border-[#2a2d31] rounded-[4px] pl-8 pr-3 py-1.5 focus:outline-none focus:border-[#e11d1d] transition-colors"
-            />
-            <Search className="w-3.5 h-3.5 text-[#71717a] absolute left-2.5 top-1/2 -translate-y-1/2" />
-          </div>
         </div>
       </div>
 

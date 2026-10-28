@@ -92,13 +92,14 @@ export function Footer() {
           {/* Brand & Blurb */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1 space-y-4">
             <Link href="/" className="inline-block group">
+              {/* 3D logo straight on black; a thin light outline keeps the dark "SHELTERS" readable */}
               <Image
                 src="/bomb_logo_trim.png"
                 alt="BombShelters.com"
                 width={2118}
                 height={409}
                 unoptimized
-                className="h-10 w-auto object-contain [filter:drop-shadow(0_0_1px_rgba(255,255,255,0.95))_drop-shadow(0_0_1px_rgba(255,255,255,0.6))] transition-transform group-hover:scale-[1.02]"
+                className="h-11 w-auto object-contain [filter:drop-shadow(0_0_1px_rgba(255,255,255,0.7))_drop-shadow(0_0_0.5px_rgba(255,255,255,0.5))] transition-transform group-hover:scale-[1.02]"
               />
               <span className="block text-[9px] font-display font-semibold uppercase tracking-[0.12em] whitespace-nowrap text-[#71717a] mt-1.5">
                 Bunkers. Cabins. A Stronger Tomorrow.

@@ -77,7 +77,7 @@ export default async function ModelDetailPage({ params }: PageProps) {
         ]}
       />
 
-      <section className="bg-white text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Left Content (8 cols) */}

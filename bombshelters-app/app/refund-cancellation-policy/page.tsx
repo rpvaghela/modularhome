@@ -18,7 +18,7 @@ export default function RefundCancellationPolicyPage() {
         breadcrumbs={[{ label: "Refund & Cancellation Policy" }]}
       />
 
-      <section className="bg-white text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container max-w-4xl prose prose-sm sm:prose-base text-gray-700 space-y-6">
           <p className="text-xs text-gray-400">Effective Date: October 2026</p>
 

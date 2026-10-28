@@ -50,7 +50,7 @@ export default function ResourceDetailPage({ params }: PageProps) {
         ]}
       />
 
-      <section className="bg-white text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container max-w-4xl">
           <div className="p-8 sm:p-12 rounded-2xl bg-gray-50 border border-gray-200 space-y-6">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#e11d1d]">

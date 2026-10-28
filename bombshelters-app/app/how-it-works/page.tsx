@@ -74,7 +74,7 @@ export default function HowItWorksPage() {
         breadcrumbs={[{ label: "How It Works" }]}
       />
 
-      <section className="bg-white text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <div className="inline-flex items-center gap-1.5 text-[#e11d1d] text-xs font-display font-bold uppercase tracking-wider mb-2">
