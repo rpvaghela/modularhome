@@ -77,7 +77,10 @@ export function readLocalSettings(): BombShelterSettings {
     const data = fs.readFileSync(SETTINGS_FILE, "utf-8");
     const parsed = JSON.parse(data);
     const companyName = parsed.company_name || parsed.companyName || DEFAULT_SETTINGS.company_name;
-    const logoUrl = parsed.logo_url || parsed.logoUrl || DEFAULT_SETTINGS.logo_url;
+    let logoUrl = parsed.logo_url || parsed.logoUrl || DEFAULT_SETTINGS.logo_url;
+    if (!logoUrl || logoUrl === "/logo.png" || logoUrl === "/newmodularlogo.png") {
+      logoUrl = "/bomb_logo.png";
+    }
     const bannerMsg = parsed.banner_message || parsed.announcementText || DEFAULT_SETTINGS.banner_message;
     const bannerActive = parsed.banner_active ?? parsed.announcementEnabled ?? DEFAULT_SETTINGS.banner_active;
     const bannerLink = parsed.banner_link || parsed.announcementLink || DEFAULT_SETTINGS.banner_link;
@@ -124,6 +127,10 @@ export async function getBombShelterSettings(): Promise<BombShelterSettings> {
         .maybeSingle();
 
       if (!error && data) {
+        let dbLogo = data.logo_url || localSettings.logo_url;
+        if (!dbLogo || dbLogo === "/logo.png" || dbLogo === "/newmodularlogo.png") {
+          dbLogo = "/bomb_logo.png";
+        }
         return {
           id: BOMBSHELTER_SETTINGS_ID,
           company_name: data.company_name || localSettings.company_name,
@@ -131,7 +138,8 @@ export async function getBombShelterSettings(): Promise<BombShelterSettings> {
           emergency_hotline: data.emergency_hotline || localSettings.emergency_hotline,
           email: data.email || localSettings.email,
           address: data.address || localSettings.address,
-          logo_url: data.logo_url || localSettings.logo_url,
+          logo_url: dbLogo,
+          logoUrl: dbLogo,
           banner_message: data.banner_message || localSettings.banner_message,
           banner_active: data.banner_active ?? localSettings.banner_active,
           social_links: data.social_links || localSettings.social_links,

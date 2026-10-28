@@ -113,7 +113,13 @@ export function Header() {
           <div className="flex items-center gap-3">
             <Link href="/" className="inline-block group">
               <Image
-                src={brandSettings?.logo_url || brandSettings?.logoUrl || "/bomb_logo.png"}
+                src={
+                  brandSettings?.logo_url && brandSettings?.logo_url !== "/logo.png" && brandSettings?.logo_url !== "/newmodularlogo.png"
+                    ? brandSettings.logo_url
+                    : brandSettings?.logoUrl && brandSettings?.logoUrl !== "/logo.png" && brandSettings?.logoUrl !== "/newmodularlogo.png"
+                    ? brandSettings.logoUrl
+                    : "/bomb_logo.png"
+                }
                 alt={brandSettings?.company_name || brandSettings?.companyName || "BombShelters.com"}
                 width={360}
                 height={120}
