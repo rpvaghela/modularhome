@@ -431,6 +431,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   height={36}
                   className="h-7 sm:h-8 w-auto object-contain"
                   priority
+                  unoptimized
                 />
               </div>
             </Link>

@@ -43,6 +43,8 @@ export function Header() {
   const [mobileMoreExpanded, setMobileMoreExpanded] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [brandSettings, setBrandSettings] = useState<any>(null);
+  const [logoSrc, setLogoSrc] = useState<string>("/bomb_logo.png");
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     fetch("/api/bombshelter/settings")
@@ -50,6 +52,12 @@ export function Header() {
       .then((json) => {
         if (json?.success && json?.data) {
           setBrandSettings(json.data);
+          const rawLogo = json.data.logo_url || json.data.logoUrl;
+          if (rawLogo && rawLogo !== "/logo.png" && rawLogo !== "/newmodularlogo.png") {
+            setLogoSrc(rawLogo);
+          } else {
+            setLogoSrc("/bomb_logo.png");
+          }
         }
       })
       .catch(() => {});
@@ -112,20 +120,38 @@ export function Header() {
           {/* Logo */}
           <div className="flex items-center gap-3">
             <Link href="/" className="inline-block group">
-              <Image
-                src={
-                  brandSettings?.logo_url && brandSettings?.logo_url !== "/logo.png" && brandSettings?.logo_url !== "/newmodularlogo.png"
-                    ? brandSettings.logo_url
-                    : brandSettings?.logoUrl && brandSettings?.logoUrl !== "/logo.png" && brandSettings?.logoUrl !== "/newmodularlogo.png"
-                    ? brandSettings.logoUrl
-                    : "/bomb_logo.png"
-                }
-                alt={brandSettings?.company_name || brandSettings?.companyName || "BombShelters.com"}
-                width={360}
-                height={120}
-                priority
-                className="h-12 sm:h-14 lg:h-16 w-auto object-contain transition-transform group-hover:scale-[1.02]"
-              />
+              {logoError ? (
+                <div className="flex items-center gap-2 py-1 select-none">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#e11d1d] flex items-center justify-center text-white shadow-md">
+                    <Shield className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-display font-black text-lg sm:text-xl tracking-tighter text-[#0a0a0a] leading-none">
+                      BOMBSHELTERS<span className="text-[#e11d1d]">.COM</span>
+                    </span>
+                    <span className="text-[9px] font-mono tracking-widest text-gray-500 uppercase mt-0.5">
+                      Defense &amp; Bunkers
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <Image
+                  src={logoSrc}
+                  alt={brandSettings?.company_name || brandSettings?.companyName || "BombShelters.com"}
+                  width={360}
+                  height={120}
+                  priority
+                  unoptimized
+                  onError={() => {
+                    if (logoSrc !== "/bomb_logo.png") {
+                      setLogoSrc("/bomb_logo.png");
+                    } else {
+                      setLogoError(true);
+                    }
+                  }}
+                  className="h-12 sm:h-14 lg:h-16 w-auto object-contain transition-transform group-hover:scale-[1.02]"
+                />
+              )}
             </Link>
           </div>
 
@@ -173,8 +199,8 @@ export function Header() {
 
       {/* ── Navigation Bar Below (Dark Tactical Background) ───────────────────────────── */}
       <div className="hidden lg:block bg-[#111214] border-b border-white">
-        <div className="w-full max-w-[1920px] mx-auto px-3 sm:px-4 lg:px-6 py-1.5 flex items-center justify-between gap-2 overflow-visible">
-          <nav className="flex items-center gap-0.5 xl:gap-1 flex-nowrap overflow-visible">
+        <div className="w-full max-w-[1920px] mx-auto px-4 lg:px-6 py-1.5 flex items-center justify-between gap-3 overflow-visible">
+          <nav className="flex items-center gap-0.5 xl:gap-1 2xl:gap-1.5 flex-nowrap overflow-visible min-w-0">
             {NAV_ITEMS.map((item) => (
               <div
                 key={item.label}
@@ -186,7 +212,16 @@ export function Header() {
                   href={item.href}
                   className="flex items-center gap-1 px-1.5 xl:px-2 py-1 text-[11px] xl:text-[11.5px] 2xl:text-[12px] font-display font-bold tracking-wider uppercase text-white hover:text-[#e11d1d] transition-colors rounded-[3px] hover:bg-white/5 whitespace-nowrap"
                 >
-                  <span>{item.label}</span>
+                  <span>
+                    {item.label === "ADUs & Granny Pods" ? (
+                      <>
+                        <span className="hidden 2xl:inline">ADUs &amp; Granny Pods</span>
+                        <span className="2xl:hidden">ADUs</span>
+                      </>
+                    ) : (
+                      item.label
+                    )}
+                  </span>
                   {item.hasDropdown && (
                     <ChevronDown className="w-3.5 h-3.5 text-[#a1a1aa] group-hover:text-[#e11d1d] transition-transform duration-200 group-hover:rotate-180" />
                   )}
@@ -269,7 +304,7 @@ export function Header() {
           </nav>
 
           {/* Search Input */}
-          <div className="relative w-36 sm:w-44 xl:w-52 shrink-0 ml-auto">
+          <div className="relative w-32 sm:w-40 xl:w-48 shrink-0 ml-auto pr-1">
             <input
               type="text"
               placeholder="Search shelters, cabins..."

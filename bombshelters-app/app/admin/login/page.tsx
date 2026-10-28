@@ -333,6 +333,7 @@ export default function AdminLoginPage() {
             height={60}
             className="h-8 sm:h-9 md:h-10 w-auto object-contain hover:opacity-90 transition-opacity"
             priority
+            unoptimized
           />
         </Link>
 

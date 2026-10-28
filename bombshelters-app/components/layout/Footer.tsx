@@ -97,6 +97,7 @@ export function Footer() {
                 alt="BombShelters.com"
                 width={2118}
                 height={409}
+                unoptimized
                 className="h-10 w-auto object-contain [filter:drop-shadow(0_0_1px_rgba(255,255,255,0.95))_drop-shadow(0_0_1px_rgba(255,255,255,0.6))] transition-transform group-hover:scale-[1.02]"
               />
               <span className="block text-[9px] font-display font-semibold uppercase tracking-[0.12em] whitespace-nowrap text-[#71717a] mt-1.5">
