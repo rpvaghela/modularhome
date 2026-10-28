@@ -100,15 +100,15 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full shadow-md">
       {/* ── Top Utility Ribbon (Red Bar with Phone, Rating & Quick Links) ── */}
-      <div className="bg-[#FF1F1F] text-white select-none w-full border-b border-black/10">
+      <div className="bg-[#e11d1d] text-white select-none w-full border-b border-black/10">
         <div className="site-container py-1.5 sm:py-2 flex items-center justify-between gap-3 text-xs">
           {/* Left: Phone */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <a
               href={`tel:${phoneDigits ? `+1${phoneDigits}` : "+18125954033"}`}
-              className="inline-flex items-center gap-1.5 sm:gap-2 hover:text-amber-200 transition-colors group shrink-0"
+              className="inline-flex items-center gap-1.5 sm:gap-2 hover:text-white/85 transition-colors group shrink-0"
             >
-              <span className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-[#ffc107] text-[#111214] flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs shrink-0">
+              <span className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-black text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs shrink-0">
                 <PhoneCall className="w-2.5 sm:w-3 h-2.5 sm:h-3 stroke-[2.5]" />
               </span>
               <span className="font-extrabold tracking-tight text-white whitespace-nowrap text-xs sm:text-[13px] lg:text-[14px]">
