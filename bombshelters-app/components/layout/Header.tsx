@@ -100,7 +100,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full shadow-md">
       {/* ── Top Utility Ribbon (Red Bar with Phone, Rating & Quick Links) ── */}
-      <div className="bg-[#e11d1d] text-white select-none w-full border-b border-black/10">
+      <div className="bg-[#FF1F1F] text-white select-none w-full border-b border-black/10">
         <div className="site-container py-1.5 sm:py-2 flex items-center justify-between gap-3 text-xs">
           {/* Left: Phone */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
