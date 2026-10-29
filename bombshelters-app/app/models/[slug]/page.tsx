@@ -1,7 +1,6 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { FEATURED_MODELS } from "@/data/products";
 import { getBombShelterProductById, getBombShelterProducts } from "@/lib/productStore";
 import { BombShelterModelDetailClient } from "@/components/models/BombShelterModelDetailClient";
 import { CtaBanner } from "@/components/ui/CtaBanner";
@@ -13,11 +12,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const model =
-    (await getBombShelterProductById(params.slug)) ||
-    FEATURED_MODELS.find(
-      (m) => m.id === params.slug || m.id.toLowerCase() === params.slug.toLowerCase()
-    );
+  const model = await getBombShelterProductById(params.slug);
 
   if (!model) {
     return {
@@ -61,11 +56,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ModelDetailPage({ params }: PageProps) {
-  const model =
-    (await getBombShelterProductById(params.slug)) ||
-    FEATURED_MODELS.find(
-      (m) => m.id === params.slug || m.id.toLowerCase() === params.slug.toLowerCase()
-    );
+  const model = await getBombShelterProductById(params.slug);
 
   if (!model) {
     notFound();
@@ -73,8 +64,7 @@ export default async function ModelDetailPage({ params }: PageProps) {
 
   // Related models from database
   const allModels = await getBombShelterProducts(true);
-  const pool = allModels.length > 0 ? allModels : FEATURED_MODELS;
-  const relatedModels = pool.filter((m) => m.id !== model.id).slice(0, 3);
+  const relatedModels = allModels.filter((m) => m.id !== model.id).slice(0, 3);
 
   // Schema.org Product structured data
   const jsonLd = {

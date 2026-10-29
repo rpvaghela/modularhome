@@ -112,13 +112,7 @@ export async function getBombShelterBlogs(onlyPublished = true): Promise<BombShe
           updated_at: item.updated_at,
         }));
 
-        const combined = [...dbBlogs];
-        for (const local of localList) {
-          if (!combined.some((b) => b.handle === local.handle)) {
-            combined.push(local);
-          }
-        }
-        return onlyPublished ? combined.filter((b) => b.published) : combined;
+        return onlyPublished ? dbBlogs.filter((b) => b.published) : dbBlogs;
       }
     } catch (e) {
       console.warn("Supabase blog fetch error, returning local store:", e);

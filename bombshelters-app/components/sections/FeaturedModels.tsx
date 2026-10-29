@@ -2,19 +2,19 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Users, Shield, ArrowRight, Award, Crown, Flame, Sparkles, TrendingUp } from "lucide-react";
-import { FEATURED_MODELS } from "@/data/products";
+import { ProductModel } from "@/data/products";
 import { getBombShelterProducts } from "@/lib/productStore";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export async function FeaturedModels() {
-  let modelsToDisplay = FEATURED_MODELS;
+  let modelsToDisplay: ProductModel[] = [];
   try {
     const dynamicProducts = await getBombShelterProducts(true);
     if (dynamicProducts && dynamicProducts.length > 0) {
       modelsToDisplay = dynamicProducts;
     }
   } catch (err) {
-    console.warn("FeaturedModels fallback to static:", err);
+    console.warn("FeaturedModels error:", err);
   }
   const badgeStyles: Record<string, { className: string; icon: React.ReactNode }> = {
     green: { className: "bg-[#16a34a]", icon: <Award className="w-3 h-3" /> },
@@ -23,6 +23,10 @@ export async function FeaturedModels() {
     red: { className: "bg-[#e11d1d]", icon: <Sparkles className="w-3 h-3" /> },
     purple: { className: "bg-[#7c3aed]", icon: <TrendingUp className="w-3 h-3" /> },
   };
+
+  if (modelsToDisplay.length === 0) {
+    return null;
+  }
 
   return (
     <section id="featured-models" className="bg-[#ffffff] text-[#0a0a0a] pb-10 sm:pb-14 lg:pb-16 overflow-hidden w-full">

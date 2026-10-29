@@ -73,14 +73,7 @@ export async function getBombShelterCollections(): Promise<CollectionItem[]> {
           };
         });
 
-        // Ensure primary curated collections stay at top
-        const merged = [...localList];
-        for (const dbCol of dbCollections) {
-          if (!merged.some((c) => c.slug === dbCol.slug)) {
-            merged.push(dbCol);
-          }
-        }
-        return merged;
+        return dbCollections;
       }
     } catch (e) {
       console.warn("Supabase collections fetch warning:", e);

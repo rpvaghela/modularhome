@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { VIDEOS, VideoItem } from "../data/videos";
+import { supabase, supabaseAdmin, isSupabaseConfigured } from "./supabase";
 
 export type { VideoItem };
 
@@ -42,8 +43,68 @@ export function writeLocalVideos(videos: VideoItem[]): void {
   }
 }
 
-export async function getBombShelterVideos(): Promise<VideoItem[]> {
+/**
+ * Fetch all published videos from Supabase database
+ */
+export async function getBombShelterVideos(limit = 60): Promise<VideoItem[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await (supabaseAdmin || supabase)
+        .from("videos")
+        .select("id, youtube_video_id, slug, title, category, duration, description, thumbnail, video_url")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false })
+        .limit(limit);
+
+      if (!error && Array.isArray(data) && data.length > 0) {
+        return data.map((v) => ({
+          slug: v.slug || v.id,
+          title: v.title,
+          category: v.category || "Building Tours",
+          duration: v.duration || "10:00",
+          imageUrl: v.thumbnail || "/images/hillside-bunker.png",
+          description: v.description || "",
+          youtubeId: v.youtube_video_id || "dQw4w9WgXcQ",
+        }));
+      }
+    } catch (e) {
+      console.warn("Supabase videos fetch error, fallback to local:", e);
+    }
+  }
+
   return readLocalVideos();
+}
+
+/**
+ * Get a single video by slug or youtube ID
+ */
+export async function getBombShelterVideoBySlug(slug: string): Promise<VideoItem | null> {
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await (supabaseAdmin || supabase)
+        .from("videos")
+        .select("id, youtube_video_id, slug, title, category, duration, description, thumbnail, video_url")
+        .or(`slug.eq.${slug},id.eq.${slug},youtube_video_id.eq.${slug}`)
+        .maybeSingle();
+
+      if (!error && data) {
+        return {
+          slug: data.slug || data.id,
+          title: data.title,
+          category: data.category || "Building Tours",
+          duration: data.duration || "10:00",
+          imageUrl: data.thumbnail || "/images/hillside-bunker.png",
+          description: data.description || "",
+          youtubeId: data.youtube_video_id || "dQw4w9WgXcQ",
+        };
+      }
+    } catch (e) {
+      console.warn("Supabase single video fetch error:", e);
+    }
+  }
+
+  const all = await getBombShelterVideos();
+  return all.find((v) => v.slug.toLowerCase() === slug.toLowerCase() || v.youtubeId === slug) || null;
 }
 
 export async function saveBombShelterVideo(video: VideoItem): Promise<VideoItem> {

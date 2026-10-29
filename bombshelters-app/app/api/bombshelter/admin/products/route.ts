@@ -28,7 +28,35 @@ export async function GET(request: NextRequest) {
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const products = await getBombShelterProducts(false);
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search")?.toLowerCase().trim();
+    const category = searchParams.get("category");
+    const isPublished = searchParams.get("isPublished");
+
+    let products = await getBombShelterProducts(false);
+
+    if (category && category !== "ALL") {
+      products = products.filter(
+        (p) =>
+          (p.category && p.category.toLowerCase().includes(category.toLowerCase())) ||
+          category.toLowerCase().includes((p.category || "").toLowerCase())
+      );
+    }
+
+    if (isPublished !== null && isPublished !== undefined) {
+      const boolVal = isPublished === "true";
+      products = products.filter((p: any) => (p.isPublished ?? true) === boolVal);
+    }
+
+    if (search) {
+      products = products.filter(
+        (p) =>
+          p.name.toLowerCase().includes(search) ||
+          p.id.toLowerCase().includes(search) ||
+          (p.category && p.category.toLowerCase().includes(search))
+      );
+    }
+
     return NextResponse.json({
       success: true,
       count: products.length,

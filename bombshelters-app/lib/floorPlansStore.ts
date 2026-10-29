@@ -77,14 +77,7 @@ export async function getBombShelterFloorPlans(onlyPublished = false): Promise<F
           status: item.status || "PUBLISHED",
         }));
 
-        // Merge keeping local items if not in db
-        const merged = [...dbPlans];
-        for (const local of localList) {
-          if (!merged.some((p) => p.id === local.id)) {
-            merged.push(local);
-          }
-        }
-        return merged;
+        return dbPlans;
       }
     } catch (e) {
       console.warn("Supabase floor plans fetch warning:", e);

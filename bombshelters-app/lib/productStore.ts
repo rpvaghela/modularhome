@@ -61,6 +61,11 @@ export interface CustomizableOption {
 }
 
 export interface ExtendedProductModel extends ProductModel {
+  slug?: string;
+  title?: string;
+  status?: string;
+  isPublished?: boolean;
+  primaryImage?: string;
   sqft?: number | null;
   bedrooms?: number | null;
   bathrooms?: number | null;
@@ -247,9 +252,14 @@ function mapDatabaseRowToModel(item: any): ExtendedProductModel {
 
   return {
     id: item.handle || item.id,
+    slug: item.handle || item.id,
     name: item.title,
+    title: item.title,
     price: `$${lowestPrice.toLocaleString()}`,
     rawPrice: lowestPrice,
+    status: item.status || "active",
+    isPublished: item.status === "active",
+    primaryImage: mainImage,
     badge: {
       text: badgeText,
       color: badgeColor,
