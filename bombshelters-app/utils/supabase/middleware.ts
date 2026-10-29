@@ -43,6 +43,11 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
+  // No Supabase keys (e.g. frontend-only local dev): skip the session refresh instead of failing every request
+  if (!supabaseUrl || !supabaseKey) {
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
     supabaseUrl!,
     supabaseKey!,

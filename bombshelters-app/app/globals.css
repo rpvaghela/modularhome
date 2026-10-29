@@ -171,7 +171,45 @@ body {
   animation: threat-pulse 2.4s ease-in-out infinite;
 }
 
+/* Header call button: gentle zoom in/out with a glow, plus a phone "ring" shake each cycle.
+   Uses `scale`/`rotate` (not `transform`) so Tailwind hover transforms still apply. */
+@keyframes call-pulse {
+  0%, 100% {
+    scale: 1;
+    box-shadow: 0 8px 20px rgba(225, 29, 29, 0.28);
+  }
+  50% {
+    scale: 1.07;
+    box-shadow: 0 10px 28px rgba(225, 29, 29, 0.5), 0 0 0 6px rgba(225, 29, 29, 0.12);
+  }
+}
+
+@keyframes call-ring {
+  0%, 55%, 100% { rotate: 0deg; }
+  60% { rotate: -16deg; }
+  65% { rotate: 16deg; }
+  70% { rotate: -12deg; }
+  75% { rotate: 12deg; }
+  80% { rotate: 0deg; }
+}
+
+.call-pulse {
+  animation: call-pulse 1.8s ease-in-out infinite;
+}
+
+.call-pulse:hover {
+  animation-play-state: paused;
+}
+
+.call-ring {
+  animation: call-ring 1.8s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .call-pulse,
+  .call-ring {
+    animation: none;
+  }
   .threat-pulse {
     animation: none;
   }

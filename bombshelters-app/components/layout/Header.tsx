@@ -269,10 +269,10 @@ export function Header() {
             {/* Red call button (same style as the site's primary buttons); icon-only on small screens */}
             <a
               href={`tel:${phoneDigits}`}
-              className="group/call inline-flex items-center justify-center gap-2.5 whitespace-nowrap h-9 w-9 sm:h-10 sm:w-10 md:w-auto lg:h-11 3xl:h-12 md:px-6 rounded-[6px] bg-[#e11d1d] hover:bg-[#c81414] text-white font-semibold text-[15px] 3xl:text-base shadow-[0_8px_20px_rgba(225,29,29,0.28)] hover:shadow-[0_10px_24px_rgba(225,29,29,0.38)] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e11d1d]"
+              className="call-pulse group/call inline-flex items-center justify-center gap-2.5 whitespace-nowrap h-9 w-9 sm:h-10 sm:w-10 md:w-auto lg:h-11 3xl:h-12 md:px-6 rounded-[6px] bg-[#e11d1d] hover:bg-[#c81414] text-white font-semibold text-[15px] 3xl:text-base shadow-[0_8px_20px_rgba(225,29,29,0.28)] hover:shadow-[0_10px_24px_rgba(225,29,29,0.38)] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e11d1d]"
               aria-label={`Call ${phoneDisplay}`}
             >
-              <Phone className="w-[18px] h-[18px] shrink-0" />
+              <Phone className="call-ring w-[18px] h-[18px] shrink-0" />
               <span className="hidden md:inline">Call {phoneDisplay}</span>
             </a>
 

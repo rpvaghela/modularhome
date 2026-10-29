@@ -21,7 +21,8 @@ export function TrustStrip() {
             <div
               key={item.title}
               title={item.desc}
-              className="flex items-center gap-2 xs:gap-3 px-1.5 sm:px-2 lg:px-4 py-3.5 sm:py-5 group min-w-0"
+              // Items that start a row drop their left padding so they line up with the hero/logo edge
+              className="flex items-center gap-2 xs:gap-3 px-1.5 sm:px-2 lg:px-4 py-3.5 sm:py-5 group min-w-0 max-md:odd:pl-0 md:max-lg:[&:nth-child(3n+1)]:pl-0 lg:first:pl-0"
             >
               <div className="shrink-0 group-hover:scale-110 transition-transform">
                 {iconMap[item.icon] || <ShieldCheck className="w-7 h-7 text-white" strokeWidth={1.5} />}
