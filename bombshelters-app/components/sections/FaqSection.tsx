@@ -17,7 +17,7 @@ export async function FaqSection() {
   }
 
   return (
-    <section id="faq" className="bg-[#CFCFCF] text-[#0a0a0a] py-10 sm:py-14 lg:py-16 overflow-hidden w-full">
+    <section id="faq" className="bg-[#ffffff] text-[#0a0a0a] py-10 sm:py-14 lg:py-16 overflow-hidden w-full">
       <div className="site-container">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
           {/* Left Column: Heading + Accordion */}

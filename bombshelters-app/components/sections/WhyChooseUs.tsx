@@ -25,7 +25,7 @@ export function WhyChooseUs() {
   ];
 
   return (
-    <section id="why-choose" className="w-full bg-[#CFCFCF] py-8 sm:py-12 overflow-hidden">
+    <section id="why-choose" className="w-full bg-[#ffffff] py-8 sm:py-12 overflow-hidden">
       <div className="site-container">
         <div className="relative bg-[#0a0a0a] text-white py-10 sm:py-12 lg:py-14 px-4 sm:px-6 rounded-xl sm:rounded-2xl border border-[#1f2226] overflow-hidden shadow-xl">
           {/* Mountain & terrain backdrop */}

@@ -12,7 +12,7 @@ import { FaqSection } from "@/components/sections/FaqSection";
 
 export default function HomePage() {
   return (
-    <div className="w-full min-h-screen bg-[#CFCFCF] text-[#0a0a0a]">
+    <div className="w-full min-h-screen bg-[#ffffff] text-[#0a0a0a]">
       {/* 2. Hero */}
       <Hero />
 

@@ -22,7 +22,7 @@ const BANNERS = [
 
 export function PromoBanners() {
   return (
-    <section className="bg-[#CFCFCF] py-8 sm:py-12 overflow-hidden w-full">
+    <section className="bg-[#ffffff] py-8 sm:py-12 overflow-hidden w-full">
       <div className="site-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {BANNERS.map((banner) => (
