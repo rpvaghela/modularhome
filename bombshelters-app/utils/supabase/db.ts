@@ -36,3 +36,4 @@ export function buildConnectionString(password: string): string {
   const user = process.env.PGUSER || "postgres";
   return `postgresql://${user}:${encodeURIComponent(password)}@${host}:${port}/${database}`;
 }
+
