@@ -14,9 +14,9 @@ export function Hero() {
   ];
 
   return (
-    <section className="w-full bg-[#ffffff] pt-2 sm:pt-4 pb-2 overflow-hidden">
+    <section className="w-full bg-[#ffffff] pt-2 sm:pt-4 overflow-hidden">
       <div className="site-container">
-        <div className="hero-fluid relative min-h-[420px] sm:min-h-[480px] lg:min-h-[520px] flex items-center lg:flex-col lg:items-stretch overflow-hidden bg-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-xl border border-[#1f2226]">
+        <div className="hero-fluid relative min-h-[420px] sm:min-h-[480px] lg:min-h-[520px] flex items-center lg:flex-col lg:items-stretch overflow-hidden bg-[#0a0a0a] rounded-t-xl sm:rounded-t-2xl border-t border-x border-[#1f2226]">
           {/* Background Image */}
           <div className="absolute inset-0 z-0">
             <Image

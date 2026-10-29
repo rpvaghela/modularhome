@@ -14,9 +14,9 @@ export function TrustStrip() {
   };
 
   return (
-    <section className="bg-[#ffffff] pt-1 pb-3 sm:pb-4 overflow-hidden w-full">
+    <section className="bg-[#ffffff] pb-3 sm:pb-4 overflow-hidden w-full">
       <div className="site-container">
-        <div className="bg-[#0a0a0a] rounded-xl border border-[#1f2226] overflow-hidden shadow-md">
+        <div className="bg-[#0a0a0a] rounded-b-xl sm:rounded-b-2xl border-x border-b border-t border-[#1f2226] overflow-hidden shadow-lg">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y sm:divide-y-0 sm:divide-x divide-[#2a2d31]">
             {TRUST_STRIP_ITEMS.map((item) => (
               <div
