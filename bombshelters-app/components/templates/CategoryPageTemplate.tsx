@@ -148,7 +148,7 @@ export function CategoryPageTemplate({
                           .trim()}
                       </p>
 
-                      <div className="mt-3 flex items-baseline gap-1">
+                      <div className="mt-3 flex items-baseline gap-1.5">
                         {model.rawPrice > 0 ? (
                           <>
                             <span className="text-xs text-gray-400">Turnkey from</span>
@@ -163,16 +163,22 @@ export function CategoryPageTemplate({
                         )}
                       </div>
 
-                      <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600">
-                        <div className="flex items-center gap-1.5">
-                          <Users className="w-3.5 h-3.5 text-gray-400" />
-                          <span>{model.capacity}</span>
+                      {(model.capacity || model.specs) ? (
+                        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600">
+                          {model.capacity ? (
+                            <div className="flex items-center gap-1.5">
+                              <Users className="w-3.5 h-3.5 text-gray-400" />
+                              <span>{model.capacity}</span>
+                            </div>
+                          ) : <div />}
+                          {model.specs ? (
+                            <div className="flex items-center gap-1.5">
+                              <Shield className="w-3.5 h-3.5 text-gray-400" />
+                              <span className="truncate max-w-[120px]">{model.specs}</span>
+                            </div>
+                          ) : null}
                         </div>
-                        <div className="flex items-center gap-1.5">
-                          <Shield className="w-3.5 h-3.5 text-gray-400" />
-                          <span className="truncate max-w-[100px]">{model.specs}</span>
-                        </div>
-                      </div>
+                      ) : null}
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">

@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   description: config?.metaDescription || "Engineered steel structures and shelters by BombShelters.com.",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function PrefabHomesPage() {
   const products = await getProductsByCategory(config.productType);
 

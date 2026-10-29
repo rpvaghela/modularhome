@@ -170,7 +170,12 @@ function mapDatabaseRowToModel(item: any): ExtendedProductModel {
   const floorPlanImage = blueprintMedia ? blueprintMedia.source_url : null;
 
   const categoryMapping = getCategoryByProductType(item.product_type || "");
-  const badgeText = categoryMapping?.badge?.split(" ")[0] || item.product_type?.toUpperCase() || "SHELTER";
+  const badgeText =
+    item.product_type === "Prefab Homes"
+      ? "PREFAB"
+      : item.product_type === "Bomb Shelters"
+      ? "BUNKER"
+      : item.product_type?.toUpperCase() || "SHELTER";
 
   // Determine badge color deterministically
   const badgeColors: ("green" | "gold" | "blue" | "red" | "purple")[] = ["green", "gold", "blue", "red", "purple"];
@@ -178,18 +183,20 @@ function mapDatabaseRowToModel(item: any): ExtendedProductModel {
   const badgeColor = badgeColors[colorIndex];
 
   // Capacity / Specs
-  let capacity = "Custom Sizing";
+  let capacity = "";
   if (item.sqft) {
     capacity = `${item.sqft} Sq Ft`;
   } else if (item.bedrooms) {
-    capacity = `${item.bedrooms} Bed${Number(item.bedrooms) > 1 ? "s" : ""}`;
+    capacity = `${Number(item.bedrooms)} Bed${Number(item.bedrooms) > 1 ? "s" : ""}`;
   }
 
-  let specs = "Turnkey";
+  let specs = "";
   if (item.bedrooms && item.bathrooms) {
-    specs = `${item.bedrooms} Bed / ${item.bathrooms} Bath`;
+    specs = `${Number(item.bedrooms)} Bed / ${Number(item.bathrooms)} Bath`;
   } else if (item.sqft) {
-    specs = `${item.sqft} Sq Ft Living`;
+    specs = `${item.sqft} Sq Ft`;
+  } else if (item.dimensions) {
+    specs = item.dimensions;
   }
 
   // Parse features safely
@@ -255,7 +262,7 @@ function mapDatabaseRowToModel(item: any): ExtendedProductModel {
     slug: item.handle || item.id,
     name: item.title,
     title: item.title,
-    price: lowestPrice > 0 ? `$${lowestPrice.toLocaleString()}` : "Call for Quote",
+    price: lowestPrice > 0 ? `$${lowestPrice.toLocaleString("en-US")}` : "Call for Quote",
     rawPrice: lowestPrice,
     status: item.status || "active",
     isPublished: item.status === "active",

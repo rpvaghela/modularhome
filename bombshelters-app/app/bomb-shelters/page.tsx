@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   description: config?.metaDescription || "Engineered underground bomb shelters, blast bunkers, and fortified safe rooms.",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function BombSheltersPage() {
   const products = await getProductsByCategory(config?.productType || "Bomb Shelters");
 
@@ -30,3 +33,4 @@ export default async function BombSheltersPage() {
     />
   );
 }
+
