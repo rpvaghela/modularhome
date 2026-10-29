@@ -188,12 +188,9 @@ export function Header() {
         </div>
       </div>
 
-      {/* ── Main Header Card (Bounded to Hero Section Width) ── */}
-      <div className="w-full bg-[#ffffff] pt-2 pb-1">
-        <div className="site-container">
-          <div className="bg-white rounded-xl border border-gray-200/90 shadow-xs overflow-hidden text-[#0a0a0a]">
-            {/* Logo | search (fills the middle) | phone */}
-            <div className="h-12 sm:h-14 lg:h-16 px-3 sm:px-5 flex items-center justify-between gap-2 sm:gap-5 xl:gap-8">
+      {/* ── Main Header Row ── */}
+      <div className="w-full bg-white text-[#0a0a0a] border-b border-gray-200">
+        <div className="site-container h-12 sm:h-14 lg:h-16 flex items-center justify-between gap-2 sm:gap-5 xl:gap-8">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <Link href="/" className="inline-block group">
@@ -289,9 +286,11 @@ export function Header() {
             </button>
           </div>
         </div>
+      </div>
 
-        {/* ── Navigation Bar Below (Dark, category links) ───────────────────────────── */}
-        <div className="hidden lg:block bg-[#111214] px-3 xl:px-4 border-t border-[#222429]">
+      {/* ── Navigation Bar Below (Dark, category links) ───────────────────────────── */}
+      <div className="hidden lg:block bg-[#111214] border-b border-[#222429]">
+        <div className="site-container">
           <div className="h-9 xl:h-10 flex items-stretch overflow-visible">
             <nav className="flex-1 flex items-stretch justify-between flex-nowrap overflow-visible min-w-0">
             {NAV_ITEMS.map((item) => (
@@ -402,8 +401,6 @@ export function Header() {
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
       {/* ── Mobile Hamburger Drawer (Dark Background) ────────────────────────── */}
       {mobileMenuOpen && (
