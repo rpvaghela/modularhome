@@ -6,7 +6,6 @@ import { FeaturedModels } from "@/components/sections/FeaturedModels";
 import { PromoBanners } from "@/components/sections/PromoBanners";
 import { WhyChooseUs } from "@/components/sections/WhyChooseUs";
 import { HowItWorks } from "@/components/sections/HowItWorks";
-import { Manufacturers } from "@/components/sections/Manufacturers";
 import { FinancingSection } from "@/components/sections/FinancingSection";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { FaqSection } from "@/components/sections/FaqSection";
@@ -35,10 +34,7 @@ export default function HomePage() {
       {/* 8. Why Choose BombShelters.com (Pure White background) */}
       <WhyChooseUs />
 
-      {/* 9. Trusted Manufacturers & Partners (Pure White background) */}
-      <Manufacturers />
-
-      {/* 10. Flexible Financing & Consultation Form (Pure White background) */}
+      {/* 9. Flexible Financing & Consultation Form (Pure White background) */}
       <FinancingSection />
 
       {/* 11. Real Customers. Real Peace of Mind. (Pure White background) */}
