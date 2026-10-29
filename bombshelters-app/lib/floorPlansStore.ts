@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { FLOOR_PLANS, FloorPlanItem } from "../data/floorPlans";
+import { supabase, supabaseAdmin, isSupabaseConfigured } from "./supabase";
 
 export type { FloorPlanItem };
 
@@ -43,11 +44,61 @@ export function writeLocalFloorPlans(plans: FloorPlanItem[]): void {
 }
 
 export async function getBombShelterFloorPlans(onlyPublished = false): Promise<FloorPlanItem[]> {
-  const plans = readLocalFloorPlans();
-  if (onlyPublished) {
-    return plans.filter((p) => p.status !== "DRAFT" && p.status !== "ARCHIVED");
+  const localList = readLocalFloorPlans();
+
+  if (isSupabaseConfigured()) {
+    try {
+      let query = (supabaseAdmin || supabase)
+        .from("floor_plans")
+        .select("*")
+        .order("display_order", { ascending: true });
+
+      if (onlyPublished) {
+        query = query.eq("status", "PUBLISHED");
+      }
+
+      const { data, error } = await query;
+
+      if (!error && Array.isArray(data) && data.length > 0) {
+        const dbPlans: FloorPlanItem[] = data.map((item) => ({
+          id: item.slug || item.id,
+          name: item.title,
+          category: item.category || "Cabins",
+          sqft: item.square_feet || 500,
+          dimensions: item.dimensions || "20x30 ft",
+          occupancy: `${item.bedrooms || 1} Bed / ${item.bathrooms || 1} Bath`,
+          rooms: `${item.bedrooms || 1} Bedroom, ${item.bathrooms || 1} Bath, Great Room`,
+          imageUrl: item.preview_image || "/images/cat-luxury-bunkers.png",
+          desc: item.description || item.tagline || "",
+          price: Number(item.price || 495),
+          salePrice: item.sale_price ? Number(item.sale_price) : undefined,
+          blastRating: "ASTM Tested / Cold-Formed Steel",
+          fileFormat: item.file_format || "PDF + CAD (DWG)",
+          status: item.status || "PUBLISHED",
+        }));
+
+        // Merge keeping local items if not in db
+        const merged = [...dbPlans];
+        for (const local of localList) {
+          if (!merged.some((p) => p.id === local.id)) {
+            merged.push(local);
+          }
+        }
+        return merged;
+      }
+    } catch (e) {
+      console.warn("Supabase floor plans fetch warning:", e);
+    }
   }
-  return plans;
+
+  return onlyPublished
+    ? localList.filter((p) => p.status !== "DRAFT" && p.status !== "ARCHIVED")
+    : localList;
+}
+
+export async function getBombShelterFloorPlanBySlug(slug: string): Promise<FloorPlanItem | null> {
+  const all = await getBombShelterFloorPlans();
+  return all.find((p) => p.id.toLowerCase() === slug.toLowerCase()) || null;
 }
 
 export async function saveBombShelterFloorPlan(plan: FloorPlanItem): Promise<FloorPlanItem> {

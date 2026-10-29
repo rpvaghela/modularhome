@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { COLLECTIONS, CollectionItem } from "../data/collections";
+import { supabase, supabaseAdmin, isSupabaseConfigured } from "./supabase";
 
 export type { CollectionItem };
 
@@ -43,7 +44,55 @@ export function writeLocalCollections(collections: CollectionItem[]): void {
 }
 
 export async function getBombShelterCollections(): Promise<CollectionItem[]> {
-  return readLocalCollections();
+  const localList = readLocalCollections();
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await (supabaseAdmin || supabase)
+        .from("collections")
+        .select("id, handle, title, description_html, image, banner_image, tagline, is_featured")
+        .order("is_featured", { ascending: false })
+        .limit(100);
+
+      if (!error && Array.isArray(data) && data.length > 0) {
+        const dbCollections: CollectionItem[] = data.map((item) => {
+          // Clean HTML description to plain text snippet
+          const cleanDesc = (item.description_html || item.tagline || "")
+            .replace(/<[^>]*>?/gm, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 160);
+
+          return {
+            slug: item.handle || item.id,
+            name: item.title,
+            badge: "CURATED SUITE",
+            modelCount: "12+ Models",
+            imageUrl: item.image || item.banner_image || "/images/cat-luxury-bunkers.png",
+            description: cleanDesc || "Engineered structural shelter and building collection.",
+          };
+        });
+
+        // Ensure primary curated collections stay at top
+        const merged = [...localList];
+        for (const dbCol of dbCollections) {
+          if (!merged.some((c) => c.slug === dbCol.slug)) {
+            merged.push(dbCol);
+          }
+        }
+        return merged;
+      }
+    } catch (e) {
+      console.warn("Supabase collections fetch warning:", e);
+    }
+  }
+
+  return localList;
+}
+
+export async function getBombShelterCollectionBySlug(slug: string): Promise<CollectionItem | null> {
+  const all = await getBombShelterCollections();
+  return all.find((c) => c.slug.toLowerCase() === slug.toLowerCase()) || null;
 }
 
 export async function saveBombShelterCollection(item: CollectionItem): Promise<CollectionItem> {

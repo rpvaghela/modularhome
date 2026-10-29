@@ -23,6 +23,7 @@ interface CategoryPageTemplateProps {
   categoryKey: string;
   breadcrumbs: { label: string; href?: string }[];
   keyPoints?: { title: string; desc: string }[];
+  products?: ProductModel[];
 }
 
 export function CategoryPageTemplate({
@@ -33,17 +34,17 @@ export function CategoryPageTemplate({
   categoryKey,
   breadcrumbs,
   keyPoints,
+  products,
 }: CategoryPageTemplateProps) {
-  // Filter models that match this category
-  const matchingModels = FEATURED_MODELS.filter((m) => {
-    const cat = m.category.toLowerCase();
-    const key = categoryKey.toLowerCase();
-    return cat.includes(key) || key.includes(cat);
-  });
-
-  // Fallback to related models if specific list is small
+  // Use provided products from database, or fallback to matching local models
   const displayModels =
-    matchingModels.length > 0 ? matchingModels : FEATURED_MODELS.slice(0, 4);
+    products && products.length > 0
+      ? products
+      : FEATURED_MODELS.filter((m) => {
+          const cat = m.category.toLowerCase();
+          const key = categoryKey.toLowerCase();
+          return cat.includes(key) || key.includes(cat);
+        });
 
   return (
     <>
@@ -106,19 +107,26 @@ export function CategoryPageTemplate({
                     src={model.imageUrl}
                     alt={model.name}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute top-2.5 left-2.5 text-[10px] font-display font-bold uppercase tracking-wider text-white bg-[#e11d1d] px-2 py-0.5 rounded shadow">
-                    {model.badge.text}
-                  </span>
+                  <div className="absolute top-3 left-3">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#0a0a0a]/80 backdrop-blur text-[10px] font-display font-bold uppercase tracking-wider text-white border border-white/20">
+                      <ShieldCheck className="w-3 h-3 text-[#e11d1d]" />
+                      <span>{model.badge.text}</span>
+                    </span>
+                  </div>
                 </div>
 
-                <div className="p-4 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="font-display font-bold text-sm sm:text-base text-[#0a0a0a] group-hover:text-[#e11d1d] transition-colors line-clamp-2 min-h-[40px]">
+                <div className="flex-1 flex flex-col p-5">
+                  <div className="flex-1">
+                    <div className="text-[10px] font-bold uppercase text-gray-400 tracking-wider">
+                      {model.category}
+                    </div>
+                    <h3 className="font-display font-bold text-base text-[#0a0a0a] group-hover:text-[#e11d1d] transition-colors mt-0.5 line-clamp-1">
                       {model.name}
                     </h3>
-                    <p className="mt-1 text-xs text-gray-500 line-clamp-2">
+                    <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">
                       {model.description}
                     </p>
 
@@ -171,4 +179,3 @@ export function CategoryPageTemplate({
     </>
   );
 }
-

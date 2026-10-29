@@ -93,7 +93,7 @@ export async function getBombShelterBlogs(onlyPublished = true): Promise<BombShe
       let query = supabaseAdmin
         .from("blog_posts")
         .select("*")
-        .eq("blog_handle", BOMBSHELTER_BLOG_HANDLE)
+        .or(`blog_handle.eq.${BOMBSHELTER_BLOG_HANDLE},blog_handle.eq.news,status.eq.PUBLISHED`)
         .order("published_at", { ascending: false });
 
       const { data, error } = await query;

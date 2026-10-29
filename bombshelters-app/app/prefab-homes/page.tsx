@@ -1,41 +1,29 @@
 import React from "react";
 import { Metadata } from "next";
 import { CategoryPageTemplate } from "@/components/templates/CategoryPageTemplate";
+import { CATALOG_CATEGORIES } from "@/config/catalog-category-map";
+import { getProductsByCategory } from "@/lib/productStore";
+
+const config = CATALOG_CATEGORIES["prefab-homes"];
 
 export const metadata: Metadata = {
-  title: "Prefab Homes & Fortified Housing | BombShelters.com",
-  description:
-    "Explore precision-fabricated prefab homes engineered with heavy steel frames and turnkey off-grid survival capabilities.",
+  title: config?.metaTitle || "prefab-homes | BombShelters.com",
+  description: config?.metaDescription || "Engineered steel structures and shelters by BombShelters.com.",
 };
 
-export default function PrefabHomesPage() {
+export default async function PrefabHomesPage() {
+  const products = await getProductsByCategory(config.productType);
+
   return (
     <CategoryPageTemplate
-      badge="PRECISION PREFABRICATION"
-      title="PREFAB HOMES &"
-      highlight="FORTIFIED HOUSING"
-      description="Factory-manufactured modern residences featuring high-tensile structural steel skeletons, energy-efficient thermal envelopes, and disaster-proof durability."
-      categoryKey="Steel Framed Homes"
-      breadcrumbs={[{ label: "Prefab Homes" }]}
-      keyPoints={[
-        {
-          title: "Climate-Controlled Quality",
-          desc: "Built indoors with continuous robotic quality control and zero weather delays.",
-        },
-        {
-          title: "Superior Thermal Envelope",
-          desc: "Closed-cell spray foam insulation providing exceptional R-30+ thermal efficiency.",
-        },
-        {
-          title: "Blast & Impact Windows",
-          desc: "Laminated hurricane and ballistic security glazing options for perimeter security.",
-        },
-        {
-          title: "Turnkey Nationwide Setup",
-          desc: "Complete crane hoisting, utility connection, and interior finish handover.",
-        },
-      ]}
+      badge={config.badge}
+      title={config.headingTitle}
+      highlight={config.headingHighlight}
+      description={config.description}
+      categoryKey={config.productType}
+      breadcrumbs={[{ label: config.label }]}
+      keyPoints={config.keyPoints}
+      products={products}
     />
   );
 }
-

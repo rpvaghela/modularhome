@@ -1,41 +1,29 @@
 import React from "react";
 import { Metadata } from "next";
 import { CategoryPageTemplate } from "@/components/templates/CategoryPageTemplate";
+import { CATALOG_CATEGORIES } from "@/config/catalog-category-map";
+import { getProductsByCategory } from "@/lib/productStore";
+
+const config = CATALOG_CATEGORIES["house-kits"];
 
 export const metadata: Metadata = {
-  title: "Pre-Engineered Steel House Kits | BombShelters.com",
-  description:
-    "Bolt-together pre-engineered cold-formed steel house kits for DIY builders, rural homesteads, and contractor assembly.",
+  title: config?.metaTitle || "house-kits | BombShelters.com",
+  description: config?.metaDescription || "Engineered steel structures and shelters by BombShelters.com.",
 };
 
-export default function HouseKitsPage() {
+export default async function HouseKitsPage() {
+  const products = await getProductsByCategory(config.productType);
+
   return (
     <CategoryPageTemplate
-      badge="BOLT-TOGETHER PRECISION"
-      title="PRE-ENGINEERED STEEL"
-      highlight="HOUSE KITS"
-      description="Pre-cut, pre-punched, and pre-labeled structural steel framing packages. Build faster, eliminate jobsite waste, and achieve lifetime structural defense."
-      categoryKey="House Kits"
-      breadcrumbs={[{ label: "House Kits" }]}
-      keyPoints={[
-        {
-          title: "Pre-Numbered Steel Members",
-          desc: "Every component is clearly labeled to match our comprehensive 3D assembly manual.",
-        },
-        {
-          title: "Zero Waste Jobsite",
-          desc: "Precision factory laser cutting eliminates costly on-site cutting and scrap.",
-        },
-        {
-          title: "Non-Combustible Material",
-          desc: "100% recyclable certified American steel that never rots, twists, or burns.",
-        },
-        {
-          title: "Fast Assembly Timeline",
-          desc: "A crew of 3-4 builders can erect the primary structural framing in under 5 days.",
-        },
-      ]}
+      badge={config.badge}
+      title={config.headingTitle}
+      highlight={config.headingHighlight}
+      description={config.description}
+      categoryKey={config.productType}
+      breadcrumbs={[{ label: config.label }]}
+      keyPoints={config.keyPoints}
+      products={products}
     />
   );
 }
-

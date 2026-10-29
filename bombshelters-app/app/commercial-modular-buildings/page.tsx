@@ -1,41 +1,29 @@
 import React from "react";
 import { Metadata } from "next";
 import { CategoryPageTemplate } from "@/components/templates/CategoryPageTemplate";
+import { CATALOG_CATEGORIES } from "@/config/catalog-category-map";
+import { getProductsByCategory } from "@/lib/productStore";
+
+const config = CATALOG_CATEGORIES["commercial-modular-buildings"];
 
 export const metadata: Metadata = {
-  title: "Commercial & Municipal Blast Shelters | BombShelters.com",
-  description:
-    "Large-scale subterranean and above-ground shelters engineered for corporate facilities, schools, hospitals, and municipal emergency management.",
+  title: config?.metaTitle || "commercial-modular-buildings | BombShelters.com",
+  description: config?.metaDescription || "Engineered steel structures and shelters by BombShelters.com.",
 };
 
-export default function CommercialModularBuildingsPage() {
+export default async function CommercialModularBuildingsPage() {
+  const products = await getProductsByCategory(config.productType);
+
   return (
     <CategoryPageTemplate
-      badge="FEMA P-361 & IBC COMMERCIAL"
-      title="COMMERCIAL & MUNICIPAL"
-      highlight="BLAST SHELTERS"
-      description="Engineered high-capacity shelters designed to safeguard corporate workforce, medical personnel, emergency dispatch teams, and community populations."
-      categoryKey="Commercial"
-      breadcrumbs={[{ label: "Commercial Buildings" }]}
-      keyPoints={[
-        {
-          title: "50 to 500+ Occupancy",
-          desc: "Engineered multi-room complexes compliant with FEMA P-361 community shelter criteria.",
-        },
-        {
-          title: "Redundant Life-Support Systems",
-          desc: "Dual industrial Swiss NBC air handling units, dual diesel generators, and waste management.",
-        },
-        {
-          title: "ADA Accessibility",
-          desc: "Heavy-duty hydraulic elevator lifts and wide gradual ingress ramps for universal access.",
-        },
-        {
-          title: "Government & Corporate Procurement",
-          desc: "Assistance with federal grant compliance, GSA schedules, and municipal bonding.",
-        },
-      ]}
+      badge={config.badge}
+      title={config.headingTitle}
+      highlight={config.headingHighlight}
+      description={config.description}
+      categoryKey={config.productType}
+      breadcrumbs={[{ label: config.label }]}
+      keyPoints={config.keyPoints}
+      products={products}
     />
   );
 }
-

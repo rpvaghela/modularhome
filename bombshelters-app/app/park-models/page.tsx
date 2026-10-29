@@ -1,41 +1,29 @@
 import React from "react";
 import { Metadata } from "next";
 import { CategoryPageTemplate } from "@/components/templates/CategoryPageTemplate";
+import { CATALOG_CATEGORIES } from "@/config/catalog-category-map";
+import { getProductsByCategory } from "@/lib/productStore";
+
+const config = CATALOG_CATEGORIES["park-models"];
 
 export const metadata: Metadata = {
-  title: "Resort Park Models & Recreational Steel Cabins | BombShelters.com",
-  description:
-    "Architectural ANSI A119.5 park models combining luxury recreation with high-tensile structural steel durability.",
+  title: config?.metaTitle || "park-models | BombShelters.com",
+  description: config?.metaDescription || "Engineered steel structures and shelters by BombShelters.com.",
 };
 
-export default function ParkModelsPage() {
+export default async function ParkModelsPage() {
+  const products = await getProductsByCategory(config.productType);
+
   return (
     <CategoryPageTemplate
-      badge="ANSI A119.5 SPECIFICATION"
-      title="PARK MODELS & RECREATIONAL"
-      highlight="CABINS"
-      description="Architectural park model cabins designed for seasonal retreat communities, private hunting ranches, and recreational living without compromising on structural strength."
-      categoryKey="Park Models"
-      breadcrumbs={[{ label: "Park Models" }]}
-      keyPoints={[
-        {
-          title: "400 Sq Ft Max Efficiency",
-          desc: "Full master bedroom, sleeping lofts, and screened porches tailored to park model codes.",
-        },
-        {
-          title: "Heavy Steel Under-Chassis",
-          desc: "Robust cambered structural I-beam frame engineered for long-term placement.",
-        },
-        {
-          title: "Residential Grade Appointments",
-          desc: "Quartz countertops, stainless appliances, and full-size residential showers.",
-        },
-        {
-          title: "Four-Season Insulation",
-          desc: "Dual-pane low-E argon windows and thermal wrap engineered for sub-zero climates.",
-        },
-      ]}
+      badge={config.badge}
+      title={config.headingTitle}
+      highlight={config.headingHighlight}
+      description={config.description}
+      categoryKey={config.productType}
+      breadcrumbs={[{ label: config.label }]}
+      keyPoints={config.keyPoints}
+      products={products}
     />
   );
 }
-
