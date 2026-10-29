@@ -200,3 +200,4 @@ export const CATALOG_CATEGORY_MAP: Record<string, CategoryMapping> = {
   }
 };
 ```
+

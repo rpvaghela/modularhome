@@ -38,18 +38,18 @@ export function Hero() {
       <div className="hero-pad relative z-10 site-container py-8 sm:py-10 w-full overflow-hidden">
         {/* Headline */}
         <h1 className="hero-rise font-display font-bold uppercase leading-[0.95] tracking-tight max-w-[760px] lg:max-w-none">
-          <span className="hero-l1 block text-white text-[28px] xs:text-[34px] sm:text-[48px] lg:text-[56px] drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]">
+          <span className="hero-l1 block text-white text-[22px] xs:text-[28px] sm:text-[48px] lg:text-[56px] drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]">
             The World Is
           </span>
-          <span className="hero-l2 block text-[#ff1f1f] text-[34px] xs:text-[42px] sm:text-[58px] lg:text-[68px] drop-shadow-[0_0_30px_rgba(225,29,29,0.5)] break-words">
+          <span className="hero-l2 block text-[#ff1f1f] text-[26px] xs:text-[34px] sm:text-[54px] lg:text-[68px] drop-shadow-[0_0_30px_rgba(225,29,29,0.5)] break-words">
             Unpredictable.
           </span>
-          <span className="hero-l3 block text-white text-[20px] xs:text-[24px] sm:text-[36px] lg:text-[42px] mt-1 drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]">
+          <span className="hero-l3 block text-white text-[17px] xs:text-[22px] sm:text-[34px] lg:text-[42px] mt-1 drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]">
             Your Family&apos;s Safety
           </span>
         </h1>
         <p
-          className="hero-rise hero-brush brush-underline font-brush normal-case -rotate-2 text-[#ff1f1f] text-[24px] xs:text-[30px] sm:text-[44px] lg:text-[52px] leading-none mt-1 ml-1 drop-shadow-[0_3px_10px_rgba(0,0,0,0.8)]"
+          className="hero-rise hero-brush brush-underline font-brush normal-case -rotate-2 text-[#ff1f1f] text-[19px] xs:text-[24px] sm:text-[40px] lg:text-[52px] leading-none mt-1 ml-1 drop-shadow-[0_3px_10px_rgba(0,0,0,0.8)]"
           style={{ animationDelay: "0.1s" }}
           aria-hidden="true"
         >
@@ -84,13 +84,13 @@ export function Hero() {
 
         {/* What the shelters protect against: small bordered glass boxes, square-cornered like the CTAs */}
         <div
-          className="hero-rise hero-threats mt-6 sm:mt-7 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center max-w-full"
+          className="hero-rise hero-threats mt-6 sm:mt-7 grid grid-cols-2 gap-1.5 xs:gap-2 sm:flex sm:flex-wrap sm:items-center w-full max-w-full"
           style={{ animationDelay: "0.3s" }}
         >
           {threats.map(({ label, Icon }, i) => (
             <span
               key={label}
-              className="group/threat hero-threat hero-threat-box flex items-center gap-1.5 xs:gap-2 px-2 xs:px-3 py-1.5 sm:py-2 rounded-[4px] bg-white/[0.08] border border-white/20 backdrop-blur-md text-[11px] xs:text-xs sm:text-sm font-semibold text-white hover:border-[#e11d1d]/60 hover:bg-[#e11d1d]/10 transition-colors truncate"
+              className="group/threat hero-threat hero-threat-box flex items-center gap-1 xs:gap-2 px-1.5 xs:px-2.5 py-1.5 sm:py-2 rounded-[4px] bg-white/[0.08] border border-white/20 backdrop-blur-md text-[10px] xs:text-xs sm:text-sm min-w-0 font-semibold text-white hover:border-[#e11d1d]/60 hover:bg-[#e11d1d]/10 transition-colors truncate"
             >
               <Icon
                 className="hero-threat-icon threat-pulse w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-[#ff4d4d] group-hover/threat:animate-[threat-wiggle_0.5s_ease-in-out]"

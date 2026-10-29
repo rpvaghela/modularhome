@@ -35,7 +35,7 @@ export async function FeaturedModels() {
           linkHref="/models"
         />
 
-        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 overflow-x-auto pb-3 sm:pb-0 scrollbar-none snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 overflow-x-auto pb-3 sm:pb-0 scrollbar-none snap-x snap-mandatory -mx-3 px-3 sm:mx-0 sm:px-0">
           {modelsToDisplay.slice(0, 6).map((model) => {
             const badge = badgeStyles[model.badge.color] || badgeStyles.red;
             return (

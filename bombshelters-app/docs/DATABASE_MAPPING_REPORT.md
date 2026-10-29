@@ -125,3 +125,4 @@
 - **Observation:** `public.global_settings` row contains legacy branding (`ModularHome.com`, `modularhome.admin@gmail.com`).
 - **Impact:** Must not overwrite BombShelters branding.
 - **Recommended Solution:** Maintain BombShelters independent settings in `bombshelters-app/data/custom_settings.json` and isolate tenant metadata.
+

@@ -21,12 +21,12 @@ export function TrustStrip() {
             <div
               key={item.title}
               title={item.desc}
-              className="flex items-center gap-3 px-2 lg:px-4 py-5 group"
+              className="flex items-center gap-2 xs:gap-3 px-1.5 sm:px-2 lg:px-4 py-3.5 sm:py-5 group min-w-0"
             >
               <div className="shrink-0 group-hover:scale-110 transition-transform">
                 {iconMap[item.icon] || <ShieldCheck className="w-7 h-7 text-[#0a0a0a]" strokeWidth={1.5} />}
               </div>
-              <h4 className="font-display font-semibold uppercase text-[11px] sm:text-xs tracking-wider text-[#0a0a0a] leading-snug group-hover:text-[#e11d1d] transition-colors">
+              <h4 className="font-display font-semibold uppercase text-[10px] xs:text-[11px] sm:text-xs tracking-wider text-[#0a0a0a] leading-tight sm:leading-snug group-hover:text-[#e11d1d] transition-colors min-w-0 break-words">
                 {item.title}
               </h4>
             </div>

@@ -119,3 +119,4 @@ The cloned database includes **35,845 rows** in `public.redirects`:
 2. **Dynamic Sitemap (`app/sitemap.ts`):**
    - Automatically queries published `products` (`status = 'active'`), `collections` (`published = true`), `blog_posts` (`status = 'PUBLISHED'`), and static pages.
    - Sets appropriate `changeFrequency` (`daily` for catalog, `weekly` for guides, `monthly` for legal policies).
+

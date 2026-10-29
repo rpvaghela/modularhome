@@ -1,285 +1,337 @@
-# BombShelters.com — Database Integration, Product Categorization & SEO Preservation
+# BombShelters.com — Full ModularHome Database Import, Navbar Mapping & SEO Rebranding
 
-## Project Context
+## Objective
 
-I have two Next.js projects:
+The complete ModularHome Supabase database has already been cloned into the separate Supabase project used by `SteelWeb/bombshelters-app`.
 
-- **ModularHome.com:** Existing website and source database.
-- **BombShelters.com:** Separate website in `SteelWeb/bombshelters-app`.
-
-The complete ModularHome Supabase database has already been cloned into the BombShelters Supabase project. The cloned database contains products, collections, pages, blog posts, redirects, media references, settings, and related records.
-
-Now integrate the cloned data into BombShelters.com correctly. The goal is to display the appropriate products and content on the BombShelters website, organize everything according to the BombShelters navbar, and preserve or improve BombShelters SEO for every product, category, and page.
-
-## 1. Safety Rules
-
-Before making changes:
-
-1. Inspect the existing BombShelters frontend, backend/API routes, Supabase schema, database records, navbar, sitemap, metadata, and current URL structure.
-2. Inspect the existing ModularHome data only as a source for understanding the cloned schema and content.
-3. Confirm that BombShelters is connected to its own Supabase project using its own environment variables.
-4. Never modify ModularHome source code, production database, configuration, or content.
-5. Do not run destructive SQL, production migrations, bulk deletes, or duplicate imports.
-6. Do not assume that the cloned database has the same schema, constraints, or relationships as the application expects. Verify actual compatibility.
-7. Preserve existing BombShelters branding, design, content, and custom functionality unless a specific change is required.
-8. Back up the BombShelters database before any necessary data transformation.
-
-## 2. Discover the Actual Database Structure
-
-Inspect all relevant tables and relationships, including where available:
-
-- `products`
-- `collections`
-- `product_collections`
-- Product variants, options and media
-- `pages`
-- Page sections or blocks
-- `blog_posts` or the actual blog table
-- `redirects`
-- `floor_plans`
-- Global settings
-- Navigation and menu configuration
-- Product specifications and other related tables
-
-Identify the actual column names, data types, relationships, slug formats, image fields, publication statuses, and SEO fields.
-
-Do not assume that all these tables exist under these exact names.
-
-Produce a mapping report containing:
-
-- Table and column
-- Existing source data
-- BombShelters destination usage
-- Required transformations
-- Missing or incompatible fields
-- Relationships that must be preserved
-
-## 3. Define BombShelters Navbar Categories
-
-First inspect the existing BombShelters navbar and its intended product categories.
-
-Use the actual navbar labels and existing website structure as the source of truth. Do not invent new categories without justification.
-
-For each navbar item, determine:
-
-- Whether it represents a landing page, product collection, informational page, service page, or dropdown.
-- Which database records belong to it.
-- Which URL it should use.
-- Whether it needs a dedicated category landing page.
-- Whether it needs child categories or filters.
-
-Create a category mapping file, for example:
-
-`bombshelters-app/config/catalog-category-map.ts`
-
-Use stable identifiers and explicit matching rules based on verified product types, collection membership, product tags, titles, and available attributes.
-
-Example mapping structure (illustrative only; inspect the actual navbar before using these labels):
-
-- Bomb Shelters
-- Underground Shelters
-- Above-Ground Shelters
-- Shelter Kits
-- Commercial and Government Shelters
-- Accessories and Supplies
-- Guides and Resources
-
-These example categories must not replace the actual navbar categories unless they match the existing BombShelters information architecture.
-
-### Categorization requirements
-
-- Assign each relevant product to the correct category.
-- Preserve legitimate multi-category relationships.
-- Avoid assigning products using title keywords alone when structured fields are available.
-- Do not invent specifications or claim that a product provides protection that its source data does not substantiate.
-- Keep unrelated modular homes, cabins, sheds, and general housing products out of BombShelters public listings unless they are genuinely relevant.
-- Flag ambiguous products for manual review.
-- Avoid duplicate category assignments and duplicate cards.
-- Ensure every public category has a useful landing page and sensible empty state.
-
-## 4. Integrate Product and Collection Data
-
-Connect BombShelters product listing, category, search, filtering, and product detail pages to the cloned Supabase data.
-
-For each product, map available fields such as:
-
-- Product name
-- Stable product ID
-- Slug
-- Description and specifications
-- Price, where appropriate
-- Product images and videos
-- Product type and category
-- Collection relationships
-- Availability or publication status
-- Canonical URL and SEO fields
-- Page title and meta description
-- Structured data attributes, if supported by the source
-
-Use server-side Supabase queries or the project's existing data-access layer. Reuse existing API routes where appropriate and create or update BombShelters-specific endpoints when needed.
+Now implement a complete, validated data integration for BombShelters.com.
 
 Requirements:
 
-- Fetch published and relevant products only.
-- Use pagination for large catalogs.
-- Avoid loading the entire catalog into a client component.
-- Add useful search, category filtering, sorting, loading, error, and empty states.
-- Ensure detail pages fetch the correct product by stable ID or slug.
-- Handle missing images and incomplete data gracefully.
-- Use existing image URLs where valid; do not assume cloned Storage files are available in the new project.
-- Do not hardcode product cards or pretend that mock data is live data.
+1. Import and preserve the full relevant ModularHome source catalog and content in the BombShelters database.
+2. Organize products, collections, pages, blogs, floor plans and other content according to the existing BombShelters navbar and More dropdown.
+3. Replace ModularHome branding in BombShelters public SEO metadata with appropriate BombShelters branding.
+4. Preserve existing BombShelters URLs, canonical paths, redirect rules and SEO equity wherever possible.
+5. Ensure all public pages fetch real database records.
+6. Do not change ModularHome.com or its production database.
 
-## 5. Preserve BombShelters SEO for Every Product and Page
+Workspace:
+- ModularHome application: `SteelWeb/`
+- BombShelters application: `SteelWeb/bombshelters-app/`
 
-Treat existing BombShelters URLs and indexed pages as the priority.
+## Phase 1 — Inspect and Inventory the Cloned Database
 
-Before changing routing, crawl or inventory existing public URLs and record their current:
+Before writing or modifying data, inspect the actual BombShelters Supabase schema and verify that the cloned tables contain the expected data.
 
-- Path
-- Page title
-- Meta description
-- Canonical URL
-- Indexability
-- Sitemap inclusion
-- Existing redirect destination, if any
+Inspect all existing tables and relationships, including where available:
 
-Create a route-mapping report before implementing URL changes.
+- Products
+- Collections
+- Product-to-collection relationships
+- Variants and product options
+- Product images and media
+- Pages and page sections
+- Blog posts and articles
+- Floor plans
+- Redirects
+- Global settings
+- Navigation/menu configuration
+- Product specifications
+- Any additional related catalog or CMS tables
 
-### SEO requirements
+Use actual table and column names discovered in the database. Do not assume that every table exists.
 
-For every product, category, blog post, and content page:
+Generate a source inventory with:
+- Table name
+- Record count
+- Primary key
+- Important columns
+- Product/category relationships
+- Publication status
+- Existing slug and SEO fields
+- Media references
+- Missing relationships or incompatible fields
 
-- Generate unique, meaningful page titles and meta descriptions from verified content.
-- Preserve existing BombShelters slugs and indexed paths wherever possible.
-- Keep canonical URLs on the BombShelters domain.
-- Do not use ModularHome.com as the canonical domain for BombShelters pages.
-- Avoid duplicate title tags, meta descriptions, and canonical URLs.
-- Use correct robots metadata for public and private pages.
-- Exclude admin pages, internal search pages, unpublished products, and staging pages from indexing as appropriate.
-- Update the sitemap dynamically from published BombShelters content.
-- Verify robots.txt and canonical host configuration.
-- Add appropriate Open Graph and social-sharing metadata.
-- Generate structured data only when the required facts are available and accurate.
-- Use appropriate Product, BreadcrumbList, Organization, Article, or WebPage structured data where justified.
-- Do not generate Product structured data with fabricated prices, ratings, availability, or reviews.
+Verify the actual cloned dataset before attempting another import.
 
-### URL preservation
+IMPORTANT: The database has already been cloned. Do not blindly import the same records again. If records are missing, identify the exact missing records and use idempotent import/upsert logic with verified keys.
 
-Use existing BombShelters paths when they already exist and are appropriate.
+## Phase 2 — Build a Complete Navbar-to-Data Mapping
 
-If a URL must change:
+Use the existing BombShelters navbar and More dropdown as the required information architecture.
 
-1. Record the old path and new path.
-2. Create a permanent 301 redirect.
-3. Ensure the destination returns a successful response.
-4. Avoid redirect chains and loops.
-5. Update internal links, canonical metadata, and sitemap entries.
-6. Preserve existing redirect rules unless they conflict with a verified requirement.
+### Main navbar
 
-Never redirect unrelated BombShelters pages to a generic homepage merely to avoid a 404.
+1. Modular Homes
+2. Prefab Homes
+3. Barndominiums
+4. House Kits
+5. Tiny Homes
+6. Park Models
+7. Cabins
+8. ADUs & Granny Pods
+9. A-Frames
+10. Commercial
 
-## 6. Integrate Content Pages and Blog Posts
+### More dropdown — Buyer Guides & Logistics
 
-Inspect existing pages and blog content before publishing anything.
+1. Delivery & Crane Setting
+2. Frequently Asked Questions
+3. Pricing & Packages
+4. Financing & Mortgages
+5. How It Works
+6. Technical Blogs
+7. Curated Collections
 
-- Match source records to existing BombShelters pages using verified slugs, titles, and content.
-- Preserve existing BombShelters copy when it is already correct.
-- Adapt imported content to the BombShelters product catalog and brand only when factually supported.
-- Remove irrelevant ModularHome-specific references from content intended for BombShelters.
-- Preserve useful content structure, headings, internal links, images, publication dates, and SEO metadata when appropriate.
-- Do not publish unrelated, duplicated, or incomplete content automatically.
-- Keep drafts unpublished until reviewed.
-- Preserve redirects for any replaced URLs.
+### More dropdown — Services & Planning
 
-Do not blindly copy every ModularHome page or blog post to the public BombShelters website.
+1. Floor Plan Store
+2. Upload Floor Plan
+3. Factory Video Tours
+4. About BombShelters
+5. Modular Cabins
+6. Hardened Storage & Armories
+7. Shelters Under $100K
+8. Contact & Consultations
 
-## 7. Media and Images
+Preserve the existing two-column dropdown, responsive menu, labels, icons and styling unless a functional correction is necessary.
 
-Check whether the cloned records reference valid image URLs and whether the corresponding files exist in the BombShelters Storage project.
+For each navbar entry, identify whether it should be backed by:
+- A product category or collection
+- A CMS landing page
+- A blog or resource listing
+- A floor-plan listing
+- A form or service workflow
+- A dynamic filtered catalog
 
-- Verify image URLs before rendering them.
-- Identify references to inaccessible Storage buckets or files.
-- Copy only required media assets when necessary and permitted.
-- Preserve useful filenames and alt text.
-- Use meaningful alt text based on the actual image.
-- Avoid copying files repeatedly or creating duplicate assets.
-- Use responsive image sizes and lazy loading where appropriate.
-- Do not fabricate image paths or assume a successful database clone also copied Storage objects.
+Do not create a product collection for an informational page or a product listing for a form.
 
-## 8. Data Isolation and Security
+Create a central configuration file such as:
 
-BombShelters must operate independently.
+`bombshelters-app/config/catalog-category-map.ts`
 
-- Use BombShelters-specific Supabase credentials.
-- Use server-side access for privileged operations.
-- Keep service-role keys out of browser bundles.
-- Verify Row Level Security policies and permissions.
-- Do not rely exclusively on client-side category filters for access control.
-- Ensure admin endpoints enforce BombShelters authentication and authorization.
-- Preserve existing BombShelters admin functions.
-- Prevent accidental access to ModularHome's live database through fallback environment variables or shared connection strings.
+The configuration should contain stable category identifiers, labels, route paths, mapping rules, parent/child relationships and SEO defaults.
 
-If the cloned database contains customer records, leads, quotations, sessions, or authentication data, do not expose or use them for public product listings. Determine which records should be retained, isolated, anonymized, or excluded before any cleanup.
+Use the existing project conventions if an equivalent configuration already exists.
 
-## 9. Validation and Testing
+## Phase 3 — Map All Product and Collection Records
 
-Test the complete flow:
+Import and retain the full relevant source catalog, including legitimate product records, variants, options, collections, specifications and media references.
 
-Navbar category → Category landing page → Product listing → Product detail page → SEO metadata → Sitemap and canonical URL.
+Use a deterministic mapping strategy based on:
+1. Existing product types
+2. Collection membership
+3. Structured attributes and specifications
+4. Product tags
+5. Titles and descriptions as a fallback
+
+Do not categorize products solely by matching title keywords when structured data exists.
+
+### Mapping rules
+
+- Preserve source record IDs where safe and compatible.
+- Preserve variant relationships and product options.
+- Preserve product-to-collection relationships.
+- Avoid duplicate products and duplicate collection memberships.
+- Keep unpublished source records unpublished until their status has been reviewed.
+- Retain original source data and provenance when useful.
+- Maintain a report of excluded, ambiguous and unmapped products.
+- Allow a product to belong to multiple legitimate categories.
+- Ensure each product detail page resolves using a stable ID or slug.
+- Implement pagination and efficient database queries for large catalogs.
+
+Do not silently discard source products merely because they do not match a navbar category.
+
+Create an appropriate data mapping for every source product. If a product does not fit any public category, retain it in the database and flag it for review instead of assigning it arbitrarily.
+
+Some ModularHome products may be unrelated to BombShelters. Preserve those records in the cloned database, but do not publicly market them as bomb shelters or claim unsupported protection specifications.
+
+### Data-integrity checks
+
+- Check unique constraints before inserts or updates.
+- Verify foreign keys and relationship records.
+- Detect duplicate slugs.
+- Validate required fields.
+- Preserve prices and product specifications accurately.
+- Do not invent availability, prices, certifications or product safety claims.
+- Use safe, idempotent upserts when actual data correction is required.
+- Produce before/after counts for every table modified.
+
+## Phase 4 — Connect the Entire BombShelters Website to Real Data
+
+Trace each user-facing page through:
+
+Navbar → Category page → Database query → Product cards → Product detail page → SEO metadata.
+
+Also connect:
+- Collections
+- Blog listing and article detail pages
+- CMS pages
+- Floor-plan store
+- Product search and filters
+- Related products
+- Breadcrumb navigation
+- Sitemap generation
+
+Use the existing Supabase data-access layer and BombShelters-specific API routes. Do not hardcode product lists or use mock data as a substitute for database integration.
+
+Use server-side fetching where appropriate, proper pagination, loading states, empty states and error handling.
+
+Verify that every category points to the correct route and returns the correct records.
+
+Do not expose Supabase service-role credentials in client-side code.
+
+## Phase 5 — Rebrand SEO Metadata from ModularHome to BombShelters
+
+Inspect SEO metadata across all public routes, product records, category pages, CMS pages and blog posts.
+
+Replace inappropriate ModularHome brand references with BombShelters branding in the BombShelters application only.
+
+Review:
+- HTML title tags
+- Meta descriptions
+- Canonical URLs
+- Open Graph title, description, URL and image
+- Twitter/X metadata
+- JSON-LD structured data
+- Breadcrumb URLs
+- Sitemap entries
+- Robots metadata
+- Internal links
+- Product SEO fields
+- Category SEO fields
+- CMS and blog SEO fields
+
+### Branding rules
+
+Use BombShelters.com as the public canonical domain.
+
+Do not change ModularHome's production SEO settings, metadata, domain or canonical URLs.
+
+Do not perform a blind global replacement of every occurrence of `ModularHome`.
+
+Instead, classify each occurrence:
+
+1. **Public SEO branding:** Replace with BombShelters where appropriate.
+2. **Public content:** Rewrite only when the content is factually suitable for BombShelters.
+3. **Database schema and internal identifiers:** Preserve names when changing them could break queries or relationships.
+4. **Source provenance and migration records:** Preserve the original source identity.
+5. **External links:** Review individually; do not rewrite unrelated external URLs automatically.
+6. **Historical redirect records:** Preserve unless a verified route migration requires a change.
+
+Use natural, accurate BombShelters-specific titles and descriptions. Do not generate repetitive metadata by merely appending the brand name to every title.
+
+### Metadata requirements
+
+- Unique title and meta description for each indexable product, category and page.
+- Canonical URL on the BombShelters domain.
+- Correct canonical path matching the actual public route.
+- No canonical URLs pointing to ModularHome for BombShelters content.
+- Correct Open Graph URLs and images.
+- Appropriate Product, Organization, BreadcrumbList, Article and WebPage structured data when supported by real data.
+- No fabricated ratings, review counts, prices or product specifications.
+- No indexing of admin pages, unpublished products, internal search results or staging deployments.
+- Update `robots.txt` and sitemap generation as required.
+
+## Phase 6 — Preserve Existing BombShelters URLs and Redirects
+
+Before changing any slug or route, inventory the existing BombShelters URLs.
+
+Preserve existing indexed BombShelters paths whenever possible, even when the cloned source uses different slugs.
+
+Create an explicit route mapping for any necessary change:
+- Old BombShelters URL
+- New BombShelters URL
+- Reason for change
+- Redirect status
+- Canonical destination
+- Sitemap/internal-link update status
+
+Use permanent 301 redirects when a path genuinely needs to change.
+
+Do not redirect every old path to the homepage. Prevent redirect chains, loops and collisions between product, category, CMS and blog routes.
+
+If the cloned ModularHome database contains redirect records, inspect and adapt only those applicable to BombShelters routes. Do not blindly import ModularHome-domain redirects.
+
+## Phase 7 — Media and Storage
+
+A database clone does not guarantee that Storage buckets and files were copied.
+
+Inspect every relevant image and media reference:
+- Verify that the asset is reachable.
+- Identify inaccessible source-project Storage URLs.
+- Copy required assets into BombShelters-owned storage where authorized.
+- Preserve valid URLs when the asset is intentionally hosted externally.
+- Avoid duplicate uploads.
+- Preserve useful alt text and filenames.
+- Use safe image fallbacks for missing files.
+
+Do not fabricate storage paths.
+
+## Phase 8 — Database Security and Environment Isolation
+
+Verify that BombShelters uses its own Supabase project URL, anon key and server-only service-role key.
+
+Check:
+- Row Level Security
+- Server-side authorization
+- BombShelters admin access
+- Public read policies for published catalog content
+- Restricted writes for admin operations
+- Separation of customers, leads, quotations and sessions
+- No fallback connection to ModularHome production
+
+Do not expose cloned ModularHome customer records, sessions, leads or quotations on the public website.
+
+Do not copy or reuse production authentication sessions or secrets.
+
+Do not change the existing BombShelters authentication architecture without verifying its dependencies.
+
+## Phase 9 — Test and Validate
+
+Run tests in local or isolated staging environments.
 
 Validate:
+- Every navbar item and dropdown link.
+- Every product category and category count.
+- Product detail routes and slug resolution.
+- Product-to-collection relationships.
+- CMS and blog pages.
+- Pagination, filtering and search.
+- Product image availability.
+- SEO metadata for all public route types.
+- Canonical URLs and sitemap entries.
+- Redirect behavior and collision checks.
+- Missing or duplicate slugs.
+- Database relationship integrity.
+- Authentication and authorization.
+- TypeScript, linting, regression tests and production build.
 
-- Every navbar link opens the correct page.
-- Every public category shows the correct products.
-- Products are not duplicated unexpectedly.
-- Product detail pages use real Supabase data.
-- Every published product has a valid slug and URL.
-- Existing BombShelters URLs remain accessible.
-- Redirects work without loops.
-- Canonical URLs use the BombShelters domain.
-- Metadata is unique and valid.
-- Unpublished and irrelevant content is not indexed.
-- Images load correctly.
-- Pagination and filters work.
-- Missing data does not crash a page.
-- No ModularHome source or production data has been changed.
+A successful HTTP 200 response alone is not proof that a page is correctly integrated.
 
-Run TypeScript checks, linting, regression tests, and a production build using the project's existing scripts. Use read-only database checks first and safe staging tests for mutations.
+Do not run destructive tests or bulk updates against production.
 
-Do not mark a feature as passed merely because the route returns HTTP 200.
+## Required reports
 
-## 10. Required Deliverables
-
-Create these documents:
+Create or update:
 
 1. `bombshelters-app/docs/DATABASE_MAPPING_REPORT.md`
 2. `bombshelters-app/docs/NAVBAR_CATEGORY_MAPPING.md`
 3. `bombshelters-app/docs/SEO_URL_MIGRATION_REPORT.md`
 4. `bombshelters-app/docs/DATA_INTEGRATION_TEST_REPORT.md`
 
-Include:
+Report actual database counts, products mapped to each navbar category, excluded or ambiguous products, URL changes, redirect requirements, SEO coverage, broken media and unresolved schema issues.
 
-- Actual tables and columns discovered
-- Product and collection counts
-- Products assigned to each real navbar category
-- Unmatched and ambiguous products
-- Existing versus new URLs
-- Redirects required
-- SEO metadata coverage
-- Broken media references
-- Missing fields and schema incompatibilities
-- Test results and unresolved blockers
+Clearly distinguish verified results from assumptions.
 
 ## Execution Order
 
-Phase 1: Read-only inspection and reporting.
+1. Inspect and inventory the cloned database.
+2. Build the mapping plan and inspect existing SEO URLs.
+3. Verify category assignments and schema compatibility.
+4. Implement the data-access and frontend integration.
+5. Update BombShelters SEO metadata and URL mappings.
+6. Validate media, redirects and data integrity.
+7. Run tests and provide a final report.
 
-Phase 2: Approve the category mapping and URL migration plan.
-
-Phase 3: Implement the data-access layer and frontend integration.
-
-Phase 4: Validate SEO, redirects, images, and category assignments.
-
-Phase 5: Run tests and provide the final report.
-
-Start with Phase 1. Do not run destructive operations or bulk-update records until the mapping and migration plan have been reviewed.
+Begin with inspection. Do not re-import the entire database if it is already present. Do not make destructive changes, deploy, or modify ModularHome production.
