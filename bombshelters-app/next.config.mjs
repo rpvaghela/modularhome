@@ -2,17 +2,116 @@
 const nextConfig = {
   images: {
     remotePatterns: [
+      // Supabase Storage & CDNs
       {
         protocol: "https",
-        hostname: "images.unsplash.com",
+        hostname: "*.supabase.co",
       },
+      {
+        protocol: "https",
+        hostname: "*.supabase.in",
+      },
+      {
+        protocol: "https",
+        hostname: "*.supabase.net",
+      },
+
+      // Shopify CDN and subdomains
       {
         protocol: "https",
         hostname: "cdn.shopify.com",
       },
       {
         protocol: "https",
+        hostname: "*.shopify.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.myshopify.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.shopifycdn.com",
+      },
+
+      // Unsplash (Standard and Plus)
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "plus.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.unsplash.com",
+      },
+
+      // YouTube thumbnails
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.ytimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.youtube.com",
+      },
+
+      // Google User Content (OAuth profile pictures)
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.googleusercontent.com",
+      },
+
+      // Cloudinary & Pexels
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.pexels.com",
+      },
+
+      // Placeholder images
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
+      },
+      {
+        protocol: "https",
         hostname: "placehold.co",
+      },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
+
+      // Local / Custom domains
+      {
+        protocol: "https",
+        hostname: "*.bombshelters.com",
+      },
+      {
+        protocol: "https",
+        hostname: "bombshelters.com",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
       },
     ],
   },
