@@ -325,11 +325,11 @@ export function Header() {
 
                 {/* Dropdown Menu for "More" */}
                 {item.hasDropdown && activeDropdown === item.label && (
-                  <div className="absolute top-full right-0 w-[580px] max-w-[94vw] p-4 bg-[#16181b] border border-[#2a2d31] rounded-[4px] shadow-2xl z-50 text-white animate-in fade-in zoom-in-95 duration-150">
+                  <div className="absolute top-full right-0 w-[580px] max-w-[94vw] p-4 bg-white border border-gray-200/90 rounded-[6px] shadow-2xl z-50 text-[#0a0a0a] animate-in fade-in zoom-in-95 duration-150">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3">
                       {/* Column 1: Buyer Guides & Logistics */}
                       <div>
-                        <div className="text-[10px] font-display font-bold uppercase tracking-wider text-[#e11d1d] pb-1.5 border-b border-[#2a2d31] mb-2 flex items-center gap-1.5">
+                        <div className="text-[10px] font-display font-bold uppercase tracking-wider text-[#e11d1d] pb-1.5 border-b border-gray-100 mb-2 flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-[#e11d1d]" />
                           <span>Buyer Guides &amp; Logistics</span>
                         </div>
@@ -341,16 +341,16 @@ export function Header() {
                                 key={option.label}
                                 href={option.href}
                                 onClick={() => setActiveDropdown(null)}
-                                className="flex items-start gap-2.5 p-2 rounded hover:bg-white/5 text-[#cbd5e1] hover:text-white transition-colors group"
+                                className="flex items-start gap-2.5 p-2 rounded hover:bg-gray-50 text-[#334155] transition-colors group"
                               >
-                                <div className="p-1.5 rounded bg-white/5 text-[#e11d1d] group-hover:bg-[#e11d1d] group-hover:text-white transition-colors shrink-0 mt-0.5">
+                                <div className="p-1.5 rounded bg-red-50 text-[#e11d1d] group-hover:bg-[#e11d1d] group-hover:text-white transition-colors shrink-0 mt-0.5">
                                   <IconComponent className="w-3.5 h-3.5" />
                                 </div>
                                 <div className="min-w-0">
-                                  <div className="text-xs font-display font-bold uppercase tracking-wide text-white group-hover:text-[#e11d1d] leading-snug transition-colors">
+                                  <div className="text-xs font-display font-bold uppercase tracking-wide text-[#0a0a0a] group-hover:text-[#e11d1d] leading-snug transition-colors">
                                     {option.label}
                                   </div>
-                                  <div className="text-[10.5px] text-[#94a3b8] font-sans font-normal leading-tight mt-0.5 truncate">
+                                  <div className="text-[10.5px] text-gray-500 font-sans font-normal leading-tight mt-0.5 truncate">
                                     {option.desc}
                                   </div>
                                 </div>
@@ -362,8 +362,8 @@ export function Header() {
 
                       {/* Column 2: Services & Planning */}
                       <div>
-                        <div className="text-[10px] font-display font-bold uppercase tracking-wider text-[#94a3b8] pb-1.5 border-b border-[#2a2d31] mb-2 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#94a3b8]" />
+                        <div className="text-[10px] font-display font-bold uppercase tracking-wider text-gray-600 pb-1.5 border-b border-gray-100 mb-2 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
                           <span>Services &amp; Planning</span>
                         </div>
                         <div className="space-y-0.5">
@@ -374,16 +374,16 @@ export function Header() {
                                 key={option.label}
                                 href={option.href}
                                 onClick={() => setActiveDropdown(null)}
-                                className="flex items-start gap-2.5 p-2 rounded hover:bg-white/5 text-[#cbd5e1] hover:text-white transition-colors group"
+                                className="flex items-start gap-2.5 p-2 rounded hover:bg-gray-50 text-[#334155] transition-colors group"
                               >
-                                <div className="p-1.5 rounded bg-white/5 text-[#94a3b8] group-hover:bg-[#e11d1d] group-hover:text-white transition-colors shrink-0 mt-0.5">
+                                <div className="p-1.5 rounded bg-gray-100 text-gray-700 group-hover:bg-[#e11d1d] group-hover:text-white transition-colors shrink-0 mt-0.5">
                                   <IconComponent className="w-3.5 h-3.5" />
                                 </div>
                                 <div className="min-w-0">
-                                  <div className="text-xs font-display font-bold uppercase tracking-wide text-white group-hover:text-[#e11d1d] leading-snug transition-colors">
+                                  <div className="text-xs font-display font-bold uppercase tracking-wide text-[#0a0a0a] group-hover:text-[#e11d1d] leading-snug transition-colors">
                                     {option.label}
                                   </div>
-                                  <div className="text-[10.5px] text-[#94a3b8] font-sans font-normal leading-tight mt-0.5 truncate">
+                                  <div className="text-[10.5px] text-gray-500 font-sans font-normal leading-tight mt-0.5 truncate">
                                     {option.desc}
                                   </div>
                                 </div>
