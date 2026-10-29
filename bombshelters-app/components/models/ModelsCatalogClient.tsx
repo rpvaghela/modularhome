@@ -21,18 +21,20 @@ import { Button } from "@/components/ui/Button";
 
 const CATEGORIES = [
   "All Models",
-  "Bomb Shelters",
-  "Storm Shelters",
-  "Safe Rooms",
-  "Luxury Bunkers",
-  "Steel Framed Homes",
+  "Modular Homes",
   "Cabins",
   "Barndominiums",
   "House Kits",
   "Tiny Homes",
   "ADUs & Granny Pods",
   "A-Frames",
-  "Commercial",
+  "Prefab Homes",
+  "Park Models",
+  "Commercial Modular Buildings",
+  "Bomb Shelters",
+  "Storm Shelters",
+  "Safe Rooms",
+  "Luxury Bunkers",
 ];
 
 interface ModelsCatalogClientProps {
@@ -258,3 +260,4 @@ export function ModelsCatalogClient({ initialModels }: ModelsCatalogClientProps)
     </>
   );
 }
+

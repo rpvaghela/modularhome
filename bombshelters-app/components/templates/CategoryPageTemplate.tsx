@@ -10,7 +10,7 @@ import {
   HardHat,
   Award,
 } from "lucide-react";
-import { ProductModel } from "@/data/products";
+import { FEATURED_MODELS, ProductModel } from "@/data/products";
 import { SubPageHeader } from "@/components/ui/SubPageHeader";
 import { CtaBanner } from "@/components/ui/CtaBanner";
 import { Button } from "@/components/ui/Button";

@@ -333,11 +333,6 @@ export async function getBombShelterProducts(onlyActive = true): Promise<Extende
         query = query.eq("status", "active");
       }
 
-      // Filter out non-building accessory items from the main catalog
-      for (const excluded of EXCLUDED_PRODUCT_TYPES) {
-        query = query.neq("product_type", excluded);
-      }
-
       const { data, error } = await query;
 
       if (!error && Array.isArray(data) && data.length > 0) {
@@ -382,7 +377,7 @@ export async function getBombShelterProducts(onlyActive = true): Promise<Extende
 /**
  * Get products filtered by product_type matching a navbar category
  */
-export async function getProductsByCategory(productType: string, limit = 50): Promise<ExtendedProductModel[]> {
+export async function getProductsByCategory(productType: string, limit = 500): Promise<ExtendedProductModel[]> {
   if (isSupabaseConfigured()) {
     try {
       const { data, error } = await (supabaseAdmin || supabase)
@@ -410,7 +405,7 @@ export async function getProductsByCategory(productType: string, limit = 50): Pr
           product_media ( source_url, alt_text, position )
         `)
         .eq("status", "active")
-        .ilike("product_type", productType)
+        .ilike("product_type", `%${productType.trim()}%`)
         .order("starting_price", { ascending: true })
         .limit(limit);
 
@@ -434,7 +429,9 @@ export async function getProductsByCategory(productType: string, limit = 50): Pr
 export async function getBombShelterProductById(idOrSlug: string): Promise<ExtendedProductModel | null> {
   if (isSupabaseConfigured()) {
     try {
-      const { data, error } = await (supabaseAdmin || supabase)
+      const clean = idOrSlug.trim();
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clean);
+      let query = (supabaseAdmin || supabase)
         .from("products")
         .select(`
           id,
@@ -457,9 +454,15 @@ export async function getBombShelterProductById(idOrSlug: string): Promise<Exten
           seo_description,
           product_variants ( id, price, compare_at_price, sku, title ),
           product_media ( source_url, alt_text, position )
-        `)
-        .or(`handle.eq.${idOrSlug},id.eq.${idOrSlug}`)
-        .maybeSingle();
+        `);
+
+      if (isUuid) {
+        query = query.or(`handle.eq.${clean},id.eq.${clean}`);
+      } else {
+        query = query.or(`handle.eq.${clean},handle.ilike.${clean}`);
+      }
+
+      const { data, error } = await query.maybeSingle();
 
       if (!error && data) {
         return mapDatabaseRowToModel(data);
@@ -470,8 +473,8 @@ export async function getBombShelterProductById(idOrSlug: string): Promise<Exten
   }
 
   const all = await getBombShelterProducts(false);
-  const normalized = idOrSlug.toLowerCase();
-  return all.find((p) => p.id.toLowerCase() === normalized || p.id === idOrSlug) || null;
+  const normalized = idOrSlug.toLowerCase().trim();
+  return all.find((p) => p.id.toLowerCase() === normalized || p.id === idOrSlug || (p.slug && p.slug.toLowerCase() === normalized)) || null;
 }
 
 /**
