@@ -190,7 +190,7 @@ export function Header() {
 
       <div className="bg-white text-[#0a0a0a]">
         {/* Logo | search (fills the middle) | phone */}
-        <div className="site-container h-14 sm:h-[72px] lg:h-20 3xl:h-[100px] flex items-center justify-between gap-3 sm:gap-6 xl:gap-10 overflow-hidden">
+        <div className="site-container h-14 sm:h-[72px] lg:h-20 3xl:h-[100px] flex items-center justify-between gap-2 sm:gap-6 xl:gap-10">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <Link href="/" className="inline-block group">
@@ -224,7 +224,7 @@ export function Header() {
                     }
                   }}
                   // The spark sits above the lettering, so nudge up ~18% to centre the letters on the row
-                  className="h-6 xs:h-7 sm:h-9 lg:h-[46px] 3xl:h-[58px] w-auto max-w-[160px] xs:max-w-[200px] sm:max-w-none object-contain -translate-y-[18%] transition-transform group-hover:scale-[1.02]"
+                  className="h-7 xs:h-8 sm:h-9 lg:h-[46px] 3xl:h-[58px] w-auto max-w-[180px] xs:max-w-[220px] sm:max-w-none object-contain object-left transition-transform group-hover:scale-[1.02]"
                 />
               )}
             </Link>
