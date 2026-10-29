@@ -85,7 +85,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-[#0a0a0a] text-[#a1a1aa] text-[13px] border-t-2 border-[#e11d1d]">
+    <footer className="bg-[#0a0a0a] text-[#a1a1aa] text-[13px] border-t-2 border-[#e11d1d] overflow-hidden w-full">
       {/* ── Main Footer Grid ───────────────────────────────── */}
       <div className="site-container py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.4fr] gap-8">

@@ -14,7 +14,7 @@ export function TrustStrip() {
   };
 
   return (
-    <section className="bg-[#ffffff] border-y border-gray-200">
+    <section className="bg-[#ffffff] border-y border-gray-200 overflow-hidden w-full">
       <div className="site-container">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:divide-x divide-gray-200">
           {TRUST_STRIP_ITEMS.map((item) => (

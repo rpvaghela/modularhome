@@ -190,7 +190,7 @@ export function Header() {
 
       <div className="bg-white text-[#0a0a0a]">
         {/* Logo | search (fills the middle) | phone */}
-        <div className="site-container h-16 sm:h-[72px] lg:h-20 3xl:h-[100px] grid grid-cols-[1fr_auto] lg:grid-cols-[auto_1fr_auto] items-center gap-6 xl:gap-10">
+        <div className="site-container h-14 sm:h-[72px] lg:h-20 3xl:h-[100px] flex items-center justify-between gap-3 sm:gap-6 xl:gap-10 overflow-hidden">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <Link href="/" className="inline-block group">
@@ -224,7 +224,7 @@ export function Header() {
                     }
                   }}
                   // The spark sits above the lettering, so nudge up ~18% to centre the letters on the row
-                  className="h-8 sm:h-10 lg:h-[46px] 3xl:h-[58px] w-auto max-w-[60vw] object-contain -translate-y-[18%] transition-transform group-hover:scale-[1.02]"
+                  className="h-7 xs:h-8 sm:h-10 lg:h-[46px] 3xl:h-[58px] w-auto max-w-[50vw] sm:max-w-none object-contain -translate-y-[18%] transition-transform group-hover:scale-[1.02]"
                 />
               )}
             </Link>
@@ -265,11 +265,11 @@ export function Header() {
           </form>
 
           {/* Contact */}
-          <div className="justify-self-end flex items-center gap-2 sm:gap-4">
+          <div className="justify-self-end flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Red call button (same style as the site's primary buttons); icon-only on small screens */}
             <a
               href={`tel:${phoneDigits}`}
-              className="group/call inline-flex items-center justify-center gap-2.5 whitespace-nowrap h-10 w-10 md:w-auto lg:h-11 3xl:h-12 md:px-6 rounded-[6px] bg-[#e11d1d] hover:bg-[#c81414] text-white font-semibold text-[15px] 3xl:text-base shadow-[0_8px_20px_rgba(225,29,29,0.28)] hover:shadow-[0_10px_24px_rgba(225,29,29,0.38)] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e11d1d]"
+              className="group/call inline-flex items-center justify-center gap-2.5 whitespace-nowrap h-9 w-9 sm:h-10 sm:w-10 md:w-auto lg:h-11 3xl:h-12 md:px-6 rounded-[6px] bg-[#e11d1d] hover:bg-[#c81414] text-white font-semibold text-[15px] 3xl:text-base shadow-[0_8px_20px_rgba(225,29,29,0.28)] hover:shadow-[0_10px_24px_rgba(225,29,29,0.38)] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e11d1d]"
               aria-label={`Call ${phoneDisplay}`}
             >
               <Phone className="w-[18px] h-[18px] shrink-0" />

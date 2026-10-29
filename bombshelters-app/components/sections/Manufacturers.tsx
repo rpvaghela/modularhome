@@ -14,7 +14,7 @@ export function Manufacturers() {
   ];
 
   return (
-    <section id="manufacturers" className="bg-[#ffffff] text-[#0a0a0a] py-12 lg:py-14">
+    <section id="manufacturers" className="bg-[#ffffff] text-[#0a0a0a] py-10 sm:py-12 lg:py-14 overflow-hidden w-full">
       <div className="site-container">
         <SectionHeading
           title="Trusted Manufacturers"

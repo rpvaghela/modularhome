@@ -24,7 +24,7 @@ export function WhyChooseUs() {
   ];
 
   return (
-    <section id="why-choose" className="bg-[#ffffff] text-[#0a0a0a] py-14 lg:py-16 border-b border-gray-100">
+    <section id="why-choose" className="bg-[#ffffff] text-[#0a0a0a] py-10 sm:py-14 lg:py-16 border-b border-gray-100 overflow-hidden w-full">
       <div className="site-container">
         <SectionHeading
           title="Why Choose"

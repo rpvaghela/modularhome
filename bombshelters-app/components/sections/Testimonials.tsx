@@ -25,7 +25,7 @@ export async function Testimonials() {
   }
 
   return (
-    <section id="testimonials" className="bg-[#ffffff] text-[#0a0a0a] py-14 lg:py-16 border-b border-[#e2e8f0]">
+    <section id="testimonials" className="bg-[#ffffff] text-[#0a0a0a] py-10 sm:py-14 lg:py-16 border-b border-[#e2e8f0] overflow-hidden w-full">
       <div className="site-container">
         <SectionHeading
           title="Real Customers."

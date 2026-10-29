@@ -25,7 +25,7 @@ export async function FeaturedModels() {
   };
 
   return (
-    <section id="featured-models" className="bg-[#ffffff] text-[#0a0a0a] pb-14 lg:pb-16">
+    <section id="featured-models" className="bg-[#ffffff] text-[#0a0a0a] pb-10 sm:pb-14 lg:pb-16 overflow-hidden w-full">
       <div className="site-container">
         <SectionHeading
           title="Featured"

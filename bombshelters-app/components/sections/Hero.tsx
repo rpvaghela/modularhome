@@ -14,7 +14,7 @@ export function Hero() {
   ];
 
   return (
-    <section className="hero-fluid relative min-h-[560px] flex items-center lg:flex-col lg:items-stretch overflow-hidden bg-[#0a0a0a]">
+    <section className="hero-fluid relative min-h-[480px] sm:min-h-[560px] flex items-center lg:flex-col lg:items-stretch overflow-hidden bg-[#0a0a0a] w-full">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -23,35 +23,33 @@ export function Hero() {
           fill
           priority
           sizes="100vw"
-          // Slightly toned-down photo so the headline leads
           className="object-cover object-[70%_center] lg:object-center opacity-[0.82] saturate-[0.9]"
         />
         {/* Left-to-right fade behind the copy */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/55 via-45% to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 via-45% to-black/20" />
         {/* Soft fade under the nav and a deeper fade into the trust strip */}
         <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/60 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#0a0a0a] via-black/50 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         {/* Gentle vignette around the edges */}
         <div className="absolute inset-0 shadow-[inset_0_0_160px_rgba(0,0,0,0.55)]" />
       </div>
 
-
       {/* Same edge as the logo and nav (see .site-container). Desktop sizes scale off --hu (see .hero-fluid in globals.css) */}
-      <div className="hero-pad relative z-10 site-container py-10">
+      <div className="hero-pad relative z-10 site-container py-8 sm:py-10 w-full overflow-hidden">
         {/* Headline */}
-        <h1 className="hero-rise font-display font-bold uppercase leading-[0.92] tracking-[-0.01em] text-heavy max-w-[760px] lg:max-w-none">
-          <span className="hero-l1 block text-white text-[38px] sm:text-[56px] drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]">
+        <h1 className="hero-rise font-display font-bold uppercase leading-[0.95] tracking-tight max-w-[760px] lg:max-w-none">
+          <span className="hero-l1 block text-white text-[28px] xs:text-[34px] sm:text-[48px] lg:text-[56px] drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]">
             The World Is
           </span>
-          <span className="hero-l2 block text-[#ff1f1f] text-[44px] sm:text-[68px] drop-shadow-[0_0_30px_rgba(225,29,29,0.5)]">
+          <span className="hero-l2 block text-[#ff1f1f] text-[34px] xs:text-[42px] sm:text-[58px] lg:text-[68px] drop-shadow-[0_0_30px_rgba(225,29,29,0.5)] break-words">
             Unpredictable.
           </span>
-          <span className="hero-l3 block text-white text-[28px] sm:text-[42px] mt-1 drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]">
+          <span className="hero-l3 block text-white text-[20px] xs:text-[24px] sm:text-[36px] lg:text-[42px] mt-1 drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]">
             Your Family&apos;s Safety
           </span>
         </h1>
         <p
-          className="hero-rise hero-brush brush-underline font-brush normal-case -rotate-2 text-[#ff1f1f] text-[36px] sm:text-[52px] leading-none mt-1 ml-1 drop-shadow-[0_3px_10px_rgba(0,0,0,0.8)]"
+          className="hero-rise hero-brush brush-underline font-brush normal-case -rotate-2 text-[#ff1f1f] text-[24px] xs:text-[30px] sm:text-[44px] lg:text-[52px] leading-none mt-1 ml-1 drop-shadow-[0_3px_10px_rgba(0,0,0,0.8)]"
           style={{ animationDelay: "0.1s" }}
           aria-hidden="true"
         >
@@ -60,7 +58,7 @@ export function Hero() {
 
         {/* What we actually offer: the headline sets the mood, this line states the offer */}
         <p
-          className="hero-rise hero-sub mt-7 max-w-[34rem] text-[15px] sm:text-base leading-relaxed text-pretty text-white/80 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+          className="hero-rise hero-sub mt-5 sm:mt-7 max-w-[34rem] text-xs xs:text-sm sm:text-base leading-relaxed text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
           style={{ animationDelay: "0.15s" }}
         >
           Blast-rated bunkers, storm shelters and safe rooms from vetted American manufacturers, delivered and
@@ -69,15 +67,15 @@ export function Hero() {
 
         {/* Action Buttons: red leads, consultation is the quieter glass option */}
         <div
-          className="hero-rise hero-actions mt-7 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+          className="hero-rise hero-actions mt-6 sm:mt-7 flex flex-col xs:flex-row items-stretch xs:items-center gap-2.5 sm:gap-3 w-full sm:w-auto"
           style={{ animationDelay: "0.2s" }}
         >
-          <Button asLink href="#featured-models" size="lg" showArrow className="hero-cta text-sm px-7 py-3.5 border-2 border-[#e11d1d] hover:border-[#ff2b2b] shadow-redGlow">
+          <Button asLink href="#featured-models" size="lg" showArrow className="hero-cta text-xs sm:text-sm px-5 sm:px-7 py-3 sm:py-3.5 border-2 border-[#e11d1d] hover:border-[#ff2b2b] shadow-redGlow text-center justify-center">
             Explore Shelters
           </Button>
           <a
             href="#financing"
-            className="hero-cta inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-[4px] border-2 border-white/25 bg-white/[0.08] backdrop-blur-md hover:bg-white hover:border-white hover:text-[#0a0a0a] text-white font-display font-bold uppercase tracking-wider text-sm transition-colors"
+            className="hero-cta inline-flex items-center justify-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 rounded-[4px] border-2 border-white/25 bg-white/[0.08] backdrop-blur-md hover:bg-white hover:border-white hover:text-[#0a0a0a] text-white font-display font-bold uppercase tracking-wider text-xs sm:text-sm transition-colors text-center"
           >
             <CalendarCheck className="w-4 h-4" />
             <span>Request Consultation</span>
@@ -86,22 +84,21 @@ export function Hero() {
 
         {/* What the shelters protect against: small bordered glass boxes, square-cornered like the CTAs */}
         <div
-          className="hero-rise hero-threats mt-7 grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:items-center"
+          className="hero-rise hero-threats mt-6 sm:mt-7 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center max-w-full"
           style={{ animationDelay: "0.3s" }}
         >
           {threats.map(({ label, Icon }, i) => (
             <span
               key={label}
-              className="group/threat hero-threat hero-threat-box inline-flex items-center gap-2.5 px-3.5 py-2 rounded-[4px] bg-white/[0.06] border border-white/20 backdrop-blur-md text-sm font-semibold text-white hover:border-[#e11d1d]/60 hover:bg-[#e11d1d]/10 transition-colors"
+              className="group/threat hero-threat hero-threat-box flex items-center gap-1.5 xs:gap-2 px-2 xs:px-3 py-1.5 sm:py-2 rounded-[4px] bg-white/[0.08] border border-white/20 backdrop-blur-md text-[11px] xs:text-xs sm:text-sm font-semibold text-white hover:border-[#e11d1d]/60 hover:bg-[#e11d1d]/10 transition-colors truncate"
             >
-              {/* Slow staggered pulse (see .threat-pulse); a quick wiggle on hover */}
               <Icon
-                className="hero-threat-icon threat-pulse w-4 h-4 shrink-0 text-[#ff4d4d] group-hover/threat:animate-[threat-wiggle_0.5s_ease-in-out]"
+                className="hero-threat-icon threat-pulse w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-[#ff4d4d] group-hover/threat:animate-[threat-wiggle_0.5s_ease-in-out]"
                 style={{ animationDelay: `${i * 0.6}s` }}
                 strokeWidth={2}
                 aria-hidden="true"
               />
-              {label}
+              <span className="truncate">{label}</span>
             </span>
           ))}
         </div>

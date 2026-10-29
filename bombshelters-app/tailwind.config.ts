@@ -9,6 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       screens: {
+        xs: "420px",
         // Large desktop monitors; 2xl (1536) is also hit by 1920 laptops at 125% Windows scaling
         "3xl": "1800px",
       },
