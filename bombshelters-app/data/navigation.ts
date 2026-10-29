@@ -12,6 +12,7 @@ export interface MoreMenuOption {
 }
 
 export const NAV_ITEMS: NavItem[] = [
+  { label: "Bomb Shelters", href: "/bomb-shelters" },
   { label: "Modular Homes", href: "/modular-homes" },
   { label: "Prefab Homes", href: "/prefab-homes" },
   { label: "Barndominiums", href: "/barndominiums" },

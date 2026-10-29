@@ -12,6 +12,7 @@ const FOOTER_COLUMNS = [
     title: "Models & Shelters",
     links: [
       { label: "All Models Catalog", href: "/models" },
+      { label: "Bomb Shelters & Bunkers", href: "/bomb-shelters" },
       { label: "Modular Homes", href: "/modular-homes" },
       { label: "Steel Barndominiums", href: "/barndominiums" },
       { label: "Cabins & Retreats", href: "/cabins" },

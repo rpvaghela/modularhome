@@ -25,6 +25,41 @@ export interface CategoryConfig {
 }
 
 export const CATALOG_CATEGORIES: Record<string, CategoryConfig> = {
+  "bomb-shelters": {
+    id: "bomb-shelters",
+    label: "Bomb Shelters",
+    href: "/bomb-shelters",
+    productType: "Bomb Shelters",
+    badge: "MILITARY-GRADE NBC CERTIFIED",
+    headingTitle: "HARDENED UNDERGROUND BOMB SHELTERS &",
+    headingHighlight: "SURVIVAL BUNKERS",
+    description:
+      "Defcon-rated underground bomb shelters, nuclear fallout bunkers, and reinforced storm vaults engineered with heavy structural steel. Built to safeguard your family against blast waves, radiation, extreme weather, and civil collapse.",
+    metaTitle: "Underground Bomb Shelters & Survival Bunkers | BombShelters.com",
+    metaDescription:
+      "Explore American-engineered underground bomb shelters, NBC fallout bunkers, and ballistic safe rooms. Direct from the manufacturer with nationwide installation.",
+    keyPoints: [
+      {
+        title: "Military-Grade Blast Overpressure",
+        desc: "FEMA P-361 and 10-25 PSI blast-certified cold-formed structural steel hulls.",
+      },
+      {
+        title: "Positive Pressure NBC Life Support",
+        desc: "Swiss Lunor positive pressure air filtration scrubbing nuclear, biological, and chemical hazards.",
+      },
+      {
+        title: "Concealed Subterranean Egress",
+        desc: "Counter-weighted subsurface escape hatches and hidden secondary egress crawlways.",
+      },
+      {
+        title: "Off-Grid EMP-Protected Power",
+        desc: "Pre-wired for EMP-shielded solar, lithium battery arrays, and deep water storage.",
+      },
+    ],
+    displayOrder: 1,
+    featuredInNav: true,
+  },
+
   "modular-homes": {
     id: "modular-homes",
     label: "Modular Homes",
@@ -56,7 +91,7 @@ export const CATALOG_CATEGORIES: Record<string, CategoryConfig> = {
         desc: "Delivered in modular sections and locked onto foundation in 3 to 7 days.",
       },
     ],
-    displayOrder: 1,
+    displayOrder: 2,
     featuredInNav: true,
   },
 
@@ -392,8 +427,12 @@ export function getCategoryBySlug(slug: string): CategoryConfig | undefined {
 }
 
 export function getCategoryByProductType(productType: string): CategoryConfig | undefined {
+  const clean = productType.trim().toLowerCase();
+  if (clean.includes("bomb") || clean.includes("shelter") || clean.includes("bunker")) {
+    return CATALOG_CATEGORIES["bomb-shelters"];
+  }
   return CATEGORY_LIST.find(
-    (c) => c.productType.toLowerCase() === productType.trim().toLowerCase()
+    (c) => c.productType.toLowerCase() === clean
   );
 }
 

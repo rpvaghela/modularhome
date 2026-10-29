@@ -144,7 +144,7 @@ function mapDatabaseRowToModel(item: any): ExtendedProductModel {
       ? Number(item.starting_price)
       : rawVariants.length > 0
         ? Math.min(...rawVariants.map((v: any) => Number(v.price || 0)).filter((p: number) => p > 0))
-        : 49900;
+        : 0;
 
   const mainImage =
     item.primary_image_url ||
@@ -255,7 +255,7 @@ function mapDatabaseRowToModel(item: any): ExtendedProductModel {
     slug: item.handle || item.id,
     name: item.title,
     title: item.title,
-    price: `$${lowestPrice.toLocaleString()}`,
+    price: lowestPrice > 0 ? `$${lowestPrice.toLocaleString()}` : "Call for Quote",
     rawPrice: lowestPrice,
     status: item.status || "active",
     isPublished: item.status === "active",
@@ -380,7 +380,7 @@ export async function getBombShelterProducts(onlyActive = true): Promise<Extende
 export async function getProductsByCategory(productType: string, limit = 500): Promise<ExtendedProductModel[]> {
   if (isSupabaseConfigured()) {
     try {
-      const { data, error } = await (supabaseAdmin || supabase)
+      let query = (supabaseAdmin || supabase)
         .from("products")
         .select(`
           id,
@@ -404,10 +404,23 @@ export async function getProductsByCategory(productType: string, limit = 500): P
           product_variants ( id, price, compare_at_price, sku, title ),
           product_media ( source_url, alt_text, position )
         `)
-        .eq("status", "active")
-        .ilike("product_type", `%${productType.trim()}%`)
-        .order("starting_price", { ascending: true })
+        .eq("status", "active");
+
+      const cleanType = productType.trim().toLowerCase();
+      if (cleanType.includes("bomb") || cleanType.includes("shelter") || cleanType.includes("bunker")) {
+        query = query.or("product_type.ilike.%Bomb%,product_type.ilike.%Shelter%,product_type.ilike.%Bunker%,title.ilike.%Shelter%,title.ilike.%Bunker%,title.ilike.%Bomb%");
+      } else if (cleanType.includes("prefab")) {
+        // Prefab Homes matches both Prefab and Modular prefabricated turnkey models
+        query = query.or("product_type.ilike.%Prefab%,product_type.ilike.%Modular%,title.ilike.%Prefab%,handle.ilike.%Prefab%");
+      } else {
+        query = query.ilike("product_type", `%${productType.trim()}%`);
+      }
+
+      query = query
+        .order("starting_price", { ascending: true, nullsFirst: false })
         .limit(limit);
+
+      const { data, error } = await query;
 
       if (!error && Array.isArray(data) && data.length > 0) {
         return data.map(mapDatabaseRowToModel);

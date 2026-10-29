@@ -138,14 +138,29 @@ export function CategoryPageTemplate({
                         {model.name}
                       </h3>
                       <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">
-                        {(model.description || "").replace(/<[^>]*>/g, "")}
+                        {(model.description || "")
+                          .replace(/<[^>]*>/g, " ")
+                          .replace(/&amp;/g, "&")
+                          .replace(/&nbsp;/g, " ")
+                          .replace(/&#39;/g, "'")
+                          .replace(/&quot;/g, '"')
+                          .replace(/\s+/g, " ")
+                          .trim()}
                       </p>
 
                       <div className="mt-3 flex items-baseline gap-1">
-                        <span className="text-xs text-gray-400">Turnkey from</span>
-                        <span className="font-display font-black text-xl text-[#e11d1d]">
-                          {model.price}
-                        </span>
+                        {model.rawPrice > 0 ? (
+                          <>
+                            <span className="text-xs text-gray-400">Turnkey from</span>
+                            <span className="font-display font-black text-xl text-[#e11d1d]">
+                              {model.price}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="font-display font-bold text-sm text-[#e11d1d] uppercase tracking-wide">
+                            Call for Quote
+                          </span>
+                        )}
                       </div>
 
                       <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600">

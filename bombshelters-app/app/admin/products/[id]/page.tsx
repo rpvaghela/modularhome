@@ -18,8 +18,10 @@ import ImageUpload, { GalleryUpload } from "@/components/admin/ImageUpload";
 import { getProductUrl } from "@/utils/productUrls";
 
 function normalizeToCanonicalCategory(cat?: string | null): string {
-  if (!cat) return "Modular Homes";
+  if (!cat) return "Bomb Shelters";
+
   const c = cat.toLowerCase().trim();
+  if (c.includes("bomb") || c.includes("shelter") || c.includes("bunker")) return "Bomb Shelters";
   if (c.includes("furniture") || c.includes("cabinet") || c.includes("table") || c.includes("decor")) return "Furniture & Accessories";
   if (c.includes("barndo")) return "Barndominiums";
   if (c.includes("cabin")) return "Cabins";
@@ -221,6 +223,7 @@ export default function AdminEditProductPage() {
                   onChange={(e) => setProduct({ ...product, category: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e11d1d]"
                 >
+                  <option value="Bomb Shelters">Bomb Shelters</option>
                   <option value="Modular Homes">Modular Homes</option>
                   <option value="Prefab Homes">Prefab Homes</option>
                   <option value="Barndominiums">Barndominiums</option>

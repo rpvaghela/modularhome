@@ -301,7 +301,7 @@ export function Header() {
               >
                 <Link
                   href={item.href}
-                  className={`relative flex items-center gap-1 px-1.5 xl:px-2 text-[11px] xl:text-[11.5px] 2xl:text-[12px] 3xl:text-[13.5px] font-display font-bold tracking-[0.06em] uppercase whitespace-nowrap transition-colors hover:text-white after:absolute after:inset-x-1.5 xl:after:inset-x-2 after:bottom-0 after:h-[2px] after:bg-[#e11d1d] after:origin-left after:transition-transform after:duration-200 group-hover:after:scale-x-100 ${
+                  className={`relative flex items-center gap-0.5 xl:gap-1 px-1 xl:px-1.5 2xl:px-2 text-[10px] xl:text-[11px] 2xl:text-[12px] 3xl:text-[13px] font-display font-bold tracking-[0.04em] xl:tracking-[0.06em] uppercase whitespace-nowrap transition-colors hover:text-white after:absolute after:inset-x-1 xl:after:inset-x-1.5 after:bottom-0 after:h-[2px] after:bg-[#e11d1d] after:origin-left after:transition-transform after:duration-200 group-hover:after:scale-x-100 ${
                     item.href !== "/" && pathname?.startsWith(item.href)
                       ? "text-white after:scale-x-100"
                       : "text-white/85 after:scale-x-0"
