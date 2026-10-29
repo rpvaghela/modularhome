@@ -95,7 +95,7 @@ export function Footer() {
             <Link href="/" className="inline-block group">
               {/* 3D logo straight on black; a thin light outline keeps the dark "SHELTERS" readable */}
               <Image
-                src="/bomb_logo_trim.png"
+                src="/bombshelters-logo-header.png"
                 alt="BombShelters.com"
                 width={2118}
                 height={409}
