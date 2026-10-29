@@ -86,7 +86,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-[#0a0a0a] text-[#a1a1aa] text-[13px] border-t-2 border-[#e11d1d] overflow-hidden w-full">
+    <footer className="bg-[#CFCFCF] text-[#27272a] text-[13px] border-t-2 border-[#e11d1d] overflow-hidden w-full">
       {/* ── Main Footer Grid ───────────────────────────────── */}
       <div className="site-container py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.4fr] gap-8">
@@ -100,13 +100,13 @@ export function Footer() {
                 width={2118}
                 height={409}
                 unoptimized
-                className="h-11 w-auto object-contain [filter:drop-shadow(0_0_1px_rgba(255,255,255,0.7))_drop-shadow(0_0_0.5px_rgba(255,255,255,0.5))] transition-transform group-hover:scale-[1.02]"
+                className="h-11 w-auto object-contain transition-transform group-hover:scale-[1.02]"
               />
-              <span className="block text-[9px] font-display font-semibold uppercase tracking-[0.12em] whitespace-nowrap text-[#71717a] mt-1.5">
+              <span className="block text-[9px] font-display font-semibold uppercase tracking-[0.12em] whitespace-nowrap text-[#52525b] mt-1.5">
                 Bunkers. Cabins. A Stronger Tomorrow.
               </span>
             </Link>
-            <p className="leading-relaxed max-w-xs text-xs text-gray-400">
+            <p className="leading-relaxed max-w-xs text-xs text-[#3f3f46]">
               America&apos;s premier direct manufacturer network for certified blast-resistant bomb shelters, tornado bunkers, and hardened modular homes.
             </p>
             <div className="flex items-center gap-2">
@@ -117,7 +117,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="w-9 h-9 rounded-full bg-[#16181b] border border-[#2a2d31] flex items-center justify-center text-white hover:bg-[#e11d1d] hover:border-[#e11d1d] transition-colors"
+                  className="w-9 h-9 rounded-full bg-white/80 border border-gray-400/80 flex items-center justify-center text-[#0a0a0a] hover:bg-[#e11d1d] hover:border-[#e11d1d] hover:text-white transition-colors shadow-xs"
                 >
                   <Icon className="w-4 h-4" />
                 </a>
@@ -128,7 +128,7 @@ export function Footer() {
           {/* Link Columns */}
           {FOOTER_COLUMNS.map((col) => (
             <div key={col.title} className="space-y-3">
-              <h4 className="font-display font-bold text-white uppercase tracking-wider text-xs">
+              <h4 className="font-display font-bold text-[#0a0a0a] uppercase tracking-wider text-xs">
                 {col.title}
               </h4>
               <ul className="space-y-2">
@@ -136,7 +136,7 @@ export function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-xs text-gray-400 hover:text-[#e11d1d] transition-colors"
+                      className="text-xs text-[#3f3f46] hover:text-[#e11d1d] transition-colors font-medium"
                     >
                       {link.label}
                     </Link>
@@ -148,25 +148,25 @@ export function Footer() {
 
           {/* Contact & Dispatch */}
           <div className="col-span-2 md:col-span-1 space-y-3">
-            <h4 className="font-display font-bold text-white uppercase tracking-wider text-xs">
+            <h4 className="font-display font-bold text-[#0a0a0a] uppercase tracking-wider text-xs">
               Direct Dispatch
             </h4>
             <div className="space-y-2.5 text-xs">
               <a
                 href={`tel:${phone}`}
-                className="flex items-center gap-2 text-white hover:text-[#e11d1d] transition-colors font-semibold"
+                className="flex items-center gap-2 text-[#0a0a0a] hover:text-[#e11d1d] transition-colors font-semibold"
               >
                 <Phone className="w-4 h-4 text-[#e11d1d] shrink-0" />
                 <span>{phone}</span>
               </a>
               <a
                 href={`mailto:${email}`}
-                className="flex items-center gap-2 text-gray-400 hover:text-[#e11d1d] transition-colors"
+                className="flex items-center gap-2 text-[#3f3f46] hover:text-[#e11d1d] transition-colors"
               >
                 <Mail className="w-4 h-4 text-[#e11d1d] shrink-0" />
                 <span>{email}</span>
               </a>
-              <div className="flex items-center gap-2 text-gray-400">
+              <div className="flex items-center gap-2 text-[#3f3f46]">
                 <Clock className="w-4 h-4 text-[#e11d1d] shrink-0" />
                 <span>Mon – Sat: 8AM – 7PM EST</span>
               </div>
@@ -182,37 +182,37 @@ export function Footer() {
       </div>
 
       {/* ── Bottom Legal Bar ───────────────────────────────── */}
-      <div className="border-t border-[#1f2226]">
-        <div className="site-container py-5 flex flex-col lg:flex-row items-center justify-between gap-4 text-xs text-gray-400">
+      <div className="border-t border-[#b8b8b8]">
+        <div className="site-container py-5 flex flex-col lg:flex-row items-center justify-between gap-4 text-xs text-[#3f3f46]">
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11.5px]">
-            <Link href="/privacy-policy" className="hover:text-white transition-colors">
+            <Link href="/privacy-policy" className="hover:text-[#0a0a0a] transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms-of-service" className="hover:text-white transition-colors">
+            <Link href="/terms-of-service" className="hover:text-[#0a0a0a] transition-colors">
               Terms of Service
             </Link>
-            <Link href="/shipping-delivery-policy" className="hover:text-white transition-colors">
+            <Link href="/shipping-delivery-policy" className="hover:text-[#0a0a0a] transition-colors">
               Shipping &amp; Delivery Policy
             </Link>
-            <Link href="/refund-cancellation-policy" className="hover:text-white transition-colors">
+            <Link href="/refund-cancellation-policy" className="hover:text-[#0a0a0a] transition-colors">
               Refund &amp; Cancellation
             </Link>
-            <Link href="/warranty" className="hover:text-white transition-colors">
+            <Link href="/warranty" className="hover:text-[#0a0a0a] transition-colors">
               Lifetime Warranty
             </Link>
-            <Link href="/accessibility" className="hover:text-white transition-colors">
+            <Link href="/accessibility" className="hover:text-[#0a0a0a] transition-colors">
               Accessibility
             </Link>
           </div>
 
-          <div className="flex items-center gap-2 text-white text-xs">
+          <div className="flex items-center gap-2 text-[#0a0a0a] text-xs">
             <ShieldCheck className="w-4 h-4 text-[#e11d1d]" />
             <span className="font-display font-semibold uppercase tracking-wider">
               Built for a Stronger Tomorrow.
             </span>
           </div>
         </div>
-        <p className="text-center text-[11px] text-[#71717a] pb-5">
+        <p className="text-center text-[11px] text-[#52525b] pb-5">
           &copy; 2026 BombShelters.com. All rights reserved.
         </p>
       </div>

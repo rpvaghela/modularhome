@@ -34,3 +34,4 @@ async function updatePrefab() {
 }
 
 updatePrefab().catch(console.error);
+
