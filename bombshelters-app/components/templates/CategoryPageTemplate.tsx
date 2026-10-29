@@ -127,7 +127,7 @@ export function CategoryPageTemplate({
                       {model.name}
                     </h3>
                     <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">
-                      {model.description}
+                      {(model.description || "").replace(/<[^>]*>/g, "")}
                     </p>
 
                     <div className="mt-3 flex items-baseline gap-1">

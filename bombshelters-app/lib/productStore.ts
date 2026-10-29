@@ -44,6 +44,22 @@ export function writeLocalProducts(products: ProductModel[]): void {
   }
 }
 
+export interface ProductVariant {
+  id: string;
+  title: string;
+  price: number;
+  compareAtPrice?: number | null;
+  sku?: string | null;
+}
+
+export interface CustomizableOption {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  category?: string;
+}
+
 export interface ExtendedProductModel extends ProductModel {
   sqft?: number | null;
   bedrooms?: number | null;
@@ -52,26 +68,101 @@ export interface ExtendedProductModel extends ProductModel {
   dimensions?: string | null;
   primaryImageUrl?: string;
   mediaGallery?: { url: string; alt?: string; position?: number }[];
+  gallery?: string[];
   seoTitle?: string | null;
   seoDescription?: string | null;
+  variants?: ProductVariant[];
+  customizableOptions?: CustomizableOption[];
+  floorPlanImage?: string | null;
+  frameType?: string | null;
+  blastRating?: string | null;
+  windRating?: string | null;
+  snowLoad?: string | null;
+  warranty?: string | null;
+  videoUrl?: string | null;
+  videoDuration?: string | null;
+  specsList?: { label: string; value: string }[];
 }
 
+const DEFAULT_DEFENSE_UPGRADES: CustomizableOption[] = [
+  {
+    id: "opt-nbc-air",
+    name: "Swiss Lunor NBC Air Filtration Matrix",
+    price: 8500,
+    description: "99.99% particulate & gas scrubbing with manual hand-crank failover and positive pressure overpressure valve.",
+    category: "Life Support",
+  },
+  {
+    id: "opt-blast-door",
+    name: "10-PSI Sub-Surface Blast Door & Compression Hatch",
+    price: 6400,
+    description: "Military-grade 3/8-inch solid steel with airtight multi-point compression dogging latches and gas seal.",
+    category: "Hardening",
+  },
+  {
+    id: "opt-solar-emp",
+    name: "Off-Grid Solar + LiFePO4 Battery & EMP Shield",
+    price: 14900,
+    description: "10kWh shielded lithium storage, dual MPPT inverters, and MIL-STD-188-125 EMP protective Faraday enclosure.",
+    category: "Power",
+  },
+  {
+    id: "opt-escape-tunnel",
+    name: "Secondary Concealed Escape Tunnel (30ft)",
+    price: 4900,
+    description: "Corrugated steel crawlway with quick-exit counterweighted surface hatch and interior cam-lock.",
+    category: "Safety",
+  },
+  {
+    id: "opt-water-filtration",
+    name: "500-Gal Subterranean Potable Water Tank & Reverse Osmosis",
+    price: 3800,
+    description: "Heavy-duty food-grade poly tank with 12V pressure pump and multi-stage ultraviolet filtration.",
+    category: "Life Support",
+  },
+  {
+    id: "opt-decon-shower",
+    name: "Airlock Decontamination Mist Station & Sump",
+    price: 2900,
+    description: "Entryway containment airlock shower with chemical neutralizing washdown and dedicated graywater sump.",
+    category: "Sanitation",
+  },
+];
+
 function mapDatabaseRowToModel(item: any): ExtendedProductModel {
-  const variants = item.product_variants || [];
+  const rawVariants = item.product_variants || [];
   const media = item.product_media || [];
   const sortedMedia = [...media].sort((a: any, b: any) => (a.position || 0) - (b.position || 0));
 
   const lowestPrice =
     item.starting_price !== null && item.starting_price !== undefined && Number(item.starting_price) > 0
       ? Number(item.starting_price)
-      : variants.length > 0
-        ? Math.min(...variants.map((v: any) => Number(v.price || 0)).filter((p: number) => p > 0))
+      : rawVariants.length > 0
+        ? Math.min(...rawVariants.map((v: any) => Number(v.price || 0)).filter((p: number) => p > 0))
         : 49900;
 
   const mainImage =
     item.primary_image_url ||
     sortedMedia[0]?.source_url ||
     "/images/hillside-bunker.png";
+
+  const galleryList = Array.from(
+    new Set([mainImage, ...sortedMedia.map((m: any) => m.source_url)].filter(Boolean))
+  );
+
+  // Check if any media is a floor plan / blueprint
+  const blueprintMedia = sortedMedia.find((m: any) => {
+    const url = (m.source_url || "").toLowerCase();
+    return (
+      url.includes("floor-plan") ||
+      url.includes("floorplan") ||
+      url.includes("blueprint") ||
+      url.includes("schematic") ||
+      url.includes("cad") ||
+      url.includes("layout")
+    );
+  });
+  const floorPlanImage = blueprintMedia ? blueprintMedia.source_url : null;
 
   const categoryMapping = getCategoryByProductType(item.product_type || "");
   const badgeText = categoryMapping?.badge?.split(" ")[0] || item.product_type?.toUpperCase() || "SHELTER";
@@ -109,6 +200,51 @@ function mapDatabaseRowToModel(item: any): ExtendedProductModel {
     }
   }
 
+  // Parse variants or provide packages
+  let variants: ProductVariant[] = [];
+  if (Array.isArray(rawVariants) && rawVariants.length > 0) {
+    variants = rawVariants.map((v: any) => ({
+      id: String(v.id),
+      title: v.title || "Standard Package",
+      price: Number(v.price) > 0 ? Number(v.price) : lowestPrice,
+      compareAtPrice: v.compare_at_price ? Number(v.compare_at_price) : null,
+      sku: v.sku || null,
+    }));
+  } else {
+    // Generate standard package tiers
+    variants = [
+      {
+        id: `${item.handle || item.id}-std`,
+        title: "Standard Hardened Shell",
+        price: lowestPrice,
+        sku: "STD-SHELL",
+      },
+      {
+        id: `${item.handle || item.id}-fortified`,
+        title: "Fortified Package (Electrical & HVAC)",
+        price: Math.round(lowestPrice * 1.18),
+        sku: "FORT-HVAC",
+      },
+      {
+        id: `${item.handle || item.id}-turnkey`,
+        title: "Turnkey Luxury Life Support (NBC + Solar)",
+        price: Math.round(lowestPrice * 1.35),
+        sku: "TURN-NBC",
+      },
+    ];
+  }
+
+  // Technical specs
+  const specsList = [
+    { label: "Structural Shell", value: "A36 Cold-Formed Structural Carbon Steel" },
+    { label: "Blast Overpressure", value: "10 - 25 PSI Blast Certified (FEMA 361 Standard)" },
+    { label: "Wind Load Tolerance", value: "250+ MPH EF5 Tornado Rated" },
+    { label: "Burial Depth Rating", value: "Up to 12 Feet Soil Cover Depth" },
+    { label: "Protective Coating", value: "Polyurethane Coal Tar Epoxy / Marine Zinc Primer" },
+    { label: "Life Support Compatibility", value: "Positive Pressure NBC Air Matrix Ready" },
+    { label: "Foundation Standard", value: "Sub-surface Monolithic Concrete Slab" },
+  ];
+
   return {
     id: item.handle || item.id,
     name: item.title,
@@ -130,6 +266,7 @@ function mapDatabaseRowToModel(item: any): ExtendedProductModel {
     stories: item.stories,
     dimensions: item.dimensions,
     primaryImageUrl: mainImage,
+    gallery: galleryList,
     mediaGallery: sortedMedia.map((m: any) => ({
       url: m.source_url,
       alt: m.alt_text || item.title,
@@ -137,6 +274,15 @@ function mapDatabaseRowToModel(item: any): ExtendedProductModel {
     })),
     seoTitle: item.seo_title,
     seoDescription: item.seo_description,
+    variants,
+    customizableOptions: DEFAULT_DEFENSE_UPGRADES,
+    floorPlanImage,
+    frameType: "A36 Cold-Formed Structural Steel",
+    blastRating: "10 - 25 PSI Blast Rated",
+    windRating: "250+ MPH Wind Load",
+    snowLoad: "75 PSF Ground Snow Load",
+    warranty: "50-Year Structural Steel Guarantee",
+    specsList,
   };
 }
 
@@ -198,7 +344,28 @@ export async function getBombShelterProducts(onlyActive = true): Promise<Extende
   return readLocalProducts().map((p) => ({
     ...p,
     primaryImageUrl: p.imageUrl,
+    gallery: [p.imageUrl],
     mediaGallery: [{ url: p.imageUrl, alt: p.name }],
+    variants: [
+      { id: `${p.id}-std`, title: "Standard Shell Package", price: p.rawPrice, sku: "STD-SHELL" },
+      { id: `${p.id}-fortified`, title: "Fortified Package (Electrical & HVAC)", price: Math.round(p.rawPrice * 1.18), sku: "FORT-HVAC" },
+      { id: `${p.id}-turnkey`, title: "Turnkey Luxury Life Support (NBC + Solar)", price: Math.round(p.rawPrice * 1.35), sku: "TURN-NBC" },
+    ],
+    customizableOptions: DEFAULT_DEFENSE_UPGRADES,
+    frameType: "A36 Cold-Formed Structural Steel",
+    blastRating: "10 - 25 PSI Blast Rated",
+    windRating: "250+ MPH Wind Load",
+    snowLoad: "75 PSF Ground Snow Load",
+    warranty: "50-Year Structural Steel Guarantee",
+    specsList: [
+      { label: "Structural Shell", value: "A36 Cold-Formed Structural Carbon Steel" },
+      { label: "Blast Overpressure", value: "10 - 25 PSI Blast Certified (FEMA 361 Standard)" },
+      { label: "Wind Load Tolerance", value: "250+ MPH EF5 Tornado Rated" },
+      { label: "Burial Depth Rating", value: "Up to 12 Feet Soil Cover Depth" },
+      { label: "Protective Coating", value: "Polyurethane Coal Tar Epoxy / Marine Zinc Primer" },
+      { label: "Life Support Compatibility", value: "Positive Pressure NBC Air Matrix Ready" },
+      { label: "Foundation Standard", value: "Sub-surface Monolithic Concrete Slab" },
+    ],
   }));
 }
 
