@@ -230,7 +230,7 @@ export function FinancingSection() {
     hasError ? "border-[#e11d1d]" : "border-white/15 hover:border-white/25 focus:border-[#e11d1d]";
 
   return (
-    <section id="financing" className="bg-[#ffffff] py-12 lg:py-16">
+    <section id="financing" className="bg-[#CFCFCF] py-12 lg:py-16">
       <div className="site-container">
         <div className="relative rounded-3xl overflow-hidden bg-[#0a0a0a] p-8 sm:p-12 lg:p-16 shadow-2xl">
           {/* Family at sunset backdrop */}

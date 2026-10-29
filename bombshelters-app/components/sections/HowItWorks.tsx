@@ -12,7 +12,7 @@ export function HowItWorks() {
   };
 
   return (
-    <section id="how-it-works" className="bg-[#ffffff] text-[#0a0a0a] py-10 sm:py-14 lg:py-16 overflow-hidden w-full">
+    <section id="how-it-works" className="bg-[#CFCFCF] text-[#0a0a0a] py-10 sm:py-14 lg:py-16 overflow-hidden w-full">
       <div className="site-container">
         <SectionHeading
           title="How It"
