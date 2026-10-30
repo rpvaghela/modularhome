@@ -86,7 +86,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-[#ffffff] text-[#27272a] text-[13px] border-t-2 border-[#e11d1d] overflow-hidden w-full">
+    <footer className="bg-[#f8f6f1] text-[#27272a] text-[13px] border-t-2 border-[#e11d1d] overflow-hidden w-full">
       {/* ── Main Footer Grid ───────────────────────────────── */}
       <div className="site-container py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.4fr] gap-8">
@@ -117,7 +117,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="w-9 h-9 rounded-full bg-[#f4f4f5] border border-[#e4e4e7] flex items-center justify-center text-[#0a0a0a] hover:bg-[#e11d1d] hover:border-[#e11d1d] hover:text-white transition-colors shadow-xs"
+                  className="w-9 h-9 rounded-full bg-white border border-[#e7e3da] flex items-center justify-center text-[#0a0a0a] hover:bg-[#e11d1d] hover:border-[#e11d1d] hover:text-white transition-colors shadow-xs"
                 >
                   <Icon className="w-4 h-4" />
                 </a>
@@ -182,7 +182,7 @@ export function Footer() {
       </div>
 
       {/* ── Bottom Legal Bar ───────────────────────────────── */}
-      <div className="border-t border-[#e4e4e7]">
+      <div className="border-t border-[#e7e3da]">
         <div className="site-container py-5 flex justify-center text-xs text-[#3f3f46]">
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11.5px]">
             <Link href="/privacy-policy" className="hover:text-[#0a0a0a] transition-colors">

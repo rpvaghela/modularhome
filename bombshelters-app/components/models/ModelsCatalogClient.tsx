@@ -93,7 +93,7 @@ export function ModelsCatalogClient({ initialModels }: ModelsCatalogClientProps)
         breadcrumbs={[{ label: "Models Catalog" }]}
       />
 
-      <section className="bg-[#ffffff] text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container">
           {/* Controls Bar */}
           <div className="flex flex-col lg:flex-row items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-200">

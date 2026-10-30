@@ -15,7 +15,7 @@ const config: Config = {
       },
       colors: {
         // Off-white page background for light sections (cards stay pure white on top)
-        paper: "#ffffff",
+        paper: "#FFFFFF", // pure white page background
         background: "#ffffff",
         surface: {
           DEFAULT: "#ffffff",

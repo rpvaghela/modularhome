@@ -62,7 +62,7 @@ export default async function FloorPlanDetailPage({ params }: PageProps) {
         ]}
       />
 
-      <section className="bg-[#ffffff] text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container max-w-5xl">
           {/* Main Blueprint Viewer Box */}
           <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-gray-950 border border-gray-200 shadow-2xl mb-12 group">
