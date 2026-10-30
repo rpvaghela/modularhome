@@ -77,7 +77,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
         ]}
       />
 
-      <section className="bg-[#ffffff] text-[#0a0a0a] py-16">
+      <section className="bg-paper text-[#0a0a0a] py-16">
         <div className="site-container">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-10 pb-4 border-b border-gray-200">
             <div>
