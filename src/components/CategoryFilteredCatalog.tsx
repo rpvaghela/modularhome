@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useMemo, useEffect, ChangeEvent } from "react";
+import { useState, useMemo, useEffect, useRef, ChangeEvent } from "react";
 import { 
   Search, 
   X, 
   RotateCcw, 
   Building2, 
-  ChevronDown 
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import BuildingCard from "@/components/BuildingCard";
@@ -312,8 +314,57 @@ export default function CategoryFilteredCatalog({
     setMinSqft(0);
   };
 
+  const PRODUCTS_PER_PAGE = 18;
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const catalogRef = useRef<HTMLDivElement>(null);
+
+  // Reset to page 1 whenever any filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    selectedCategory,
+    selectedStyle,
+    searchQuery,
+    bedroomFilter,
+    bathroomFilter,
+    storiesFilter,
+    minSqft,
+    budgetFilter,
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const paginatedProducts = useMemo(() => {
+    const start = (safePage - 1) * PRODUCTS_PER_PAGE;
+    return filteredProducts.slice(start, start + PRODUCTS_PER_PAGE);
+  }, [filteredProducts, safePage]);
+
+  const pageNumbers = useMemo(() => {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (safePage > 4) pages.push("...");
+      const start = Math.max(2, safePage - 1);
+      const end = Math.min(totalPages - 1, safePage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (safePage < totalPages - 3) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  }, [totalPages, safePage]);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    if (catalogRef.current) {
+      catalogRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <div ref={catalogRef} className="space-y-4 scroll-mt-24">
       {/* Search & Advanced Filters Container */}
       <div className="p-4 sm:p-5 border border-gray-200 bg-[#f8f9fa] rounded-2xl shadow-xs space-y-3.5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -491,36 +542,110 @@ export default function CategoryFilteredCatalog({
       {/* Results Counter & Active Status Bar */}
       <div className="py-1 flex items-center justify-between text-xs text-gray-500 border-b border-gray-200/80 pb-3.5">
         <div>
-          Showing <span className="text-[#101114] font-extrabold">{filteredProducts.length}</span> of {catalogPool.length} models
+          Showing{" "}
+          <span className="text-[#101114] font-extrabold">
+            {filteredProducts.length === 0
+              ? 0
+              : `${(safePage - 1) * PRODUCTS_PER_PAGE + 1} – ${Math.min(safePage * PRODUCTS_PER_PAGE, filteredProducts.length)}`}
+          </span>{" "}
+          of <span className="text-[#101114] font-extrabold">{filteredProducts.length}</span> models
           {selectedCategory !== "All" && (
             <span className="ml-1 text-[#d97706] font-bold">
               in {selectedCategory}
             </span>
           )}
         </div>
-        {isFiltered && (
-          <span className="text-[#d97706] font-bold text-[11px] sm:text-xs">
-            Filtered results active
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {totalPages > 1 && (
+            <span className="text-gray-500 font-medium">
+              Page <strong className="text-[#101114]">{safePage}</strong> of {totalPages}
+            </span>
+          )}
+          {isFiltered && (
+            <span className="text-[#d97706] font-bold text-[11px] sm:text-xs">
+              Filtered results active
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Product Catalog Grid */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 pt-1">
-          {filteredProducts.map((model: BuildingModel) => {
-            const activeCatSlug = selectedCategory !== "All" 
-              ? (CATEGORY_ROUTE_MAP[selectedCategory] || `/${selectedCategory.toLowerCase()}`).replace(/^\//, "")
-              : categoryKey;
-            return (
-              <BuildingCard
-                key={model.id}
-                model={model}
-                categorySlug={activeCatSlug}
-              />
-            );
-          })}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 pt-1">
+            {paginatedProducts.map((model: BuildingModel) => {
+              const activeCatSlug = selectedCategory !== "All" 
+                ? (CATEGORY_ROUTE_MAP[selectedCategory] || `/${selectedCategory.toLowerCase()}`).replace(/^\//, "")
+                : categoryKey;
+              return (
+                <BuildingCard
+                  key={model.id}
+                  model={model}
+                  categorySlug={activeCatSlug}
+                />
+              );
+            })}
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <nav
+              aria-label="Product catalog pagination"
+              className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-8 pb-4"
+            >
+              <button
+                type="button"
+                onClick={() => handlePageChange(safePage - 1)}
+                disabled={safePage <= 1}
+                className="flex items-center gap-1 px-3.5 py-2 text-xs font-bold rounded-xl border border-gray-200 bg-white text-[#101114] hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-2xs"
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Previous</span>
+              </button>
+
+              {pageNumbers.map((page, idx) => {
+                if (typeof page === "string") {
+                  return (
+                    <span
+                      key={`ellipsis-${idx}`}
+                      className="px-2 py-1 text-xs text-gray-400 select-none font-bold"
+                    >
+                      …
+                    </span>
+                  );
+                }
+                const isActive = page === safePage;
+                return (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => handlePageChange(page)}
+                    aria-current={isActive ? "page" : undefined}
+                    className={`min-w-9 h-9 px-3 text-xs font-black rounded-xl transition-all ${
+                      isActive
+                        ? "bg-[#101114] text-[#fcb907] shadow-sm"
+                        : "bg-white border border-gray-200 text-[#101114] hover:bg-gray-50 hover:border-gray-300 shadow-2xs"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+
+              <button
+                type="button"
+                onClick={() => handlePageChange(safePage + 1)}
+                disabled={safePage >= totalPages}
+                className="flex items-center gap-1 px-3.5 py-2 text-xs font-bold rounded-xl border border-gray-200 bg-white text-[#101114] hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-2xs"
+                aria-label="Next page"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </nav>
+          )}
+        </>
       ) : (
         <div className="text-center py-16 bg-[#f8f9fa] border border-gray-200 rounded-2xl p-8 space-y-3">
           <Building2 className="w-12 h-12 text-gray-400 mx-auto" />

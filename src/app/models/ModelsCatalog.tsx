@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { 
   Search, 
@@ -9,7 +9,9 @@ import {
   Building2, 
   SlidersHorizontal,
   Loader2,
-  Home
+  Home,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import BuildingCard from "@/components/BuildingCard";
 import { BuildingModel } from "@/data/models";
@@ -40,6 +42,8 @@ const ARCHITECTURAL_STYLES = [
   "ADU",
   "Multi-Family",
 ];
+
+const PRODUCTS_PER_PAGE = 18;
 
 // Loading Skeleton Card
 function BuildingCardSkeleton() {
@@ -81,6 +85,8 @@ export default function ModelsCatalog() {
   const [budgetFilter, setBudgetFilter] = useState<string>(initialBudget);
   const [minSqft, setMinSqft] = useState<number>(0);
   const [locationFilter, setLocationFilter] = useState<string>(initialLocation);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const catalogRef = useRef<HTMLDivElement>(null);
 
   // Load models and categories
   useEffect(() => {
@@ -250,6 +256,42 @@ export default function ModelsCatalog() {
     });
   }, [models, selectedCategory, selectedStyle, searchQuery, bedroomFilter, bathroomFilter, storiesFilter, budgetFilter, minSqft]);
 
+  // Reset to first page when any search/filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedStyle, searchQuery, bedroomFilter, bathroomFilter, storiesFilter, budgetFilter, minSqft, locationFilter]);
+
+  // Pagination Calculations
+  const totalPages = Math.max(1, Math.ceil(filteredModels.length / PRODUCTS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedModels = useMemo(() => {
+    const start = (safePage - 1) * PRODUCTS_PER_PAGE;
+    return filteredModels.slice(start, start + PRODUCTS_PER_PAGE);
+  }, [filteredModels, safePage]);
+
+  const pageNumbers = useMemo(() => {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (safePage > 4) pages.push("...");
+      const start = Math.max(2, safePage - 1);
+      const end = Math.min(totalPages - 1, safePage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (safePage < totalPages - 3) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  }, [totalPages, safePage]);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    if (catalogRef.current) {
+      catalogRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   const handleResetFilters = () => {
     handleCategoryChange("All");
     setSelectedStyle("All");
@@ -260,6 +302,7 @@ export default function ModelsCatalog() {
     setBudgetFilter("all");
     setMinSqft(0);
     setLocationFilter("");
+    setCurrentPage(1);
     const newUrl = pathname;
     window.history.replaceState(null, "", newUrl);
   };
@@ -445,7 +488,7 @@ export default function ModelsCatalog() {
         </div>
 
         {/* Results Counter & Active Criteria */}
-        <div className="py-4 flex items-center justify-between text-xs text-[#6b7280]">
+        <div ref={catalogRef} className="py-4 flex items-center justify-between text-xs text-[#6b7280] scroll-mt-24">
           {loading ? (
             <div className="flex items-center gap-2 text-[#d97706] font-bold">
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -453,7 +496,13 @@ export default function ModelsCatalog() {
             </div>
           ) : (
             <div>
-              Showing <span className="text-[#101114] font-bold">{filteredModels.length}</span> of {models.length} models
+              Showing{" "}
+              <span className="text-[#101114] font-bold">
+                {filteredModels.length === 0
+                  ? 0
+                  : `${(safePage - 1) * PRODUCTS_PER_PAGE + 1} – ${Math.min(safePage * PRODUCTS_PER_PAGE, filteredModels.length)}`}
+              </span>{" "}
+              of <span className="text-[#101114] font-bold">{filteredModels.length}</span> models
               {selectedCategory !== "All" && (
                 <span className="ml-1 text-[#d97706] font-bold">
                   in {selectedCategory}
@@ -462,11 +511,18 @@ export default function ModelsCatalog() {
             </div>
           )}
 
-          {isFiltered && !loading && (
-            <span className="text-[#d97706] font-bold">
-              Filtered results active
-            </span>
-          )}
+          <div className="flex items-center gap-3">
+            {totalPages > 1 && !loading && (
+              <span className="text-[#6b7280] font-medium hidden sm:inline">
+                Page <strong className="text-[#101114]">{safePage}</strong> of {totalPages}
+              </span>
+            )}
+            {isFiltered && !loading && (
+              <span className="text-[#d97706] font-bold">
+                Filtered results active
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Product Grid / Loading Skeleton */}
@@ -477,11 +533,72 @@ export default function ModelsCatalog() {
             ))}
           </div>
         ) : filteredModels.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 pt-2">
-            {filteredModels.map((model) => (
-              <BuildingCard key={model.id} model={model} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 pt-2">
+              {paginatedModels.map((model) => (
+                <BuildingCard key={model.id} model={model} />
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <nav
+                aria-label="Models catalog pagination"
+                className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-10 pb-4"
+              >
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(safePage - 1)}
+                  disabled={safePage <= 1}
+                  className="flex items-center gap-1 px-3.5 py-2 text-xs font-bold rounded-xl border border-gray-200 bg-white text-[#101114] hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-2xs"
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Previous</span>
+                </button>
+
+                {pageNumbers.map((page, idx) => {
+                  if (typeof page === "string") {
+                    return (
+                      <span
+                        key={`ellipsis-${idx}`}
+                        className="px-2 py-1 text-xs text-gray-400 select-none font-bold"
+                      >
+                        …
+                      </span>
+                    );
+                  }
+                  const isActive = page === safePage;
+                  return (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => handlePageChange(page)}
+                      aria-current={isActive ? "page" : undefined}
+                      className={`min-w-9 h-9 px-3 text-xs font-black rounded-xl transition-all ${
+                        isActive
+                          ? "bg-[#101114] text-[#fcb907] shadow-sm"
+                          : "bg-white border border-gray-200 text-[#101114] hover:bg-gray-50 hover:border-gray-300 shadow-2xs"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(safePage + 1)}
+                  disabled={safePage >= totalPages}
+                  className="flex items-center gap-1 px-3.5 py-2 text-xs font-bold rounded-xl border border-gray-200 bg-white text-[#101114] hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-2xs"
+                  aria-label="Next page"
+                >
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </nav>
+            )}
+          </>
         ) : (
           /* Empty State */
           <div className="text-center py-16 bg-[#f6f7f9] border border-[#e7e9ee] rounded-[18px] p-8 space-y-3 shadow-sm">
