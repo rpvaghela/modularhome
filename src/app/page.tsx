@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Metadata } from "next";
 import { ArrowRight, Layers, Play, Star, ShieldCheck } from "lucide-react";
 import TrustBar from "@/components/TrustBar";
@@ -137,23 +136,16 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
+      {/* Preload Hero LCP Image for immediate render */}
+      <link rel="preload" as="image" href={heroBgImage} fetchPriority="high" />
+
       {/* 1. PROFESSIONAL ARCHITECTURAL HERO SECTION */}
       <section 
-        className="min-h-[580px] sm:min-h-[640px] lg:min-h-[690px] text-white flex items-center relative overflow-hidden pb-8 sm:pb-12"
+        className="min-h-[580px] sm:min-h-[640px] lg:min-h-[690px] text-white flex items-center relative overflow-hidden bg-[#0b0f17] bg-cover bg-center pb-8 sm:pb-12"
+        style={{
+          backgroundImage: `linear-gradient(105deg, rgba(11,15,23,0.93) 0%, rgba(11,15,23,0.80) 46%, rgba(11,15,23,0.38) 100%), url('${heroBgImage}')`
+        }}
       >
-        {/* Next.js LCP Priority Hero Image */}
-        <Image
-          src={heroBgImage}
-          alt={heroHeading}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center pointer-events-none -z-10"
-        />
-        {/* Gradient Overlay */}
-        <div 
-          className="absolute inset-0 bg-gradient-to-r from-[rgba(11,15,23,0.93)] via-[rgba(11,15,23,0.80)] to-[rgba(11,15,23,0.38)] -z-10 pointer-events-none" 
-        />
         {/* Subtle Ambient Radial Lighting */}
         <div className="absolute -top-24 left-10 w-96 h-96 bg-[#fcb907]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-10 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
