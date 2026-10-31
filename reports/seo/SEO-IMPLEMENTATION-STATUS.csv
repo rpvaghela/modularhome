@@ -1,0 +1,22 @@
+Phase ID,Phase Name,Key Task Description,Deliverable File,Status,Verification Method,Impact Rating
+Phase 0,Repository & SEO Discovery Audit,Comprehensive read-only audit of Next.js 16 App Router Supabase schema and routing,reports/seo/phase-0-discovery.md,Completed,Manual code audit & Supabase table scan,Foundational
+Phase 1,Keyword Research & Competitor Gap Analysis,31 keyword targets across 8 categories competitive gap analysis and URL mapping,reports/seo/keyword-research.csv,Completed,Search intent & volume modeling,High
+Phase 1,Competitor Intelligence Report,Comprehensive analysis of Lester Buildings DC Structures Worldwide Steel & Studio Shed,reports/seo/competitor-analysis.md,Completed,Direct site and pricing deconstruction,High
+Phase 1,Content Gap Analysis,Identification of line-item cost guides comparison queries and downloadable CAD lookbooks,reports/seo/content-gap-analysis.md,Completed,SERP competitor gap modeling,High
+Phase 2,Technical SEO Infrastructure,Dual sitemap (/sitemap.xml and /sitemap_index.xml) dynamic robots.txt 301 redirects,reports/seo/phase-2-technical-seo.md,Completed,HTTP validation & schema validators,Critical
+Phase 2,Canonical URL Consolidation,Enforce https://modularhome.com protocol no trailing slash and query param stripping,src/lib/seo.ts,Completed,Unit test & metadata inspection,Critical
+Phase 2,Dynamic Robots & Staging Isolation,Disallow preview and staging environments while indexing production,src/lib/seo.ts,Completed,Header & host evaluation testing,Critical
+Phase 3,Commercial Hub Optimization,Buyer guides price breakdown tables foundation analysis and FAQ schemas on /modular-homes,reports/seo/phase-3-page-optimization.md,Completed,DOM inspection & Schema.org test,High
+Phase 3,Cabin Category Optimization,Alpine ratings 4-season insulation off-grid solar and FAQ schemas on /modular-cabins,src/app/modular-cabins/page.tsx,Completed,DOM inspection & Schema.org test,High
+Phase 3,Product Detail Page Rich FAQs,Semantic details accordion and FAQPage JSON-LD schema on all model detail pages,src/app/[slug]/[modelSlug]/page.tsx,Completed,Zero-JS crawlability check & tsc,High
+Phase 4,Content Marketing Engine,42-article 6-month editorial calendar and hub-and-spoke cluster architecture,reports/seo/phase-4-content-strategy.md,Completed,Topic cluster alignment review,High
+Phase 4,Editorial Calendar Pipeline,42 individual article briefs keywords search volumes and lead magnet hooks,reports/seo/editorial-calendar.csv,Completed,Keyword search intent alignment,High
+Phase 5,White-Hat Backlink Acquisition,6 linkable digital asset blueprints and 25-prospect media outreach database,reports/seo/phase-5-link-building.md,Completed,Prospect vetting & pitch templates,High
+Phase 5,Media & Outreach Prospect Register,Tiered outreach directory covering architecture construction and real estate portals,reports/seo/backlink-prospects.csv,Completed,DA and editorial criteria review,High
+Phase 6,Social Media Distribution Flywheel,Cross-channel strategy for Pinterest (15-20 pins/wk) Instagram YouTube and Facebook,reports/seo/phase-6-social-strategy.md,Completed,UTM tracking taxonomy definition,Medium
+Phase 6,30-Day Cross-Platform Calendar,30-day schedule with creative briefs captions hashtags and tagged destination URLs,reports/seo/social-calendar.csv,Completed,Social schedule audit,Medium
+Phase 7,SEO Admin Intelligence Dashboard,Full-featured SEO analytics dashboard embedded at /admin/seo,src/app/admin/seo/page.tsx,Completed,RBAC testing & API verification,High
+Phase 7,GA4 Event & Server API Endpoint,Server-side SEO analytics endpoint /api/admin/seo and Supabase lead integration,src/app/api/admin/seo/route.ts,Completed,API response test & RBAC validation,High
+Phase 8,Automated Health Monitoring,Continuous 14-vector SEO health audit engine and issue log register,reports/seo/phase-8-monitoring.md,Completed,Automated test execution,High
+Phase 9,Global SEO & International Targeting,Strategic market reality definition localized terminology and hreflang governance,reports/seo/phase-9-international-seo.md,Completed,Market demand & regulatory audit,Medium
+Final Phase,Consolidated QA & Execution Report,Comprehensive executive report summarizing initial conditions fixes and 10k roadmap,reports/seo/FINAL-SEO-EXECUTION-REPORT.md,Completed,Full codebase tsc validation,Foundational
