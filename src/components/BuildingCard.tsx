@@ -27,7 +27,17 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
   }
 
   if (model.bedrooms !== undefined && model.bedrooms !== null) {
-    specsList.push(model.bedrooms === 0 ? "Studio" : `${model.bedrooms} Bed`);
+    if (model.bedrooms > 0) {
+      specsList.push(`${model.bedrooms} Bed`);
+    } else if (
+      model.category === "ADUs & Granny Pods" ||
+      model.category === "Tiny Homes" ||
+      model.name.toLowerCase().includes("studio") ||
+      model.name.toLowerCase().includes("bungalow") ||
+      (model.sqft && model.sqft <= 500)
+    ) {
+      specsList.push("Studio");
+    }
   }
 
   if (model.bathrooms !== undefined && model.bathrooms !== null && model.bathrooms > 0) {

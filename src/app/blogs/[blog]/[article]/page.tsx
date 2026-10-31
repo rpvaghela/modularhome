@@ -35,7 +35,7 @@ import RichHtmlContent from "@/components/RichHtmlContent";
 import BlogTableOfContents from "@/components/BlogTableOfContents";
 import ArticleReadingBar from "@/components/ArticleReadingBar";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
-import { formatEditorialTitle, extractArticleSpecs, cleanBlogHtml } from "@/utils/text";
+import { formatEditorialTitle, extractArticleSpecs, cleanBlogHtml, extractHeadingsWithIds } from "@/utils/text";
 import { resolveSimilarCategoryPath } from "@/utils/productUrls";
 
 export const dynamic = "force-dynamic";
@@ -151,26 +151,40 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
 
   // Format clean editorial title and extract specs
   const displayTitle = formatEditorialTitle(article.title);
-  const extractedSpecs = extractArticleSpecs(article.title, rawBodyContent);
+  
+  // Clean HTML body (strip duplicated first iframe if we render dedicated theater player)
+  const cleanedHtml = cleanBlogHtml(rawBodyContent, Boolean(videoEmbed));
+
+  // Dynamically extract real H2 and H3 headings and inject anchor IDs for crawlable TOC
+  const { headings: tocItems, htmlWithIds } = extractHeadingsWithIds(cleanedHtml);
+
+  // Check if article was explicitly authored with dedicated model specifications
+  const hasExplicitModelSpecs = Boolean(
+    article.sqft ||
+    article.price ||
+    article.startingPrice ||
+    (article.bedrooms && article.bathrooms)
+  );
+
+  const extractedSpecs = hasExplicitModelSpecs
+    ? extractArticleSpecs(article.title, rawBodyContent)
+    : {};
 
   const hasLoftVal = article.hasLoft !== undefined
     ? (typeof article.hasLoft === "string" ? article.hasLoft.toLowerCase().includes("true") || article.hasLoft.toLowerCase().includes("loft") : Boolean(article.hasLoft))
     : extractedSpecs.hasLoft;
 
   const specs = {
-    sqft: article.sqft || extractedSpecs.sqft,
-    bedrooms: article.bedrooms || extractedSpecs.bedrooms,
-    bathrooms: article.bathrooms || extractedSpecs.bathrooms,
+    sqft: article.sqft || extractedSpecs.sqft || "",
+    bedrooms: article.bedrooms || extractedSpecs.bedrooms || "",
+    bathrooms: article.bathrooms || extractedSpecs.bathrooms || "",
     hasLoft: hasLoftVal,
     stories: article.stories || (hasLoftVal ? "1 + Loft" : "1 Story"),
     buildingType: article.buildingStyle || extractedSpecs.buildingType || "Modular / Prefab",
     buildType: article.buildType || "Modular / Prefab",
-    price: article.price || article.startingPrice || extractedSpecs.price || "$265,000",
+    price: article.price || article.startingPrice || extractedSpecs.price || "",
     qualityBadge: article.qualityBadge || "Amish-Built Quality",
   };
-
-  // Clean HTML body (strip duplicated first iframe if we render dedicated theater player)
-  const cleanedHtml = cleanBlogHtml(rawBodyContent, Boolean(videoEmbed));
 
   const canonicalCategory = (article.category || blog || "modular-construction")
     .toLowerCase()
@@ -181,12 +195,13 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
 
   const heroImage = article.heroBackground || article.image || getHeroBackground(article.category || blog, article.title);
 
-  const pullQuoteText = article.pullQuote || "A spacious, stylish, and affordable modular cabin — perfect for your forever home, vacation retreat, or rental property.";
-  const pullQuoteAttribution = article.pullQuoteAuthor || "ModularHome.com Architectural Review";
+  const pullQuoteText = article.pullQuote;
+  const pullQuoteAttribution = article.pullQuoteAuthor || "ModularHome.com Insights";
 
-  // Default Key Features list adapted to model specs, or customFeatures if provided
-  const keyFeaturesList = article.customFeatures && article.customFeatures.length > 0
-    ? article.customFeatures.map((f, idx) => {
+  // Key Features list: only use customFeatures if explicitly provided
+  const hasCustomFeatures = Boolean(article.customFeatures && article.customFeatures.length > 0);
+  const keyFeaturesList = hasCustomFeatures
+    ? article.customFeatures!.map((f: any, idx: number) => {
         const icons = [Home, Bed, Bath, Layers, Leaf, Settings, TreePine, Zap];
         return {
           icon: icons[idx % icons.length] || Zap,
@@ -194,48 +209,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
           desc: f.desc,
         };
       })
-    : [
-        {
-          icon: Home,
-          title: specs.sqft || "1,750 Sq Ft",
-          desc: "Spacious layout with open-concept design and high volume ceilings.",
-        },
-        {
-          icon: Bed,
-          title: specs.bedrooms || "3 Bed",
-          desc: "Comfortable bedrooms designed for family living, guests, or home office.",
-        },
-        {
-          icon: Bath,
-          title: specs.bathrooms || "2 Bath",
-          desc: "Modern and functional bathrooms with premium pre-installed fixtures.",
-        },
-        {
-          icon: Layers,
-          title: specs.hasLoft ? "Loft Included" : "Expansive Living Area",
-          desc: "Extra elevated living space for guests, home office, or entertainment lounge.",
-        },
-        {
-          icon: Leaf,
-          title: specs.qualityBadge || "Amish Built Quality",
-          desc: "Crafted with premium structural materials and superior precision workmanship.",
-        },
-        {
-          icon: Settings,
-          title: specs.buildType || "Modular & Prefab Built",
-          desc: "Built indoors in climate control for 50% faster build times and cost efficiency.",
-        },
-        {
-          icon: TreePine,
-          title: "Rustic Modern Design",
-          desc: "Timeless architectural aesthetic with expansive floor-to-ceiling windows.",
-        },
-        {
-          icon: Zap,
-          title: "Energy Efficient",
-          desc: "Engineered thermal envelope built for year-round comfort and lower utility bills.",
-        },
-      ];
+    : [];
 
   return (
     <div className="min-h-screen bg-[#fafbfc] text-[#101114]">
@@ -341,73 +315,83 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. HORIZONTAL QUICK SPEC RIBBON BAR                                       */}
+      {/* 2. HORIZONTAL QUICK SPEC RIBBON BAR (Only for explicit model showcases)   */}
       {/* ========================================================================= */}
-      <section className="bg-white border-b border-[#e7e9ee] py-3.5 shadow-xs sticky top-0 z-30">
-        <div className="wrap">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            {/* Quick Specs Icons */}
-            <div className="flex flex-wrap items-center gap-5 sm:gap-8 text-xs text-[#374151]">
-              <div className="flex items-center gap-2">
-                <Home className="w-4 h-4 text-[#d97706]" />
-                <div>
-                  <span className="font-extrabold text-[#101114]">{specs.sqft || "1,856"}</span>
-                  <span className="text-[11px] text-[#6b7280] ml-1">Sq Ft</span>
+      {hasExplicitModelSpecs && (
+        <section className="bg-white border-b border-[#e7e9ee] py-3.5 shadow-xs sticky top-0 z-30">
+          <div className="wrap">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              {/* Quick Specs Icons */}
+              <div className="flex flex-wrap items-center gap-5 sm:gap-8 text-xs text-[#374151]">
+                {specs.sqft && (
+                  <div className="flex items-center gap-2">
+                    <Home className="w-4 h-4 text-[#d97706]" />
+                    <div>
+                      <span className="font-extrabold text-[#101114]">{specs.sqft}</span>
+                      <span className="text-[11px] text-[#6b7280] ml-1">Sq Ft</span>
+                    </div>
+                  </div>
+                )}
+
+                {specs.bedrooms && (
+                  <div className="flex items-center gap-2">
+                    <Bed className="w-4 h-4 text-[#d97706]" />
+                    <div>
+                      <span className="font-extrabold text-[#101114]">{specs.bedrooms.replace(/bed/i, "").trim()}</span>
+                      <span className="text-[11px] text-[#6b7280] ml-1">Bedrooms</span>
+                    </div>
+                  </div>
+                )}
+
+                {specs.bathrooms && (
+                  <div className="flex items-center gap-2">
+                    <Bath className="w-4 h-4 text-[#d97706]" />
+                    <div>
+                      <span className="font-extrabold text-[#101114]">{specs.bathrooms.replace(/bath/i, "").trim()}</span>
+                      <span className="text-[11px] text-[#6b7280] ml-1">Bathrooms</span>
+                    </div>
+                  </div>
+                )}
+
+                {specs.hasLoft && (
+                  <div className="flex items-center gap-2 hidden md:flex">
+                    <Layers className="w-4 h-4 text-[#d97706]" />
+                    <div>
+                      <span className="font-extrabold text-[#101114]">Loft</span>
+                      <span className="text-[11px] text-[#6b7280] ml-1">Included</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 hidden lg:flex">
+                  <Wrench className="w-4 h-4 text-[#d97706]" />
+                  <div>
+                    <span className="font-extrabold text-[#101114]">{specs.qualityBadge}</span>
+                    <span className="text-[11px] text-[#6b7280] ml-1">Quality</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 hidden xl:flex">
+                  <Truck className="w-4 h-4 text-[#d97706]" />
+                  <div>
+                    <span className="font-extrabold text-[#101114]">{specs.buildType}</span>
+                    <span className="text-[11px] text-[#6b7280] ml-1">Built</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Bed className="w-4 h-4 text-[#d97706]" />
-                <div>
-                  <span className="font-extrabold text-[#101114]">{specs.bedrooms?.replace(/bed/i, "").trim() || "3"}</span>
-                  <span className="text-[11px] text-[#6b7280] ml-1">Bedrooms</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Bath className="w-4 h-4 text-[#d97706]" />
-                <div>
-                  <span className="font-extrabold text-[#101114]">{specs.bathrooms?.replace(/bath/i, "").trim() || "2"}</span>
-                  <span className="text-[11px] text-[#6b7280] ml-1">Bathrooms</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 hidden md:flex">
-                <Layers className="w-4 h-4 text-[#d97706]" />
-                <div>
-                  <span className="font-extrabold text-[#101114]">Loft</span>
-                  <span className="text-[11px] text-[#6b7280] ml-1">{specs.hasLoft ? "Included" : "N/A"}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 hidden lg:flex">
-                <Wrench className="w-4 h-4 text-[#d97706]" />
-                <div>
-                  <span className="font-extrabold text-[#101114]">{specs.qualityBadge || "Amish Built"}</span>
-                  <span className="text-[11px] text-[#6b7280] ml-1">Quality</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 hidden xl:flex">
-                <Truck className="w-4 h-4 text-[#d97706]" />
-                <div>
-                  <span className="font-extrabold text-[#101114]">{specs.buildType || "Modular & Prefab"}</span>
-                  <span className="text-[11px] text-[#6b7280] ml-1">Built</span>
-                </div>
-              </div>
+              {/* Right Quote CTA Button */}
+              <Link
+                href="/quote"
+                className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-[10px] transition-all flex items-center gap-1.5 shadow-xs ml-auto shrink-0"
+              >
+                <span>Request a Quote</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
-
-            {/* Right Quote CTA Button */}
-            <Link
-              href="/quote"
-              className="bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-[10px] transition-all flex items-center gap-1.5 shadow-xs ml-auto shrink-0"
-            >
-              <span>Request a Quote</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ========================================================================= */}
       {/* 3. MAIN 2-COLUMN EDITORIAL CONTENT (Left 8 cols, Right Sidebar 4 cols)    */}
@@ -420,18 +404,18 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
           {/* ===================================================================== */}
           <main className="lg:col-span-8 space-y-8">
             
-            {/* Table of Contents Box */}
-            <BlogTableOfContents />
+            {/* Dynamic Table of Contents Generated from Real Headings Only */}
+            <BlogTableOfContents items={tocItems} />
 
-            {/* Section 1: Introduction */}
-            <section id="introduction" className="space-y-4">
-              <div className="border-l-4 border-[#fcb907] pl-3">
-                <h2 className="text-2xl sm:text-3xl font-black text-[#101114] tracking-tight">
-                  Introduction
-                </h2>
-              </div>
-              {article.introduction && article.introduction.trim() ? (
-                article.introduction.includes("<") && article.introduction.includes(">") ? (
+            {/* Optional Introduction Section */}
+            {article.introduction && article.introduction.trim() ? (
+              <section id="introduction" className="space-y-4">
+                <div className="border-l-4 border-[#fcb907] pl-3">
+                  <h2 className="text-2xl sm:text-3xl font-black text-[#101114] tracking-tight">
+                    Introduction
+                  </h2>
+                </div>
+                {article.introduction.includes("<") && article.introduction.includes(">") ? (
                   <RichHtmlContent content={article.introduction} />
                 ) : (
                   <div className="space-y-3.5">
@@ -445,21 +429,28 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
                       );
                     })}
                   </div>
-                )
-              ) : (
-                <>
+                )}
+              </section>
+            ) : hasExplicitModelSpecs ? (
+              <section id="introduction" className="space-y-4">
+                <div className="border-l-4 border-[#fcb907] pl-3">
+                  <h2 className="text-2xl sm:text-3xl font-black text-[#101114] tracking-tight">
+                    Introduction
+                  </h2>
+                </div>
+                <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
+                  The {displayTitle} is designed for comfortable living, vacation rentals, and modern residential applications. Featuring {specs.bedrooms || "multiple bedrooms"} and {specs.bathrooms || "bathrooms"}, this {specs.sqft || "engineered"} design provides open-concept functionality.
+                </p>
+                {specs.price && (
                   <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
-                    The {displayTitle} is one of the most popular designs for families, vacation rentals, and full-time living. With {specs.bedrooms || "3 Bed"}, {specs.bathrooms || "2 Bath"}, and {specs.hasLoft ? "a spacious loft" : "an expansive floor plan"}, this {specs.sqft || "1,750 Sq Ft"} modular cabin offers the perfect combination of rustic elegance and modern functionality.
+                    Built with high-quality materials and precision factory tolerances, the {displayTitle} offers dependable craftsmanship with package pricing starting at <strong className="text-[#101114]">{specs.price}</strong>.
                   </p>
-                  <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
-                    Amish-built with high-quality materials and expert craftsmanship, the {displayTitle} delivers timeless design, energy efficiency, and a comfortable open-concept layout — all at an incredible starting price of <strong className="text-[#101114]">only {specs.price || "$265,000"}</strong>.
-                  </p>
-                </>
-              )}
-            </section>
+                )}
+              </section>
+            ) : null}
 
             {/* Section: Video Walkthrough */}
-            {videoEmbed && (
+            {videoEmbed && !videoEmbed.includes("dQw4w9WgXcQ") && (
               <section id="video-tour" className="relative aspect-video w-full rounded-[18px] overflow-hidden bg-black shadow-lg border border-[#e7e9ee] my-6">
                 <iframe
                   src={videoEmbed}
@@ -471,53 +462,57 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
               </section>
             )}
 
-            {/* Editorial Pull Quote Box */}
-            <div className="p-6 bg-[#fdfbf7] rounded-[18px] border border-[#fef3c7] relative overflow-hidden my-6">
-              <Quote className="w-10 h-10 text-[#fcb907]/20 absolute -right-1 -bottom-1 pointer-events-none" />
-              <p className="text-sm sm:text-base font-bold text-[#101114] italic leading-relaxed">
-                &ldquo;{pullQuoteText}&rdquo;
-              </p>
-              <div className="text-xs font-bold text-[#d97706] mt-2">
-                — {pullQuoteAttribution}
+            {/* Editorial Pull Quote Box (Only when genuine pullQuote is authored) */}
+            {pullQuoteText && pullQuoteText.trim() && (
+              <div className="p-6 bg-[#fdfbf7] rounded-[18px] border border-[#fef3c7] relative overflow-hidden my-6">
+                <Quote className="w-10 h-10 text-[#fcb907]/20 absolute -right-1 -bottom-1 pointer-events-none" />
+                <p className="text-sm sm:text-base font-bold text-[#101114] italic leading-relaxed">
+                  &ldquo;{pullQuoteText}&rdquo;
+                </p>
+                <div className="text-xs font-bold text-[#d97706] mt-2">
+                  — {pullQuoteAttribution}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Section 2: Key Features Grid */}
-            <section id="key-features" className="space-y-4 pt-2">
-              <div className="border-l-4 border-[#fcb907] pl-3">
-                <h2 className="text-2xl sm:text-3xl font-black text-[#101114] tracking-tight">
-                  Key Features
-                </h2>
-              </div>
+            {/* Section 2: Key Features Grid (Only when authentic custom features exist) */}
+            {hasCustomFeatures && keyFeaturesList.length > 0 && (
+              <section id="key-features" className="space-y-4 pt-2">
+                <div className="border-l-4 border-[#fcb907] pl-3">
+                  <h2 className="text-2xl sm:text-3xl font-black text-[#101114] tracking-tight">
+                    Key Features
+                  </h2>
+                </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-                {keyFeaturesList.map((feature, idx) => {
-                  const Icon = feature.icon;
-                  return (
-                    <div
-                      key={idx}
-                      className="p-4 bg-white rounded-[14px] border border-[#e7e9ee] shadow-2xs flex items-start gap-3.5 hover:border-[#fcb907] transition-all"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-[#fef3c7] text-[#d97706] flex items-center justify-center shrink-0 shadow-2xs">
-                        <Icon className="w-5 h-5" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+                  {keyFeaturesList.map((feature, idx) => {
+                    const Icon = feature.icon;
+                    return (
+                      <div
+                        key={idx}
+                        className="p-4 bg-white rounded-[14px] border border-[#e7e9ee] shadow-2xs flex items-start gap-3.5 hover:border-[#fcb907] transition-all"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-[#fef3c7] text-[#d97706] flex items-center justify-center shrink-0 shadow-2xs">
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <div className="space-y-0.5">
+                          <h3 className="text-xs sm:text-sm font-black text-[#101114]">
+                            {feature.title}
+                          </h3>
+                          <p className="text-[11px] sm:text-xs text-[#6b7280] leading-snug">
+                            {feature.desc}
+                          </p>
+                        </div>
                       </div>
-                      <div className="space-y-0.5">
-                        <h3 className="text-xs sm:text-sm font-black text-[#101114]">
-                          {feature.title}
-                        </h3>
-                        <p className="text-[11px] sm:text-xs text-[#6b7280] leading-snug">
-                          {feature.desc}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
 
-            {/* Section 3: Rich Article Content */}
-            <section id="floor-plan-specs" className="space-y-6 pt-4">
-              <RichHtmlContent content={cleanedHtml} />
+            {/* Section 3: Rich Article Content with Linked Headings */}
+            <section id="article-body" className="space-y-6 pt-2">
+              <RichHtmlContent content={htmlWithIds || cleanedHtml} />
             </section>
 
             {/* In-Article Blueprint & Estimate Card */}
@@ -609,42 +604,56 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
               </div>
             </div>
 
-            {/* Card 2: Key Specs Table */}
-            <div className="bg-white border border-[#e7e9ee] rounded-[20px] p-6 shadow-xs space-y-3">
-              <h3 className="text-sm font-black text-[#101114] uppercase tracking-wider border-b border-[#f1f3f7] pb-2.5">
-                Key Specs
-              </h3>
-              <div className="divide-y divide-[#f1f3f7] text-xs">
-                <div className="py-2 flex items-center justify-between">
-                  <span className="text-[#6b7280]">Square Footage</span>
-                  <span className="font-bold text-[#101114]">{specs.sqft || "1,856 sq ft"}</span>
-                </div>
-                <div className="py-2 flex items-center justify-between">
-                  <span className="text-[#6b7280]">Bedrooms</span>
-                  <span className="font-bold text-[#101114]">{specs.bedrooms?.replace(/bed/i, "").trim() || "3"}</span>
-                </div>
-                <div className="py-2 flex items-center justify-between">
-                  <span className="text-[#6b7280]">Bathrooms</span>
-                  <span className="font-bold text-[#101114]">{specs.bathrooms?.replace(/bath/i, "").trim() || "2"}</span>
-                </div>
-                <div className="py-2 flex items-center justify-between">
-                  <span className="text-[#6b7280]">Stories</span>
-                  <span className="font-bold text-[#101114]">{specs.hasLoft ? "1 + Loft" : "1 Story"}</span>
-                </div>
-                <div className="py-2 flex items-center justify-between">
-                  <span className="text-[#6b7280]">Style</span>
-                  <span className="font-bold text-[#101114]">{specs.buildingType || "Cabin / Lodge"}</span>
-                </div>
-                <div className="py-2 flex items-center justify-between">
-                  <span className="text-[#6b7280]">Build Type</span>
-                  <span className="font-bold text-[#101114]">Modular / Prefab</span>
-                </div>
-                <div className="py-2.5 flex items-center justify-between font-black text-sm">
-                  <span className="text-[#101114]">Starting Price</span>
-                  <span className="text-[#d97706] text-base">{specs.price || "$285,000"}</span>
+            {/* Card 2: Key Specs Table (Only for explicit model showcases) */}
+            {hasExplicitModelSpecs && (
+              <div className="bg-white border border-[#e7e9ee] rounded-[20px] p-6 shadow-xs space-y-3">
+                <h3 className="text-sm font-black text-[#101114] uppercase tracking-wider border-b border-[#f1f3f7] pb-2.5">
+                  Key Specs
+                </h3>
+                <div className="divide-y divide-[#f1f3f7] text-xs">
+                  {specs.sqft && (
+                    <div className="py-2 flex items-center justify-between">
+                      <span className="text-[#6b7280]">Square Footage</span>
+                      <span className="font-bold text-[#101114]">{specs.sqft}</span>
+                    </div>
+                  )}
+                  {specs.bedrooms && (
+                    <div className="py-2 flex items-center justify-between">
+                      <span className="text-[#6b7280]">Bedrooms</span>
+                      <span className="font-bold text-[#101114]">{specs.bedrooms.replace(/bed/i, "").trim()}</span>
+                    </div>
+                  )}
+                  {specs.bathrooms && (
+                    <div className="py-2 flex items-center justify-between">
+                      <span className="text-[#6b7280]">Bathrooms</span>
+                      <span className="font-bold text-[#101114]">{specs.bathrooms.replace(/bath/i, "").trim()}</span>
+                    </div>
+                  )}
+                  {specs.hasLoft && (
+                    <div className="py-2 flex items-center justify-between">
+                      <span className="text-[#6b7280]">Stories</span>
+                      <span className="font-bold text-[#101114]">{specs.hasLoft ? "1 + Loft" : "1 Story"}</span>
+                    </div>
+                  )}
+                  {specs.buildingType && (
+                    <div className="py-2 flex items-center justify-between">
+                      <span className="text-[#6b7280]">Style</span>
+                      <span className="font-bold text-[#101114]">{specs.buildingType}</span>
+                    </div>
+                  )}
+                  <div className="py-2 flex items-center justify-between">
+                    <span className="text-[#6b7280]">Build Type</span>
+                    <span className="font-bold text-[#101114]">{specs.buildType}</span>
+                  </div>
+                  {specs.price && (
+                    <div className="py-2.5 flex items-center justify-between font-black text-sm">
+                      <span className="text-[#101114]">Starting Price</span>
+                      <span className="text-[#d97706] text-base">{specs.price}</span>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Card 3: Related Articles */}
             {relatedArticles.length > 0 && (

@@ -196,3 +196,63 @@ export function cleanBlogHtml(html?: string | null, stripFirstIframe: boolean = 
 
   return cleaned.trim();
 }
+
+export interface ExtractedHeading {
+  id: string;
+  number: number;
+  title: string;
+  level: number;
+}
+
+/**
+ * Extracts real H2 and H3 headings from HTML content and injects matching anchor IDs
+ */
+export function extractHeadingsWithIds(html?: string | null): {
+  headings: ExtractedHeading[];
+  htmlWithIds: string;
+} {
+  if (!html) return { headings: [], htmlWithIds: "" };
+
+  const headings: ExtractedHeading[] = [];
+  let headingCount = 0;
+  const seenIds = new Set<string>();
+
+  const htmlWithIds = html.replace(
+    /<h([23])([^>]*)>([\s\S]*?)<\/h\1>/gi,
+    (match, levelStr, attrs, innerHtml) => {
+      const text = stripHtml(innerHtml).trim();
+      if (!text) return match;
+
+      headingCount++;
+      // Check existing id in attrs
+      const idMatch = attrs.match(/\bid=["']([^"']+)["']/i);
+      let id = idMatch
+        ? idMatch[1]
+        : text
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+      if (!id) id = `section-${headingCount}`;
+
+      // Avoid duplicate IDs
+      if (seenIds.has(id)) {
+        id = `${id}-${headingCount}`;
+      }
+      seenIds.add(id);
+
+      headings.push({
+        id,
+        number: headingCount,
+        title: text,
+        level: parseInt(levelStr, 10),
+      });
+
+      if (idMatch) {
+        return match;
+      }
+      return `<h${levelStr} id="${id}"${attrs}>${innerHtml}</h${levelStr}>`;
+    }
+  );
+
+  return { headings, htmlWithIds };
+}

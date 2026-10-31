@@ -14,18 +14,14 @@ interface BlogTableOfContentsProps {
 }
 
 export default function BlogTableOfContents({
-  items = [
-    { id: "introduction", number: 1, title: "Introduction" },
-    { id: "key-features", number: 2, title: "Key Features" },
-    { id: "floor-plan-specs", number: 3, title: "Floor Plan & Specifications" },
-    { id: "interior-design", number: 4, title: "Interior Design & Living Spaces" },
-    { id: "why-modular", number: 5, title: "Why Choose a Modular Cabin?" },
-    { id: "ideal-uses", number: 6, title: "Ideal Uses" },
-    { id: "pricing-customization", number: 7, title: "Pricing & Customization" },
-    { id: "final-thoughts", number: 8, title: "Final Thoughts" },
-  ],
+  items,
 }: BlogTableOfContentsProps) {
   const [collapsed, setCollapsed] = useState(false);
+
+  // Do not render empty or single-item Table of Contents
+  if (!items || items.length < 2) {
+    return null;
+  }
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);

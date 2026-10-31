@@ -530,9 +530,9 @@ export async function getPublicFloorPlans(params?: {
       // 1. Custom local admin floor plans take top priority
       for (const raw of customStored) {
         if (!raw || (!raw.slug && !raw.id)) continue;
-        if (raw.status === "DRAFT") continue;
+        if (raw.status === "DRAFT" || raw.status === "ARCHIVED") continue;
         const p = formatFloorPlan(raw);
-        if (p && p.slug) {
+        if (p && p.slug && p.slug !== "floor") {
           const clean = p.slug.toLowerCase().trim();
           if (!seenSlugs.has(clean)) {
             seenSlugs.add(clean);
@@ -543,7 +543,7 @@ export async function getPublicFloorPlans(params?: {
 
       // 2. Database plans from Supabase
       for (const p of dbPlans) {
-        if (p && p.slug) {
+        if (p && p.slug && p.slug !== "floor" && p.status !== "ARCHIVED" && p.status !== "DRAFT") {
           const clean = p.slug.toLowerCase().trim();
           if (!seenSlugs.has(clean)) {
             seenSlugs.add(clean);
@@ -1032,7 +1032,7 @@ export async function getPublicBlogs(params?: { category?: string; search?: stri
       if (isSupabaseConfigured()) {
         try {
           const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), 1200);
+          const timer = setTimeout(() => controller.abort(), 5000);
 
           const { data: dbPosts, error } = await supabaseAdmin
             .from("blog_posts")
