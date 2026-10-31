@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Playfair_Display, Manrope } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -15,8 +14,7 @@ import LocomotiveScrollProvider from "@/components/LocomotiveScrollProvider";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 300;
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -31,11 +29,8 @@ const manrope = Manrope({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [settings, reqHeaders] = await Promise.all([
-    getPublicGlobalSettings(),
-    headers(),
-  ]);
-  const host = reqHeaders.get("host") || "";
+  const settings = await getPublicGlobalSettings();
+  const host = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.NEXT_PUBLIC_SITE_URL || "modularhome.com";
   const robots = getRobotsMetadata(host);
 
   const title = settings.defaultSeoTitle || `${settings.companyName || "ModularHome.com"} | Modern Homes. A Smarter Way to Build.`;
@@ -107,6 +102,11 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${playfair.variable} ${manrope.variable}`}>
       <head>
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://code.tidio.co" />
+        <link rel="dns-prefetch" href="https://code.tidio.co" />
         <link rel="icon" type="image/png" href={settings.faviconUrl || "/favicon.png?v=4"} />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=4" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=4" />
@@ -128,10 +128,10 @@ export default async function RootLayout({
                 <CartDrawer />
                 <Script
                   src="//code.tidio.co/hnehqsvmi7ef3rcnmbydqpmvafzzhydf.js"
-                  strategy="afterInteractive"
+                  strategy="lazyOnload"
                 />
                 {/* Enable mouse-wheel scrolling inside the Tidio chat iframe */}
-                <Script id="tidio-wheel-scroll" strategy="afterInteractive">{`
+                <Script id="tidio-wheel-scroll" strategy="lazyOnload">{`
                   (function() {
                     function enableTidioWheelScroll() {
                       var iframe = document.querySelector('#tidio-chat-iframe');
