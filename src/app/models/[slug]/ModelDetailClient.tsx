@@ -18,6 +18,8 @@ import {
   FileCheck,
   Layers,
   Sliders,
+  ChevronDown,
+  HelpCircle,
   Download
 } from "lucide-react";
 import { BuildingModel, BuildingModelVariant } from "@/data/models";
@@ -29,6 +31,7 @@ import { formatPrice } from "@/utils/currency";
 import RichHtmlContent from "@/components/RichHtmlContent";
 import { getCategoryFallbackImage } from "@/lib/publicData";
 import { getProductCategorySlug, getCategoryDisplayName } from "@/utils/productUrls";
+import { getProductFaqs } from "@/lib/seo";
 
 interface ModelDetailClientProps {
   model: BuildingModel;
@@ -829,6 +832,40 @@ export default function ModelDetailClient({
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        
+        {/* PRODUCT SPECIFICATION & BUYER FAQ ACCORDION */}
+        <div className="mt-16 pt-12 border-t border-[#e7e9ee] space-y-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#d97706]">
+              <HelpCircle className="w-3.5 h-3.5" />
+              <span>Model Inquiries</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#101114] font-display">
+              Frequently Asked Questions About {model?.name}
+            </h2>
+            <p className="text-xs sm:text-sm text-[#6b7280]">
+              Key architectural specifications, foundation choices, delivery parameters, and customizations for this model.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            {getProductFaqs(model).map((faq, idx) => (
+              <details
+                key={idx}
+                className="group bg-white border border-[#e7e9ee] rounded-xl overflow-hidden transition-all duration-200 open:border-[#fcb907] open:shadow-sm"
+              >
+                <summary className="flex items-center justify-between p-4 sm:p-5 font-bold text-sm text-[#101114] cursor-pointer list-none select-none hover:text-[#d97706] transition-colors">
+                  <span className="pr-4">{faq.q}</span>
+                  <ChevronDown className="w-4 h-4 text-[#6b7280] group-open:rotate-180 transition-transform duration-200 shrink-0" />
+                </summary>
+                <div className="px-4 pb-4 sm:px-5 sm:pb-5 text-xs sm:text-sm text-[#4b5563] leading-relaxed border-t border-transparent group-open:border-[#f0f2f5] pt-3">
+                  {faq.a}
+                </div>
+              </details>
+            ))}
           </div>
         </div>
 

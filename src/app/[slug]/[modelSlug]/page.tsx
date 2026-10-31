@@ -5,7 +5,7 @@ import ModelDetailClient from "@/app/models/[slug]/ModelDetailClient";
 import { getPublicProductBySlug, getPublicProducts } from "@/lib/publicData";
 import { getPublicGlobalSettings } from "@/lib/settings";
 import { truncateText } from "@/utils/text";
-import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
+import { getCanonicalUrl, getRobotsMetadata, getProductFaqs } from "@/lib/seo";
 import {
   getProductCategorySlug,
   getProductUrl,
@@ -138,6 +138,7 @@ export default async function CategoryProductPage({ params }: CategoryProductPag
 
   const categoryName = getCategoryDisplayName(effectiveCat);
   const canonicalUrl = getCanonicalUrl(`/${effectiveCat}/${model.slug}`);
+  const faqs = getProductFaqs(model);
 
   // Schema.org Product structured data
   const productJsonLd = {
@@ -190,6 +191,20 @@ export default async function CategoryProductPage({ params }: CategoryProductPag
     ],
   };
 
+  // Schema.org FAQPage structured data
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.a,
+      },
+    })),
+  };
+
   return (
     <>
       <script
@@ -199,6 +214,10 @@ export default async function CategoryProductPage({ params }: CategoryProductPag
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <ModelDetailClient
         model={model}
