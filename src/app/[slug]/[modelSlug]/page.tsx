@@ -60,6 +60,10 @@ export async function generateMetadata({
   const robots = getRobotsMetadata(host);
 
   const canonicalCategory = getProductCategorySlug(model);
+  const cleanCat = category.toLowerCase().trim();
+  if (cleanCat !== canonicalCategory) {
+    permanentRedirect(`/${canonicalCategory}/${model.slug}`);
+  }
   const canonicalUrl = getCanonicalUrl(`/${canonicalCategory}/${model.slug}`);
 
   const title = model.sqft > 0
@@ -116,7 +120,10 @@ export default async function CategoryProductPage({ params }: CategoryProductPag
 
   const cleanCat = category.toLowerCase().trim();
   const canonicalCatSlug = getProductCategorySlug(model);
-  const effectiveCat = isCategorySlug(cleanCat) ? cleanCat : canonicalCatSlug;
+  if (cleanCat !== canonicalCatSlug) {
+    permanentRedirect(`/${canonicalCatSlug}/${model.slug}`);
+  }
+  const effectiveCat = canonicalCatSlug;
 
   const [allProducts, settings] = await Promise.all([
     getPublicProducts(),

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import ModelsCatalog from "./ModelsCatalog";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
+import { getCanonicalUrl } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -18,13 +19,14 @@ export async function generateMetadata(): Promise<Metadata> {
         description: page.ogDescription || description,
         images: page.ogImage ? [{ url: page.ogImage }] : (page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/newmodularlogo.png" }]),
       },
-      alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
+      alternates: { canonical: getCanonicalUrl(page.canonicalUrl || "/models") },
     };
   }
 
   return {
     title: "Floor Plans & Home Catalog | ModularHome.com",
     description: "Browse our complete catalog of modular homes, prefabs, barndominiums, cabins, ADUs, and custom floor plans with transparent pricing and customizable specs.",
+    alternates: { canonical: getCanonicalUrl("/models") },
   };
 }
 

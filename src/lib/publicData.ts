@@ -51,6 +51,40 @@ export function clearPublicDataCache(): void {
 }
 
 /**
+ * Strips heavy payload fields (multi-KB HTML descriptions, variants, detailed specs, large customizableOptions)
+ * from BuildingModel objects when passed to client-side catalog grids/filters.
+ * Prevents HTML document size bloat (fixes Screaming Frog >2MB HTML document limit).
+ */
+export function toCatalogProduct(p: BuildingModel): BuildingModel {
+  if (!p) return p;
+  return {
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    category: p.category,
+    series: p.series,
+    startingPrice: p.startingPrice,
+    sqft: p.sqft,
+    dimensions: p.dimensions,
+    bedrooms: p.bedrooms,
+    bathrooms: p.bathrooms,
+    stories: p.stories,
+    image: p.image || p.primaryImage,
+    primaryImage: p.primaryImage || p.image,
+    tags: p.tags,
+    architecturalStyle: p.architecturalStyle,
+    description: p.description
+      ? p.description.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160)
+      : "",
+  } as BuildingModel;
+}
+
+export function toCatalogProducts(products: BuildingModel[]): BuildingModel[] {
+  if (!Array.isArray(products)) return [];
+  return products.map(toCatalogProduct);
+}
+
+/**
  * Resolves an appropriate high-resolution architectural image based on category and model keywords
  */
 export function getCategoryFallbackImage(category?: string, name?: string, slug?: string): string {

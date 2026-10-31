@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import ModelsCatalog from "../models/ModelsCatalog";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
+import { getCanonicalUrl } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -18,13 +19,14 @@ export async function generateMetadata(): Promise<Metadata> {
         description: page.ogDescription || description,
         images: page.ogImage ? [{ url: page.ogImage }] : (page.featuredImage ? [{ url: page.featuredImage }] : [{ url: "/newmodularlogo.png" }]),
       },
-      alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
+      alternates: { canonical: getCanonicalUrl(page.canonicalUrl || "/buildings") },
     };
   }
 
   return {
     title: "Commercial & Residential Homes | ModularHome.com",
     description: "Explore our full catalog of modular homes, prefabs, barndominiums, cabins, ADUs, and commercial building solutions.",
+    alternates: { canonical: getCanonicalUrl("/buildings") },
   };
 }
 

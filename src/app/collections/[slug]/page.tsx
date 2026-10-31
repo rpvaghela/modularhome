@@ -19,7 +19,8 @@ import {
 import BuildingCard from "@/components/BuildingCard";
 import ShareButton from "@/components/ShareButton";
 import CategoryFilteredCatalog from "@/components/CategoryFilteredCatalog";
-import { getPublicCollections, getPublicProducts, getCategoryFallbackImage, getPublicCollectionBySlug } from "@/lib/publicData";
+import { getPublicCollections, getPublicProducts, getCategoryFallbackImage, getPublicCollectionBySlug, toCatalogProducts } from "@/lib/publicData";
+import { sanitizeHtmlContent } from "@/utils/text";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import { CATEGORY_SLUG_MAP } from "@/utils/productUrls";
 
@@ -35,7 +36,7 @@ export async function generateMetadata({
 }: CollectionPageProps): Promise<Metadata> {
   const { slug } = await params;
   if (!slug || slug === "undefined" || slug === "null") {
-    return { title: "Collection Not Found | ModularHome.com" };
+    return { title: "Collection Not Found | ModularHome.com", robots: { index: false, follow: false } };
   }
 
   const cleanSlug = slug.toLowerCase().trim();
@@ -237,7 +238,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
             {collectionDescriptionHtml ? (
               <div 
                 className="text-sm sm:text-base text-gray-300 leading-relaxed space-y-2 [&>p]:leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: collectionDescriptionHtml }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(collectionDescriptionHtml) }}
               />
             ) : (
               <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
@@ -306,8 +307,8 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
 
         {/* Filter Bar & Models Grid */}
         <CategoryFilteredCatalog
-          initialProducts={matchedProducts}
-          allProducts={allProducts}
+          initialProducts={toCatalogProducts(matchedProducts)}
+          allProducts={toCatalogProducts(allProducts)}
           categoryName={collectionTitle}
           categoryKey={slug}
         />

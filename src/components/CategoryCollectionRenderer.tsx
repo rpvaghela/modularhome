@@ -12,7 +12,7 @@ import BuildingCard from "@/components/BuildingCard";
 import ShareButton from "@/components/ShareButton";
 import CategoryFilteredCatalog from "@/components/CategoryFilteredCatalog";
 import { BuildingModel } from "@/data/models";
-import { PublicCollection } from "@/lib/publicData";
+import { PublicCollection, toCatalogProducts } from "@/lib/publicData";
 import { getCanonicalUrl } from "@/lib/seo";
 
 interface CategoryCollectionRendererProps {
@@ -125,8 +125,8 @@ export default function CategoryCollectionRenderer({
 
         {/* Filter Bar & Models Grid */}
         <CategoryFilteredCatalog
-          initialProducts={products}
-          allProducts={allProducts.length > 0 ? allProducts : products}
+          initialProducts={toCatalogProducts(products)}
+          allProducts={toCatalogProducts(allProducts.length > 0 ? allProducts : products)}
           categoryName={title}
           categoryKey={categoryKey}
           lockPoolToInitial={lockPoolToInitial || categoryKey === "modular-homes-under-100k" || categoryKey === "modular-storage" || categoryKey === "modular-storage-buildings"}

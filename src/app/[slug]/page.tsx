@@ -167,7 +167,7 @@ export async function generateMetadata({
         images: [ogImage],
       },
       robots: page.robots || "index, follow",
-      alternates: page.canonicalUrl ? { canonical: page.canonicalUrl } : undefined,
+      alternates: { canonical: getCanonicalUrl(page.canonicalUrl || `/${page.slug}`) },
     };
   }
 

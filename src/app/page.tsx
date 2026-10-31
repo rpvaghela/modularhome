@@ -15,7 +15,7 @@ import HomeVideosSection from "@/components/HomeVideosSection";
 import HomeTestimonialsSection from "@/components/HomeTestimonialsSection";
 import HomeArticlesSection from "@/components/HomeArticlesSection";
 import CTASection from "@/components/CTASection";
-import { getPublicProducts, getPublicReviews, getPublicSettings, getPublicCollections, getHomeTypeCategories, getPublicBlogs, getCategoryFallbackImage } from "@/lib/publicData";
+import { getPublicProducts, getPublicReviews, getPublicSettings, getPublicCollections, getHomeTypeCategories, getPublicBlogs, getCategoryFallbackImage, toCatalogProducts, computeBudgetTiers } from "@/lib/publicData";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
 import { getPublishedVideos, getTotalVideoCount, getHomepageVideos } from "@/lib/videoStore";
 
@@ -133,12 +133,12 @@ export default async function HomePage() {
   const heroDesc = homePage?.content || "Explore precision commercial-grade steel modular residences, downloadable blueprint kits, and turnkey prefab homes designed for superior energy efficiency and fast nationwide delivery.";
   const heroBgImage = homePage?.featuredImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=75";
   const featuredHeroModel = availableHomes[0] || null;
+  const budgetTiers = computeBudgetTiers(products);
+  const leanDistinctProducts = toCatalogProducts(distinctProducts);
+  const featuredBlogs = blogs.slice(0, 4);
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* Preload Hero LCP Image for immediate render */}
-      <link rel="preload" as="image" href={heroBgImage} fetchPriority="high" />
-
       {/* 1. PROFESSIONAL ARCHITECTURAL HERO SECTION */}
       <section 
         className="min-h-[580px] sm:min-h-[640px] lg:min-h-[690px] text-white flex items-center relative overflow-hidden bg-[#0b0f17] bg-cover bg-center pb-8 sm:pb-12"
@@ -222,10 +222,10 @@ export default async function HomePage() {
       <CategoryGrid categories={homeCategories} collections={collections} />
 
       {/* 5. HOMES AVAILABLE RIGHT NOW (Interactive Category-Filtered Home Models Showcase) */}
-      <HomeModelsShowcase allProducts={distinctProducts} initialHomes={availableHomes} />
+      <HomeModelsShowcase allProducts={leanDistinctProducts} initialHomes={availableHomes} />
 
       {/* 6. FIND A HOME IN YOUR BUDGET (4 Budget Cards) */}
-      <BudgetSection products={products} />
+      <BudgetSection tiers={budgetTiers} />
 
       {/* 7. FIND HOMES NEAR YOU (ZIP Search + USA Map + Nationwide Delivery) */}
       <NearMeSection />
@@ -282,7 +282,7 @@ export default async function HomePage() {
       <HomeTestimonialsSection initialReviews={reviews} />
 
       {/* 14. LATEST NEWS & RESOURCES (Articles) */}
-      <HomeArticlesSection articles={blogs} />
+      <HomeArticlesSection articles={featuredBlogs} />
 
       {/* 15. READY TO BUILD YOUR DREAM HOME? (CTA Banner) */}
       <CTASection />

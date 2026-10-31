@@ -437,18 +437,18 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               {isAuthenticated && customer ? (
                 <div className="hidden lg:flex items-center gap-3 text-[11.5px] text-gray-300 font-medium">
-                  <Link href="/account" className="hover:text-[#fcb907] transition-colors flex items-center gap-1.5 text-white font-bold group">
+                  <Link rel="nofollow" href="/account" className="hover:text-[#fcb907] transition-colors flex items-center gap-1.5 text-white font-bold group">
                     <span className="w-4 h-4 rounded-full bg-[#fcb907] text-[#101114] flex items-center justify-center text-[9px] font-black group-hover:scale-105 transition-transform">
                       {customer.name ? customer.name.charAt(0).toUpperCase() : "U"}
                     </span>
                     <span>Hi, {customer.name ? customer.name.split(" ")[0] : "Customer"}</span>
                   </Link>
                   <span className="text-gray-700">|</span>
-                  <Link href="/account?tab=downloads" className="hover:text-[#fcb907] transition-colors">
+                  <Link rel="nofollow" href="/account?tab=downloads" className="hover:text-[#fcb907] transition-colors">
                     My Blueprints
                   </Link>
                   <span className="text-gray-700">|</span>
-                  <Link href="/account?tab=orders" className="hover:text-[#fcb907] transition-colors">
+                  <Link rel="nofollow" href="/account?tab=orders" className="hover:text-[#fcb907] transition-colors">
                     Orders
                   </Link>
                   <span className="text-gray-700">|</span>
@@ -465,12 +465,12 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                     Upload Plans
                   </Link>
                   <span className="text-gray-700">|</span>
-                  <Link href="/account/login" className="hover:text-[#fcb907] transition-colors flex items-center gap-1 text-gray-200">
+                  <Link rel="nofollow" href="/account/login" className="hover:text-[#fcb907] transition-colors flex items-center gap-1 text-gray-200">
                     <User className="w-3 h-3 text-[#fcb907]" />
                     <span>Sign In</span>
                   </Link>
                   <span className="text-gray-700">|</span>
-                  <Link href="/account/signup" className="hover:text-[#fcb907] transition-colors">
+                  <Link rel="nofollow" href="/account/signup" className="hover:text-[#fcb907] transition-colors">
                     Register
                   </Link>
                   <span className="text-gray-700">|</span>

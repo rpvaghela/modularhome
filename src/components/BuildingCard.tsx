@@ -46,10 +46,8 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
 
   const specsText = specsList.length > 0 ? specsList.join(" | ") : "Precision Modular Construction";
   
-  const cleanCatSlug = categorySlug ? categorySlug.toLowerCase().trim().replace(/^\/+|\/+$/g, "") : "";
-  const modelUrl = cleanCatSlug && cleanCatSlug !== "all" && cleanCatSlug !== "buildings"
-    ? `/${cleanCatSlug}/${model.slug}`
-    : getProductUrl(model);
+  // Always use the definitive canonical category path for the product link to eliminate canonicalised URL warnings
+  const modelUrl = getProductUrl(model);
 
   const fallbackImg = getCategoryFallbackImage(model.category || model.series, model.name, model.slug);
   const rawImage = model.primaryImage || model.image;

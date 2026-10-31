@@ -256,3 +256,41 @@ export function extractHeadingsWithIds(html?: string | null): {
 
   return { headings, htmlWithIds };
 }
+
+/**
+ * Sanitizes and normalizes HTML content from CMS blogs, descriptions, and custom pages:
+ * 1. Strips stray <meta> tags migrated from Shopify to keep HTML document parsing valid.
+ * 2. Demotes nested <h1> tags to <h2> to maintain strict single-H1 SEO hierarchy.
+ * 3. Enforces width, height, and loading="lazy" decoding="async" attributes on <img> tags
+ *    to prevent layout shifts (CLS) and pass Screaming Frog / Lighthouse size audits.
+ */
+export function sanitizeHtmlContent(html?: string | null): string {
+  if (!html || !html.trim()) return "";
+
+  // 1. Strip stray <meta> tags and normalize h1 -> h2
+  let sanitized = html
+    .replace(/<meta\b[^>]*>/gi, "")
+    .replace(/<h1(\s|>)/gi, "<h2$1")
+    .replace(/<\/h1>/gi, "</h2>");
+
+  // 2. Add dimensions and lazy loading to any <img> lacking them
+  sanitized = sanitized.replace(/<img\b([^>]*)>/gi, (match, attrs) => {
+    let updated = attrs;
+    if (!/\bwidth\s*=/i.test(attrs)) {
+      updated += ' width="1200"';
+    }
+    if (!/\bheight\s*=/i.test(attrs)) {
+      updated += ' height="800"';
+    }
+    if (!/\bloading\s*=/i.test(attrs)) {
+      updated += ' loading="lazy"';
+    }
+    if (!/\bdecoding\s*=/i.test(attrs)) {
+      updated += ' decoding="async"';
+    }
+    return `<img${updated}>`;
+  });
+
+  return sanitized;
+}
+

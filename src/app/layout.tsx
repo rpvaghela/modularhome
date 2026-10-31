@@ -107,13 +107,6 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://code.tidio.co" />
         <link rel="dns-prefetch" href="https://code.tidio.co" />
-        <link rel="icon" type="image/png" href={settings.faviconUrl || "/favicon.png?v=4"} />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=4" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=4" />
-        <link rel="shortcut icon" href={settings.faviconUrl || "/favicon.png?v=4"} />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=4" />
-        {/* GA4 — activates when NEXT_PUBLIC_GA_MEASUREMENT_ID env var is set */}
-        <GoogleAnalytics />
       </head>
       <body className={`min-h-screen flex flex-col bg-white text-[#101114] antialiased selection:bg-[#fcb907] selection:text-[#101114] ${manrope.className}`}>
         <CustomerAuthProvider>
@@ -164,6 +157,8 @@ export default async function RootLayout({
             </ConfirmDialogProvider>
           </CartProvider>
         </CustomerAuthProvider>
+        {/* GA4 — activates when NEXT_PUBLIC_GA_MEASUREMENT_ID env var is set */}
+        <GoogleAnalytics />
       </body>
     </html>
   );
