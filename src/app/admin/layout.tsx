@@ -90,6 +90,7 @@ function getAdminPageTitle(pathname: string): string {
   if (pathname === "/admin/orders") return "Customer Orders | Admin Dashboard";
   if (pathname === "/admin/customers") return "Customers Directory | Admin Dashboard";
   if (pathname.startsWith("/admin/customers/")) return "Customer Account Profile | Admin Dashboard";
+  if (pathname === "/admin/seo") return "SEO & Search Console | Admin Dashboard";
   if (pathname === "/admin/analytics") return "Analytics & Site Traffic | Admin Dashboard";
   if (pathname === "/admin/reports") return "Sales & Performance Reports | Admin Dashboard";
   if (pathname === "/admin/media") return "Media Assets Library | Admin Dashboard";
@@ -357,6 +358,7 @@ export default function AdminLayout({
       pricing: "Pricing Rules Engine",
       orders: "Blueprint Orders",
       customers: "Customer CRM",
+      seo: "SEO Intelligence",
       analytics: "Sales & Analytics",
       reports: "Reports & Financials",
       pages: "Pages",
@@ -435,6 +437,7 @@ export default function AdminLayout({
           {
             group: "Analytics & Intelligence",
             items: [
+              { label: "SEO & Search Console", href: "/admin/seo", icon: Globe },
               { label: "Sales & Analytics", href: "/admin/analytics", icon: TrendingUp },
               { label: "Financial Reports", href: "/admin/reports", icon: BarChart3 },
             ],
