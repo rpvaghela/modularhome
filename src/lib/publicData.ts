@@ -1977,10 +1977,16 @@ export const MEGA_MENU_CATEGORIES_CONFIG = [
     tagline: "Spacious residential steel barndominiums & shop home kits",
   },
   {
-    label: "House Kits",
-    categoryQuery: "House Kits",
-    viewAllHref: "/house-kits",
-    tagline: "Precision-cut SIP & structural steel home assembly packages",
+    label: "Budget House Kits",
+    categoryQuery: "Budget House Kits",
+    viewAllHref: "/budget-house-kits",
+    tagline: "Affordable panelized & SIP home packages — installation excluded",
+  },
+  {
+    label: "Steel House Kits",
+    categoryQuery: "Steel House Kits",
+    viewAllHref: "/steel-house-kits",
+    tagline: "16-gauge commercial steel shells — professional installation included",
   },
   {
     label: "Tiny Homes",

@@ -185,3 +185,4 @@ With Phase 5 backlink system and prospect database in place, we proceed directly
 3. Design Instagram/Facebook visual content framework (behind-the-scenes factory assembly, crane sets, walk-throughs).
 4. Establish YouTube long-form and Shorts strategy.
 5. Generate `reports/seo/phase-6-social-media.md` and `reports/seo/social-content-calendar.csv`.
+

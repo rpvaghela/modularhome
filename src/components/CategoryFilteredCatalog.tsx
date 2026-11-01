@@ -16,8 +16,8 @@ import { BuildingModel } from "@/data/models";
 import { matchProductCategory, getBaseModelName, isStorageBuilding, isHomeUnder100k } from "@/utils/categoryMatching";
 
 interface CategoryFilteredCatalogProps {
-  initialProducts: BuildingModel[];
-  allProducts: BuildingModel[];
+  initialProducts?: BuildingModel[];
+  allProducts?: BuildingModel[];
   categoryName: string;
   categoryKey?: string;
   lockPoolToInitial?: boolean;
@@ -28,7 +28,9 @@ export const CATEGORY_ROUTE_MAP: Record<string, string> = {
   "Modular Homes": "/modular-homes",
   "Prefab Homes": "/prefab-homes",
   "Barndominiums": "/barndominiums",
-  "House Kits": "/house-kits",
+  "Budget House Kits": "/budget-house-kits",
+  "Steel House Kits": "/steel-house-kits",
+  "House Kits": "/budget-house-kits",
   "Tiny Homes": "/tiny-homes",
   "Park Models": "/park-models",
   "Cabins": "/cabins",
@@ -52,7 +54,8 @@ const CATEGORY_SELECT_OPTIONS = [
   { label: "Modular Homes Under $100k", value: "Modular Homes Under $100k" },
   { label: "Prefab Homes", value: "Prefab Homes" },
   { label: "Barndominiums", value: "Barndominiums" },
-  { label: "House Kits", value: "House Kits" },
+  { label: "Budget House Kits", value: "Budget House Kits" },
+  { label: "Steel House Kits", value: "Steel House Kits" },
   { label: "Tiny Homes", value: "Tiny Homes" },
   { label: "Park Models", value: "Park Models" },
   { label: "Cabins", value: "Cabins" },
@@ -80,8 +83,8 @@ const ARCHITECTURAL_STYLES = [
 ];
 
 export default function CategoryFilteredCatalog({
-  initialProducts,
-  allProducts,
+  initialProducts = [],
+  allProducts = [],
   categoryName,
   categoryKey,
   lockPoolToInitial = false,
@@ -137,12 +140,12 @@ export default function CategoryFilteredCatalog({
   };
 
   // Pool of products to filter from - locked for dedicated landing pages to prevent bleeding
+  const safeInitial = Array.isArray(initialProducts) ? initialProducts : [];
+  const safeAll = Array.isArray(allProducts) ? allProducts : [];
   const shouldLockPool = lockPoolToInitial || isUnder100k || isStorage;
   const catalogPool = shouldLockPool
-    ? initialProducts
-    : allProducts && allProducts.length > 0
-    ? allProducts
-    : initialProducts;
+    ? (safeInitial.length > 0 ? safeInitial : safeAll)
+    : (safeAll.length > 0 ? safeAll : safeInitial);
 
   // Filter products in real-time
   const filteredProducts = useMemo(() => {

@@ -32,6 +32,7 @@ import RichHtmlContent from "@/components/RichHtmlContent";
 import { getCategoryFallbackImage } from "@/lib/publicData";
 import { getProductCategorySlug, getCategoryDisplayName } from "@/utils/productUrls";
 import { getProductFaqs } from "@/lib/seo";
+import { isSteelHouseKit, isBudgetHouseKit } from "@/utils/categoryMatching";
 
 interface ModelDetailClientProps {
   model: BuildingModel;
@@ -394,6 +395,30 @@ export default function ModelDetailClient({
                   </span>
                 </div>
               </div>
+
+              {/* Installation Notice Card for Kits */}
+              {isSteelHouseKit(model) && (
+                <div className="p-3.5 bg-[#0b0f17] border border-[#fcb907]/40 rounded-[11px] text-white space-y-1.5 shadow-sm">
+                  <div className="flex items-center gap-2 text-xs font-black text-[#fcb907] uppercase tracking-wider">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>Professional Installation Included</span>
+                  </div>
+                  <p className="text-[11.5px] text-gray-300 leading-relaxed m-0">
+                    Includes factory erection crew to assemble the dried-in 16-gauge commercial steel shell, ZIP System sheathing, metal roofing & siding on your concrete slab. Our crew sets owner-supplied windows & doors at no extra labor fee.
+                  </p>
+                </div>
+              )}
+              {!isSteelHouseKit(model) && isBudgetHouseKit(model) && (
+                <div className="p-3.5 bg-amber-50/70 border border-amber-200/80 rounded-[11px] text-[#101114] space-y-1.5 shadow-sm">
+                  <div className="flex items-center gap-2 text-xs font-black text-[#b45309] uppercase tracking-wider">
+                    <span className="w-2 h-2 rounded-full bg-amber-500" />
+                    <span>Installation Excluded • DIY / Contractor Kit</span>
+                  </div>
+                  <p className="text-[11.5px] text-gray-700 leading-relaxed m-0">
+                    Delivered as a pre-cut, pre-engineered structural building package with framing, metal roof/siding, and blueprints. On-site installation and foundation labor are excluded from base kit pricing, designed for self-assembly or your local general contractor.
+                  </p>
+                </div>
+              )}
 
               {/* Price Calculation Box */}
               <div className="pt-2 border-t border-[#e7e9ee] flex items-baseline justify-between">

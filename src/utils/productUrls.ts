@@ -34,11 +34,21 @@ export const CATEGORY_SLUG_MAP: Record<string, string> = {
   "barndominium": "barndominiums",
   "barndo": "barndominiums",
 
-  "house-kits": "house-kits",
-  "house-kit": "house-kits",
-  "home-kits": "house-kits",
-  "sip-panel-homes": "house-kits",
-  "sip-panel-house-kits": "house-kits",
+  "budget-house-kits": "budget-house-kits",
+  "budget-house-kit": "budget-house-kits",
+  "budget-kits": "budget-house-kits",
+  "budget-kit": "budget-house-kits",
+
+  "steel-house-kits": "steel-house-kits",
+  "steel-house-kit": "steel-house-kits",
+  "steel-kits": "steel-house-kits",
+  "steel-kit": "steel-house-kits",
+
+  "house-kits": "budget-house-kits",
+  "house-kit": "budget-house-kits",
+  "home-kits": "budget-house-kits",
+  "sip-panel-homes": "budget-house-kits",
+  "sip-panel-house-kits": "budget-house-kits",
 
   "tiny-homes": "tiny-homes",
   "tiny-home": "tiny-homes",
@@ -80,6 +90,8 @@ export const VALID_PRODUCT_CATEGORIES = [
   "modular-cabins",
   "modular-homes",
   "barndominiums",
+  "budget-house-kits",
+  "steel-house-kits",
   "house-kits",
   "tiny-homes",
   "park-models",
@@ -105,33 +117,47 @@ export function getProductCategorySlug(product?: ProductUrlInput | null): ValidP
   const tagsStr = Array.isArray(product.tags) ? product.tags.join(" ").toLowerCase() : (product.tags || "").toLowerCase();
   const combined = `${title} ${slug} ${rawCat} ${tagsStr}`;
 
-  // 1. Barndominiums & Steel Home Kits (e.g. Grandview, Summit Steel Home Kit)
+  // 1a. Steel House Kits & Steel Shell Packages (Amish Built Cabins steel kits - Installation Included)
+  if (
+    (combined.includes("steel") && (combined.includes("kit") || combined.includes("house") || combined.includes("barndo") || combined.includes("home"))) ||
+    slug.includes("steel-house-kit") ||
+    slug.includes("steel-kit") ||
+    rawCat === "steel house kits" ||
+    rawCat === "steel-house-kits" ||
+    title.includes("steel house kit")
+  ) {
+    return "steel-house-kits";
+  }
+
+  // 1b. Barndominiums (non-kit barndominiums or standard barndo models)
   if (
     combined.includes("barndo") ||
     combined.includes("barndominium") ||
     slug.includes("grandview") ||
-    title.includes("grandview") ||
-    slug.includes("the-summit-steel-home-kit") ||
-    title.includes("summit steel")
+    title.includes("grandview")
   ) {
     return "barndominiums";
   }
 
-  // 2. House Kits & SIP Panel Home Kits (always canonical /house-kits/, even if tagged Cabins in raw source)
+  // 2. Budget House Kits & SIP Panel Home Kits (Amish Built Cabins budget collection - Installation Excluded)
   if (
     slug.includes("house-kit") ||
     slug.includes("home-kit") ||
     slug.includes("housekit") ||
     slug.includes("homekit") ||
     slug.includes("sip-panel") ||
+    slug.includes("budget-kit") ||
     title.includes("house kit") ||
     title.includes("home kit") ||
     title.includes("sip panel") ||
+    title.includes("budget house kit") ||
+    rawCat === "budget house kits" ||
+    rawCat === "budget-house-kits" ||
     rawCat === "house kits" ||
     rawCat === "house-kits" ||
     rawCat === "sip panel homes"
   ) {
-    return "house-kits";
+    return "budget-house-kits";
   }
 
   // 3. Modular Cabins & Prefab Cabins
@@ -249,7 +275,9 @@ export function getCategoryDisplayName(slug: string): string {
     case "modular-cabins": return "Modular Cabins";
     case "modular-homes": return "Modular Homes";
     case "barndominiums": return "Barndominiums";
-    case "house-kits": return "House Kits";
+    case "budget-house-kits": return "Budget House Kits";
+    case "steel-house-kits": return "Steel House Kits";
+    case "house-kits": return "Budget House Kits";
     case "tiny-homes": return "Tiny Homes";
     case "park-models": return "Park Models";
     case "adus": return "ADUs & Granny Pods";

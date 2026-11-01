@@ -7,6 +7,7 @@ import { formatPrice } from "@/utils/currency";
 import ShareButton from "@/components/ShareButton";
 import { getCategoryFallbackImage } from "@/lib/publicData";
 import { getProductUrl } from "@/utils/productUrls";
+import { isSteelHouseKit, isBudgetHouseKit } from "@/utils/categoryMatching";
 
 interface BuildingCardProps {
   model: BuildingModel;
@@ -55,6 +56,9 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
     ? fallbackImg
     : rawImage;
 
+  const isSteelKit = isSteelHouseKit(model);
+  const isBudgetKit = !isSteelKit && isBudgetHouseKit(model);
+
   return (
     <div className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between bg-white relative">
       {/* Image Viewport */}
@@ -67,6 +71,20 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-108"
         />
+
+        {/* Installation Status Badge */}
+        {isSteelKit && (
+          <div className="absolute top-2.5 left-2.5 z-10 bg-[#0f1218]/90 backdrop-blur-md text-[#fcb907] border border-[#fcb907]/40 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded shadow-sm flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Installed Shell</span>
+          </div>
+        )}
+        {isBudgetKit && (
+          <div className="absolute top-2.5 left-2.5 z-10 bg-[#101114]/90 backdrop-blur-md text-amber-200 border border-white/20 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-sm flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            <span>DIY • Install Excluded</span>
+          </div>
+        )}
 
         {/* Share Button Overlay */}
         <div className="absolute top-2.5 right-2.5 z-10">

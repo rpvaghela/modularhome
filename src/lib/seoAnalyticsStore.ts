@@ -228,3 +228,4 @@ export async function getSeoAnalyticsData(params?: {
     recentLeads,
   };
 }
+

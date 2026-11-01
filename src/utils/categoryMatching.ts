@@ -136,6 +136,113 @@ export function isAmishModularTurnkeyCabin(model: {
 }
 
 /**
+ * Checks if a model is a Commercial 16-Gauge Structural Steel House Kit or Steel Shell.
+ * Follows Amish Built Cabins Steel Kits Page (how-steel-house-kits-and-barndominium-kits-work).
+ * Distinguishing characteristic: Real 16-gauge cold-formed steel framing with professional
+ * factory installation included directly on the homeowner's cured slab foundation.
+ */
+export function isSteelHouseKit(model: {
+  name?: string;
+  title?: string;
+  slug?: string;
+  handle?: string;
+  category?: string;
+  product_type?: string;
+  series?: string;
+  description?: string;
+  tags?: string[] | string;
+}): boolean {
+  const mName = (model.name || model.title || "").toLowerCase();
+  const mSlug = (model.slug || model.handle || "").toLowerCase();
+  const mCat = normalizeCategory(model.category || model.product_type || model.series || "");
+  const mDesc = (model.description || "").toLowerCase();
+  const tagsStr = Array.isArray(model.tags) ? model.tags.join(" ").toLowerCase() : (model.tags || "").toLowerCase();
+
+  // Exclude non-home/storage/garages
+  if (
+    mName.includes("storage") ||
+    mSlug.includes("storage") ||
+    mName.includes("garage") ||
+    mName.includes("shed")
+  ) {
+    return false;
+  }
+
+  // Steel house kits criteria:
+  return (
+    (mName.includes("steel") && (mName.includes("kit") || mName.includes("house") || mName.includes("barndo") || mName.includes("home"))) ||
+    (mSlug.includes("steel") && (mSlug.includes("kit") || mSlug.includes("house") || mSlug.includes("barndo") || mSlug.includes("home"))) ||
+    mCat === "steel house kits" ||
+    mCat === "steel-house-kits" ||
+    mCat === "steel kit models" ||
+    mName.includes("steel barndo") ||
+    mSlug.includes("steel-barndo") ||
+    mName.includes("steel house kit") ||
+    mSlug.includes("steel-house-kit") ||
+    mDesc.includes("16-gauge") ||
+    mDesc.includes("steel stud") ||
+    mDesc.includes("steel framing") ||
+    mDesc.includes("steel shell")
+  );
+}
+
+/**
+ * Checks if a model is an Affordable Budget House Kit / Panelized SIP Home Package.
+ * Follows Amish Built Cabins Budget Collection (collections/house-kit).
+ * Distinguishing characteristic: Panelized wood/SIP DIY and contractor packages where
+ * on-site installation is EXCLUDED (DIY or local general contractor assembly on slab).
+ */
+export function isBudgetHouseKit(model: {
+  name?: string;
+  title?: string;
+  slug?: string;
+  handle?: string;
+  category?: string;
+  product_type?: string;
+  series?: string;
+  description?: string;
+  tags?: string[] | string;
+}): boolean {
+  // If it's a steel house kit, it strictly belongs in Steel House Kits
+  if (isSteelHouseKit(model)) return false;
+
+  const mName = (model.name || model.title || "").toLowerCase();
+  const mSlug = (model.slug || model.handle || "").toLowerCase();
+  const mCat = normalizeCategory(model.category || model.product_type || model.series || "");
+  const tagsStr = Array.isArray(model.tags) ? model.tags.join(" ").toLowerCase() : (model.tags || "").toLowerCase();
+
+  // Exclude non-home items
+  if (
+    mName.includes("storage") ||
+    mSlug.includes("storage") ||
+    mName.includes("cabinet") ||
+    mName.includes("chair") ||
+    mName.includes("broker")
+  ) {
+    return false;
+  }
+
+  // Budget house kit criteria:
+  return (
+    mName.includes("house kit") ||
+    mSlug.includes("house-kit") ||
+    mName.includes("home kit") ||
+    mSlug.includes("home-kit") ||
+    mName.includes("panelized") ||
+    mSlug.includes("panelized") ||
+    mName.includes("sip panel") ||
+    mSlug.includes("sip-panel") ||
+    mName.includes("budget kit") ||
+    mSlug.includes("budget-kit") ||
+    mCat === "house kits" ||
+    mCat === "house-kits" ||
+    mCat === "budget house kits" ||
+    mCat === "budget-house-kits" ||
+    mCat.includes("sip panel")
+  );
+}
+
+/**
  * Checks if a model is a storage building, metal pole barn, shed, utility structure, workshop, or garage.
  * Excludes residential living homes/cabins that merely have "finished inside" in title.
  */
@@ -362,17 +469,29 @@ export function matchProductCategory(
     );
   }
 
-  // 5. House Kits
-  if (clean.includes("house kit") || clean.includes("home kit")) {
-    return (
-      (mCat.includes("house kit") ||
-        mName.includes("house kit") ||
-        mName.includes("home kit") ||
-        mName.includes("steel kit") ||
-        mName.includes("sip panel") ||
-        mName.includes("panelized")) &&
-      !mName.includes("barndo")
-    );
+  // 5a. Budget House Kits (Amish Built Cabins budget collection - Installation Excluded)
+  if (
+    clean.includes("budget house kit") ||
+    clean.includes("budget kit") ||
+    clean === "budget-house-kits" ||
+    clean === "budget house kits"
+  ) {
+    return isBudgetHouseKit(model as any);
+  }
+
+  // 5b. Steel House Kits (Amish Built Cabins steel kits page - Professional Installation Included)
+  if (
+    clean.includes("steel house kit") ||
+    clean.includes("steel kit") ||
+    clean === "steel-house-kits" ||
+    clean === "steel house kits"
+  ) {
+    return isSteelHouseKit(model as any);
+  }
+
+  // 5c. Generic House Kits fallback (matches either budget or steel)
+  if (clean.includes("house kit") || clean.includes("home kit") || clean === "house-kits") {
+    return isBudgetHouseKit(model as any) || isSteelHouseKit(model as any);
   }
 
   // 6. Tiny Homes

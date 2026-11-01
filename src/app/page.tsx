@@ -6,6 +6,8 @@ import HomeSearchBox from "@/components/HomeSearchBox";
 import CategoryGrid from "@/components/CategoryGrid";
 import HomeProductCard, { ProductItem } from "@/components/HomeProductCard";
 import HomeModelsShowcase from "@/components/HomeModelsShowcase";
+import BudgetHouseKitsSection from "@/components/BudgetHouseKitsSection";
+import SteelHouseKitsSection from "@/components/SteelHouseKitsSection";
 import BudgetSection from "@/components/BudgetSection";
 import NearMeSection from "@/components/NearMeSection";
 import CustomizeAndPlansSection from "@/components/CustomizeAndPlansSection";
@@ -224,10 +226,16 @@ export default async function HomePage() {
       {/* 5. HOMES AVAILABLE RIGHT NOW (Interactive Category-Filtered Home Models Showcase) */}
       <HomeModelsShowcase allProducts={leanDistinctProducts} initialHomes={availableHomes} />
 
-      {/* 6. FIND A HOME IN YOUR BUDGET (4 Budget Cards) */}
+      {/* 6. BUDGET HOUSE KITS (Amish Built Cabins budget collection - Installation Excluded) */}
+      <BudgetHouseKitsSection products={products} />
+
+      {/* 7. STEEL HOUSE KITS (Amish Built Cabins steel kits page - Professional Installation Included) */}
+      <SteelHouseKitsSection products={products} />
+
+      {/* 8. FIND A HOME IN YOUR BUDGET (4 Budget Cards) */}
       <BudgetSection tiers={budgetTiers} />
 
-      {/* 7. FIND HOMES NEAR YOU (ZIP Search + USA Map + Nationwide Delivery) */}
+      {/* 9. FIND HOMES NEAR YOU (ZIP Search + USA Map + Nationwide Delivery) */}
       <NearMeSection />
 
       {/* 8. TRENDING HOMES (5-Column Product Grid) */}
