@@ -17,6 +17,7 @@ import HomeVideosSection from "@/components/HomeVideosSection";
 import HomeTestimonialsSection from "@/components/HomeTestimonialsSection";
 import HomeArticlesSection from "@/components/HomeArticlesSection";
 import CTASection from "@/components/CTASection";
+import HomePageLoader from "@/components/HomePageLoader";
 import { getPublicProducts, getPublicReviews, getPublicSettings, getPublicCollections, getHomeTypeCategories, getPublicBlogs, getCategoryFallbackImage, toCatalogProducts, computeBudgetTiers } from "@/lib/publicData";
 import { getPublicPageBySlug } from "@/lib/pageDataServer";
 import { getPublishedVideos, getTotalVideoCount, getHomepageVideos } from "@/lib/videoStore";
@@ -141,6 +142,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
+      <HomePageLoader />
       {/* 1. PROFESSIONAL ARCHITECTURAL HERO SECTION */}
       <section 
         className="min-h-[580px] sm:min-h-[640px] lg:min-h-[690px] text-white flex items-center relative overflow-hidden bg-[#0b0f17] bg-cover bg-center pb-8 sm:pb-12"
