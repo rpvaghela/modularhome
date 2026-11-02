@@ -160,6 +160,9 @@ export function isSteelHouseKit(model: {
 
   // Exclude non-home/storage/garages
   if (
+    mName.includes("how our steel") ||
+    mName.includes("how steel house") ||
+    mSlug.includes("how-our-steel") ||
     mName.includes("storage") ||
     mSlug.includes("storage") ||
     mName.includes("garage") ||

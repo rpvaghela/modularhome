@@ -6,15 +6,16 @@ import { isSteelHouseKit } from "@/utils/categoryMatching";
 import { formatPrice } from "@/utils/currency";
 import { getProductUrl } from "@/utils/productUrls";
 import { getCategoryFallbackImage } from "@/lib/publicData";
+import { sortBySqftAvailability } from "@/utils/productSorting";
 
 interface SteelHouseKitsSectionProps {
   products?: BuildingModel[];
 }
 
 export default function SteelHouseKitsSection({ products = [] }: SteelHouseKitsSectionProps) {
-  const steelKits = products
-    .filter((p) => isSteelHouseKit(p))
-    .slice(0, 5);
+  const steelKits = sortBySqftAvailability(
+    products.filter((p) => isSteelHouseKit(p))
+  ).slice(0, 5);
 
   return (
     <section className="py-12 sm:py-16 bg-[#090d14] text-white font-sans border-b border-gray-800">

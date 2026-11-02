@@ -4,6 +4,7 @@ import Image from "next/image";
 import { headers } from "next/headers";
 import { getPublicProducts, getCategoryFallbackImage, toCatalogProducts } from "@/lib/publicData";
 import { isBudgetHouseKit } from "@/utils/categoryMatching";
+import { sortBySqftAvailability } from "@/utils/productSorting";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import CategoryFilteredCatalog from "@/components/CategoryFilteredCatalog";
 import BuildingCard from "@/components/BuildingCard";
@@ -100,7 +101,9 @@ const BUDGET_KIT_FAQS = [
 
 export default async function BudgetHouseKitsPage() {
   const allProducts = await getPublicProducts();
-  const budgetProducts = (allProducts || []).filter((p) => isBudgetHouseKit(p));
+  const budgetProducts = sortBySqftAvailability(
+    (allProducts || []).filter((p) => isBudgetHouseKit(p))
+  );
   const leanBudgetProducts = toCatalogProducts(budgetProducts);
 
   return (

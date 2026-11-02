@@ -6,15 +6,16 @@ import { isBudgetHouseKit } from "@/utils/categoryMatching";
 import { formatPrice } from "@/utils/currency";
 import { getProductUrl } from "@/utils/productUrls";
 import { getCategoryFallbackImage } from "@/lib/publicData";
+import { sortBySqftAvailability } from "@/utils/productSorting";
 
 interface BudgetHouseKitsSectionProps {
   products?: BuildingModel[];
 }
 
 export default function BudgetHouseKitsSection({ products = [] }: BudgetHouseKitsSectionProps) {
-  const budgetKits = products
-    .filter((p) => isBudgetHouseKit(p))
-    .slice(0, 5);
+  const budgetKits = sortBySqftAvailability(
+    products.filter((p) => isBudgetHouseKit(p))
+  ).slice(0, 5);
 
   return (
     <section className="py-12 sm:py-16 bg-[#fbfbfa] border-t border-b border-gray-200/80 font-sans">

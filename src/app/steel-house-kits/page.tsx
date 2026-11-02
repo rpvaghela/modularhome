@@ -2,8 +2,9 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { headers } from "next/headers";
-import { getPublicProducts, toCatalogProducts } from "@/lib/publicData";
+import { fetchSupabaseProducts, getPublicProducts, toCatalogProducts } from "@/lib/publicData";
 import { isSteelHouseKit } from "@/utils/categoryMatching";
+import { sortBySqftAvailability } from "@/utils/productSorting";
 import { getCanonicalUrl, getRobotsMetadata } from "@/lib/seo";
 import CategoryFilteredCatalog from "@/components/CategoryFilteredCatalog";
 import { 
@@ -125,12 +126,18 @@ const STEEL_KIT_FAQS = [
 ];
 
 export default async function SteelHouseKitsPage() {
-  const allProducts = await getPublicProducts();
-  const steelProducts = (allProducts || []).filter((p) => isSteelHouseKit(p));
+  // This catalog must reflect the database rows directly. The merged public
+  // catalog intentionally includes a local legacy fallback, which can contain
+  // placeholder specifications when a product is not present in Supabase.
+  const dbProducts = await fetchSupabaseProducts();
+  const allProducts = dbProducts.length > 0 ? dbProducts : await getPublicProducts();
+  const steelProducts = sortBySqftAvailability(
+    (allProducts || []).filter((p) => isSteelHouseKit(p))
+  );
   const leanSteelProducts = toCatalogProducts(steelProducts);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white font-sans">
+    <div className="flex flex-col min-h-screen bg-[#f6f7f9] font-sans">
       {/* 1. HERO SECTION (ULTRA-COMPACT) */}
       <section className="relative bg-[#090d14] text-white py-5 sm:py-7 overflow-hidden border-b border-gray-800">
         <div className="absolute inset-0 z-0 opacity-20">
@@ -200,7 +207,7 @@ export default async function SteelHouseKitsPage() {
       </section>
 
       {/* 2. PRODUCT CATALOG (AT TOP) */}
-      <section id="catalog" className="py-6 sm:py-8 bg-white">
+      <section id="catalog" className="py-6 sm:py-8 bg-[#f6f7f9]">
         <div className="wrap">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div>

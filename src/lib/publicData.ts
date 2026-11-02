@@ -325,6 +325,8 @@ export function formatProduct(p: any): BuildingModel {
   }
   const finalPrice = startingPrice && !isNaN(startingPrice) && startingPrice > 0 ? startingPrice : 0;
 
+  // Keep missing area missing. Do not substitute a synthetic default such as
+  // 680/720 sq ft; cards can correctly show dimensions or request a quote.
   let sqft = p.sqft !== null && p.sqft !== undefined && !isNaN(Number(p.sqft)) ? Number(p.sqft) : (p.square_feet ? Number(p.square_feet) : 0);
   const bedrooms = p.bedrooms !== null && p.bedrooms !== undefined && !isNaN(Number(p.bedrooms)) ? Number(p.bedrooms) : (p.beds !== undefined ? Number(p.beds) : 0);
   const bathrooms = p.bathrooms !== null && p.bathrooms !== undefined && !isNaN(Number(p.bathrooms)) ? Number(p.bathrooms) : (p.baths !== undefined ? Number(p.baths) : 0);
