@@ -14,7 +14,7 @@ interface SteelHouseKitsSectionProps {
 
 export default function SteelHouseKitsSection({ products = [] }: SteelHouseKitsSectionProps) {
   const steelKits = sortBySqftAvailability(
-    products.filter((p) => isSteelHouseKit(p))
+    products.filter((p) => isSteelHouseKit(p) && p.sqft > 0 && p.sqft !== 720)
   ).slice(0, 5);
 
   return (
