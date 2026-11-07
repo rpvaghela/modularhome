@@ -50,6 +50,7 @@ const PRIMARY_MENU_OPTIONS: CategoryNavOption[] = [
   { label: "Modular Cabins", href: "/modular-cabins", categoryQuery: "Modular Cabins" },
   { label: "Barndominiums", href: "/barndominiums", categoryQuery: "Barndominiums" },
   { label: "Budget House Kits", href: "/budget-house-kits", categoryQuery: "Budget House Kits" },
+  { label: "SIP Homes", href: "/sip-homes", categoryQuery: "SIP Homes", badge: "High-R" },
   { label: "Steel House Kits", href: "/steel-house-kits", categoryQuery: "Steel House Kits", badge: "Installed" },
   { label: "Tiny Homes", href: "/tiny-homes", categoryQuery: "Tiny Homes" },
   { label: "Park Models", href: "/park-models", categoryQuery: "Park Models" },

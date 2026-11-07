@@ -7,7 +7,7 @@ import { formatPrice } from "@/utils/currency";
 import ShareButton from "@/components/ShareButton";
 import { getCategoryFallbackImage } from "@/lib/publicData";
 import { getProductUrl } from "@/utils/productUrls";
-import { isSteelHouseKit, isBudgetHouseKit } from "@/utils/categoryMatching";
+import { isSteelHouseKit, isBudgetHouseKit, isSipHome } from "@/utils/categoryMatching";
 
 interface BuildingCardProps {
   model: BuildingModel;
@@ -57,7 +57,8 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
     : rawImage;
 
   const isSteelKit = isSteelHouseKit(model);
-  const isBudgetKit = !isSteelKit && isBudgetHouseKit(model);
+  const isSipKit = !isSteelKit && isSipHome(model);
+  const isBudgetKit = !isSteelKit && !isSipKit && isBudgetHouseKit(model);
 
   return (
     <div className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between bg-white relative">
@@ -77,6 +78,12 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
           <div className="absolute top-2.5 left-2.5 z-10 bg-[#0f1218]/90 backdrop-blur-md text-[#fcb907] border border-[#fcb907]/40 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded shadow-sm flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span>Installed Shell</span>
+          </div>
+        )}
+        {isSipKit && (
+          <div className="absolute top-2.5 left-2.5 z-10 bg-[#0f1923]/90 backdrop-blur-md text-cyan-200 border border-cyan-400/40 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-sm flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+            <span>SIP • High-R Envelope</span>
           </div>
         )}
         {isBudgetKit && (

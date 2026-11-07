@@ -117,6 +117,7 @@ export default function Footer({ initialSettings, customPages = [] }: FooterProp
     { label: "Modular Cabins", href: "/modular-cabins" },
     { label: "Barndominiums", href: "/barndominiums" },
     { label: "Budget House Kits", href: "/budget-house-kits" },
+    { label: "SIP Homes", href: "/sip-homes" },
     { label: "Steel House Kits", href: "/steel-house-kits" },
     { label: "Tiny Homes", href: "/tiny-homes" },
     { label: "Park Models", href: "/park-models" },

@@ -63,8 +63,16 @@ const HOME_CATEGORY_TABS: CategoryTabConfig[] = [
     label: "Budget House Kits",
     categoryQuery: "budget-house-kits",
     slug: "budget-house-kits",
-    subtitle: "Affordable panelized SIP and DIY wood home packages. Standard kits exclude on-site installation.",
+    subtitle: "Affordable timber-frame DIY house packages. Standard kits exclude on-site installation.",
     viewAllHref: "/budget-house-kits",
+  },
+  {
+    id: "sip-homes",
+    label: "SIP Homes",
+    categoryQuery: "sip-homes",
+    slug: "sip-homes",
+    subtitle: "High-performance structural insulated panel home packages with superior energy efficiency.",
+    viewAllHref: "/sip-homes",
   },
   {
     id: "steel-house-kits",

@@ -190,12 +190,12 @@ export function isSteelHouseKit(model: {
 }
 
 /**
- * Checks if a model is an Affordable Budget House Kit / Panelized SIP Home Package.
- * Follows Amish Built Cabins Budget Collection (collections/house-kit).
- * Distinguishing characteristic: Panelized wood/SIP DIY and contractor packages where
- * on-site installation is EXCLUDED (DIY or local general contractor assembly on slab).
+ * Checks if a model is a Panelized SIP Home / Structural Insulated Panel House Kit.
+ * Distinguishing characteristic: Features high-performance structural insulated panels (EPS core + OSB facings)
+ * engineered for extreme thermal performance and fast bolt/spline assembly.
+ * Matches models with "sip" or "sip panel" in the title/name/slug.
  */
-export function isBudgetHouseKit(model: {
+export function isSipHome(model: {
   name?: string;
   title?: string;
   slug?: string;
@@ -206,13 +206,11 @@ export function isBudgetHouseKit(model: {
   description?: string;
   tags?: string[] | string;
 }): boolean {
-  // If it's a steel house kit, it strictly belongs in Steel House Kits
   if (isSteelHouseKit(model)) return false;
 
   const mName = (model.name || model.title || "").toLowerCase();
   const mSlug = (model.slug || model.handle || "").toLowerCase();
   const mCat = normalizeCategory(model.category || model.product_type || model.series || "");
-  const tagsStr = Array.isArray(model.tags) ? model.tags.join(" ").toLowerCase() : (model.tags || "").toLowerCase();
 
   // Exclude non-home items
   if (
@@ -225,23 +223,53 @@ export function isBudgetHouseKit(model: {
     return false;
   }
 
-  // Budget house kit criteria:
+  // SIP criteria: title, slug, or category mentions "sip"
   return (
-    mName.includes("house kit") ||
-    mSlug.includes("house-kit") ||
-    mName.includes("home kit") ||
-    mSlug.includes("home-kit") ||
-    mName.includes("panelized") ||
-    mSlug.includes("panelized") ||
-    mName.includes("sip panel") ||
-    mSlug.includes("sip-panel") ||
-    mName.includes("budget kit") ||
-    mSlug.includes("budget-kit") ||
-    mCat === "house kits" ||
-    mCat === "house-kits" ||
-    mCat === "budget house kits" ||
-    mCat === "budget-house-kits" ||
-    mCat.includes("sip panel")
+    mName.includes("sip") ||
+    mSlug.includes("sip") ||
+    mCat.includes("sip")
+  );
+}
+
+/**
+ * Checks if a model is an Affordable Budget House Kit.
+ * Client Requirement: Only products with "affordable" in the title/slug belong in the Budget House Kit section.
+ * Follows Amish Built Cabins Budget Collection.
+ * Excludes Steel House Kits and SIP Homes.
+ */
+export function isBudgetHouseKit(model: {
+  name?: string;
+  title?: string;
+  slug?: string;
+  handle?: string;
+  category?: string;
+  product_type?: string;
+  series?: string;
+  description?: string;
+  tags?: string[] | string;
+}): boolean {
+  // If it's a steel house kit or SIP home, it strictly belongs in its own category
+  if (isSteelHouseKit(model)) return false;
+  if (isSipHome(model)) return false;
+
+  const mName = (model.name || model.title || "").toLowerCase();
+  const mSlug = (model.slug || model.handle || "").toLowerCase();
+
+  // Exclude non-home items
+  if (
+    mName.includes("storage") ||
+    mSlug.includes("storage") ||
+    mName.includes("cabinet") ||
+    mName.includes("chair") ||
+    mName.includes("broker")
+  ) {
+    return false;
+  }
+
+  // Budget house kit criteria: ONLY models with "affordable" in title / slug
+  return (
+    mName.includes("affordable") ||
+    mSlug.includes("affordable")
   );
 }
 
@@ -472,7 +500,7 @@ export function matchProductCategory(
     );
   }
 
-  // 5a. Budget House Kits (Amish Built Cabins budget collection - Installation Excluded)
+  // 5a. Budget House Kits (Amish Built Cabins budget collection - Only models with "affordable" in title)
   if (
     clean.includes("budget house kit") ||
     clean.includes("budget kit") ||
@@ -482,7 +510,19 @@ export function matchProductCategory(
     return isBudgetHouseKit(model as any);
   }
 
-  // 5b. Steel House Kits (Amish Built Cabins steel kits page - Professional Installation Included)
+  // 5b. SIP Homes (Panelized SIP Panel Home Kits with "sip" in title)
+  if (
+    clean.includes("sip home") ||
+    clean.includes("sip panel") ||
+    clean.includes("sip-panel") ||
+    clean === "sip-homes" ||
+    clean === "sip homes" ||
+    clean === "sip"
+  ) {
+    return isSipHome(model as any);
+  }
+
+  // 5c. Steel House Kits (Amish Built Cabins steel kits page - Professional Installation Included)
   if (
     clean.includes("steel house kit") ||
     clean.includes("steel kit") ||
@@ -492,9 +532,9 @@ export function matchProductCategory(
     return isSteelHouseKit(model as any);
   }
 
-  // 5c. Generic House Kits fallback (matches either budget or steel)
+  // 5d. Generic House Kits fallback (matches budget, sip, or steel)
   if (clean.includes("house kit") || clean.includes("home kit") || clean === "house-kits") {
-    return isBudgetHouseKit(model as any) || isSteelHouseKit(model as any);
+    return isBudgetHouseKit(model as any) || isSipHome(model as any) || isSteelHouseKit(model as any);
   }
 
   // 6. Tiny Homes

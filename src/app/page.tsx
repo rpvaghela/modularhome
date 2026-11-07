@@ -7,6 +7,7 @@ import CategoryGrid from "@/components/CategoryGrid";
 import HomeProductCard, { ProductItem } from "@/components/HomeProductCard";
 import HomeModelsShowcase from "@/components/HomeModelsShowcase";
 import BudgetHouseKitsSection from "@/components/BudgetHouseKitsSection";
+import SipHomesSection from "@/components/SipHomesSection";
 import SteelHouseKitsSection from "@/components/SteelHouseKitsSection";
 import BudgetSection from "@/components/BudgetSection";
 import NearMeSection from "@/components/NearMeSection";
@@ -231,7 +232,10 @@ export default async function HomePage() {
       {/* 6. BUDGET HOUSE KITS (Amish Built Cabins budget collection - Installation Excluded) */}
       <BudgetHouseKitsSection products={products} />
 
-      {/* 7. STEEL HOUSE KITS (Amish Built Cabins steel kits page - Professional Installation Included) */}
+      {/* 7. SIP HOMES (High-Performance Structural Insulated Panels - Installation Excluded) */}
+      <SipHomesSection products={products} />
+
+      {/* 8. STEEL HOUSE KITS (Amish Built Cabins steel kits page - Professional Installation Included) */}
       <SteelHouseKitsSection products={products} />
 
       {/* 8. FIND A HOME IN YOUR BUDGET (4 Budget Cards) */}

@@ -33,7 +33,7 @@ export default function BudgetHouseKitsSection({ products = [] }: BudgetHouseKit
               Budget House Kits
             </h2>
             <p className="text-xs sm:text-base text-[#6b7280] mt-1.5 mb-0 font-medium max-w-2xl">
-              High-value panelized SIP and wood-frame building kits designed for DIY homeowners and local contractors. Engineered for concrete slabs with stamped blueprints.
+              High-value pre-cut 2x6 timber-frame building kits designed for DIY homeowners and local contractors. Engineered for concrete slabs with stamped blueprints.
             </p>
           </div>
 
@@ -54,7 +54,7 @@ export default function BudgetHouseKitsSection({ products = [] }: BudgetHouseKit
           </div>
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-[#d97706] shrink-0" />
-            <span className="font-bold text-[#101114]">2x6 Framing or SIP Panels</span>
+            <span className="font-bold text-[#101114]">2x6 Timber Stud Framing</span>
           </div>
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />

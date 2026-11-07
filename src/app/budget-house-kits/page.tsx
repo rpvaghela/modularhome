@@ -33,9 +33,9 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const TITLE = "Budget House Kits & Panelized Home Packages | Installation Excluded | ModularHome.com";
+const TITLE = "Budget House Kits & Affordable Home Packages | Installation Excluded | ModularHome.com";
 const DESCRIPTION =
-  "Explore affordable budget house kits, panelized SIP home packages, and DIY-friendly building shells. Designed for slab foundations with factory-direct savings. Follows Amish Built Cabins budget collection. On-site installation excluded.";
+  "Explore affordable budget house kits and DIY-friendly 2x6 timber-framed building shells. Designed for slab foundations with factory-direct savings. Follows Amish Built Cabins budget collection. On-site installation excluded.";
 const CANONICAL = getCanonicalUrl("/budget-house-kits");
 const HERO_IMAGE =
   "https://cdn.shopify.com/s/files/1/0897/2959/7756/files/m1_ce95e0cb-7b02-4d09-b913-1fc48d1b48f1.jpg?v=1774680383";
@@ -141,7 +141,7 @@ export default async function BudgetHouseKitsPage() {
             </h1>
 
             <p className="text-xs sm:text-[13px] text-gray-300 leading-snug font-normal mb-2 max-w-2xl">
-              Following the proven <strong className="text-white">Amish Built Cabins budget collection</strong>, these pre-engineered panelized SIP and wood-framed kits deliver maximum square footage per dollar. Built for slab foundations with clear assembly blueprints.
+              Following the proven <strong className="text-white">Amish Built Cabins budget collection</strong>, these pre-engineered 2x6 timber-framed affordable house kits deliver maximum square footage per dollar. Built for slab foundations with clear assembly blueprints.
             </p>
 
             {/* Clear Policy Notice Banner - Ultra-Compact */}
@@ -164,6 +164,14 @@ export default async function BudgetHouseKitsPage() {
                 <span>Browse {budgetProducts.length} Budget Kits</span>
                 <ArrowRight className="w-3 h-3" />
               </a>
+
+              <Link
+                href="/sip-homes"
+                className="py-1.5 px-4 text-xs font-bold text-gray-200 hover:text-white bg-white/10 hover:bg-white/15 border border-white/20 rounded-lg transition-colors inline-flex items-center gap-1.5"
+              >
+                <Sparkles className="w-3 h-3 text-cyan-400" />
+                <span>Want High-R SIP? View SIP Homes →</span>
+              </Link>
 
               <Link
                 href="/steel-house-kits"
@@ -193,7 +201,14 @@ export default async function BudgetHouseKitsPage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/sip-homes"
+                className="text-xs sm:text-sm font-bold text-teal-700 hover:text-teal-800 hover:underline"
+              >
+                Switch to SIP Homes (High-R) →
+              </Link>
+              <span className="text-gray-300 hidden sm:inline">•</span>
               <Link
                 href="/steel-house-kits"
                 className="text-xs sm:text-sm font-bold text-[#d97706] hover:text-[#b45309] hover:underline"
@@ -236,10 +251,10 @@ export default async function BudgetHouseKitsPage() {
                   <Layers className="w-6 h-6 stroke-[2]" />
                 </div>
                 <h3 className="text-base sm:text-lg font-black text-[#101114] mb-2.5">
-                  2x6 Exterior Framing or SIP Panels
+                  Precision 2x6 Timber Stud Framing
                 </h3>
                 <p className="text-xs sm:text-sm text-[#4b5563] leading-relaxed m-0">
-                  Precision-cut 2x6 structural timber stud framing or high-efficiency structural insulated panel (SIP) wall units engineered for fast bolt-together or nailed assembly.
+                  Precision-cut 2x6 structural timber stud framing engineered for rapid bolt-and-nail assembly, superior load distribution, and standard cavity insulation.
                 </p>
               </div>
             </div>

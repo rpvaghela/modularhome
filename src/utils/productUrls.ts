@@ -38,6 +38,18 @@ export const CATEGORY_SLUG_MAP: Record<string, string> = {
   "budget-house-kit": "budget-house-kits",
   "budget-kits": "budget-house-kits",
   "budget-kit": "budget-house-kits",
+  "affordable-house-kits": "budget-house-kits",
+  "affordable-house-kit": "budget-house-kits",
+
+  "sip-homes": "sip-homes",
+  "sip-home": "sip-homes",
+  "sip-panel-homes": "sip-homes",
+  "sip-panel-house-kits": "sip-homes",
+  "sip-panels": "sip-homes",
+  "sip-panel": "sip-homes",
+  "sip-kits": "sip-homes",
+  "sip-house-kits": "sip-homes",
+  "sip": "sip-homes",
 
   "steel-house-kits": "steel-house-kits",
   "steel-house-kit": "steel-house-kits",
@@ -47,8 +59,6 @@ export const CATEGORY_SLUG_MAP: Record<string, string> = {
   "house-kits": "budget-house-kits",
   "house-kit": "budget-house-kits",
   "home-kits": "budget-house-kits",
-  "sip-panel-homes": "budget-house-kits",
-  "sip-panel-house-kits": "budget-house-kits",
 
   "tiny-homes": "tiny-homes",
   "tiny-home": "tiny-homes",
@@ -91,6 +101,7 @@ export const VALID_PRODUCT_CATEGORIES = [
   "modular-homes",
   "barndominiums",
   "budget-house-kits",
+  "sip-homes",
   "steel-house-kits",
   "house-kits",
   "tiny-homes",
@@ -129,7 +140,31 @@ export function getProductCategorySlug(product?: ProductUrlInput | null): ValidP
     return "steel-house-kits";
   }
 
-  // 1b. Barndominiums (non-kit barndominiums or standard barndo models)
+  // 1b. SIP Homes (Panelized SIP Panel Home Kits with "sip" in title)
+  if (
+    title.includes("sip") ||
+    slug.includes("sip") ||
+    rawCat.includes("sip") ||
+    combined.includes("sip panel") ||
+    combined.includes("sip home")
+  ) {
+    return "sip-homes";
+  }
+
+  // 1c. Budget House Kits (Amish Built Cabins budget collection - Only models with "affordable" in title)
+  if (
+    title.includes("affordable") ||
+    slug.includes("affordable") ||
+    title.includes("budget house kit") ||
+    slug.includes("budget-house-kit") ||
+    slug.includes("budget-kit") ||
+    rawCat === "budget house kits" ||
+    rawCat === "budget-house-kits"
+  ) {
+    return "budget-house-kits";
+  }
+
+  // 1d. Barndominiums (non-kit barndominiums or standard barndo models)
   if (
     combined.includes("barndo") ||
     combined.includes("barndominium") ||
@@ -139,23 +174,16 @@ export function getProductCategorySlug(product?: ProductUrlInput | null): ValidP
     return "barndominiums";
   }
 
-  // 2. Budget House Kits & SIP Panel Home Kits (Amish Built Cabins budget collection - Installation Excluded)
+  // 2. Generic House Kits fallback (other house-kit / home-kit models)
   if (
     slug.includes("house-kit") ||
     slug.includes("home-kit") ||
     slug.includes("housekit") ||
     slug.includes("homekit") ||
-    slug.includes("sip-panel") ||
-    slug.includes("budget-kit") ||
     title.includes("house kit") ||
     title.includes("home kit") ||
-    title.includes("sip panel") ||
-    title.includes("budget house kit") ||
-    rawCat === "budget house kits" ||
-    rawCat === "budget-house-kits" ||
     rawCat === "house kits" ||
-    rawCat === "house-kits" ||
-    rawCat === "sip panel homes"
+    rawCat === "house-kits"
   ) {
     return "budget-house-kits";
   }
@@ -249,7 +277,7 @@ export function getProductUrl(product?: ProductUrlInput | null): string {
   // Strip any leading slashes or existing prefixes if accidentally passed
   const cleanSlug = slug
     .replace(/^https?:\/\/[^\/]+/i, "")
-    .replace(/^\/(?:products|buildings|models|cabins|modular-cabins|modular-homes|barndominiums|house-kits|tiny-homes|park-models|adus|a-frame-homes|prefab-homes|commercial-modular-buildings|commercial-buildings|custom-homes)\//i, "")
+    .replace(/^\/(?:products|buildings|models|cabins|modular-cabins|modular-homes|barndominiums|house-kits|budget-house-kits|sip-homes|steel-house-kits|tiny-homes|park-models|adus|a-frame-homes|prefab-homes|commercial-modular-buildings|commercial-buildings|custom-homes)\//i, "")
     .replace(/^\/+|\/+$/g, "");
 
   const categorySlug = getProductCategorySlug(product);
@@ -276,6 +304,7 @@ export function getCategoryDisplayName(slug: string): string {
     case "modular-homes": return "Modular Homes";
     case "barndominiums": return "Barndominiums";
     case "budget-house-kits": return "Budget House Kits";
+    case "sip-homes": return "SIP Homes";
     case "steel-house-kits": return "Steel House Kits";
     case "house-kits": return "Budget House Kits";
     case "tiny-homes": return "Tiny Homes";
