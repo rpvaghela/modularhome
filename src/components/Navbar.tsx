@@ -757,12 +757,13 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
 
         {/* --- ROW 2: PRIMARY ARCHITECTURAL HOUSING CATEGORIES RIBBON --- */}
         <div className="hidden lg:block border-b border-gray-200/80 bg-white relative z-40">
-          <div className="wrap relative overflow-visible">
+          <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-4 xl:px-6 relative overflow-visible">
             <nav 
-              className="flex items-center justify-center relative py-1.5 overflow-visible"
+              className="flex items-center justify-between relative py-1 overflow-visible gap-1"
               aria-label="Main Housing Categories Navigation"
             >
-              <div className="flex items-center justify-between w-full max-w-full gap-0.5 xl:gap-1.5 2xl:gap-2 flex-nowrap overflow-visible">
+              {/* Horizontally scrollable categories list */}
+              <div className="flex items-center gap-0.5 xl:gap-1 2xl:gap-1.5 flex-nowrap overflow-x-auto no-scrollbar scroll-smooth min-w-0 flex-1 py-0.5">
                 {menuItems.map((item) => {
                   const activeRoute = Boolean(
                     currentCategory === item.categoryQuery ||
@@ -779,62 +780,82 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                         setMoreDropdownOpen(false);
                         setOpenMegaCategory(null);
                       }}
-                      className={`inline-flex items-center gap-1 px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-[12px] xl:text-[12.5px] 2xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 shrink-0 ${
+                      className={`inline-flex items-center gap-1 px-1.5 xl:px-1.5 2xl:px-2.5 py-1.5 rounded-lg text-[11px] xl:text-[11.5px] 2xl:text-[12.5px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 shrink-0 ${
                         activeRoute
                           ? "bg-amber-50/90 text-[#b45309] font-black"
                           : "text-gray-700 hover:text-[#101114] hover:bg-gray-50/80"
                       }`}
                       style={{ fontFamily: "var(--font-manrope), sans-serif" }}
                     >
-                      <span>{item.label}</span>
+                      <span>
+                        {item.label === "ADUs & Granny Pods" ? (
+                          <>
+                            <span className="hidden 2xl:inline">ADUs & Granny Pods</span>
+                            <span className="2xl:hidden">ADUs &amp; Pods</span>
+                          </>
+                        ) : item.label === "Budget House Kits" ? (
+                          <>
+                            <span className="hidden 2xl:inline">Budget House Kits</span>
+                            <span className="2xl:hidden">Budget Kits</span>
+                          </>
+                        ) : item.label === "Steel House Kits" ? (
+                          <>
+                            <span className="hidden 2xl:inline">Steel House Kits</span>
+                            <span className="2xl:hidden">Steel Kits</span>
+                          </>
+                        ) : (
+                          item.label
+                        )}
+                      </span>
                       {item.badge && (
-                        <span className="px-1.5 py-0.5 rounded bg-[#fcb907] text-[#101114] text-[8.5px] font-black tracking-tight leading-none">
+                        <span className="px-1 py-0.5 rounded bg-[#fcb907] text-[#101114] text-[8px] font-black tracking-tight leading-none">
                           {item.badge}
                         </span>
                       )}
                     </Link>
                   );
                 })}
+              </div>
 
-                {/* "More" Dropdown Menu */}
-                <div 
-                  ref={dropdownRef}
-                  className="relative inline-block shrink-0"
-                  onMouseEnter={() => {
+              {/* Pinned "More" Dropdown Menu - Always visible on right */}
+              <div 
+                ref={dropdownRef}
+                className="relative inline-block shrink-0 ml-1 pl-1 sm:pl-2 border-l border-gray-200/80 z-50"
+                onMouseEnter={() => {
+                  clearMegaMenuTimer();
+                  setMoreDropdownOpen(true);
+                }}
+                onMouseLeave={() => {
+                  if (!isPinnedMore && !isInteractingDropdownRef.current) {
+                    scheduleMegaMenuClose(350);
+                  }
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     clearMegaMenuTimer();
-                    setMoreDropdownOpen(true);
-                  }}
-                  onMouseLeave={() => {
-                    if (!isPinnedMore && !isInteractingDropdownRef.current) {
-                      scheduleMegaMenuClose(350);
+                    if (moreDropdownOpen && isPinnedMore) {
+                      setMoreDropdownOpen(false);
+                      setIsPinnedMore(false);
+                    } else {
+                      setMoreDropdownOpen(true);
+                      setIsPinnedMore(true);
                     }
                   }}
+                  className={`inline-flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-lg text-[11.5px] xl:text-[12px] 2xl:text-[12.5px] font-black tracking-tight whitespace-nowrap transition-all duration-150 cursor-pointer ${
+                    isMoreActive || moreDropdownOpen
+                      ? "bg-amber-50/90 text-[#b45309]"
+                      : "text-gray-700 hover:text-[#101114] hover:bg-gray-50/80"
+                  }`}
+                  style={{ fontFamily: "var(--font-manrope), sans-serif" }}
+                  aria-expanded={moreDropdownOpen}
                 >
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      clearMegaMenuTimer();
-                      if (moreDropdownOpen && isPinnedMore) {
-                        setMoreDropdownOpen(false);
-                        setIsPinnedMore(false);
-                      } else {
-                        setMoreDropdownOpen(true);
-                        setIsPinnedMore(true);
-                      }
-                    }}
-                    className={`inline-flex items-center gap-1 px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-[12px] xl:text-[12.5px] 2xl:text-[13px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 cursor-pointer ${
-                      isMoreActive || moreDropdownOpen
-                        ? "bg-amber-50/90 text-[#b45309] font-black"
-                        : "text-gray-700 hover:text-[#101114] hover:bg-gray-50/80"
-                    }`}
-                    style={{ fontFamily: "var(--font-manrope), sans-serif" }}
-                    aria-expanded={moreDropdownOpen}
-                  >
-                    <span>More</span>
-                    <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${moreDropdownOpen ? "rotate-180" : ""}`} />
-                  </button>
+                  <span>More</span>
+                  <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${moreDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
 
                   {/* Dropdown Floating Card */}
                   {moreDropdownOpen && (
@@ -989,7 +1010,6 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                     </div>
                   )}
                 </div>
-              </div>
             </nav>
           </div>
         </div>

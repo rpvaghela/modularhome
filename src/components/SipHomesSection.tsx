@@ -128,3 +128,4 @@ export default function SipHomesSection({ products = [] }: SipHomesSectionProps)
     </section>
   );
 }
+
