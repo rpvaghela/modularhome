@@ -58,7 +58,7 @@ const PRIMARY_MENU_OPTIONS: CategoryNavOption[] = [
   { label: "ADUs & Granny Pods", href: "/adus", categoryQuery: "ADUs & Granny Pods" },
   { label: "A-Frames", href: "/a-frame-homes", categoryQuery: "A-Frame Homes" },
   { label: "Commercial", href: "/commercial-modular-buildings", categoryQuery: "Commercial Buildings" },
-  { label: "Bomb Shelters", href: "/bomb-shelters", categoryQuery: "Bomb Shelters", badge: "Hardened" },
+  { label: "Bomb Shelters", href: "/bomb-shelters", categoryQuery: "Bomb Shelters" },
 ];
 
 const MORE_BUYER_GUIDES = [
@@ -758,13 +758,13 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
 
         {/* --- ROW 2: PRIMARY ARCHITECTURAL HOUSING CATEGORIES RIBBON --- */}
         <div className="hidden lg:block border-b border-gray-200/80 bg-white relative z-40">
-          <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-4 xl:px-6 relative overflow-visible">
+          <div className="w-full max-w-[1536px] mx-auto px-2 sm:px-3 xl:px-4 2xl:px-6 relative overflow-visible">
             <nav 
               className="flex items-center justify-between relative py-1 overflow-visible gap-1"
               aria-label="Main Housing Categories Navigation"
             >
               {/* Horizontally scrollable categories list */}
-              <div className="flex items-center gap-0.5 xl:gap-1 2xl:gap-1.5 flex-nowrap overflow-x-auto no-scrollbar scroll-smooth min-w-0 flex-1 py-0.5">
+              <div className="flex items-center gap-0.5 xl:gap-0.5 2xl:gap-1 flex-nowrap overflow-x-auto no-scrollbar scroll-smooth min-w-0 flex-1 py-0.5 pr-1.5">
                 {menuItems.map((item) => {
                   const activeRoute = Boolean(
                     currentCategory === item.categoryQuery ||
@@ -781,7 +781,7 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                         setMoreDropdownOpen(false);
                         setOpenMegaCategory(null);
                       }}
-                      className={`inline-flex items-center gap-1 px-1.5 xl:px-1.5 2xl:px-2.5 py-1.5 rounded-lg text-[11px] xl:text-[11.5px] 2xl:text-[12.5px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 shrink-0 ${
+                      className={`inline-flex items-center gap-1 px-1 xl:px-1.5 2xl:px-2 py-1.5 rounded-lg text-[10.5px] lg:text-[11px] xl:text-[11px] 2xl:text-[12px] font-bold tracking-tight whitespace-nowrap transition-all duration-150 shrink-0 ${
                         activeRoute
                           ? "bg-amber-50/90 text-[#b45309] font-black"
                           : "text-gray-700 hover:text-[#101114] hover:bg-gray-50/80"
@@ -809,7 +809,7 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                         )}
                       </span>
                       {item.badge && (
-                        <span className="px-1 py-0.5 rounded bg-[#fcb907] text-[#101114] text-[8px] font-black tracking-tight leading-none">
+                        <span className="hidden 2xl:inline px-1 py-0.5 rounded bg-[#fcb907] text-[#101114] text-[8px] font-black tracking-tight leading-none">
                           {item.badge}
                         </span>
                       )}
@@ -821,7 +821,7 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
               {/* Pinned "More" Dropdown Menu - Always visible on right */}
               <div 
                 ref={dropdownRef}
-                className="relative inline-block shrink-0 ml-1 pl-1 sm:pl-2 border-l border-gray-200/80 z-50"
+                className="relative inline-block shrink-0 ml-0.5 pl-1.5 sm:pl-2 border-l border-gray-200/80 z-50"
                 onMouseEnter={() => {
                   clearMegaMenuTimer();
                   setMoreDropdownOpen(true);
