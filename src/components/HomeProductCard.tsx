@@ -100,13 +100,21 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
           </div>
         </div>
 
-        <Link
-          href={href}
-          className="w-full py-2.5 px-3.5 text-[13px] font-black rounded-[9px] text-center justify-center mt-2 bg-[#0f1218] hover:bg-[#fcb907] text-white hover:text-[#101114] transition-all duration-200 shadow-xs flex items-center gap-1.5"
-        >
-          <span>View Home</span>
-          <span>→</span>
-        </Link>
+        {/* Action Buttons: Specifications & Quote */}
+        <div className="pt-2 flex items-center gap-2">
+          <Link
+            href={href}
+            className="flex-1 py-2.5 px-3 text-xs font-black rounded-[9px] text-center justify-center bg-[#0f1218] hover:bg-[#fcb907] text-white hover:text-[#101114] transition-all duration-200 shadow-xs flex items-center gap-1"
+          >
+            <span>Specifications</span>
+          </Link>
+          <Link
+            href={`/quote?model=${encodeURIComponent(product.slug || product.id)}`}
+            className="py-2.5 px-3.5 text-xs font-black rounded-[9px] text-center justify-center bg-[#dc2626] hover:bg-[#b91c1c] text-white transition-all duration-200 shadow-xs flex items-center gap-1 font-sans"
+          >
+            <span>Quote</span>
+          </Link>
+        </div>
       </div>
     </div>
   );
