@@ -1,3 +1,5 @@
+import { BOMB_SHELTER_MODELS } from "./bombShelters";
+
 export interface BuildingModelVariant {
   id: string;
   title: string;
@@ -12,9 +14,12 @@ export interface BuildingModelVariant {
 export interface BuildingModel {
   id: string;
   slug: string;
+  handle?: string;
   name: string;
+  title?: string;
   series: string;
   category: string;
+  product_type?: string;
   architecturalStyle?: string;
   tagline: string;
   description: string;
@@ -23,6 +28,7 @@ export interface BuildingModel {
   bathrooms: number;
   stories: number;
   startingPrice: number;
+  price?: number;
   dimensions: string;
   frameType: string;
   roofPitch: string;
@@ -53,6 +59,9 @@ export interface BuildingModel {
   tags?: string[];
   collections?: string[];
   status?: string;
+  isPublished?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export const CATEGORIES = [
@@ -196,9 +205,20 @@ export const CATEGORIES = [
     href: "/custom-homes",
     cta: "Explore Custom Homes",
   },
+  {
+    id: "Bomb Shelters",
+    title: "Bomb Shelters",
+    tagline: "Certified subterranean blast shelters, bunkers & hardened safe rooms.",
+    description: "Engineered underground steel bomb shelters, disaster bunkers, and NBC-filtered survival safe rooms designed for extreme ballistic and disaster protection.",
+    image: "/images/cat-bomb-shelters.png",
+    count: 0,
+    href: "/bomb-shelters",
+    cta: "View Bomb Shelters",
+  },
 ];
 
 export const BUILDING_MODELS: BuildingModel[] = [
+  ...BOMB_SHELTER_MODELS,
   {
     "id": "mod-craftsman-residence",
     "slug": "the-modern-craftsman-modular-residence",

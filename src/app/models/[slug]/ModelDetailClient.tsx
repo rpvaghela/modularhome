@@ -120,6 +120,13 @@ export default function ModelDetailClient({
 
   const floorPlanImg = hasRealFloorPlan ? rawFloorPlan : "";
 
+  const isShelter =
+    model?.category === "Bomb Shelters" ||
+    model?.product_type === "Bomb Shelters" ||
+    Boolean(activeImage && activeImage.includes("/shelter-plans/")) ||
+    Boolean(primaryImg && primaryImg.includes("/shelter-plans/")) ||
+    Boolean(model?.architecturalStyle && model.architecturalStyle.toLowerCase().includes("bunker"));
+
   // Base price dynamically derives from selected variant or startingPrice
   const baseStartingPrice = Number(model?.startingPrice) || 0;
   const currentBasePrice = activeVariant ? (Number(activeVariant.price) || baseStartingPrice) : baseStartingPrice;
@@ -247,16 +254,41 @@ export default function ModelDetailClient({
           {/* Gallery Viewport (7 cols) */}
           <div className="lg:col-span-7 space-y-4">
             {/* Main Stage Image */}
-            <div className="relative aspect-[16/10] w-full rounded-[14px] overflow-hidden bg-[#f6f7f9] border border-[#e7e9ee] shadow-sm">
+            <div
+              className={`relative aspect-[16/10] w-full rounded-[14px] overflow-hidden shadow-sm ${
+                isShelter
+                  ? "bg-white p-3 sm:p-5 border border-gray-200 flex items-center justify-center"
+                  : "bg-[#f6f7f9] border border-[#e7e9ee]"
+              }`}
+            >
               <Image
                 src={activeImage || primaryImg}
                 alt={model?.name || "Building Model"}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 60vw"
-                className="object-cover transition-all duration-500"
+                className={
+                  isShelter
+                    ? "object-contain p-1.5 transition-all duration-500 group-hover:scale-102"
+                    : "object-cover transition-all duration-500"
+                }
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+              {!isShelter && (
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+              )}
+
+              {/* Floating Status Badge Top-Left */}
+              {isShelter && (
+                <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[6px] bg-[#dc2626] text-white text-[11px] font-black uppercase tracking-wider shadow-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                    <span>CERTIFIED BLAST BUNKER</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] bg-black/85 backdrop-blur-md text-white text-[10px] font-mono uppercase tracking-widest border border-white/20">
+                    FEMA P-320/361
+                  </span>
+                </div>
+              )}
 
               {/* Floating Share Icon Top-Right */}
               <div className="absolute top-4 right-4 z-10">
@@ -289,14 +321,14 @@ export default function ModelDetailClient({
                       activeImage === img
                         ? "border-[#fcb907] ring-2 ring-[#fcb907]/40 scale-[1.02]"
                         : "border-[#e7e9ee] opacity-70 hover:opacity-100"
-                    }`}
+                    } ${isShelter ? "bg-white p-1" : "bg-[#f6f7f9]"}`}
                   >
                     <Image
                       src={img}
                       alt={`${model?.name || "Model"} angle ${idx + 1}`}
                       fill
                       sizes="20vw"
-                      className="object-cover"
+                      className={isShelter ? "object-contain" : "object-cover"}
                     />
                   </button>
                 ))}

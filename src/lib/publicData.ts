@@ -2032,6 +2032,12 @@ export const MEGA_MENU_CATEGORIES_CONFIG = [
     viewAllHref: "/commercial-modular-buildings",
     tagline: "Steel commercial facilities, offices & multi-unit buildings",
   },
+  {
+    label: "Bomb Shelters",
+    categoryQuery: "Bomb Shelters",
+    viewAllHref: "/bomb-shelters",
+    tagline: "Subterranean steel blast shelters, bunkers & emergency safe rooms",
+  },
 ];
 
 /**

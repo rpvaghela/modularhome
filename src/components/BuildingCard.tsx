@@ -59,19 +59,42 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
   const isSteelKit = isSteelHouseKit(model);
   const isSipKit = !isSteelKit && isSipHome(model);
   const isBudgetKit = !isSteelKit && !isSipKit && isBudgetHouseKit(model);
+  const isShelter =
+    model.category === "Bomb Shelters" ||
+    model.product_type === "Bomb Shelters" ||
+    Boolean(rawImage && rawImage.includes("/shelter-plans/")) ||
+    Boolean(model.architecturalStyle && model.architecturalStyle.toLowerCase().includes("bunker")) ||
+    model.name.toLowerCase().includes("bombshelter");
 
   return (
-    <div className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between bg-white relative">
-      {/* Image Viewport */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
+    <div className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between bg-white relative border border-gray-100 shadow-sm hover:shadow-md">
+      {/* Image Viewport (Clickable to details) */}
+      <Link
+        href={modelUrl}
+        className={`relative aspect-[16/10] w-full overflow-hidden block ${
+          isShelter ? "bg-white p-2 border-b border-gray-100" : "bg-gray-100"
+        }`}
+      >
         <Image
           src={imageSrc}
           alt={model.name}
           fill
           priority={priority}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-108"
+          className={
+            isShelter
+              ? "object-contain p-1 transition-transform duration-500 ease-out group-hover:scale-105"
+              : "object-cover transition-transform duration-500 ease-out group-hover:scale-108"
+          }
         />
+
+        {/* Shelter Hardened Badge */}
+        {isShelter && (
+          <div className="absolute top-2.5 left-2.5 z-10 bg-[#dc2626] text-white border border-red-300/40 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded shadow-sm flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            <span>Hardened • Bunker</span>
+          </div>
+        )}
 
         {/* Installation Status Badge */}
         {isSteelKit && (
@@ -94,7 +117,7 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
         )}
 
         {/* Share Button Overlay */}
-        <div className="absolute top-2.5 right-2.5 z-10">
+        <div className="absolute top-2.5 right-2.5 z-10" onClick={(e) => e.stopPropagation()}>
           <ShareButton
             variant="icon"
             item={{
@@ -108,14 +131,16 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
             buttonTitle={`Share ${model.name}`}
           />
         </div>
-      </div>
+      </Link>
 
       {/* Content Area */}
       <div className="p-4 flex-1 flex flex-col justify-between space-y-2.5 bg-white">
         <div>
-          <h3 className="text-base sm:text-lg font-black tracking-tight text-[#101114] group-hover:text-[#d97706] transition-colors">
-            {model.name}
-          </h3>
+          <Link href={modelUrl} className="block group/title">
+            <h3 className="text-base sm:text-lg font-black tracking-tight text-[#101114] group-hover/title:text-[#d97706] transition-colors line-clamp-2 min-h-[2.5rem]">
+              {model.name}
+            </h3>
+          </Link>
           <p className="text-xs text-[#6b7280] font-medium mt-1">
             {specsText}
           </p>
@@ -124,13 +149,19 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
           </div>
         </div>
 
-        {/* View Details Button */}
-        <div className="pt-2">
+        {/* Action Buttons: Specifications & Quote */}
+        <div className="pt-2 flex items-center gap-2">
           <Link
             href={modelUrl}
-            className="w-full py-2.5 px-4 text-xs font-black rounded-[9px] text-center justify-center bg-[#0f1218] hover:bg-[#fcb907] text-white hover:text-[#101114] transition-all duration-200 shadow-xs flex items-center gap-1.5"
+            className="flex-1 py-2.5 px-3 text-xs font-black rounded-[9px] text-center justify-center bg-[#0f1218] hover:bg-[#fcb907] text-white hover:text-[#101114] transition-all duration-200 shadow-xs flex items-center gap-1"
           >
-            <span>View Details →</span>
+            <span>Specifications</span>
+          </Link>
+          <Link
+            href={`/quote?model=${encodeURIComponent(model.slug || model.id)}`}
+            className="py-2.5 px-3.5 text-xs font-black rounded-[9px] text-center justify-center bg-[#dc2626] hover:bg-[#b91c1c] text-white transition-all duration-200 shadow-xs flex items-center gap-1"
+          >
+            <span>Quote</span>
           </Link>
         </div>
       </div>

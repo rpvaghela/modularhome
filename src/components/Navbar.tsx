@@ -58,6 +58,7 @@ const PRIMARY_MENU_OPTIONS: CategoryNavOption[] = [
   { label: "ADUs & Granny Pods", href: "/adus", categoryQuery: "ADUs & Granny Pods" },
   { label: "A-Frames", href: "/a-frame-homes", categoryQuery: "A-Frame Homes" },
   { label: "Commercial", href: "/commercial-modular-buildings", categoryQuery: "Commercial Buildings" },
+  { label: "Bomb Shelters", href: "/bomb-shelters", categoryQuery: "Bomb Shelters", badge: "Hardened" },
 ];
 
 const MORE_BUYER_GUIDES = [

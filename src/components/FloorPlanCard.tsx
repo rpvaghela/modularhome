@@ -31,18 +31,25 @@ export default function FloorPlanCard({ plan, onInstantBuy }: FloorPlanCardProps
     price: plan.salePrice ? `$${plan.salePrice}` : `$${plan.price}`,
   };
 
+  const isSchematic =
+    Boolean(plan.previewImage && plan.previewImage.includes("/shelter-plans/")) ||
+    plan.category?.toLowerCase().includes("bomb") ||
+    plan.category?.toLowerCase().includes("bunker");
+
   return (
     <div className="group bg-white rounded-2xl border border-stone-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden">
       {/* Thumbnail Header */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-stone-100">
+      <div className={`relative aspect-[16/10] overflow-hidden ${isSchematic ? "bg-white p-2 border-b border-stone-100" : "bg-stone-100"}`}>
         <Image
           src={plan.previewImage}
           alt={plan.title}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
+          className={isSchematic ? "object-contain p-1 group-hover:scale-105 transition-transform duration-500" : "object-cover group-hover:scale-105 transition-transform duration-500"}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 opacity-70 group-hover:opacity-80 transition-opacity" />
+        {!isSchematic && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 opacity-70 group-hover:opacity-80 transition-opacity" />
+        )}
 
         {/* Top Badges & Share */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">

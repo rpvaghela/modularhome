@@ -35,9 +35,14 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
   );
 
   const href = product.slug ? getProductUrl(product) : `/buildings`;
+  const isShelter =
+    product.category === "Bomb Shelters" ||
+    Boolean(product.image && product.image.includes("/shelter-plans/")) ||
+    product.name.toLowerCase().includes("bombshelter") ||
+    product.name.toLowerCase().includes("bunker");
 
   return (
-    <div className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between relative bg-white">
+    <div className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between relative bg-white border border-gray-100">
       {/* Optional Badge */}
       {product.badge && (
         <span className="absolute top-3 left-3 z-10 bg-[#fcb907] text-[#101114] px-2.5 py-1 rounded-[8px] text-[11px] font-black shadow-sm tracking-tight">
@@ -45,18 +50,27 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
         </span>
       )}
 
-      {/* Product Image */}
-      <div className="relative h-[170px] sm:h-[185px] w-full overflow-hidden bg-gray-100">
+      {/* Product Image (Clickable) */}
+      <Link
+        href={href}
+        className={`relative h-[170px] sm:h-[185px] w-full overflow-hidden block ${
+          isShelter ? "bg-white p-2 border-b border-gray-100" : "bg-gray-100"
+        }`}
+      >
         <Image
           src={product.image}
           alt={product.name}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 20vw"
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-108"
+          className={
+            isShelter
+              ? "object-contain p-1 transition-transform duration-500 ease-out group-hover:scale-105"
+              : "object-cover transition-transform duration-500 ease-out group-hover:scale-108"
+          }
         />
 
         {/* Share Button Overlay */}
-        <div className="absolute top-2.5 right-2.5 z-10">
+        <div className="absolute top-2.5 right-2.5 z-10" onClick={(e) => e.stopPropagation()}>
           <ShareButton
             variant="icon"
             item={{
@@ -70,7 +84,7 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
             buttonTitle={`Share ${product.name}`}
           />
         </div>
-      </div>
+      </Link>
 
       {/* Card Body */}
       <div className="p-4 flex-1 flex flex-col justify-between font-sans">

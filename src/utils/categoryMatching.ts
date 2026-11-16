@@ -716,5 +716,24 @@ export function matchProductCategory(
     );
   }
 
+  // 12. Bomb Shelters / Subterranean Bunkers / Safe Rooms
+  if (
+    clean.includes("bomb") ||
+    clean.includes("shelter") ||
+    clean.includes("bunker")
+  ) {
+    return (
+      mCat.includes("bomb") ||
+      mCat.includes("shelter") ||
+      mCat.includes("bunker") ||
+      mName.includes("bomb shelter") ||
+      mName.includes("bunker") ||
+      mName.includes("shelter") ||
+      mSlug.includes("bombshelter") ||
+      mSlug.includes("bunker") ||
+      mSlug.includes("shelter")
+    );
+  }
+
   return mCat === clean;
 }
