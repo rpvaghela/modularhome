@@ -21,6 +21,7 @@ import { useConfirm } from "@/context/ConfirmDialogContext";
 function normalizeToCanonicalCategory(cat?: string | null): string {
   if (!cat) return "Modular Homes";
   const c = cat.toLowerCase().trim();
+  if (c.includes("bomb") || c.includes("bunker") || c.includes("shelter")) return "Bomb Shelters";
   if (c.includes("furniture") || c.includes("cabinet") || c.includes("table") || c.includes("decor")) return "Furniture & Accessories";
   if (c.includes("barndo")) return "Barndominiums";
   if (c.includes("cabin")) return "Cabins";
@@ -47,6 +48,7 @@ export default function AdminProductsPage() {
   const [fetchError, setFetchError] = useState("");
 
   const categories = [
+    "Bomb Shelters",
     "Modular Homes",
     "Prefab Homes",
     "Barndominiums",

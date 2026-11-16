@@ -192,6 +192,7 @@ export default function AdminNewProductPage() {
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#d5d9e0] bg-[#f6f7f9] text-xs text-[#101114] font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#fcb907]"
                 >
+                  <option value="Bomb Shelters">Bomb Shelters</option>
                   <option value="Modular Homes">Modular Homes</option>
                   <option value="Prefab Homes">Prefab Homes</option>
                   <option value="Barndominiums">Barndominiums</option>

@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
           quantity: v.quantity,
         }));
 
-        const stripeSession = await stripe.checkout.sessions.create({
+        const sessionPayload: any = {
           payment_method_types: ["card"],
           mode: "payment",
           customer_email: email,
@@ -184,7 +184,9 @@ export async function POST(request: NextRequest) {
             validatedLineItems[0].floorPlan.title
           )}`,
           cancel_url: `${origin}/floor-plans`,
-        });
+        };
+
+        const stripeSession = await stripe.checkout.sessions.create(sessionPayload);
 
         stripeSessionId = stripeSession.id;
         checkoutUrl = stripeSession.url;
