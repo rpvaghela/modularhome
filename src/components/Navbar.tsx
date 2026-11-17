@@ -804,6 +804,21 @@ function NavbarContent({ initialSettings, customPages = [], megaMenuCatalog = {}
                             <span className="hidden 2xl:inline">Steel House Kits</span>
                             <span className="2xl:hidden">Steel Kits</span>
                           </>
+                        ) : item.label === "Modular Homes" ? (
+                          <>
+                            <span className="hidden xl:inline">Modular Homes</span>
+                            <span className="xl:hidden">Modular</span>
+                          </>
+                        ) : item.label === "Prefab Homes" ? (
+                          <>
+                            <span className="hidden xl:inline">Prefab Homes</span>
+                            <span className="xl:hidden">Prefab</span>
+                          </>
+                        ) : item.label === "Barndominiums" ? (
+                          <>
+                            <span className="hidden xl:inline">Barndominiums</span>
+                            <span className="xl:hidden">Barndos</span>
+                          </>
                         ) : (
                           item.label
                         )}
