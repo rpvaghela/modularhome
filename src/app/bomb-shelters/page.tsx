@@ -210,7 +210,7 @@ export default async function BombSheltersPage() {
               <div className="space-y-1">
                 <div className="text-xs uppercase tracking-wider text-[#6b7280] font-bold">Blast Protection</div>
                 <div className="text-2xl sm:text-3xl font-black text-[#101114] font-display">3+ BAR</div>
-                <div className="text-[11px] text-[#dc2626] font-medium">45+ PSI Overpressure</div>
+                <div className="text-[11px] text-[#d97706] font-medium">45+ PSI Overpressure</div>
               </div>
               <div className="space-y-1">
                 <div className="text-xs uppercase tracking-wider text-[#6b7280] font-bold">Life Support</div>
@@ -233,7 +233,7 @@ export default async function BombSheltersPage() {
           {/* Tier Overview Cards */}
           <div className="space-y-6">
             <div className="max-w-2xl">
-              <span className="text-xs font-bold text-[#dc2626] uppercase tracking-wider">Turnkey Defense Tiers</span>
+              <span className="text-xs font-bold text-[#d97706] uppercase tracking-wider">Turnkey Defense Tiers</span>
               <h2 className="text-2xl sm:text-3xl font-black text-[#101114] tracking-tight mt-1">
                 Subterranean Shelter Capacities &amp; Investment Levels
               </h2>
@@ -249,11 +249,11 @@ export default async function BombSheltersPage() {
                   className="bg-white border border-[#e7e9ee] hover:border-[#101114] rounded-2xl p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group"
                 >
                   <div className="space-y-4">
-                    <div className="inline-block px-3 py-1 rounded-full bg-red-50 text-[#dc2626] border border-red-200/60 text-[11px] font-bold uppercase tracking-wide">
+                    <div className="inline-block px-3 py-1 rounded-full bg-amber-50 text-[#b45309] border border-amber-200/60 text-[11px] font-bold uppercase tracking-wide">
                       {tier.sqft}
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-[#101114] group-hover:text-[#dc2626] transition-colors">
+                      <h3 className="text-lg font-black text-[#101114] group-hover:text-[#d97706] transition-colors">
                         {tier.tier}
                       </h3>
                       <div className="text-xl sm:text-2xl font-black text-[#101114] mt-1 font-display">
@@ -280,10 +280,10 @@ export default async function BombSheltersPage() {
                   <div className="pt-6">
                     <Link
                       href="/quote?category=bomb-shelters"
-                      className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#101114] hover:bg-black text-white text-xs font-bold transition-all shadow-xs"
+                      className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] text-xs font-black transition-all shadow-xs"
                     >
                       <span>Request Turnkey Quote</span>
-                      <ShieldCheck className="w-4 h-4 text-red-500" />
+                      <ShieldCheck className="w-4 h-4 text-[#101114]" />
                     </Link>
                   </div>
                 </div>
@@ -294,7 +294,7 @@ export default async function BombSheltersPage() {
           {/* Defense Engineering Pillars */}
           <div className="bg-[#09151e] text-white rounded-3xl p-8 sm:p-12 space-y-8">
             <div className="max-w-2xl space-y-2">
-              <span className="text-xs font-bold text-[#f87171] uppercase tracking-wider">Engineering Standards</span>
+              <span className="text-xs font-bold text-[#fcb907] uppercase tracking-wider">Engineering Standards</span>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
                 Built to Survive Nuclear, Biological, Chemical &amp; Natural Disasters
               </h2>
@@ -305,7 +305,7 @@ export default async function BombSheltersPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
                   <Flame className="w-5 h-5" />
                 </div>
                 <h4 className="text-sm font-bold">Blast &amp; Thermal Resistance</h4>
@@ -369,7 +369,7 @@ export default async function BombSheltersPage() {
           {/* Frequently Asked Questions */}
           <div className="space-y-6">
             <div className="max-w-2xl space-y-1">
-              <span className="text-xs font-bold text-[#dc2626] uppercase tracking-wider">Buyer Insights &amp; Logistics</span>
+              <span className="text-xs font-bold text-[#d97706] uppercase tracking-wider">Buyer Insights &amp; Logistics</span>
               <h2 className="text-2xl sm:text-3xl font-black text-[#101114] tracking-tight">
                 Frequently Asked Bomb Shelter Questions
               </h2>
@@ -382,7 +382,7 @@ export default async function BombSheltersPage() {
                   className="bg-white border border-[#e7e9ee] rounded-2xl p-5 sm:p-6 space-y-2 shadow-xs"
                 >
                   <h4 className="text-sm font-bold text-[#101114] flex items-start gap-2">
-                    <HelpCircle className="w-4 h-4 text-[#dc2626] shrink-0 mt-0.5" />
+                    <HelpCircle className="w-4 h-4 text-[#d97706] shrink-0 mt-0.5" />
                     <span>{faq.q}</span>
                   </h4>
                   <p className="text-xs text-[#4b5563] leading-relaxed pl-6">

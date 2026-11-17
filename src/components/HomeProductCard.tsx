@@ -54,7 +54,7 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
       <Link
         href={href}
         className={`relative h-[170px] sm:h-[185px] w-full overflow-hidden block ${
-          isShelter ? "bg-white p-2 border-b border-gray-100" : "bg-gray-100"
+          isShelter ? "bg-[#f8f9fa] p-2" : "bg-gray-100"
         }`}
       >
         <Image
@@ -100,19 +100,19 @@ export default function HomeProductCard({ product }: HomeProductCardProps) {
           </div>
         </div>
 
-        {/* Action Buttons: Specifications & Quote */}
-        <div className="pt-2 flex items-center gap-2">
+        {/* Action Buttons: View Model & Get Quote in ModularHome Theme */}
+        <div className="pt-2 flex items-center gap-2 font-sans">
           <Link
             href={href}
-            className="flex-1 py-2.5 px-3 text-xs font-black rounded-[9px] text-center justify-center bg-[#0f1218] hover:bg-[#fcb907] text-white hover:text-[#101114] transition-all duration-200 shadow-xs flex items-center gap-1"
+            className="flex-1 py-2.5 px-3 text-xs font-black rounded-[9px] text-center justify-center bg-[#0f1218] hover:bg-[#1a202c] text-white transition-all duration-200 shadow-xs flex items-center gap-1 font-sans"
           >
-            <span>Specifications</span>
+            <span>View Details →</span>
           </Link>
           <Link
             href={`/quote?model=${encodeURIComponent(product.slug || product.id)}`}
-            className="py-2.5 px-3.5 text-xs font-black rounded-[9px] text-center justify-center bg-[#dc2626] hover:bg-[#b91c1c] text-white transition-all duration-200 shadow-xs flex items-center gap-1 font-sans"
+            className="py-2.5 px-3.5 text-xs font-black rounded-[9px] text-center justify-center bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] transition-all duration-200 shadow-xs flex items-center gap-1 font-sans"
           >
-            <span>Quote</span>
+            <span>Get Quote</span>
           </Link>
         </div>
       </div>

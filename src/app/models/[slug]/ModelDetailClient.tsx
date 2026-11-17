@@ -277,11 +277,11 @@ export default function ModelDetailClient({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
               )}
 
-              {/* Floating Status Badge Top-Left */}
+              {/* Floating Status Badge Top-Left - ModularHome Obsidian & Gold Theme */}
               {isShelter && (
-                <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[6px] bg-[#dc2626] text-white text-[11px] font-black uppercase tracking-wider shadow-md">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                <div className="absolute top-4 left-4 z-10 flex items-center gap-2 font-sans">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[6px] bg-[#0f1218]/90 backdrop-blur-md text-[#fcb907] text-[11px] font-black uppercase tracking-wider border border-[#fcb907]/40 shadow-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#fcb907] animate-pulse" />
                     <span>CERTIFIED BLAST BUNKER</span>
                   </span>
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] bg-black/85 backdrop-blur-md text-white text-[10px] font-mono uppercase tracking-widest border border-white/20">

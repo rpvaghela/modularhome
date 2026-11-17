@@ -47,6 +47,7 @@ export const CATEGORY_ROUTE_MAP: Record<string, string> = {
   "Modular Storage Buildings": "/modular-storage",
   "Modular Storage": "/modular-storage",
   "Custom Homes": "/custom-homes",
+  "Bomb Shelters": "/bomb-shelters",
 };
 
 const CATEGORY_SELECT_OPTIONS = [
@@ -67,6 +68,7 @@ const CATEGORY_SELECT_OPTIONS = [
   { label: "Commercial", value: "Commercial" },
   { label: "Modular Storage Buildings", value: "Modular Storage Buildings" },
   { label: "Custom Homes", value: "Custom Homes" },
+  { label: "Bomb Shelters", value: "Bomb Shelters" },
 ];
 
 const ARCHITECTURAL_STYLES = [
@@ -106,10 +108,18 @@ export default function CategoryFilteredCatalog({
     categoryKey === "modular-storage-buildings" ||
     categoryName.toLowerCase().includes("storage") ||
     (typeof pathname === "string" && pathname.includes("modular-storage"));
+
+  const isShelter =
+    categoryKey === "Bomb Shelters" ||
+    categoryKey === "bomb-shelters" ||
+    categoryName.toLowerCase().includes("bomb shelter") ||
+    categoryName.toLowerCase().includes("bunker") ||
+    (typeof pathname === "string" && pathname.includes("bomb-shelters"));
   
   // Normalize initial category value to match one of our select option values
   const getInitialCategory = () => {
     if (isAllPage) return "All";
+    if (isShelter) return "Bomb Shelters";
     const match = CATEGORY_SELECT_OPTIONS.find(
       opt => opt.value.toLowerCase() === categoryName.toLowerCase() ||
              opt.label.toLowerCase() === categoryName.toLowerCase() ||
@@ -144,7 +154,7 @@ export default function CategoryFilteredCatalog({
   // Pool of products to filter from - locked for dedicated landing pages to prevent bleeding
   const safeInitial = Array.isArray(initialProducts) ? initialProducts : [];
   const safeAll = Array.isArray(allProducts) ? allProducts : [];
-  const shouldLockPool = lockPoolToInitial || isUnder100k || isStorage;
+  const shouldLockPool = lockPoolToInitial || isUnder100k || isStorage || isShelter;
   const catalogPool = shouldLockPool
     ? (safeInitial.length > 0 ? safeInitial : safeAll)
     : (safeAll.length > 0 ? safeAll : safeInitial);
@@ -380,7 +390,7 @@ export default function CategoryFilteredCatalog({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search floor plans by name, style, or type..."
+              placeholder={isShelter ? "Search bunker plans by name, sqft, or type..." : "Search floor plans by name, style, or type..."}
               className="w-full bg-white border border-gray-200 pl-10 pr-8 py-2.5 text-xs sm:text-[13px] text-[#101114] placeholder-gray-400 focus:outline-none focus:border-[#fcb907] focus:ring-2 focus:ring-[#fcb907]/20 rounded-xl transition-all shadow-2xs"
             />
             {searchQuery && (

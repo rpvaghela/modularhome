@@ -67,12 +67,12 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
     model.name.toLowerCase().includes("bombshelter");
 
   return (
-    <div className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between bg-white relative border border-gray-100 shadow-sm hover:shadow-md">
+    <div className="card overflow-hidden group hover:-translate-y-1 transition-all flex flex-col justify-between bg-white relative border border-gray-100 shadow-sm hover:shadow-md font-sans">
       {/* Image Viewport (Clickable to details) */}
       <Link
         href={modelUrl}
         className={`relative aspect-[16/10] w-full overflow-hidden block ${
-          isShelter ? "bg-white p-2 border-b border-gray-100" : "bg-gray-100"
+          isShelter ? "bg-[#f8f9fa] p-2" : "bg-gray-100"
         }`}
       >
         <Image
@@ -88,11 +88,11 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
           }
         />
 
-        {/* Shelter Hardened Badge */}
+        {/* Shelter Hardened Badge - Obsidian & Gold ModularHome Theme */}
         {isShelter && (
-          <div className="absolute top-2.5 left-2.5 z-10 bg-[#dc2626] text-white border border-red-300/40 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded shadow-sm flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            <span>Hardened • Bunker</span>
+          <div className="absolute top-2.5 left-2.5 z-10 bg-[#0f1218]/90 backdrop-blur-md text-[#fcb907] border border-[#fcb907]/40 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded shadow-sm flex items-center gap-1.5 font-sans">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#fcb907] animate-pulse" />
+            <span>Subterranean • Bunker</span>
           </div>
         )}
 
@@ -134,34 +134,34 @@ export default function BuildingCard({ model, priority = false, categorySlug }: 
       </Link>
 
       {/* Content Area */}
-      <div className="p-4 flex-1 flex flex-col justify-between space-y-2.5 bg-white">
+      <div className="p-4 flex-1 flex flex-col justify-between space-y-2.5 bg-white font-sans">
         <div>
           <Link href={modelUrl} className="block group/title">
-            <h3 className="text-base sm:text-lg font-black tracking-tight text-[#101114] group-hover/title:text-[#d97706] transition-colors line-clamp-2 min-h-[2.5rem]">
+            <h3 className="font-sans text-base sm:text-lg font-black tracking-tight text-[#101114] group-hover/title:text-[#d97706] transition-colors line-clamp-2 min-h-[2.5rem]">
               {model.name}
             </h3>
           </Link>
-          <p className="text-xs text-[#6b7280] font-medium mt-1">
+          <p className="text-xs text-[#6b7280] font-medium mt-1 font-sans">
             {specsText}
           </p>
-          <div className="text-lg sm:text-[21px] font-black text-[#d97706] mt-2">
+          <div className="text-lg sm:text-[21px] font-black text-[#d97706] mt-2 font-sans">
             {formattedPrice}
           </div>
         </div>
 
-        {/* Action Buttons: Specifications & Quote */}
-        <div className="pt-2 flex items-center gap-2">
+        {/* Action Buttons: View Model & Get Quote in ModularHome Theme */}
+        <div className="pt-2 flex items-center gap-2 font-sans">
           <Link
             href={modelUrl}
-            className="flex-1 py-2.5 px-3 text-xs font-black rounded-[9px] text-center justify-center bg-[#0f1218] hover:bg-[#fcb907] text-white hover:text-[#101114] transition-all duration-200 shadow-xs flex items-center gap-1"
+            className="flex-1 py-2.5 px-3 text-xs font-black rounded-[9px] text-center justify-center bg-[#0f1218] hover:bg-[#1a202c] text-white transition-all duration-200 shadow-xs flex items-center gap-1"
           >
-            <span>Specifications</span>
+            <span>View Details →</span>
           </Link>
           <Link
             href={`/quote?model=${encodeURIComponent(model.slug || model.id)}`}
-            className="py-2.5 px-3.5 text-xs font-black rounded-[9px] text-center justify-center bg-[#dc2626] hover:bg-[#b91c1c] text-white transition-all duration-200 shadow-xs flex items-center gap-1"
+            className="py-2.5 px-3.5 text-xs font-black rounded-[9px] text-center justify-center bg-[#fcb907] hover:bg-[#e5a706] text-[#101114] transition-all duration-200 shadow-xs flex items-center gap-1"
           >
-            <span>Quote</span>
+            <span>Get Quote</span>
           </Link>
         </div>
       </div>
